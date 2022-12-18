@@ -7,6 +7,7 @@
 ├── cmd
 │  └── bbb
 │     └── main.go ... メインファイル
+├── config ... 設定
 ├── internal
 │  ├── adapter
 │  │  ├── controller ... 外部からの通信を受け付ける handler など

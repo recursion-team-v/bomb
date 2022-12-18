@@ -3,12 +3,15 @@ install: ## 必要なツールをインストールします
 	@asdf install local
 
 .PHONY: run
-run: ## bbb を起動します
+run: tidy ## bbb を起動します
 	@go run cmd/bbb/main.go
 
 .PHONY: test
 test: ## 全てのテストを実行します
 	@go test -v ./...
+
+tidy: go.mod go.sum ## 必要なパッケージをダウンロードします
+	@go mod tidy
 
 .PHONY: help
 help: ## Makefileで定義されているヘルプを表示します
