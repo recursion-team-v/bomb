@@ -6,6 +6,7 @@
   "scripts": {
     "start": "./node_modules/.bin/nodemon",
     "dev": "./node_modules/.bin/ts-node src/app.ts",
+    "format": "prettier --write \"**/*.+(js|json|yml|ts|tsx)\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
