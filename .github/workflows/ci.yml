@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  pull_request:
+    branches: ['main']
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - name: checkout current branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: install root modules
+        run: npm ci
+
+      - name: install frontend modules
+        run: npm run install:frontend
+
+      # - name: install backend modules
+      #   run: npm run install:backend
+
+      - name: lint frontend
+        run: npm run lint:frontend
+
+      # - name: lint backend
+      #   run: npm run lint:backend
