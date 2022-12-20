@@ -1,8 +1,8 @@
 {
   "scripts": {
-    "install:frontend": "cd frontend && npm install",
+    "install:frontend": "cd frontend && npm ci",
     "lint:frontend": "cd frontend && eslint --ext .tsx,.ts src/",
-    "install:backend": "cd backend && npm install",
+    "install:backend": "cd backend && npm ci",
     "lint:backend": "cd backend && eslint . --ext .ts",
     "format": "prettier --write ."
   },
