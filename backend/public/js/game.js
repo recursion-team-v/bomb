@@ -1,10 +1,10 @@
 const config = {
   type: Phaser.AUTO,
-  parent: "phaser-example",
+  parent: 'phaser-example',
   width: 800,
   height: 600,
   physics: {
-    default: "arcade",
+    default: 'arcade',
     arcade: {
       debug: false,
       gravity: { y: 0 },
@@ -20,11 +20,11 @@ const config = {
 const game = new Phaser.Game(config);
 
 function preload() {
-  this.load.spritesheet("player", "assets/player.png", {
+  this.load.spritesheet('player', 'assets/player.png', {
     frameWidth: 48,
     frameHeight: 48,
   });
-  this.load.spritesheet("otherPlayer", "assets/dragon.png", {
+  this.load.spritesheet('otherPlayer', 'assets/dragon.png', {
     frameWidth: 48,
     frameHeight: 48,
   });
@@ -35,7 +35,7 @@ function create() {
   this.socket = io();
   this.otherPlayers = this.physics.add.group();
 
-  this.socket.on("currentPlayers", function (players) {
+  this.socket.on('currentPlayers', function (players) {
     Object.keys(players).forEach(function (id) {
       if (players[id].playerId === self.socket.id) {
         addPlayer(self, players[id]);
@@ -48,11 +48,11 @@ function create() {
     self.physics.add.collider(self.player, self.otherPlayers);
   });
 
-  this.socket.on("newPlayer", function (playerInfo) {
+  this.socket.on('newPlayer', function (playerInfo) {
     addOtherPlayers(self, playerInfo);
   });
 
-  this.socket.on("disconnected", function (playerId) {
+  this.socket.on('disconnected', function (playerId) {
     self.otherPlayers.getChildren().forEach(function (otherPlayer) {
       if (playerId === otherPlayer.playerId) {
         otherPlayer.destroy();
@@ -62,7 +62,7 @@ function create() {
 
   this.cursors = this.input.keyboard.createCursorKeys();
 
-  this.socket.on("playerMoved", function (playerInfo) {
+  this.socket.on('playerMoved', function (playerInfo) {
     self.otherPlayers.getChildren().forEach(function (otherPlayer) {
       if (playerInfo.playerId === otherPlayer.playerId) {
         otherPlayer.setRotation(playerInfo.rotation);
@@ -86,7 +86,7 @@ function update() {
         y !== this.player.oldPosition.y ||
         r !== this.player.oldPosition.rotation)
     ) {
-      this.socket.emit("playerMovement", {
+      this.socket.emit('playerMovement', {
         x: this.player.x,
         y: this.player.y,
         rotation: this.player.rotation,
@@ -101,16 +101,16 @@ function update() {
 
     if (this.cursors.left.isDown) {
       this.player.setVelocityX(-160);
-      this.player.anims.play("left", true);
+      this.player.anims.play('left', true);
     } else if (this.cursors.right.isDown) {
       this.player.setVelocityX(160);
-      this.player.anims.play("right", true);
+      this.player.anims.play('right', true);
     } else if (this.cursors.up.isDown) {
       this.player.setVelocityY(-160);
-      this.player.anims.play("up", true);
+      this.player.anims.play('up', true);
     } else if (this.cursors.down.isDown) {
       this.player.setVelocityY(160);
-      this.player.anims.play("down", true);
+      this.player.anims.play('down', true);
     } else {
       this.player.setVelocityX(0);
       this.player.setVelocityY(0);
@@ -120,34 +120,34 @@ function update() {
 
 function addPlayer(self, playerInfo) {
   self.player = self.physics.add
-    .sprite(playerInfo.x, playerInfo.y, "player")
+    .sprite(playerInfo.x, playerInfo.y, 'player')
     .setOrigin(0.5, 0.5)
     .setDisplaySize(53, 40);
 
   self.anims.create({
-    key: "down",
-    frames: self.anims.generateFrameNumbers("player", { start: 0, end: 2 }),
+    key: 'down',
+    frames: self.anims.generateFrameNumbers('player', { start: 0, end: 2 }),
     frameRate: 10,
     repeat: -1,
   });
 
   self.anims.create({
-    key: "left",
-    frames: self.anims.generateFrameNumbers("player", { start: 3, end: 5 }),
+    key: 'left',
+    frames: self.anims.generateFrameNumbers('player', { start: 3, end: 5 }),
     frameRate: 10,
     repeat: -1,
   });
 
   self.anims.create({
-    key: "right",
-    frames: self.anims.generateFrameNumbers("player", { start: 6, end: 8 }),
+    key: 'right',
+    frames: self.anims.generateFrameNumbers('player', { start: 6, end: 8 }),
     frameRate: 10,
     repeat: -1,
   });
 
   self.anims.create({
-    key: "up",
-    frames: self.anims.generateFrameNumbers("player", { start: 9, end: 11 }),
+    key: 'up',
+    frames: self.anims.generateFrameNumbers('player', { start: 9, end: 11 }),
     frameRate: 10,
     repeat: -1,
   });
@@ -159,7 +159,7 @@ function addPlayer(self, playerInfo) {
 
 function addOtherPlayers(self, playerInfo) {
   const otherPlayer = self.add
-    .sprite(playerInfo.x, playerInfo.y, "otherPlayer")
+    .sprite(playerInfo.x, playerInfo.y, 'otherPlayer')
     .setOrigin(0.5, 0.5)
     .setDisplaySize(53, 40);
   otherPlayer.playerId = playerInfo.playerId;
