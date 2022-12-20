@@ -1,4 +1,4 @@
-name: CI
+name: Lint/Format
 
 on:
   pull_request:
@@ -28,11 +28,11 @@ jobs:
       - name: install frontend modules
         run: npm run install:frontend
 
-      # - name: install backend modules
-      #   run: npm run install:backend
+      - name: install backend modules
+        run: npm run install:backend
 
       - name: lint frontend
         run: npm run lint:frontend
 
-      # - name: lint backend
-      #   run: npm run lint:backend
+      - name: lint backend
+        run: npm run lint:backend
