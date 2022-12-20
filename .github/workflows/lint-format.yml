@@ -54,6 +54,5 @@ jobs:
         with:
           # This part is also where you can pass other options, for example:
           prettier_options: --write .
-          only_changed: True
           commit_message: 'refactor: format code'
           github_token: ${{ secrets.BOT_ACCESS_TOKEN }}
