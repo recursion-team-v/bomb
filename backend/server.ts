@@ -7,10 +7,6 @@ const app: express.Express = express();
 const server: http.Server = http.createServer(app);
 const io: Server = new Server(server);
 
-
-
-
-
 const players: Record<number, Player> = {};
 
 app.use(express.static(path.join(__dirname, '/public')));
