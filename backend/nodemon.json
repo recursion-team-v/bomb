@@ -1,5 +1,5 @@
 {
   "watch": ".",
-  "ext": "ts",
+  "ext": "ts,html,js",
   "exec": "npm run dev"
 }
