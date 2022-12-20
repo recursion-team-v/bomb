@@ -32,12 +32,12 @@ io.on("connection", function (socket: any) {
   socket.broadcast.emit("newPlayer", players[socket.id]);
 
   // when a player disconnects, remove them from our players object
-  socket.on("disconnected", function () {
+  socket.on("disconnect", function () {
     console.log("user disconnected");
     // remove this player from our players object
     delete players[socket.id];
     // emit a message to all players to remove this player
-    io.emit("disconnect", socket.id);
+    io.emit("disconnected", socket.id);
   });
 
   // when a player moves, update the player data
