@@ -56,3 +56,4 @@ jobs:
           prettier_options: --write .
           only_changed: True
           commit_message: 'refactor: format code'
+          github_token: ${{ secrets.BOT_ACCESS_TOKEN }}
