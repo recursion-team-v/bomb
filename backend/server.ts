@@ -1,17 +1,18 @@
 import express from 'express';
 import http from 'http';
+import path from 'path';
 import { Server } from 'socket.io';
 
 const app: express.Express = express();
 const server: http.Server = http.createServer(app);
 const io: Server = new Server(server);
 
-const players: { [key: number]: Player } = {};
+const players: Record<number, Player> = {};
 
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(path.join(__dirname, '/public')));
 
 app.get('/', function (req: express.Request<any>, res: express.Response<any>) {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(path.join(__dirname, '/index.html'));
 });
 
 io.on('connection', function (socket: any) {
@@ -35,6 +36,7 @@ io.on('connection', function (socket: any) {
   socket.on('disconnect', function () {
     console.log('user disconnected');
     // remove this player from our players object
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete players[socket.id];
     // emit a message to all players to remove this player
     io.emit('disconnected', socket.id);
@@ -50,7 +52,8 @@ io.on('connection', function (socket: any) {
   });
 });
 
-const port = process.env.PORT || 8081;
+// eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+const port = process.env.PORT ?? 8081;
 server.listen(port, function () {
   console.log(`Listening on ${port} `);
 });
