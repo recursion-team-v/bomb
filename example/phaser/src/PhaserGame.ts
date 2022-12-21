@@ -1,15 +1,16 @@
 import Phaser from 'phaser';
-import Game from './scenes/game';
+import Game from './scenes/Game';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  parent: 'phaser-container',
-  backgroundColor: '#93cbee',
+  parent: 'phaser-game',
+  backgroundColor: '#64748b',
   pixelArt: true,
   scale: {
-    mode: Phaser.Scale.ScaleModes.RESIZE,
-    width: window.innerWidth,
-    height: window.innerHeight,
+    mode: Phaser.Scale.ScaleModes.FIT,
+    width: 800,
+    height: 600,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   physics: {
     default: 'arcade',
