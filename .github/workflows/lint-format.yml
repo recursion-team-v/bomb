@@ -63,7 +63,6 @@ jobs:
 
   prettier:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -72,13 +71,25 @@ jobs:
           ref: ${{ github.head_ref }}
           # This is important to fetch the changes to the previous commit
           fetch-depth: 0
-          # commit push時にCIの対象にするために自前のTOKENを使う
+          # commit push時に他のCIの対象にするために自前のTOKENを使う
           token: "${{ secrets.BOT_ACCESS_TOKEN }}"
 
-      - name: Prettify code
-        uses: creyD/prettier_action@v4.2
+      - name: Use Node.js
+        uses: actions/setup-node@v3
         with:
-          # This part is also where you can pass other options, for example:
-          prettier_options: --write .
-          commit_message: "refactor: format code"
-          github_token: ${{ secrets.BOT_ACCESS_TOKEN }}
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: install root modules
+        run: npm ci
+
+      - name: Prettify code
+        run: npm run format
+
+      - name: commit and push
+        uses: EndBug/add-and-commit@v9.1.1
+        with:
+          message: "refactor: format code"
+          committer_name: "github-actions[bot]"
+          committer_email: "41898282+github-actions[bot]@users.noreply.github.com"
+          push: true
