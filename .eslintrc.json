@@ -18,6 +18,7 @@
     "react-hooks/exhaustive-deps": "warn",
     "react/react-in-jsx-scope": "off",
     "@typescript-eslint/triple-slash-reference": "off",
+    "@typescript-eslint/no-namespace": "off",
     "react/function-component-definition": [
       2,
       {

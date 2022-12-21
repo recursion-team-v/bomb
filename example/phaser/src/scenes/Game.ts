@@ -1,51 +1,39 @@
+/* eslint-disable import/no-duplicates */
 import Phaser from 'phaser';
+import '../characters/MyPlayer';
 import { createPlayerAnims } from '../anims/PlayerAnims';
+import { NavKeys, Keyboard } from '../types/keyboard';
+import MyPlayer from '../characters/MyPlayer';
 
 export default class Game extends Phaser.Scene {
-  private player?: Phaser.Physics.Arcade.Sprite;
-  private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
+  private myPlayer?: MyPlayer;
+  private cursors?: NavKeys;
 
   constructor() {
     super('game');
   }
 
   preload() {
+    // load sprite sheet
     this.load.spritesheet('player', 'assets/player.png', { frameWidth: 32, frameHeight: 32 });
   }
 
   create() {
-    this.cursors = this.input.keyboard.createCursorKeys();
+    // initialize key inputs
+    this.cursors = {
+      ...this.input.keyboard.createCursorKeys(),
+      ...(this.input.keyboard.addKeys('W,S,A,D') as Keyboard),
+    };
 
+    // add myPlayer
+    this.myPlayer = this.add.myPlayer(200, 200, 'player');
+
+    // add player animations
     createPlayerAnims(this.anims);
-
-    const collisionScale = [0.8, 0.8];
-    this.player = this.physics.add.sprite(100, 100, 'player');
-    this.player.tint = Math.random() * 0xffffff;
-    this.player.setScale(2, 2);
-    this.player.body.setSize(
-      this.player.width * collisionScale[0],
-      this.player.height * collisionScale[1]
-    );
-    this.player.setCollideWorldBounds(true);
   }
 
   update() {
-    if (this.cursors == null || this.player == null) return;
-    if (this.cursors.left.isDown) {
-      this.player.setVelocity(-160, 0);
-      this.player.anims.play('player_left', true);
-    } else if (this.cursors.right.isDown) {
-      this.player.setVelocity(160, 0);
-      this.player.anims.play('player_right', true);
-    } else if (this.cursors.up.isDown) {
-      this.player.setVelocity(0, -160);
-      this.player.anims.play('player_up', true);
-    } else if (this.cursors.down.isDown) {
-      this.player.setVelocity(0, 160);
-      this.player.anims.play('player_down', true);
-    } else {
-      this.player.setVelocity(0, 0);
-      this.player.anims.stop();
-    }
+    if (this.cursors == null || this.myPlayer == null) return;
+    this.myPlayer.update(this.cursors); // player controller handler
   }
 }
