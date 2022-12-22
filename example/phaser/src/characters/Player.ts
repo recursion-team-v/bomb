@@ -38,4 +38,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   setPlayerName(name: string) {
     this.playerName?.setText(name);
   }
+
+  // set Player color
+  setPlayerColor(color: number) {
+    this.tint = color;
+  }
 }

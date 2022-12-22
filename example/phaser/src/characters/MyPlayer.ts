@@ -10,11 +10,6 @@ export default class MyPlayer extends Player {
     this.myPlayerContainerBody = this.playerContainer?.body as Phaser.Physics.Arcade.Body;
   }
 
-  // randomly change player color
-  changePlayerColor() {
-    this.tint = Math.random() * 0xffffff;
-  }
-
   // player controller handler
   update(cursors: NavKeys) {
     let vx = 0; // velocity x
@@ -61,7 +56,7 @@ Phaser.GameObjects.GameObjectFactory.register(
 
     sprite.setPlayerName(`player: ${Phaser.Math.Between(1, 8)}`);
     sprite.setScale(2, 2);
-    sprite.changePlayerColor();
+    sprite.setPlayerColor(Math.random() * 0xffffff);
 
     sprite.body
       .setSize(sprite.width * sprite.collisionScale[0], sprite.height * sprite.collisionScale[1])
