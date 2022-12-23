@@ -13,12 +13,9 @@ export default class Game extends Phaser.Scene {
     super('game');
   }
 
-  preload() {
-    // load sprite sheet
-    this.load.spritesheet('player', 'assets/player.png', { frameWidth: 32, frameHeight: 32 });
-  }
-
   create() {
+    console.log('game: create game');
+
     // initialize key inputs
     this.cursors = {
       ...this.input.keyboard.createCursorKeys(),
@@ -26,7 +23,11 @@ export default class Game extends Phaser.Scene {
     };
 
     // add myPlayer
-    this.myPlayer = this.add.myPlayer(200, 200, 'player');
+    this.myPlayer = this.add.myPlayer(200, 200, 'player', undefined, {
+      chamfer: {
+        radius: 10,
+      },
+    });
 
     // add player animations
     createPlayerAnims(this.anims);

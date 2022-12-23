@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import Preloader from './scenes/Preloader';
 import Game from './scenes/Game';
 
 const config: Phaser.Types.Core.GameConfig = {
@@ -13,14 +14,14 @@ const config: Phaser.Types.Core.GameConfig = {
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   physics: {
-    default: 'arcade',
-    arcade: {
+    default: 'matter',
+    matter: {
       gravity: { y: 0 },
       debug: true,
     },
   },
   autoFocus: true,
-  scene: [Game],
+  scene: [Preloader, Game],
 };
 
 const phaserGame = new Phaser.Game(config);
