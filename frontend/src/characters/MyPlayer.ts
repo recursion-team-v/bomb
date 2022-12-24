@@ -40,6 +40,7 @@ Phaser.GameObjects.GameObjectFactory.register(
     this.updateList.add(sprite);
 
     sprite.setScale(2, 2);
+    sprite.setSpeed(5);
     // sprite.setPlayerColor(Math.random() * 0xffffff);
 
     return sprite;

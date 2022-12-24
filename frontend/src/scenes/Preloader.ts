@@ -8,6 +8,8 @@ export default class Preloader extends Phaser.Scene {
   preload() {
     // load sprite sheet
     this.load.spritesheet('player', 'assets/player.png', { frameWidth: 32, frameHeight: 32 });
+
+    this.load.spritesheet('enemy', 'assets/player.png', { frameWidth: 32, frameHeight: 32 });
     console.log('preloader: sprites loaded');
   }
 

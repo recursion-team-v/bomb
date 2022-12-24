@@ -11,6 +11,14 @@ declare global {
         frame?: string | number,
         options?: Phaser.Types.Physics.Matter.MatterBodyConfig
       ) => MyPlayer;
+
+      enemy: (
+        x: number,
+        y: number,
+        texture: string,
+        frame?: string | number,
+        options?: Phaser.Types.Physics.Matter.MatterBodyConfig
+      ) => Enemy;
     }
   }
 }
