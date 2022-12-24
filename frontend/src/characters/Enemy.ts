@@ -41,6 +41,7 @@ Phaser.GameObjects.GameObjectFactory.register(
 
     sprite.setScale(2, 2);
     sprite.setPlayerColor(Math.random() * 0xffffff);
+    sprite.setFixedRotation(); // ぶつかっても回転しないようにする
 
     return sprite;
   }
