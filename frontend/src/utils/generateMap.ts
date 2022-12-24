@@ -1,29 +1,21 @@
 export const generateGroundArray = (rows: number, cols: number) => {
   /**
    * generate ground array map from assets/tile_grounds.png
-   * 18 <- default ground
-   * 19 <- default ground variation
-   * 20 <- wall ground
-   * 21 <- wall ground variation
-   * 16, 17, 22, 23 wall ground corners
+   * 0, 1, 2 <- spawn
+   * 3. 4. 5 <- ground
    */
 
+  const ground = 4;
+  const spawn = 1;
+
   const arr = Array(rows)
-    .fill(18)
-    .map(() => Array(cols).fill(18));
+    .fill(ground)
+    .map(() => Array(cols).fill(ground));
 
-  let cnt = 0;
-  while (cnt < 6) {
-    const row = Phaser.Math.Between(2, rows - 3);
-    const col = Phaser.Math.Between(2, cols - 3);
-    arr[row][col] = 19;
-    cnt++;
-  }
-
-  arr[1][1] = 16;
-  arr[rows - 2][1] = 22;
-  arr[1][cols - 2] = 17;
-  arr[rows - 2][cols - 2] = 23;
+  arr[1][1] = spawn;
+  arr[rows - 2][1] = spawn;
+  arr[1][cols - 2] = spawn;
+  arr[rows - 2][cols - 2] = spawn;
 
   return arr;
 };
@@ -31,30 +23,43 @@ export const generateGroundArray = (rows: number, cols: number) => {
 export const generateWallArray = (rows: number, cols: number) => {
   /**
    * generate wall array map from assets/tiles_walls.png
-   * 7 <- empty
-   * 6 <- default wall
-   * 5 <- wall with banner
-   * 4 <- wall with window
+   * 28, 27 <- red walls
+   * 10, 19 <- dark gray walls
+   * 2, 21 <- red crate
+   * 1, 20 <- brown crate
+   * 3, 22 <- blue crate
    */
 
-  const arr = Array(rows)
-    .fill(7)
-    .map(() => Array(cols).fill(7));
+  const defaultWalls = [10, 19];
+  const innerWalls = [19, 5];
+  const defaultWallCorners = 21;
+  const crate = 1;
 
+  const arr = Array(rows)
+    .fill(-1)
+    .map(() => Array(cols).fill(-1));
+
+  let crateCnt = 0;
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
-      if (i === 0 || i === rows - 1 || j === 0 || j === cols - 1) {
-        arr[i][j] = 6;
+      const rand = Phaser.Math.Between(1, 10);
+      if (i === 0 || i === rows - 1) {
+        arr[i][j] = defaultWalls[1];
+      } else if (i === rows - 1 || j === 0 || j === cols - 1) {
+        arr[i][j] = defaultWalls[0];
       } else if (i % 2 === 0 && j % 2 === 0) {
-        arr[i][j] = 6;
+        arr[i][j] = innerWalls[0];
+      } else if (crateCnt < 10 && rand < 2) {
+        arr[i][j] = crate;
+        crateCnt++;
       }
     }
   }
 
-  arr[0][0] = 5;
-  arr[0][cols - 1] = 5;
-  arr[rows - 1][0] = 5;
-  arr[rows - 1][cols - 1] = 5;
+  arr[0][0] = defaultWallCorners;
+  arr[0][cols - 1] = defaultWallCorners;
+  arr[rows - 1][0] = defaultWallCorners;
+  arr[rows - 1][cols - 1] = defaultWallCorners;
 
   return arr;
 };

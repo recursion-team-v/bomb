@@ -7,8 +7,9 @@ const config: Phaser.Types.Core.GameConfig = {
   parent: 'phaser-game',
   pixelArt: true,
   scale: {
+    mode: Phaser.Scale.ScaleModes.FIT,
     width: 960,
-    height: 704,
+    height: 832,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   physics: {

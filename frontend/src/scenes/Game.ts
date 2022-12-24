@@ -11,10 +11,12 @@ export default class Game extends Phaser.Scene {
   private cursors?: NavKeys;
   private readonly rows: number;
   private readonly cols: number;
+  private readonly tileWidth = 64;
+  private readonly tileHeight = 64;
 
   constructor() {
     super('game');
-    this.rows = 11;
+    this.rows = 13;
     this.cols = 15;
   }
 
@@ -33,31 +35,37 @@ export default class Game extends Phaser.Scene {
     // add player animations
     createPlayerAnims(this.anims);
 
-    const groundArray = generateGroundArray(this.rows, this.cols);
-    const wallArray = generateWallArray(this.rows, this.cols);
-
-    const groundMap = this.make.tilemap({ data: groundArray, tileWidth: 16, tileHeight: 16 });
-    groundMap.addTilesetImage('tile_grounds', undefined, 16, 16, 0, 1);
-    groundMap.createLayer(0, 'tile_grounds', 0, 0).setScale(4, 4);
-
-    const wallMap = this.make.tilemap({ data: wallArray, tileWidth: 16, tileHeight: 16 });
-    wallMap.addTilesetImage('tile_walls', undefined, 16, 16, 0, 1);
-    const wallLayer = wallMap
-      .createLayer(0, 'tile_walls', 0, 0)
-      .setScale(4, 4)
-      .setCollision([4, 6]);
-    this.matter.world.convertTilemapLayer(wallLayer);
+    // add map
+    this.generateMap();
 
     // add myPlayer
-    this.myPlayer = this.add.myPlayer(64 + 64 / 2, 64 + 64 / 2, 'player', undefined, {
-      chamfer: {
-        radius: 12,
-      },
-    });
+    this.myPlayer = this.add.myPlayer(64 + 64 / 2, 64 + 64 / 2, 'player');
   }
 
   update() {
     if (this.cursors == null || this.myPlayer == null) return;
     this.myPlayer.update(this.cursors); // player controller handler
+  }
+
+  private generateMap() {
+    const groundArray = generateGroundArray(this.rows, this.cols);
+    const wallArray = generateWallArray(this.rows, this.cols);
+
+    const groundMap = this.make.tilemap({
+      data: groundArray,
+      tileWidth: this.tileWidth,
+      tileHeight: this.tileHeight,
+    });
+    groundMap.addTilesetImage('tile_grounds', undefined, this.tileWidth, this.tileHeight, 0, 0);
+    groundMap.createLayer(0, 'tile_grounds', 0, 0);
+
+    const wallMap = this.make.tilemap({
+      data: wallArray,
+      tileWidth: this.tileWidth,
+      tileHeight: this.tileHeight,
+    });
+    wallMap.addTilesetImage('tile_walls', undefined, this.tileWidth, this.tileHeight, 0, 0);
+    const wallLayer = wallMap.createLayer(0, 'tile_walls', 0, 0).setCollisionBetween(0, 50);
+    this.matter.world.convertTilemapLayer(wallLayer);
   }
 }
