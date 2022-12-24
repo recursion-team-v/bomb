@@ -6,6 +6,7 @@ import { createPlayerAnims } from '../anims/PlayerAnims';
 import { NavKeys, Keyboard } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
 import { createBombAnims } from '../anims/BombAnims';
+import { createExplodeAnims } from '../anims/explodeAnims';
 
 export default class Game extends Phaser.Scene {
   private myPlayer?: MyPlayer;
@@ -30,6 +31,7 @@ export default class Game extends Phaser.Scene {
     // add player animations
     createPlayerAnims(this.anims);
     createBombAnims(this.anims);
+    createExplodeAnims(this.anims);
 
     // add myPlayer
     this.myPlayer = this.add.myPlayer(200, 200, 'player', undefined, {
@@ -37,9 +39,12 @@ export default class Game extends Phaser.Scene {
         radius: 10,
       },
     });
-    this.add.bomb(100, 100, 'bomb', undefined, {isStatic:true}).play("bomb_count")
-    // this.add.bomb(10, 10, 'bomb', undefined, undefined).play("bomb_count2");
-    // this.add.bomb(10, 10, 'bomb', undefined, undefined).play("bomb_count3");
+    this.add.bomb(300, 300, 'bomb', undefined, { isStatic: true }).play('bomb_count');
+    this.add.sprite(52, 100, 'explosion', undefined).play('tip_explode').setAngle(180);
+    this.add.sprite(100, 52, 'explosion', undefined).play('tip_explode').setAngle(270);
+    this.add.sprite(100, 100, 'explosion', undefined).play('center_explode');
+    this.add.sprite(148, 100, 'explosion', undefined).play('tip_explode');
+    this.add.sprite(100, 148, 'explosion', undefined).play('tip_explode').setAngle(90);
   }
 
   update() {
