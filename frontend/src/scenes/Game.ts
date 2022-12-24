@@ -13,14 +13,20 @@ export default class Game extends Phaser.Scene {
     super('game');
   }
 
-  create() {
-    console.log('game: create game');
-
+  init() {
+    // preload の前に呼ばれる
     // initialize key inputs
     this.cursors = {
       ...this.input.keyboard.createCursorKeys(),
       ...(this.input.keyboard.addKeys('W,S,A,D') as Keyboard),
     };
+  }
+
+  create() {
+    console.log('game: create game');
+
+    // add player animations
+    createPlayerAnims(this.anims);
 
     // add myPlayer
     this.myPlayer = this.add.myPlayer(200, 200, 'player', undefined, {
@@ -28,9 +34,6 @@ export default class Game extends Phaser.Scene {
         radius: 10,
       },
     });
-
-    // add player animations
-    createPlayerAnims(this.anims);
   }
 
   update() {

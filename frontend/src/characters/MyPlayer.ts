@@ -22,23 +22,8 @@ export default class MyPlayer extends Player {
   }
 }
 
-// declare myPlayer type in GameObjectFactory
-declare global {
-  namespace Phaser.GameObjects {
-    interface GameObjectFactory {
-      myPlayer: (
-        x: number,
-        y: number,
-        texture: string,
-        frame?: string | number,
-        options?: Phaser.Types.Physics.Matter.MatterBodyConfig
-      ) => MyPlayer;
-    }
-  }
-}
-
 // register myPlayer to GameObjectFactory
-// can call this.add.myPlayer() in scene
+// ゲームシーンの中で this.add.myPlayer() と呼べる様にする
 Phaser.GameObjects.GameObjectFactory.register(
   'myPlayer',
   function (
