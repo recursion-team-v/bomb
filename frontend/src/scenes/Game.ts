@@ -1,9 +1,11 @@
 /* eslint-disable import/no-duplicates */
 import Phaser from 'phaser';
 import '../characters/MyPlayer';
+import '../items/Bomb';
 import { createPlayerAnims } from '../anims/PlayerAnims';
 import { NavKeys, Keyboard } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
+import { createBombAnims } from '../anims/BombAnims';
 
 export default class Game extends Phaser.Scene {
   private myPlayer?: MyPlayer;
@@ -27,6 +29,7 @@ export default class Game extends Phaser.Scene {
 
     // add player animations
     createPlayerAnims(this.anims);
+    createBombAnims(this.anims);
 
     // add myPlayer
     this.myPlayer = this.add.myPlayer(200, 200, 'player', undefined, {
@@ -34,6 +37,9 @@ export default class Game extends Phaser.Scene {
         radius: 10,
       },
     });
+    this.add.bomb(100, 100, 'bomb', undefined, {isStatic:true}).play("bomb_count")
+    // this.add.bomb(10, 10, 'bomb', undefined, undefined).play("bomb_count2");
+    // this.add.bomb(10, 10, 'bomb', undefined, undefined).play("bomb_count3");
   }
 
   update() {
