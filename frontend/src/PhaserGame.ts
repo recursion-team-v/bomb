@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 import ScreenConfig from './config/screenConfig';
 import Game from './scenes/Game';
 import GameHeader from './scenes/GameHeader';
+import GameResult from './scenes/GameResult';
 import Preloader from './scenes/Preloader';
 
 const config: Phaser.Types.Core.GameConfig = {
@@ -23,7 +24,7 @@ const config: Phaser.Types.Core.GameConfig = {
     },
   },
   autoFocus: true,
-  scene: [Preloader, Game, GameHeader],
+  scene: [Preloader, Game, GameHeader, GameResult],
 };
 
 const phaserGame = new Phaser.Game(config);

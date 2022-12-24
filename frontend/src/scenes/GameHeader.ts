@@ -26,14 +26,6 @@ export default class GameHeader extends Phaser.Scene {
     this.timeLimitsSec = IngameConfig.timeLimitsSec;
   }
 
-  getTimerRepeat() {
-    return this.timerRepeat;
-  }
-
-  getTimerText() {
-    return this.timerText;
-  }
-
   init() {
     // Header の timer のテキスト
     const fontSize = 32;
@@ -58,5 +50,11 @@ export default class GameHeader extends Phaser.Scene {
   update() {
     const formatRemainTime: string = convertSecondsToMMSS(this.timerRepeat.getRemainingSeconds());
     this.timerText.setText(formatRemainTime);
+
+    if (this.timerRepeat.getRemainingSeconds() <= 0) {
+      this.scene.stop('gameHeader');
+      this.scene.stop('game');
+      this.scene.start('gameResult');
+    }
   }
 }
