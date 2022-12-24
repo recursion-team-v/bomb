@@ -1,11 +1,9 @@
 import Phaser from 'phaser';
 
-import Config from './config/ingame';
+import ScreenConfig from './config/screenConfig';
 import Game from './scenes/Game';
+import GameHeader from './scenes/GameHeader';
 import Preloader from './scenes/Preloader';
-
-const ingameConfig = new Config(1);
-const game = new Game(ingameConfig);
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -13,8 +11,8 @@ const config: Phaser.Types.Core.GameConfig = {
   backgroundColor: '#64748b',
   pixelArt: true,
   scale: {
-    width: 700,
-    height: 700,
+    width: ScreenConfig.width,
+    height: ScreenConfig.height,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   physics: {
@@ -25,7 +23,7 @@ const config: Phaser.Types.Core.GameConfig = {
     },
   },
   autoFocus: true,
-  scene: [Preloader, game],
+  scene: [Preloader, Game, GameHeader],
 };
 
 const phaserGame = new Phaser.Game(config);
