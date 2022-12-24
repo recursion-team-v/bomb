@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { RecoilRoot } from 'recoil';
-import '@unocss/reset/normalize.css';
 import './index.css';
+import './PhaserGame';
+import '@unocss/reset/normalize.css';
 import { RouterConfig } from './RouterConfig';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
