@@ -4,13 +4,20 @@ import '../characters/MyPlayer';
 import { createPlayerAnims } from '../anims/PlayerAnims';
 import { NavKeys, Keyboard } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
+import IngameConfig from '../config/ingame';
 
 export default class Game extends Phaser.Scene {
   private myPlayer?: MyPlayer;
   private cursors?: NavKeys;
+  private timer!: Phaser.Time.TimerEvent;
+  // eslint-disable-next-line @typescript-eslint/prefer-readonly
+  private timeLimitsSec: number; // ゲームの制限時間
 
-  constructor() {
+  constructor(IngameConfig: IngameConfig) {
     super('game');
+
+    // ゲームの制限時間
+    this.timeLimitsSec = IngameConfig.getTimeLimitsSec();
   }
 
   init() {
@@ -34,6 +41,16 @@ export default class Game extends Phaser.Scene {
         radius: 10,
       },
     });
+
+    // ゲームの制限時間
+    this.timer = this.time.delayedCall(
+      this.timeLimitsSec * 1000,
+      () => {
+        console.log('game: time up');
+      },
+      [],
+      this
+    );
   }
 
   update() {

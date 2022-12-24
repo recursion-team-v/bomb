@@ -1,6 +1,11 @@
 import Phaser from 'phaser';
-import Preloader from './scenes/Preloader';
+
+import Config from './config/ingame';
 import Game from './scenes/Game';
+import Preloader from './scenes/Preloader';
+
+const ingameConfig = new Config(1);
+const game = new Game(ingameConfig);
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -20,7 +25,7 @@ const config: Phaser.Types.Core.GameConfig = {
     },
   },
   autoFocus: true,
-  scene: [Preloader, Game],
+  scene: [Preloader, game],
 };
 
 const phaserGame = new Phaser.Game(config);
