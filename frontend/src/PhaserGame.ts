@@ -5,11 +5,10 @@ import Game from './scenes/Game';
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: 'phaser-game',
-  backgroundColor: '#64748b',
   pixelArt: true,
   scale: {
-    width: 700,
-    height: 700,
+    width: 960,
+    height: 704,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   physics: {

@@ -40,6 +40,7 @@ Phaser.GameObjects.GameObjectFactory.register(
     this.updateList.add(sprite);
 
     sprite.setScale(2, 2);
+    sprite.setFixedRotation();
     // sprite.setPlayerColor(Math.random() * 0xffffff);
 
     return sprite;
