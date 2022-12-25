@@ -14,13 +14,7 @@ declare global {
         options?: Phaser.Types.Physics.Matter.MatterBodyConfig
       ) => MyPlayer;
 
-      bomb: (
-        x: number,
-        y: number,
-        texture: string,
-        frame?: string | number,
-        options?: Phaser.Types.Physics.Matter.MatterBodyConfig
-      ) => Bomb;
+      bomb: (x: number, y: number, bombStrength: number) => Bomb;
     }
   }
 }

@@ -6,9 +6,8 @@ export const createBombAnims = (anims: Phaser.Animations.AnimationManager) => {
   anims.create({
     key: 'bomb_count',
     frames: anims.generateFrameNames('bomb', {
-      end: 4,
+      end: 2,
     }),
-    repeat: undefined,
     frameRate: animsFrameRate * 0.1,
   });
 };

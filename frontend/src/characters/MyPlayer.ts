@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import Player from './Player';
 import { NavKeys } from '../types/keyboard';
+import IngameConfig from '../config/ingameConfig';
 
 export default class MyPlayer extends Player {
   // player controller handler
@@ -15,7 +16,7 @@ export default class MyPlayer extends Player {
 
     const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(cursors.space);
     if (isSpaceJustDown) {
-      this.setBomb();
+      this.placeBomb();
     }
     this.setVelocity(vx, vy);
 
@@ -26,8 +27,8 @@ export default class MyPlayer extends Player {
     else this.stop();
   }
 
-  setBomb() {
-    this.scene.add.bomb(this.x, this.y, 'bomb');
+  placeBomb() {
+    this.scene.add.bomb(this.x, this.y, this.bombStrength);
   }
 }
 
@@ -49,14 +50,14 @@ Phaser.GameObjects.GameObjectFactory.register(
     this.updateList.add(sprite);
 
     // change hitbox size
-    sprite.setScale(0.8, 1);
-    sprite.setRectangle(64 * 0.6, 45, {
-      chamfer: 40,
+    sprite.setScale(1, 1);
+    sprite.setRectangle(IngameConfig.defaultTipSize, IngameConfig.defaultTipSize, {
+      chamfer: 100,
       friction: 0,
       frictionStatic: 0,
       frictionAir: 0,
     });
-    sprite.setOrigin(0.5, 0.6);
+    sprite.setOrigin(0.5, 0.5);
     sprite.setFixedRotation();
     sprite.play('player_down', true); // 最初は下向いてる
     // sprite.setPlayerColor(Math.random() * 0xffffff);
