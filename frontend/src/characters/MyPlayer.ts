@@ -48,7 +48,17 @@ Phaser.GameObjects.GameObjectFactory.register(
     this.displayList.add(sprite);
     this.updateList.add(sprite);
 
-    sprite.setScale(2, 2);
+    // change hitbox size
+    sprite.setScale(0.8, 1);
+    sprite.setRectangle(64 * 0.6, 45, {
+      chamfer: 40,
+      friction: 0,
+      frictionStatic: 0,
+      frictionAir: 0,
+    });
+    sprite.setOrigin(0.5, 0.6);
+    sprite.setFixedRotation();
+    sprite.play('player_down', true); // 最初は下向いてる
     // sprite.setPlayerColor(Math.random() * 0xffffff);
 
     return sprite;
