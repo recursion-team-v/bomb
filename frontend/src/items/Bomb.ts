@@ -41,10 +41,10 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
           callback: () => {
             group.destroy(true);
             this.destroy();
-          }
-        })
-      }
-    })
+          },
+        });
+      },
+    });
   }
 }
 
