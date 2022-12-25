@@ -1,48 +1,90 @@
 import Phaser from 'phaser';
+import IngameConfig from '../config/ingameConfig';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
-  public thermalPower: number = 1;
+  public thermalPower: number = 2;
 
   setThermalPower(thermalPower: number): void {
     this.thermalPower = thermalPower;
   }
 
   explode(x: number, y: number) {
-    this.scene.time.addEvent({
-      delay: 3000,
-      callback: () => {
-        const group = this.scene.add.group();
-        group.add(this.scene.add.sprite(x + 52, y, 'explosion', undefined).play('tip_explode'));
+    const group = this.world.scene.add.group();
+
+    // add center explosion
+    group.add(
+      this.scene.add
+        .sprite(x, y, 'bomb_center_explosion')
+        .setScale(1.2, 1.2)
+        .play('bomb_center_explosion')
+    );
+
+    // add horizontal explosions
+    if (this.thermalPower > 1) {
+      for (let i = 1; i < this.thermalPower; i++) {
+        group.add(
+          this.scene.add
+            .sprite(x + IngameConfig.tileWidth * i, y, 'bomb_horizontal_explosion')
+            .play('bomb_horizontal_explosion')
+        );
 
         group.add(
           this.scene.add
-            .sprite(x, y + 50, 'explosion', undefined)
-            .play('tip_explode')
+            .sprite(x, y + IngameConfig.tileWidth * i, 'bomb_horizontal_explosion')
+            .play('bomb_horizontal_explosion')
+            .setFlipY(true)
             .setAngle(90)
         );
 
-        group.add(this.scene.add.sprite(x, y, 'explosion', undefined).play('center_explode'));
         group.add(
           this.scene.add
-            .sprite(x - 52, y, 'explosion', undefined)
-            .play('tip_explode')
+            .sprite(x - IngameConfig.tileWidth * i, y, 'bomb_horizontal_explosion')
+            .play('bomb_horizontal_explosion')
             .setAngle(180)
         );
 
         group.add(
           this.scene.add
-            .sprite(x, y - 52, 'explosion', undefined)
-            .play('tip_explode')
+            .sprite(x, y - IngameConfig.tileWidth * i, 'bomb_horizontal_explosion')
+            .play('bomb_horizontal_explosion')
             .setAngle(270)
         );
+      }
+    }
 
-        this.scene.time.addEvent({
-          delay: 1000,
-          callback: () => {
-            group.destroy(true);
-            this.destroy();
-          },
-        });
+    // add horizontal end explosions
+    group.add(
+      this.scene.add
+        .sprite(x + IngameConfig.tileWidth * this.thermalPower, y, 'bomb_horizontal_end_explosion')
+        .play('bomb_horizontal_end_explosion')
+    );
+
+    group.add(
+      this.scene.add
+        .sprite(x, y + IngameConfig.tileWidth * this.thermalPower, 'bomb_horizontal_end_explosion')
+        .play('bomb_horizontal_end_explosion')
+        .setFlipY(true)
+        .setAngle(90)
+    );
+
+    group.add(
+      this.scene.add
+        .sprite(x - IngameConfig.tileWidth * this.thermalPower, y, 'bomb_horizontal_end_explosion')
+        .play('bomb_horizontal_end_explosion')
+        .setAngle(180)
+    );
+
+    group.add(
+      this.scene.add
+        .sprite(x, y - IngameConfig.tileWidth * this.thermalPower, 'bomb_horizontal_end_explosion')
+        .play('bomb_horizontal_end_explosion')
+        .setAngle(270)
+    );
+
+    this.scene.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        group.destroy(true);
       },
     });
   }
@@ -63,12 +105,14 @@ Phaser.GameObjects.GameObjectFactory.register(
     this.displayList.add(sprite);
     this.updateList.add(sprite);
 
-    sprite.setScale(3, 3);
     sprite.setStatic(true);
-    // sprite.setPlayerColor(Math.random() * 0xffffff);
 
-    sprite.play('bomb_count');
-    sprite.explode(x, y);
+    sprite.play('bomb_count', false);
+    // bomb_count アニメーションが終わったら explode
+    sprite.once('animationcomplete', () => {
+      sprite.explode(x, y);
+      sprite.destroy();
+    });
 
     return sprite;
   }
