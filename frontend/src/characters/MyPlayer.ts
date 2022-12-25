@@ -49,6 +49,7 @@ Phaser.GameObjects.GameObjectFactory.register(
     });
     sprite.setOrigin(0.5, 0.6);
     sprite.setFixedRotation();
+    sprite.play('player_down', true); // 最初は下向いてる
     // sprite.setPlayerColor(Math.random() * 0xffffff);
 
     return sprite;
