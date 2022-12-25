@@ -4,8 +4,7 @@
   "description": "",
   "main": "server.ts",
   "scripts": {
-    "start": "./node_modules/.bin/nodemon",
-    "dev": "./node_modules/.bin/ts-node server.ts",
+    "dev": "./node_modules/.bin/nodemon",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -17,8 +16,8 @@
     "nodemon": "^2.0.20"
   },
   "dependencies": {
+    "colyseus": "^0.14.24",
     "express": "^4.18.2",
-    "socket.io": "^4.5.4",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.4"
   }

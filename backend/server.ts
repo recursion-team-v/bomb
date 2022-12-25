@@ -1,68 +1,57 @@
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
+import { Server, Client, Room } from 'colyseus';
+import { createServer } from 'http';
 import express from 'express';
-import http from 'http';
-import path from 'path';
-import { Server } from 'socket.io';
+import { Schema, MapSchema, type } from '@colyseus/schema';
+const port = 3000;
 
-const app: express.Express = express();
-const server: http.Server = http.createServer(app);
-const io: Server = new Server(server);
+const app = express();
+app.use(express.json());
 
-const players: Record<number, Player> = {};
+// An abstract player object, demonstrating a potential 2D world position
+export class Player extends Schema {
+  @type('number')
+  x: number = 0.11;
 
-app.use(express.static(path.join(__dirname, '/public')));
-
-app.get('/', function (req: express.Request<any>, res: express.Response<any>) {
-  res.sendFile(path.join(__dirname, '/index.html'));
-});
-
-io.on('connection', function (socket: any) {
-  console.log('a user connected');
-
-  // create a new player and add it to our players object
-  players[socket.id] = {
-    rotation: 0,
-    x: Math.floor(Math.random() * 700) + 50,
-    y: Math.floor(Math.random() * 500) + 50,
-    playerId: socket.id,
-  };
-
-  // send the players object to the new player
-  socket.emit('currentPlayers', players);
-
-  // update all other players of the new player
-  socket.broadcast.emit('newPlayer', players[socket.id]);
-
-  // when a player disconnects, remove them from our players object
-  socket.on('disconnect', function () {
-    console.log('user disconnected');
-    // remove this player from our players object
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-    delete players[socket.id];
-    // emit a message to all players to remove this player
-    io.emit('disconnected', socket.id);
-  });
-
-  // when a player moves, update the player data
-  socket.on('playerMovement', function (movementData: Player) {
-    players[socket.id].x = movementData.x;
-    players[socket.id].y = movementData.y;
-    players[socket.id].rotation = movementData.rotation;
-    // emit a message to all players about the player that moved
-    socket.broadcast.emit('playerMoved', players[socket.id]);
-  });
-});
-
-// eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-const port = process.env.PORT ?? 8081;
-server.listen(port, function () {
-  console.log(`Listening on ${port} `);
-});
-
-class Player {
-  constructor(
-    public x: number,
-    public y: number,
-    public rotation: number,
-    public playerId: string
-  ) {}
+  @type('number')
+  y: number = 2.22;
 }
+
+// Our custom game state, an ArraySchema of type Player only at the moment
+export class State extends Schema {
+  @type({ map: Player })
+  players = new MapSchema<Player>();
+}
+
+class GameRoom extends Room {
+  // Colyseus will invoke when creating the room instance
+  onCreate(options: any) {
+    // initialize empty room state
+    this.setState(new State());
+
+    // Called every time this room receives a "move" message
+    this.onMessage('move', (client, data) => {
+      const player = this.state.players.get(client.sessionId);
+      player.x += data.x;
+      player.y += data.y;
+      console.log(client.sessionId + ' at, x: ' + player.x, 'y: ' + player.y);
+    });
+  }
+
+  // Called every time a client joins
+  onJoin(client: Client, options: any) {
+    this.state.players.set(client.sessionId, new Player());
+  }
+}
+
+const gameServer = new Server({
+  server: createServer(app),
+});
+
+gameServer.define('game', GameRoom);
+
+// TODO: gracefully shutdown
+gameServer.listen(port).catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
-
+import Server from '../server/server';
 export default class Preloader extends Phaser.Scene {
+  private server?: Server;
+
   constructor() {
     super('preloader');
   }
@@ -13,9 +15,14 @@ export default class Preloader extends Phaser.Scene {
     console.log('preloader: sprites loaded');
   }
 
-  create() {
+  init() {
+    this.server = new Server();
+  }
+
+  async create() {
     this.scene.start('game');
     this.scene.start('gameHeader');
     console.log('preloader: start game');
+    await this.server?.join();
   }
 }
