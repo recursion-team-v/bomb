@@ -12,11 +12,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       delay: 3000,
       callback: () => {
         const group = this.scene.add.group();
-        group.add(
-          this.scene.add
-            .sprite(x + 52, y, 'explosion', undefined)
-            .play('tip_explode')
-        );
+        group.add(this.scene.add.sprite(x + 52, y, 'explosion', undefined).play('tip_explode'));
 
         group.add(
           this.scene.add
@@ -39,7 +35,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
             .play('tip_explode')
             .setAngle(270)
         );
-        group.scaleXY(0.5,0.5)
+        group.scaleXY(0.5, 0.5);
 
         this.scene.time.addEvent({
           delay: 1000,
