@@ -1,5 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class Config {
+  /*
+  スクリーン・マップ周りの設定
+  */
   static defaultTipSize = 64; // デフォルトのチップサイズ
 
   // マップの設定
@@ -26,4 +29,14 @@ export default class Config {
   static availableMapEndY = this.tileHeight * (this.tileCols - 2); // マップの利用可能な領域の終了位置のY座標
 
   static timeLimitsSec: number = 181; // ゲームの制限時間(+1秒するといい感じに表示される)
+
+  /*
+  ゲームの設定
+  */
+
+  // 衝突判定
+  static playerCollisionCategory = 1;
+  static otherPlayerCollisionCategory = 2;
+
+  static playerCollidesWith = [1]; // プレイヤーが衝突するカテゴリ
 }

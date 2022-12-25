@@ -37,18 +37,8 @@ export default class Game extends Phaser.Scene {
   create() {
     console.log('game: create game');
 
-    // add player animations
-    createPlayerAnims(this.anims, 'player');
-
     // add map
     this.generateMap();
-
-    // add myPlayer
-    this.myPlayer = this.add.myPlayer(
-      Config.playerWidth + Config.playerWidth / 2,
-      Config.playerHeight + Config.playerHeight / 2 + Config.headerHeight,
-      'player'
-    );
 
     // TODO: 雑に敵を増やす
     createPlayerAnims(this.anims, 'enemy');
@@ -66,7 +56,21 @@ export default class Game extends Phaser.Scene {
           }
         )
       );
+      this.enemies[i].setCollisionCategory(Config.otherPlayerCollisionCategory);
     }
+
+    // add player animations
+    createPlayerAnims(this.anims, 'player');
+
+    // add myPlayer
+    this.myPlayer = this.add.myPlayer(
+      Config.playerWidth + Config.playerWidth / 2,
+      Config.playerHeight + Config.playerHeight / 2 + Config.headerHeight,
+      'player'
+    );
+
+    this.myPlayer.setCollisionCategory(Config.playerCollisionCategory);
+    this.myPlayer.setCollidesWith(Config.playerCollidesWith);
   }
 
   update() {
