@@ -5,8 +5,8 @@ export default class ScreenConfig {
   static headerColorCode: string = '#000000';
   static headerTimerTextColorCode: string = '#FFFFFF';
 
-  static height: number = IngameConfig.tileCols * IngameConfig.tileHeight;
-  static width: number = IngameConfig.tileRows * IngameConfig.tileWidth + this.headerHeight;
+  static height: number = IngameConfig.tileRows * IngameConfig.tileHeight + this.headerHeight;
+  static width: number = IngameConfig.tileCols * IngameConfig.tileWidth;
 
   static headerWidth: number = ScreenConfig.width;
 }
