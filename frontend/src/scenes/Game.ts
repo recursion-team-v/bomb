@@ -21,7 +21,7 @@ export default class Game extends Phaser.Scene {
     // initialize key inputs
     this.cursors = {
       ...this.input.keyboard.createCursorKeys(),
-      ...(this.input.keyboard.addKeys('W,S,A,D') as Keyboard),
+      ...(this.input.keyboard.addKeys('W,S,A,D,SPACE') as Keyboard),
     };
   }
 
@@ -39,12 +39,6 @@ export default class Game extends Phaser.Scene {
         radius: 10,
       },
     });
-    this.add.bomb(300, 300, 'bomb', undefined, { isStatic: true }).play('bomb_count');
-    this.add.sprite(52, 100, 'explosion', undefined).play('tip_explode').setAngle(180);
-    this.add.sprite(100, 52, 'explosion', undefined).play('tip_explode').setAngle(270);
-    this.add.sprite(100, 100, 'explosion', undefined).play('center_explode');
-    this.add.sprite(148, 100, 'explosion', undefined).play('tip_explode');
-    this.add.sprite(100, 148, 'explosion', undefined).play('tip_explode').setAngle(90);
   }
 
   update() {

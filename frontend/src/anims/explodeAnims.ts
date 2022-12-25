@@ -9,7 +9,7 @@ export const createExplodeAnims = (anims: Phaser.Animations.AnimationManager) =>
       start: 0,
       end: 6,
     }),
-    repeat: -1,
+    repeat: undefined,
     frameRate: animsFrameRate * 0.4,
   });
   anims.create({
@@ -27,8 +27,7 @@ export const createExplodeAnims = (anims: Phaser.Animations.AnimationManager) =>
       start: 0,
       end: 6,
     }),
-    repeat: -1,
+    repeat: undefined,
     frameRate: animsFrameRate * 0.4,
   });
-
 };

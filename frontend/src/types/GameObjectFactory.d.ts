@@ -13,12 +13,7 @@ declare global {
         frame?: string | number,
         options?: Phaser.Types.Physics.Matter.MatterBodyConfig
       ) => MyPlayer;
-    }
-  }
-}
-declare global {
-  namespace Phaser.GameObjects {
-    interface GameObjectFactory {
+
       bomb: (
         x: number,
         y: number,
