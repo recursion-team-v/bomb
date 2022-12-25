@@ -1,4 +1,4 @@
-import Bomb from "../items/Bomb";
+import Bomb from '../items/Bomb';
 
 export {};
 
