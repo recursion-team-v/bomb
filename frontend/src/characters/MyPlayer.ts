@@ -1,10 +1,15 @@
 import Phaser from 'phaser';
 import Player from './Player';
+
 import { NavKeys } from '../types/keyboard';
+import Server from '../core/server';
+import * as Constants from '../../../constants/constants';
 
 export default class MyPlayer extends Player {
   // player controller handler
-  update(cursors: NavKeys) {
+  update(server: Server, cursors: NavKeys, speed: number) {
+    this.speed = speed;
+
     let vx = 0; // velocity x
     let vy = 0; // velocity y
 
@@ -24,6 +29,15 @@ export default class MyPlayer extends Player {
     else if (vy > 0) this.play('player_down', true);
     else if (vy < 0) this.play('player_up', true);
     else this.stop();
+
+    if (vx === 0 && vy === 0) return;
+
+    const player = {
+      x: this.x + vx,
+      y: this.y + vy,
+      speed: this.speed,
+    };
+    server.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, { Player: player });
   }
 
   setBomb() {

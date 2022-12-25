@@ -1,5 +1,8 @@
 /* eslint-disable import/no-duplicates */
+import { Room } from 'colyseus.js';
 import Phaser from 'phaser';
+import Server from '../core/server';
+import { Player } from '../../../backend/src/core/player';
 import '../characters/MyPlayer';
 import '../items/Bomb';
 import { createPlayerAnims } from '../anims/PlayerAnims';
@@ -10,6 +13,7 @@ import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
 import IngameConfig from '../config/ingameConfig';
 import ScreenConfig from '../config/screenConfig';
+import { NOTIFICATION_TYPE } from '../../../constants/constants';
 
 export default class Game extends Phaser.Scene {
   private myPlayer?: MyPlayer;
@@ -18,6 +22,9 @@ export default class Game extends Phaser.Scene {
   private readonly cols: number;
   private readonly tileWidth = IngameConfig.tileWidth;
   private readonly tileHeight = IngameConfig.tileHeight;
+  private server!: Server;
+  private room!: Room; // TODO: ここは後で型を定義する
+  private player!: Player;
 
   constructor() {
     super('game');
@@ -25,13 +32,17 @@ export default class Game extends Phaser.Scene {
     this.cols = IngameConfig.tileCols;
   }
 
-  init() {
+  init(data: any) {
     // preload の前に呼ばれる
     // initialize key inputs
     this.cursors = {
       ...this.input.keyboard.createCursorKeys(),
       ...(this.input.keyboard.addKeys('W,S,A,D,SPACE') as Keyboard),
     };
+
+    this.server = data.server as Server;
+    this.room = this.server.getRoom();
+    this.player = this.server.getPlayer();
   }
 
   create() {
@@ -46,16 +57,16 @@ export default class Game extends Phaser.Scene {
     this.generateMap();
 
     // add myPlayer
-    this.myPlayer = this.add.myPlayer(
-      IngameConfig.playerWith + IngameConfig.playerWith / 2,
-      IngameConfig.playerHeight + IngameConfig.playerHeight / 2 + ScreenConfig.headerHeight,
-      'player'
-    );
+    this.myPlayer = this.add.myPlayer(this.player.x, this.player.y, 'player');
+
+    this.room.onMessage(NOTIFICATION_TYPE.PLAYER_MOVE, (data) => {
+      console.log(data);
+    });
   }
 
   update() {
     if (this.cursors == null || this.myPlayer == null) return;
-    this.myPlayer.update(this.cursors); // player controller handler
+    this.myPlayer.update(this.server, this.cursors, this.player.speed); // player controller handler
   }
 
   private generateMap() {

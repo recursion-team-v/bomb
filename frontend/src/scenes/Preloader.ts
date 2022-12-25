@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
-import Server from '../server/server';
+import Server from '../core/server';
+import * as Constants from '../../../constants/constants';
 export default class Preloader extends Phaser.Scene {
-  private server?: Server;
+  private server!: Server;
 
   constructor() {
     super('preloader');
@@ -37,9 +38,10 @@ export default class Preloader extends Phaser.Scene {
   }
 
   async create() {
-    this.scene.start('game');
+    await this.server.join();
+    this.server.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, {});
+    this.scene.start('game', { server: this.server });
     this.scene.start('gameHeader');
     console.log('preloader: start game');
-    await this.server?.join();
   }
 }
