@@ -5,19 +5,21 @@ import { createPlayerAnims } from '../anims/PlayerAnims';
 import { generateGroundArray, generateWallArray } from '../utils/generateMap';
 import { NavKeys, Keyboard } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
+import IngameConfig from '../config/ingameConfig';
+import ScreenConfig from '../config/screenConfig';
 
 export default class Game extends Phaser.Scene {
   private myPlayer?: MyPlayer;
   private cursors?: NavKeys;
   private readonly rows: number;
   private readonly cols: number;
-  private readonly tileWidth = 64;
-  private readonly tileHeight = 64;
+  private readonly tileWidth = IngameConfig.tileWidth;
+  private readonly tileHeight = IngameConfig.tileHeight;
 
   constructor() {
     super('game');
-    this.rows = 13;
-    this.cols = 15;
+    this.rows = IngameConfig.tileRows;
+    this.cols = IngameConfig.tileCols;
   }
 
   init() {
@@ -39,7 +41,11 @@ export default class Game extends Phaser.Scene {
     this.generateMap();
 
     // add myPlayer
-    this.myPlayer = this.add.myPlayer(64 + 64 / 2, 64 + 64 / 2, 'player');
+    this.myPlayer = this.add.myPlayer(
+      IngameConfig.playerWith + IngameConfig.playerWith / 2,
+      IngameConfig.playerHeight + IngameConfig.playerHeight / 2 + ScreenConfig.headerHeight,
+      'player'
+    );
   }
 
   update() {
@@ -57,7 +63,7 @@ export default class Game extends Phaser.Scene {
       tileHeight: this.tileHeight,
     });
     groundMap.addTilesetImage('tile_grounds', undefined, this.tileWidth, this.tileHeight, 0, 0);
-    groundMap.createLayer(0, 'tile_grounds', 0, 0);
+    groundMap.createLayer(0, 'tile_grounds', 0, ScreenConfig.headerHeight);
 
     const wallMap = this.make.tilemap({
       data: wallArray,
@@ -65,7 +71,9 @@ export default class Game extends Phaser.Scene {
       tileHeight: this.tileHeight,
     });
     wallMap.addTilesetImage('tile_walls', undefined, this.tileWidth, this.tileHeight, 0, 0);
-    const wallLayer = wallMap.createLayer(0, 'tile_walls', 0, 0).setCollisionBetween(0, 50);
+    const wallLayer = wallMap
+      .createLayer(0, 'tile_walls', 0, ScreenConfig.headerHeight)
+      .setCollisionBetween(0, 50);
     this.matter.world.convertTilemapLayer(wallLayer);
   }
 }
