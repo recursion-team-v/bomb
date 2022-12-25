@@ -4,8 +4,6 @@ import { NavKeys } from '../types/keyboard';
 import IngameConfig from '../config/ingameConfig';
 
 export default class MyPlayer extends Player {
-  private bombStrength = 1;
-
   // player controller handler
   update(cursors: NavKeys) {
     let vx = 0; // velocity x
@@ -31,14 +29,6 @@ export default class MyPlayer extends Player {
 
   placeBomb() {
     this.scene.add.bomb(this.x, this.y, this.bombStrength);
-  }
-
-  getBombStrength() {
-    return this.bombStrength;
-  }
-
-  setBombStrength(bombStrength: number) {
-    this.bombStrength = bombStrength;
   }
 }
 
