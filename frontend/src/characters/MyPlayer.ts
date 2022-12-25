@@ -1,8 +1,11 @@
 import Phaser from 'phaser';
 import Player from './Player';
 import { NavKeys } from '../types/keyboard';
+import IngameConfig from '../config/ingameConfig';
 
 export default class MyPlayer extends Player {
+  private bombStrength = 1;
+
   // player controller handler
   update(cursors: NavKeys) {
     let vx = 0; // velocity x
@@ -15,7 +18,7 @@ export default class MyPlayer extends Player {
 
     const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(cursors.space);
     if (isSpaceJustDown) {
-      this.setBomb();
+      this.placeBomb();
     }
     this.setVelocity(vx, vy);
 
@@ -26,8 +29,16 @@ export default class MyPlayer extends Player {
     else this.stop();
   }
 
-  setBomb() {
-    this.scene.add.bomb(this.x, this.y, 'bomb');
+  placeBomb() {
+    this.scene.add.bomb(this.x, this.y, this.bombStrength);
+  }
+
+  getBombStrength() {
+    return this.bombStrength;
+  }
+
+  setBombStrength(bombStrength: number) {
+    this.bombStrength = bombStrength;
   }
 }
 
@@ -50,7 +61,7 @@ Phaser.GameObjects.GameObjectFactory.register(
 
     // change hitbox size
     sprite.setScale(1, 1);
-    sprite.setRectangle(64, 64, {
+    sprite.setRectangle(IngameConfig.defaultTipSize, IngameConfig.defaultTipSize, {
       chamfer: 100,
       friction: 0,
       frictionStatic: 0,

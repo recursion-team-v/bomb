@@ -2,10 +2,17 @@ import Phaser from 'phaser';
 import IngameConfig from '../config/ingameConfig';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
-  public thermalPower: number = 2;
+  private readonly bombStrength: number;
 
-  setThermalPower(thermalPower: number): void {
-    this.thermalPower = thermalPower;
+  constructor(
+    world: Phaser.Physics.Matter.World,
+    x: number,
+    y: number,
+    texture: string,
+    bombStrength: number
+  ) {
+    super(world, x, y, texture);
+    this.bombStrength = bombStrength;
   }
 
   explode(x: number, y: number) {
@@ -20,8 +27,8 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     );
 
     // add horizontal explosions
-    if (this.thermalPower > 1) {
-      for (let i = 1; i < this.thermalPower; i++) {
+    if (this.bombStrength > 1) {
+      for (let i = 1; i < this.bombStrength; i++) {
         group.add(
           this.scene.add
             .sprite(x + IngameConfig.tileWidth * i, y, 'bomb_horizontal_explosion')
@@ -55,13 +62,13 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     // add horizontal end explosions
     group.add(
       this.scene.add
-        .sprite(x + IngameConfig.tileWidth * this.thermalPower, y, 'bomb_horizontal_end_explosion')
+        .sprite(x + IngameConfig.tileWidth * this.bombStrength, y, 'bomb_horizontal_end_explosion')
         .play('bomb_horizontal_end_explosion')
     );
 
     group.add(
       this.scene.add
-        .sprite(x, y + IngameConfig.tileWidth * this.thermalPower, 'bomb_horizontal_end_explosion')
+        .sprite(x, y + IngameConfig.tileWidth * this.bombStrength, 'bomb_horizontal_end_explosion')
         .play('bomb_horizontal_end_explosion')
         .setFlipY(true)
         .setAngle(90)
@@ -69,14 +76,14 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
     group.add(
       this.scene.add
-        .sprite(x - IngameConfig.tileWidth * this.thermalPower, y, 'bomb_horizontal_end_explosion')
+        .sprite(x - IngameConfig.tileWidth * this.bombStrength, y, 'bomb_horizontal_end_explosion')
         .play('bomb_horizontal_end_explosion')
         .setAngle(180)
     );
 
     group.add(
       this.scene.add
-        .sprite(x, y - IngameConfig.tileWidth * this.thermalPower, 'bomb_horizontal_end_explosion')
+        .sprite(x, y - IngameConfig.tileWidth * this.bombStrength, 'bomb_horizontal_end_explosion')
         .play('bomb_horizontal_end_explosion')
         .setAngle(270)
     );
@@ -92,15 +99,8 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
 Phaser.GameObjects.GameObjectFactory.register(
   'bomb',
-  function (
-    this: Phaser.GameObjects.GameObjectFactory,
-    x: number,
-    y: number,
-    texture: string,
-    frame?: string | number,
-    options?: Phaser.Types.Physics.Matter.MatterBodyConfig
-  ) {
-    const sprite = new Bomb(this.scene.matter.world, x, y, texture, frame, options);
+  function (this: Phaser.GameObjects.GameObjectFactory, x: number, y: number, bombStrength = 1) {
+    const sprite = new Bomb(this.scene.matter.world, x, y, 'bomb', bombStrength);
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);
