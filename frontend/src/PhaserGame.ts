@@ -9,9 +9,9 @@ import Preloader from './scenes/Preloader';
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: 'phaser-game',
-  backgroundColor: '#64748b',
   pixelArt: true,
   scale: {
+    mode: Phaser.Scale.ScaleModes.FIT,
     width: ScreenConfig.width,
     height: ScreenConfig.height,
     autoCenter: Phaser.Scale.CENTER_BOTH,
