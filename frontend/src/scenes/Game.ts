@@ -1,10 +1,13 @@
 /* eslint-disable import/no-duplicates */
 import Phaser from 'phaser';
 import '../characters/MyPlayer';
+import '../items/Bomb';
 import { createPlayerAnims } from '../anims/PlayerAnims';
 import { generateGroundArray, generateWallArray } from '../utils/generateMap';
 import { NavKeys, Keyboard } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
+import { createBombAnims } from '../anims/BombAnims';
+import { createExplodeAnims } from '../anims/explodeAnims';
 import IngameConfig from '../config/ingameConfig';
 import ScreenConfig from '../config/screenConfig';
 
@@ -27,7 +30,7 @@ export default class Game extends Phaser.Scene {
     // initialize key inputs
     this.cursors = {
       ...this.input.keyboard.createCursorKeys(),
-      ...(this.input.keyboard.addKeys('W,S,A,D') as Keyboard),
+      ...(this.input.keyboard.addKeys('W,S,A,D,SPACE') as Keyboard),
     };
   }
 
@@ -36,6 +39,8 @@ export default class Game extends Phaser.Scene {
 
     // add player animations
     createPlayerAnims(this.anims);
+    createBombAnims(this.anims);
+    createExplodeAnims(this.anims);
 
     // add map
     this.generateMap();

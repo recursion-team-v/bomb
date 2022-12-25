@@ -12,6 +12,11 @@ export default class MyPlayer extends Player {
     if (cursors.right.isDown || cursors.D.isDown) vx += this.speed;
     if (cursors.up.isDown || cursors.W.isDown) vy -= this.speed;
     if (cursors.down.isDown || cursors.S.isDown) vy += this.speed;
+
+    const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(cursors.space);
+    if (isSpaceJustDown) {
+      this.setBomb();
+    }
     this.setVelocity(vx, vy);
 
     if (vx > 0) this.play('player_right', true);
@@ -19,6 +24,10 @@ export default class MyPlayer extends Player {
     else if (vy > 0) this.play('player_down', true);
     else if (vy < 0) this.play('player_up', true);
     else this.stop();
+  }
+
+  setBomb() {
+    this.scene.add.bomb(this.x, this.y, 'bomb');
   }
 }
 
