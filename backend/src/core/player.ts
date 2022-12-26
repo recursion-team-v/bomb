@@ -1,8 +1,8 @@
-import * as Config from '../config/config';
-
 import { Schema, type } from '@colyseus/schema';
 
-export class Player extends Schema {
+import * as Config from '../config/config';
+
+export default class Player extends Schema {
   // プレイヤーの番号
   @type('number')
   idx: number;

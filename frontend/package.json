@@ -11,6 +11,7 @@
     "css_build": "cross-env NODE_ENV=production tailwindcss build src/styles.css -o dist/styles.css"
   },
   "dependencies": {
+    "@colyseus/schema": "^1.0.44",
     "@unocss/reset": "^0.48.0",
     "colyseus.js": "^0.14.13",
     "phaser": "^3.55.2",

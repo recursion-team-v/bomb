@@ -1,3 +1,6 @@
+export const FPS = 60; // 1 秒間のフレーム数
+export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
+
 // ルームの最大人数
 export const MAX_PLAYER = 5;
 

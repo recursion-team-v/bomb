@@ -2,7 +2,8 @@
 import { Room } from 'colyseus.js';
 import Phaser from 'phaser';
 import Server from '../core/server';
-import { Player } from '../../../backend/src/core/player';
+import Player from '../../../backend/src/core/player';
+import State from '../../../backend/src/core/state';
 import '../characters/MyPlayer';
 import '../items/Bomb';
 import { createPlayerAnims } from '../anims/PlayerAnims';
@@ -58,15 +59,11 @@ export default class Game extends Phaser.Scene {
 
     // add myPlayer
     this.myPlayer = this.add.myPlayer(this.player.x, this.player.y, 'player');
-
-    this.room.onMessage(NOTIFICATION_TYPE.PLAYER_MOVE, (data) => {
-      console.log(data);
-    });
   }
 
   update() {
     if (this.cursors == null || this.myPlayer == null) return;
-    this.myPlayer.update(this.server, this.cursors, this.player.speed); // player controller handler
+    this.myPlayer.update(this.server, this.cursors, this.player); // player controller handler
   }
 
   private generateMap() {

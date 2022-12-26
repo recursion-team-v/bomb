@@ -26,13 +26,20 @@ export default class Server {
   async join() {
     await this.client
       .joinOrCreate(GAME_ROOM_KEY)
-      .then((room) => {
+      .then((room: Room) => {
         console.log(room.sessionId, 'joined', room.name);
         this.room = room;
 
         this.room.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_INFO, (data: any) => {
           this.player = data;
         });
+
+        room.state.players.onAdd = (player, key) => {
+          console.log(player, 'added to', this.room.name);
+          player.onChange = (changes) => {
+            console.log(player, 'have changes at', changes);
+          };
+        };
       })
       .catch((e) => {
         // TODO: タイトルに戻る

@@ -1,14 +1,14 @@
 import Phaser from 'phaser';
 import Player from './Player';
-
+import ServerPlayer from '../../../backend/src/core/player';
 import { NavKeys } from '../types/keyboard';
 import Server from '../core/server';
 import * as Constants from '../../../constants/constants';
 
 export default class MyPlayer extends Player {
   // player controller handler
-  update(server: Server, cursors: NavKeys, speed: number) {
-    this.speed = speed;
+  update(server: Server, cursors: NavKeys, sPlayer: ServerPlayer) {
+    this.speed = sPlayer.speed;
 
     let vx = 0; // velocity x
     let vy = 0; // velocity y
@@ -32,12 +32,14 @@ export default class MyPlayer extends Player {
 
     if (vx === 0 && vy === 0) return;
 
-    const player = {
-      x: this.x + vx,
-      y: this.y + vy,
-      speed: this.speed,
-    };
-    server.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, { Player: player });
+    sPlayer.x = this.x + vx;
+    sPlayer.y = this.y + vy;
+
+    // TODO: 移動のたびに送るととんでもないので、FPSを考慮して送る
+    server.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, {
+      x: sPlayer.x,
+      y: sPlayer.y,
+    });
   }
 
   setBomb() {

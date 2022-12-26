@@ -1,16 +1,23 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 import { Client, Room } from 'colyseus';
-import { Player } from './player';
-import { Schema, MapSchema, type } from '@colyseus/schema';
+import { Schema, type } from '@colyseus/schema';
 import * as Constants from '../../../constants/constants';
 import * as Config from '../config/config';
+import Player from './player';
+import State from './state';
 
-export class State extends Schema {
-  @type({ map: Player })
-  players = new MapSchema<Player>();
+class test extends Schema {
+  @type('number')
+  private readonly a: number;
 
   @type('number')
-  gameState = Constants.GAME_STATE.WAITING;
+  private readonly b: number;
+
+  constructor(a: number, b: number) {
+    super();
+    this.a = a;
+    this.b = b;
+  }
 }
 
 export class GameRoom extends Room {
@@ -35,22 +42,29 @@ export class GameRoom extends Room {
     });
 
     // Called every time this room receives a "move" message
-    this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, (client, clientPlayer: Player) => {
-      const player = this.state.players.get(client.sessionId);
+    this.onMessage(
+      Constants.NOTIFICATION_TYPE.PLAYER_MOVE,
+      (client: Client, clientPlayer: Player) => {
+        this.state.move(client.sessionId, clientPlayer.x, clientPlayer.y);
+        // const player: Player = this.state.players.get(client.sessionId);
 
-      // TODO: クライアントでチートされてないかチェックする
-      if (clientPlayer.moveToLeft) player.x -= player.speed;
-      if (clientPlayer.moveToRight) player.x += player.speed;
-      if (clientPlayer.moveToUp) player.y -= player.speed;
-      if (clientPlayer.moveToDown) player.y += player.speed;
+        // player.x = clientPlayer.x;
+        // player.y = clientPlayer.y;
+        // TODO: クライアントでチートされてないかチェックする
 
-      console.log('player move !');
-      this.broadcast(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, {
-        sessionId: client.sessionId,
-        x: player.x,
-        y: player.y,
-      });
-    });
+        // this.state.players.set(client.sessionId, player);
+        // const t = new test(1, 2);
+        // this.broadcast(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, { Player: t });
+        // console.log(this.state.players);
+      }
+    );
+
+    // // フレームごとにゲームの状態を送信する
+    // setInterval(() => {
+    //   this.broadcast(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, {
+    //     gameState: this.state.gameState,
+    //   });
+    // }, Config.FRAME_RATE);
   }
 
   // Called every time a client joins
@@ -81,6 +95,7 @@ export class GameRoom extends Room {
   }
 
   onLeave(client: Client, consented: boolean) {
+    client.leave();
     console.log(client.id, 'left');
     this.broadcast(`${client.sessionId} left.`);
     this.sessionIds = this.sessionIds.filter((id) => id !== client.sessionId);
