@@ -1,7 +1,11 @@
 /* eslint-disable import/no-duplicates */
 import Phaser from 'phaser';
+
+// register to GameObjectFactory
 import '../characters/MyPlayer';
 import '../items/Bomb';
+import '../items/Item';
+
 import { createPlayerAnims } from '../anims/PlayerAnims';
 import { generateGroundArray, generateWallArray } from '../utils/generateMap';
 import { NavKeys, Keyboard } from '../types/keyboard';
@@ -10,6 +14,7 @@ import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
 import IngameConfig from '../config/ingameConfig';
 import ScreenConfig from '../config/screenConfig';
+import { ItemTypes } from '../types/items';
 
 export default class Game extends Phaser.Scene {
   private myPlayer?: MyPlayer;
@@ -50,6 +55,38 @@ export default class Game extends Phaser.Scene {
       IngameConfig.playerWith + IngameConfig.playerWith / 2,
       IngameConfig.playerHeight + IngameConfig.playerHeight / 2 + ScreenConfig.headerHeight,
       'player'
+    );
+
+    // add items
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.ITEM_BOMB_STRENGTH
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.ITEM_BOMB_STRENGTH
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.ITEM_BOMB_STRENGTH
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.ITEM_PLAYER_SPEED
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.ITEM_PLAYER_SPEED
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.ITEM_PLAYER_SPEED
     );
   }
 

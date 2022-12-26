@@ -1,4 +1,7 @@
+import MyPlayer from '../characters/MyPlayer';
 import Bomb from '../items/Bomb';
+import Item from '../items/Item';
+import { ItemTypes } from './items';
 
 export {};
 
@@ -13,8 +16,8 @@ declare global {
         frame?: string | number,
         options?: Phaser.Types.Physics.Matter.MatterBodyConfig
       ) => MyPlayer;
-
       bomb: (x: number, y: number, bombStrength: number) => Bomb;
+      item: (x: number, y: number, itemType: ItemTypes) => Item;
     }
   }
 }

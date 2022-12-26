@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import IngameConfig from '../config/ingameConfig';
+import { ObjectTypes } from '../types/objects';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly bombStrength: number;
@@ -13,6 +14,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   ) {
     super(world, x, y, texture);
     this.bombStrength = bombStrength;
+    this.setData('objectType', ObjectTypes.BOMB);
   }
 
   explode(x: number, y: number) {

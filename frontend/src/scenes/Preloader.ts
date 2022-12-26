@@ -39,6 +39,9 @@ export default class Preloader extends Phaser.Scene {
     );
     this.load.image('tile_grounds', 'assets/tile_grounds.png');
     this.load.image('tile_walls', 'assets/tile_walls.png');
+
+    this.load.image('ITEM_BOMB_STRENGTH', 'assets/items/item_bomb_strength.png');
+    this.load.image('ITEM_PLAYER_SPEED', 'assets/items/item_player_speed.png');
     console.log('preloader: sprites loaded');
   }
 
