@@ -34,7 +34,6 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
           .play(playkey)
           .setData('objectType', ObjectTypes.EXPLOSION)
           .setSensor(true)
-        // .setStatic(true)
       );
     };
 
