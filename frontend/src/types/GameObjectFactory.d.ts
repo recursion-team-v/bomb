@@ -18,7 +18,7 @@ declare global {
       ) => MyPlayer;
       bomb: (x: number, y: number, bombStrength: number) => Bomb;
       item: (x: number, y: number, itemType: ItemTypes) => Item;
-      innerWall: (x: number, y: number, texture) => Block;
+      innerWall: (x: number, y: number, texture) => InnerWall;
     }
   }
 }
