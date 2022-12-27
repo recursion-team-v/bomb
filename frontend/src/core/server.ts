@@ -36,6 +36,7 @@ export default class Server {
               if (change.field === 'x') this.player.x = change.value;
               if (change.field === 'y') this.player.y = change.value;
               console.log(change.field, change.value);
+              console.log('aaaaa');
             });
           };
         };

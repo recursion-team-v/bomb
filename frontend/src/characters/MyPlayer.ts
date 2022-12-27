@@ -23,7 +23,6 @@ export default class MyPlayer extends Player {
     if (isSpaceJustDown) {
       this.setBomb();
     }
-    this.setVelocity(vx, vy);
 
     if (vx > 0) this.play('player_right', true);
     else if (vx < 0) this.play('player_left', true);
@@ -41,6 +40,9 @@ export default class MyPlayer extends Player {
       x: sPlayer.x,
       y: sPlayer.y,
     });
+
+    this.setX(sPlayer.x);
+    this.setY(sPlayer.y);
   }
 
   setBomb() {
