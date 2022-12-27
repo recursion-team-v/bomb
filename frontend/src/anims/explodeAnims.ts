@@ -1,33 +1,32 @@
 import Phaser from 'phaser';
 
 export const createExplodeAnims = (anims: Phaser.Animations.AnimationManager) => {
-  const animsFrameRate = 15;
+  const animsFrameRate = 7; // each bomb animation has 7 frames
 
   anims.create({
-    key: 'center_explode',
-    frames: anims.generateFrameNames('explosion', {
+    key: 'bomb_center_explosion',
+    frames: anims.generateFrameNames('bomb_center_explosion', {
       start: 0,
       end: 6,
     }),
-    repeat: undefined,
-    frameRate: animsFrameRate * 0.4,
+    frameRate: animsFrameRate,
   });
+
   anims.create({
-    key: 'xy_explode',
-    frames: anims.generateFrameNames('explosion', {
-      start: 7,
-      end: 12,
-    }),
-    repeat: undefined,
-    frameRate: animsFrameRate * 0.4,
-  });
-  anims.create({
-    key: 'tip_explode',
-    frames: anims.generateFrameNames('tip_explosion', {
+    key: 'bomb_horizontal_explosion',
+    frames: anims.generateFrameNames('bomb_horizontal_explosion', {
       start: 0,
       end: 6,
     }),
-    repeat: undefined,
-    frameRate: animsFrameRate * 0.4,
+    frameRate: animsFrameRate,
+  });
+
+  anims.create({
+    key: 'bomb_horizontal_end_explosion',
+    frames: anims.generateFrameNames('bomb_horizontal_end_explosion', {
+      start: 0,
+      end: 6,
+    }),
+    frameRate: animsFrameRate,
   });
 };

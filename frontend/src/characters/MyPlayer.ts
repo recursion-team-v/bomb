@@ -2,11 +2,48 @@ import Phaser from 'phaser';
 
 import ServerPlayer from '../../../backend/src/core/player';
 import * as Constants from '../../../constants/constants';
+import IngameConfig from '../config/ingameConfig';
 import Server from '../core/server';
 import { NavKeys } from '../types/keyboard';
+import { ObjectTypes } from '../types/objects';
+import { handleCollide } from '../utils/handleCollide';
 import Player from './Player';
 
 export default class MyPlayer extends Player {
+  constructor(
+    world: Phaser.Physics.Matter.World,
+    x: number,
+    y: number,
+    texture: string,
+    frame?: string | number,
+    options?: Phaser.Types.Physics.Matter.MatterBodyConfig
+  ) {
+    super(world, x, y, texture, frame, options);
+
+    // change hitbox size
+    this.setScale(1, 1);
+    this.setRectangle(IngameConfig.defaultTipSize, IngameConfig.defaultTipSize, {
+      chamfer: 100,
+      friction: 0,
+      frictionStatic: 0,
+      frictionAir: 0,
+    });
+    this.setOrigin(0.5, 0.5);
+    this.setFixedRotation();
+    this.setSpeed(5);
+    this.play('player_down', true); // 最初は下向いてる
+
+    const body = this.body as MatterJS.BodyType;
+    body.label = ObjectTypes.PLAYER;
+
+    this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
+      const currBody = this.body as MatterJS.BodyType;
+      data.bodyA.id === currBody.id
+        ? handleCollide(data.bodyA, data.bodyB)
+        : handleCollide(data.bodyB, data.bodyA);
+    });
+  }
+
   // player controller handler
   update(server: Server, cursors: NavKeys, sPlayer: ServerPlayer) {
     this.speed = sPlayer.speed;
@@ -21,7 +58,7 @@ export default class MyPlayer extends Player {
 
     const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(cursors.space);
     if (isSpaceJustDown) {
-      this.setBomb();
+      this.placeBomb();
     }
 
     if (vx > 0) this.play('player_right', true);
@@ -45,8 +82,8 @@ export default class MyPlayer extends Player {
     this.setY(sPlayer.y);
   }
 
-  setBomb() {
-    this.scene.add.bomb(this.x, this.y, 'bomb');
+  placeBomb() {
+    this.scene.add.bomb(this.x, this.y, this.bombStrength);
   }
 }
 
@@ -66,19 +103,6 @@ Phaser.GameObjects.GameObjectFactory.register(
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);
-
-    // change hitbox size
-    sprite.setScale(0.8, 1);
-    sprite.setRectangle(64 * 0.6, 45, {
-      chamfer: 40,
-      friction: 0,
-      frictionStatic: 0,
-      frictionAir: 0,
-    });
-    sprite.setOrigin(0.5, 0.6);
-    sprite.setFixedRotation();
-    sprite.play('player_down', true); // 最初は下向いてる
-    // sprite.setPlayerColor(Math.random() * 0xffffff);
 
     return sprite;
   }

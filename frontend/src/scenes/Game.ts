@@ -3,9 +3,13 @@ import { Room } from 'colyseus.js';
 import Phaser from 'phaser';
 import Server from '../core/server';
 import Player from '../../../backend/src/core/player';
-import State from '../../../backend/src/core/state';
+
+// register to GameObjectFactory
 import '../characters/MyPlayer';
 import '../items/Bomb';
+import '../items/InnerWall';
+import '../items/Item';
+
 import { createPlayerAnims } from '../anims/PlayerAnims';
 import { generateGroundArray, generateWallArray } from '../utils/generateMap';
 import { NavKeys, Keyboard } from '../types/keyboard';
@@ -14,7 +18,8 @@ import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
 import IngameConfig from '../config/ingameConfig';
 import ScreenConfig from '../config/screenConfig';
-import { NOTIFICATION_TYPE } from '../../../constants/constants';
+import { ItemTypes } from '../types/items';
+import { ObjectTypes } from '../types/objects';
 
 export default class Game extends Phaser.Scene {
   private myPlayer?: MyPlayer;
@@ -56,6 +61,7 @@ export default class Game extends Phaser.Scene {
 
     // add map
     this.generateMap();
+    this.addInnerWalls();
 
     // add myPlayer
     this.myPlayer = this.add.myPlayer(this.player.x, this.player.y, 'player');
@@ -66,6 +72,7 @@ export default class Game extends Phaser.Scene {
     this.myPlayer.update(this.server, this.cursors, this.player); // player controller handler
   }
 
+  // TODO: move outside Game.ts
   private generateMap() {
     const groundArray = generateGroundArray(this.rows, this.cols);
     const wallArray = generateWallArray(this.rows, this.cols);
@@ -87,6 +94,52 @@ export default class Game extends Phaser.Scene {
     const wallLayer = wallMap
       .createLayer(0, 'tile_walls', 0, ScreenConfig.headerHeight)
       .setCollisionBetween(0, 50);
-    this.matter.world.convertTilemapLayer(wallLayer);
+    this.matter.world.convertTilemapLayer(wallLayer, { label: ObjectTypes.WALL });
+  }
+
+  private addInnerWalls() {
+    for (let i = 1; i < IngameConfig.tileRows; i++) {
+      for (let j = 1; j < IngameConfig.tileCols - 3; j++) {
+        if (i % 2 === 1 || j % 2 === 1) continue;
+        this.add.innerWall(
+          IngameConfig.tileWidth * i + IngameConfig.tileWidth / 2,
+          IngameConfig.tileHeight * j + IngameConfig.tileHeight / 2 + ScreenConfig.headerHeight,
+          IngameConfig.keyInnerWall
+        );
+      }
+    }
+  }
+
+  private addItems() {
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.BOMB_STRENGTH
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.BOMB_STRENGTH
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.BOMB_STRENGTH
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.PLAYER_SPEED
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.PLAYER_SPEED
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.PLAYER_SPEED
+    );
   }
 }

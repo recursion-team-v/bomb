@@ -14,4 +14,5 @@ export default class IngameConfig {
 
   static playerWith = this.defaultTipSize; // プレイヤーの横幅
   static playerHeight = this.defaultTipSize; // プレイヤーの縦幅
+  static keyInnerWall = 'innerWall';
 }
