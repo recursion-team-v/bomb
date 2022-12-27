@@ -1,7 +1,8 @@
 import { Client, Room } from 'colyseus.js';
+
+import { Player } from '../../../backend/src/core/player';
 import { GAME_ROOM_KEY } from '../../../constants/constants';
 import * as Constants from '../../../constants/constants';
-import { Player } from '../../../backend/src/core/player';
 
 export default class Server {
   private readonly client: Client;
@@ -27,19 +28,22 @@ export default class Server {
     await this.client
       .joinOrCreate(GAME_ROOM_KEY)
       .then((room: Room) => {
-        console.log(room.sessionId, 'joined', room.name);
         this.room = room;
 
-        this.room.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_INFO, (data: any) => {
-          this.player = data;
-        });
-
-        room.state.players.onAdd = (player, key) => {
-          console.log(player, 'added to', this.room.name);
+        this.room.state.players.onAdd = (player) => {
           player.onChange = (changes) => {
-            console.log(player, 'have changes at', changes);
+            changes.forEach((change) => {
+              if (change.field === 'x') this.player.x = change.value;
+              if (change.field === 'y') this.player.y = change.value;
+              console.log(change.field, change.value);
+            });
           };
         };
+
+        room.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_INFO, (data: any) => {
+          this.player = data;
+          console.log(data);
+        });
       })
       .catch((e) => {
         // TODO: タイトルに戻る

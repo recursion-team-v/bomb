@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
-import Server from '../core/server';
+
 import * as Constants from '../../../constants/constants';
+import Server from '../core/server';
+
 export default class Preloader extends Phaser.Scene {
   private server!: Server;
 
@@ -35,10 +37,12 @@ export default class Preloader extends Phaser.Scene {
 
   init() {
     this.server = new Server();
+    this.server.join().catch((err) => {
+      console.error(err);
+    });
   }
 
   async create() {
-    await this.server.join();
     this.server.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, {});
     this.scene.start('game', { server: this.server });
     this.scene.start('gameHeader');

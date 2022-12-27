@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
-import Player from './Player';
+
 import ServerPlayer from '../../../backend/src/core/player';
-import { NavKeys } from '../types/keyboard';
-import Server from '../core/server';
 import * as Constants from '../../../constants/constants';
+import Server from '../core/server';
+import { NavKeys } from '../types/keyboard';
+import Player from './Player';
 
 export default class MyPlayer extends Player {
   // player controller handler
