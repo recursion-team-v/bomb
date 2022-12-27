@@ -31,7 +31,6 @@ export const generateWallArray = (rows: number, cols: number) => {
    */
 
   const defaultWalls = [10, 19];
-  const innerWalls = [19, 5];
   const defaultWallCorners = 21;
   const crate = 1;
 
@@ -47,8 +46,6 @@ export const generateWallArray = (rows: number, cols: number) => {
         arr[i][j] = defaultWalls[1];
       } else if (i === rows - 1 || j === 0 || j === cols - 1) {
         arr[i][j] = defaultWalls[0];
-      } else if (i % 2 === 0 && j % 2 === 0) {
-        arr[i][j] = innerWalls[0];
       } else if (crateCnt < 10 && rand < 2) {
         arr[i][j] = crate;
         crateCnt++;

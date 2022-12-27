@@ -26,6 +26,7 @@ export default class MyPlayer extends Player {
     });
     this.setOrigin(0.5, 0.5);
     this.setFixedRotation();
+    this.setSpeed(5);
     this.play('player_down', true); // 最初は下向いてる
 
     const body = this.body as MatterJS.BodyType;
