@@ -1,7 +1,11 @@
 /* eslint-disable import/no-duplicates */
 import Phaser from 'phaser';
+
+// register to GameObjectFactory
 import '../characters/MyPlayer';
 import '../items/Bomb';
+import '../items/Item';
+
 import { createPlayerAnims } from '../anims/PlayerAnims';
 import { generateGroundArray, generateWallArray } from '../utils/generateMap';
 import { NavKeys, Keyboard } from '../types/keyboard';
@@ -10,6 +14,8 @@ import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
 import IngameConfig from '../config/ingameConfig';
 import ScreenConfig from '../config/screenConfig';
+import { ItemTypes } from '../types/items';
+import { ObjectTypes } from '../types/objects';
 
 export default class Game extends Phaser.Scene {
   private myPlayer?: MyPlayer;
@@ -51,6 +57,9 @@ export default class Game extends Phaser.Scene {
       IngameConfig.playerHeight + IngameConfig.playerHeight / 2 + ScreenConfig.headerHeight,
       'player'
     );
+
+    // add items
+    this.addItems();
   }
 
   update() {
@@ -58,6 +67,7 @@ export default class Game extends Phaser.Scene {
     this.myPlayer.update(this.cursors); // player controller handler
   }
 
+  // TODO: move outside Game.ts
   private generateMap() {
     const groundArray = generateGroundArray(this.rows, this.cols);
     const wallArray = generateWallArray(this.rows, this.cols);
@@ -79,6 +89,39 @@ export default class Game extends Phaser.Scene {
     const wallLayer = wallMap
       .createLayer(0, 'tile_walls', 0, ScreenConfig.headerHeight)
       .setCollisionBetween(0, 50);
-    this.matter.world.convertTilemapLayer(wallLayer);
+    this.matter.world.convertTilemapLayer(wallLayer, { label: ObjectTypes.WALL });
+  }
+
+  private addItems() {
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.BOMB_STRENGTH
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.BOMB_STRENGTH
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.BOMB_STRENGTH
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.PLAYER_SPEED
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.PLAYER_SPEED
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.PLAYER_SPEED
+    );
   }
 }

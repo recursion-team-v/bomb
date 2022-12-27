@@ -2,8 +2,43 @@ import Phaser from 'phaser';
 import Player from './Player';
 import { NavKeys } from '../types/keyboard';
 import IngameConfig from '../config/ingameConfig';
+import { handleCollide } from '../utils/handleCollide';
+import { ObjectTypes } from '../types/objects';
 
 export default class MyPlayer extends Player {
+  constructor(
+    world: Phaser.Physics.Matter.World,
+    x: number,
+    y: number,
+    texture: string,
+    frame?: string | number,
+    options?: Phaser.Types.Physics.Matter.MatterBodyConfig
+  ) {
+    super(world, x, y, texture, frame, options);
+
+    // change hitbox size
+    this.setScale(1, 1);
+    this.setRectangle(IngameConfig.defaultTipSize, IngameConfig.defaultTipSize, {
+      chamfer: 100,
+      friction: 0,
+      frictionStatic: 0,
+      frictionAir: 0,
+    });
+    this.setOrigin(0.5, 0.5);
+    this.setFixedRotation();
+    this.play('player_down', true); // 最初は下向いてる
+
+    const body = this.body as MatterJS.BodyType;
+    body.label = ObjectTypes.PLAYER;
+
+    this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
+      const currBody = this.body as MatterJS.BodyType;
+      data.bodyA.id === currBody.id
+        ? handleCollide(data.bodyA, data.bodyB)
+        : handleCollide(data.bodyB, data.bodyA);
+    });
+  }
+
   // player controller handler
   update(cursors: NavKeys) {
     let vx = 0; // velocity x
@@ -48,19 +83,6 @@ Phaser.GameObjects.GameObjectFactory.register(
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);
-
-    // change hitbox size
-    sprite.setScale(1, 1);
-    sprite.setRectangle(IngameConfig.defaultTipSize, IngameConfig.defaultTipSize, {
-      chamfer: 100,
-      friction: 0,
-      frictionStatic: 0,
-      frictionAir: 0,
-    });
-    sprite.setOrigin(0.5, 0.5);
-    sprite.setFixedRotation();
-    sprite.play('player_down', true); // 最初は下向いてる
-    // sprite.setPlayerColor(Math.random() * 0xffffff);
 
     return sprite;
   }

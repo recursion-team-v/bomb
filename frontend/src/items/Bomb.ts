@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import IngameConfig from '../config/ingameConfig';
+import { ObjectTypes } from '../types/objects';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly bombStrength: number;
@@ -12,6 +13,10 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     bombStrength: number
   ) {
     super(world, x, y, texture);
+
+    const body = this.body as MatterJS.BodyType;
+    body.label = ObjectTypes.BOMB;
+
     this.bombStrength = bombStrength;
   }
 
