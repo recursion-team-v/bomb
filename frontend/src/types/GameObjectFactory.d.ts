@@ -1,7 +1,6 @@
 import MyPlayer from '../characters/MyPlayer';
 import Bomb from '../items/Bomb';
 import Item from '../items/Item';
-import InnerWall from '../items/InnerWall';
 import { ItemTypes } from './items';
 
 export {};
