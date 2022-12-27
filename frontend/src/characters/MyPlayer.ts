@@ -61,14 +61,6 @@ export default class MyPlayer extends Player {
       this.placeBomb();
     }
 
-    if (vx > 0) this.play('player_right', true);
-    else if (vx < 0) this.play('player_left', true);
-    else if (vy > 0) this.play('player_down', true);
-    else if (vy < 0) this.play('player_up', true);
-    else this.stop();
-
-    if (vx === 0 && vy === 0) return;
-
     sPlayer.x = this.x + vx;
     sPlayer.y = this.y + vy;
 
@@ -76,10 +68,22 @@ export default class MyPlayer extends Player {
     server.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, {
       x: sPlayer.x,
       y: sPlayer.y,
+      vx,
+      vy,
     });
 
-    this.setX(sPlayer.x);
-    this.setY(sPlayer.y);
+    this.setVelocity(vx, vy);
+
+    if (vx > 0) this.play('player_right', true);
+    else if (vx < 0) this.play('player_left', true);
+    else if (vy > 0) this.play('player_down', true);
+    else if (vy < 0) this.play('player_up', true);
+    else this.stop();
+
+    // if (vx === 0 && vy === 0) return;
+
+    // this.setX(sPlayer.x);
+    // this.setY(sPlayer.y);
   }
 
   placeBomb() {

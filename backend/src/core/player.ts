@@ -14,6 +14,13 @@ export default class Player extends Schema {
   @type('number')
   y: number;
 
+  // プレイヤーのvelocity
+  @type('number')
+  vx: number = 0;
+
+  @type('number')
+  vy: number = 0;
+
   @type('number')
   speed: number = Config.INITIAL_PLAYER_SPEED;
 
@@ -24,19 +31,6 @@ export default class Player extends Schema {
   // 設置できるボムの個数
   @type('number')
   bombNum: number;
-
-  // プレイヤーの移動方向
-  @type('boolean')
-  moveToLeft: boolean = false;
-
-  @type('boolean')
-  moveToUp: boolean = false;
-
-  @type('boolean')
-  moveToRight: boolean = false;
-
-  @type('boolean')
-  moveToDown: boolean = false;
 
   constructor(idx: number) {
     super();

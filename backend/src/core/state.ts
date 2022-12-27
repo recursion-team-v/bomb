@@ -25,10 +25,12 @@ export default class State extends Schema {
     return this.players.size;
   }
 
-  setPlayer(sessionId: string, x: number, y: number) {
+  setPlayer(sessionId: string, x: number, y: number, vx: number, vy: number) {
     const player = this.players.get(sessionId) as Player;
     player.x = x;
     player.y = y;
+    player.vx = vx;
+    player.vy = vy;
   }
 
   getPlayer(sessionId: string): Player {

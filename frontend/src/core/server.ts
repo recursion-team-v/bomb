@@ -35,8 +35,9 @@ export default class Server {
             changes.forEach((change) => {
               if (change.field === 'x') this.player.x = change.value;
               if (change.field === 'y') this.player.y = change.value;
+              if (change.field === 'vx') this.player.vx = change.value;
+              if (change.field === 'vy') this.player.vy = change.value;
               console.log(change.field, change.value);
-              console.log('aaaaa');
             });
           };
         };
