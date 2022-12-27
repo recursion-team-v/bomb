@@ -3,8 +3,12 @@ import Item from '../items/Item';
 import { ItemTypes } from '../types/items';
 import { ObjectTypes } from '../types/objects';
 
-export const handleCollide = (data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
-  const { bodyA, bodyB } = data;
+export const handleCollide = (bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) => {
+  /**
+   * bodyA <- this のオブジェクト
+   * bodyB <- 他 のオブジェクト
+   */
+
   if (bodyA.gameObject == null || bodyB.gameObject == null) return;
 
   console.log(bodyA.label, bodyB.label);
@@ -13,22 +17,10 @@ export const handleCollide = (data: Phaser.Types.Physics.Matter.MatterCollisionD
   const aType = bodyA.label as ObjectTypes;
   const bType = bodyB.label as ObjectTypes;
 
-  // console.log した限りいつも A = PLAYER, B = ITEM
-  // ただ、A = ITEM で B = PLAYER の場合も考慮する必要があるかも
-  if (
-    (aType === ObjectTypes.PLAYER && bType === ObjectTypes.ITEM) ||
-    (aType === ObjectTypes.ITEM && bType === ObjectTypes.PLAYER)
-  ) {
-    // 可読性かなり悪い...
-    let player: MyPlayer;
-    let item: Item;
-    if (aType === ObjectTypes.PLAYER && bType === ObjectTypes.ITEM) {
-      player = bodyA.gameObject as MyPlayer;
-      item = bodyB.gameObject as Item;
-    } else {
-      player = bodyB.gameObject as MyPlayer;
-      item = bodyA.gameObject as Item;
-    }
+  // A = PLAYER, B = ITEM
+  if (aType === ObjectTypes.PLAYER && bType === ObjectTypes.ITEM) {
+    const player = bodyA.gameObject as MyPlayer;
+    const item = bodyB.gameObject as Item;
 
     switch (item.itemType) {
       case ItemTypes.BOMB_STRENGTH:

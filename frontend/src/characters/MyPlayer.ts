@@ -31,9 +31,12 @@ export default class MyPlayer extends Player {
     const body = this.body as MatterJS.BodyType;
     body.label = ObjectTypes.PLAYER;
 
-    this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) =>
-      handleCollide(data)
-    );
+    this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
+      const currBody = this.body as MatterJS.BodyType;
+      data.bodyA.id === currBody.id
+        ? handleCollide(data.bodyA, data.bodyB)
+        : handleCollide(data.bodyB, data.bodyA);
+    });
   }
 
   // player controller handler
