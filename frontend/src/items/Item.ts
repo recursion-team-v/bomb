@@ -10,7 +10,10 @@ export default class Item extends Phaser.Physics.Matter.Sprite {
       isSensor: true,
       isStatic: true,
     });
-    this.setData('objectType', ObjectTypes.ITEM);
+
+    const body = this.body as MatterJS.BodyType;
+    body.label = ObjectTypes.ITEM;
+
     this.setScale(1.5, 1.5);
     this.itemType = itemType;
   }

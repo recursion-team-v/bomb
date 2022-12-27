@@ -2,9 +2,8 @@ import Phaser from 'phaser';
 import Player from './Player';
 import { NavKeys } from '../types/keyboard';
 import IngameConfig from '../config/ingameConfig';
+import { handleCollide } from '../utils/handleCollide';
 import { ObjectTypes } from '../types/objects';
-import Item from '../items/Item';
-import { ItemTypes } from '../types/items';
 
 export default class MyPlayer extends Player {
   constructor(
@@ -29,8 +28,11 @@ export default class MyPlayer extends Player {
     this.setFixedRotation();
     this.play('player_down', true); // 最初は下向いてる
 
+    const body = this.body as MatterJS.BodyType;
+    body.label = ObjectTypes.PLAYER;
+
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) =>
-      this.handleCollide(data)
+      handleCollide(data)
     );
   }
 
@@ -59,34 +61,6 @@ export default class MyPlayer extends Player {
 
   placeBomb() {
     this.scene.add.bomb(this.x, this.y, this.bombStrength);
-  }
-
-  private handleCollide(data: Phaser.Types.Physics.Matter.MatterCollisionData) {
-    // bodyA <- myPlayer game object
-    // bodyB <- collision object
-    const { bodyB } = data;
-    if (bodyB.gameObject == null) return;
-
-    const goB = bodyB.gameObject as Phaser.Physics.Matter.Sprite;
-    const objectType = goB.getData('objectType') as ObjectTypes;
-
-    if (objectType === ObjectTypes.ITEM) {
-      const currItem = goB as Item;
-      switch (currItem.itemType) {
-        case ItemTypes.ITEM_BOMB_STRENGTH:
-          this.setBombStrength(this.bombStrength + 1);
-          currItem.destroy();
-          break;
-
-        case ItemTypes.ITEM_PLAYER_SPEED:
-          this.setSpeed(this.speed + 1);
-          currItem.destroy();
-          break;
-
-        default:
-          break;
-      }
-    }
   }
 }
 
