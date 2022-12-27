@@ -4,6 +4,7 @@ import Phaser from 'phaser';
 // register to GameObjectFactory
 import '../characters/MyPlayer';
 import '../items/Bomb';
+import '../items/InnerWall';
 import '../items/Item';
 
 import { createPlayerAnims } from '../anims/PlayerAnims';
@@ -60,6 +61,7 @@ export default class Game extends Phaser.Scene {
 
     // add items
     this.addItems();
+    this.addInnerWalls();
   }
 
   update() {
@@ -90,6 +92,19 @@ export default class Game extends Phaser.Scene {
       .createLayer(0, 'tile_walls', 0, ScreenConfig.headerHeight)
       .setCollisionBetween(0, 50);
     this.matter.world.convertTilemapLayer(wallLayer, { label: ObjectTypes.WALL });
+  }
+
+  private addInnerWalls() {
+    for (let i = 1; i < IngameConfig.tileRows; i++) {
+      for (let j = 1; j < IngameConfig.tileCols - 3; j++) {
+        if (i % 2 === 1 || j % 2 === 1) continue;
+        this.add.innerWall(
+          IngameConfig.tileWidth * i + IngameConfig.tileWidth / 2,
+          IngameConfig.tileHeight * j + IngameConfig.tileHeight / 2 + ScreenConfig.headerHeight,
+          IngameConfig.keyInnerWall
+        );
+      }
+    }
   }
 
   private addItems() {
