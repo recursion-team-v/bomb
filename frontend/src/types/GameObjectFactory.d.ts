@@ -1,4 +1,5 @@
 import Bomb from '../items/Bomb';
+import BombExplosion from '../items/BombExplosion';
 
 export {};
 
@@ -15,6 +16,7 @@ declare global {
       ) => MyPlayer;
 
       bomb: (x: number, y: number, bombStrength: number) => Bomb;
+      bombExplosion: (x: number, y: number, bombStrength: number) => BombExplosion;
     }
   }
 }
