@@ -1,6 +1,9 @@
 import { Schema, type } from '@colyseus/schema';
 import * as Config from '../../config/config';
 export default class Player extends Schema {
+  @type('string')
+  sessionId: string;
+
   // プレイヤーの番号
   @type('number')
   idx: number;
@@ -30,8 +33,11 @@ export default class Player extends Schema {
   @type('number')
   bombNum: number;
 
-  constructor(idx: number) {
+  inputQueue: any[] = [];
+
+  constructor(sessionId: string, idx: number) {
     super();
+    this.sessionId = sessionId;
     this.idx = idx;
     this.x = Config.INITIAL_PLAYER_POSITION[idx].x;
     this.y = Config.INITIAL_PLAYER_POSITION[idx].y;

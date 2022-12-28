@@ -17,6 +17,9 @@ const gameServer = new Server({
 app.use('/monitor', monitor());
 gameServer.define(Constants.GAME_ROOM_KEY, GameRoom);
 
+// TODO: add latency simulation
+// gameServer.simulateLatency(200);
+
 // TODO: gracefully shutdown
 gameServer.listen(Constants.SERVER_LISTEN_PORT).catch((err) => {
   console.error(err);

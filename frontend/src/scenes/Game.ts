@@ -9,7 +9,7 @@ import '../items/Item';
 
 import { createPlayerAnims } from '../anims/PlayerAnims';
 import { generateGroundArray, generateWallArray } from '../utils/generateMap';
-import { NavKeys, Keyboard } from '../types/keyboard';
+import { Keyboard } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
 import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
@@ -24,13 +24,23 @@ import Player from '../../../backend/src/rooms/schema/Player';
 export default class Game extends Phaser.Scene {
   private readonly client: Client;
   private room!: Room; // TODO: Room
-  private myPlayer?: MyPlayer;
-  private cursors?: NavKeys;
   private readonly rows: number;
   private readonly cols: number;
   private readonly tileWidth = IngameConfig.tileWidth;
   private readonly tileHeight = IngameConfig.tileHeight;
-  // private playerEntities: { [sessionId: string]: any } = {};
+  // eslint-disable-next-line @typescript-eslint/prefer-readonly, @typescript-eslint/consistent-indexed-object-style
+  private playerEntities: Map<string, MyPlayer> = new Map();
+  private currentPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
+  private remoteRef!: Phaser.GameObjects.Rectangle; // サーバ側が認識するプレイヤーの位置を示す四角形
+
+  inputPayload = {
+    left: false,
+    right: false,
+    up: false,
+    down: false,
+  };
+
+  cursorKeys!: Phaser.Types.Input.Keyboard.CursorKeys;
 
   constructor() {
     super('game');
@@ -45,7 +55,7 @@ export default class Game extends Phaser.Scene {
   init() {
     // preload の前に呼ばれる
     // initialize key inputs
-    this.cursors = {
+    this.cursorKeys = {
       ...this.input.keyboard.createCursorKeys(),
       ...(this.input.keyboard.addKeys('W,S,A,D,SPACE') as Keyboard),
     };
@@ -57,24 +67,39 @@ export default class Game extends Phaser.Scene {
     // connect with the room
     await this.connect();
 
-    this.room.state.players.onAdd = function (player: any, sessionId: string) {
-      console.log('add');
-      // this.playerEntities[sessionId] = player;
+    this.room.state.players.onAdd = (player: Player, sessionId: string) => {
+      console.log('player add');
+      if (player === undefined) return;
 
-      // listening for server updates
-      player.onChange = function (changes: any) {
-        console.log('change');
-      };
+      const entity = this.add.myPlayer(player.x, player.y, 'player');
+      this.playerEntities.set(sessionId, entity);
+
+      // 変更されたのが自分の場合
+      if (sessionId === this.room.sessionId) {
+        this.currentPlayer = entity;
+
+        // サーバ側が認識するプレイヤーの位置を示す四角形
+        this.remoteRef = this.add.rectangle(0, 0, entity.width, entity.height);
+        this.remoteRef.setStrokeStyle(1, 0xff0000);
+
+        player.onChange = () => {
+          // console.log('change');
+          this.remoteRef.setPosition(player.x, player.y);
+        };
+      } else {
+        player.onChange = () => {
+          // console.log('change');
+          const localPlayer = this.playerEntities.get(sessionId);
+          if (localPlayer === undefined) return;
+          localPlayer.setData('serverX', player.x);
+          localPlayer.setData('serverY', player.y);
+        };
+      }
     };
 
-    this.room.state.players.onRemove = function (player: any, sessionId: string) {
-      // const entity = this.playerEntities[sessionId];
-      // if (entity) {
-      //   // destroy entity
-      //   entity.destroy();
-      //   // clear local reference
-      //   delete this.playerEntities[sessionId];
-      // }
+    this.room.state.players.onRemove = (player: any, sessionId: string) => {
+      this.playerEntities.delete(sessionId);
+      console.log('remove' + sessionId);
     };
 
     // add player animations
@@ -85,33 +110,101 @@ export default class Game extends Phaser.Scene {
     // add map
     this.generateMap();
 
-    // add myPlayer
-    this.myPlayer = this.add.myPlayer(
-      IngameConfig.playerWith + IngameConfig.playerWith / 2,
-      IngameConfig.playerHeight + IngameConfig.playerHeight / 2 + ScreenConfig.headerHeight,
-      'player'
-    );
-
     // add items
     this.addItems();
-    this.addInnerWalls();
+    // this.addInnerWalls();
   }
 
-  update() {
-    if (this.cursors == null || this.myPlayer == null) return;
+  // 経過時間
+  private elapsedTime: number = 0;
 
-    setInterval(
-      (player: Player) => {
-        this.room.send('move', {
-          x: player.x,
-          y: player.y,
-        });
-      },
-      Constants.FRAME_RATE,
-      this.myPlayer
-    );
+  // 1フレームの経過時間
+  private readonly fixedTimeStep: number = Constants.FRAME_RATE;
 
-    this.myPlayer.update(this.cursors, this.room); // player controller handler
+  update(time: number, delta: number) {
+    if (this.currentPlayer === undefined) return;
+
+    // 前回の処理からの経過時間を算出し、1フレームの経過時間を超えていたら処理を実行する
+    // https://learn.colyseus.io/phaser/4-fixed-tickrate.html
+    this.elapsedTime += delta;
+    while (this.elapsedTime >= this.fixedTimeStep) {
+      this.elapsedTime -= this.fixedTimeStep;
+      this.fixedTick();
+    }
+  }
+
+  // 他のプレイヤーの移動処理
+  private moveOtherPlayer() {
+    this.playerEntities.forEach((localPlayer: MyPlayer, sessionId: string) => {
+      if (localPlayer === undefined) return;
+      if (sessionId === this.room.sessionId) return;
+
+      // interpolate all player entities
+      const { serverX, serverY } = localPlayer.data.values;
+
+      const oldX = localPlayer.x;
+      const oldY = localPlayer.y;
+
+      // 線形補完(TODO: 調整)
+      localPlayer.x = Phaser.Math.Linear(localPlayer.x, serverX, 0.2);
+      localPlayer.y = Phaser.Math.Linear(localPlayer.y, serverY, 0.2);
+
+      this.playerAnims(localPlayer, oldX, oldY);
+    });
+  }
+
+  // 自分が操作するキャラの移動処理
+  private moveOwnPlayer() {
+    const p = this.currentPlayer;
+
+    // send input to the server
+    this.inputPayload.left = this.cursorKeys.left.isDown;
+    this.inputPayload.right = this.cursorKeys.right.isDown;
+    this.inputPayload.up = this.cursorKeys.up.isDown;
+    this.inputPayload.down = this.cursorKeys.down.isDown;
+
+    this.room.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, this.inputPayload);
+
+    const oldX = p.x;
+    const oldY = p.y;
+
+    const velocity = p.speed;
+    if (this.inputPayload.left) {
+      p.x -= velocity;
+    } else if (this.inputPayload.right) {
+      p.x += velocity;
+    }
+
+    if (this.inputPayload.up) {
+      p.y -= velocity;
+    } else if (this.inputPayload.down) {
+      p.y += velocity;
+    }
+
+    this.playerAnims(p, oldX, oldY);
+  }
+
+  private fixedTick() {
+    this.moveOwnPlayer();
+    this.moveOtherPlayer();
+  }
+
+  // 移動アニメーション
+  private playerAnims(localPlayer: MyPlayer, oldX: number, oldY: number) {
+    const xDiff = localPlayer.x - oldX;
+    const yDiff = localPlayer.y - oldY;
+
+    if (xDiff > 0) localPlayer.play('player_right', true);
+    else if (xDiff < 0) localPlayer.play('player_left', true);
+    else if (yDiff > 0) localPlayer.play('player_down', true);
+    else if (yDiff < 0) localPlayer.play('player_up', true);
+    else localPlayer.stop();
+
+    // bomb 設置
+    const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(this.cursorKeys.space);
+    if (isSpaceJustDown) {
+      localPlayer.placeBomb();
+    }
   }
 
   // TODO: move outside Game.ts

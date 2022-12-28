@@ -1,4 +1,4 @@
-export const FPS = 60; // 1 秒間のフレーム数
+export const FPS = 120; // 1 秒間のフレーム数
 export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
 
 // ゲームルーム参加時に使用するキー
