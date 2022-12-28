@@ -87,6 +87,8 @@ export default class Game extends Phaser.Scene {
           this.remoteRef.setPosition(player.x, player.y);
         };
       } else {
+        const randomColor = Math.floor(Math.random() * 16777215);
+        entity.setPlayerColor(randomColor);
         player.onChange = () => {
           // console.log('change');
           const localPlayer = this.playerEntities.get(sessionId);
