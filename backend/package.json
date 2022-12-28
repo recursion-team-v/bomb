@@ -22,7 +22,6 @@
     "typescript": "^4.8.4"
   },
   "dependencies": {
-    "@colyseus/arena": "^0.14.22",
     "@colyseus/monitor": "^0.14.20",
     "colyseus": "^0.14.20",
     "cors": "^2.8.5",

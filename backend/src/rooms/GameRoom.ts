@@ -3,7 +3,7 @@ import { Client, Room } from 'colyseus';
 import GameRoomState from './schema/GameRoomState';
 import Player from './schema/Player';
 
-export class GameRoom extends Room<GameRoomState> {
+export default class GameRoom extends Room<GameRoomState> {
 
   onCreate(options: any) {
     this.setState(new GameRoomState());

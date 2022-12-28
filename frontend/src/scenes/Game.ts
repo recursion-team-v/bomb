@@ -18,6 +18,7 @@ import ScreenConfig from '../config/screenConfig';
 import { ItemTypes } from '../types/items';
 import { ObjectTypes } from '../types/objects';
 import { Client, Room } from 'colyseus.js';
+import * as Constants from '../../../constants/constants';
 
 export default class Game extends Phaser.Scene {
 
@@ -36,7 +37,7 @@ export default class Game extends Phaser.Scene {
     this.rows = IngameConfig.tileRows;
     this.cols = IngameConfig.tileCols;
     const protocol = window.location.protocol.replace('http', 'ws');
-    const endpoint = `${protocol}//${window.location.hostname}:2567`; // TODO: production 対応
+    const endpoint = `${protocol}//${window.location.hostname}:${Constants.SERVER_LISTEN_PORT}`; // TODO: production 対応
 
     this.client = new Client(endpoint);
   }
@@ -175,7 +176,7 @@ export default class Game extends Phaser.Scene {
 
   async connect() {
     try {
-      this.room = await this.client.joinOrCreate("my_room", {});
+      this.room = await this.client.joinOrCreate(Constants.GAME_ROOM_KEY, {});
     } catch (e) {
       console.error(e);
     }
