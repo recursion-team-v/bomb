@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "my-app",
+  "name": "backend",
   "version": "1.0.0",
-  "description": "npm init template for bootstrapping an empty Colyseus project",
+  "description": "",
   "main": "lib/index.js",
   "scripts": {
     "dev": "./node_modules/.bin/nodemon"
