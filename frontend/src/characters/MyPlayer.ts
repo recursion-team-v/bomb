@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import Player from './Player';
-import { Room } from 'colyseus.js';
 import { NavKeys } from '../types/keyboard';
 import IngameConfig from '../config/ingameConfig';
 import { handleCollide } from '../utils/handleCollide';
@@ -42,7 +41,7 @@ export default class MyPlayer extends Player {
   }
 
   // player controller handler
-  update(cursors: NavKeys, room: Room) {
+  update(cursors: NavKeys) {
     let vx = 0; // velocity x
     let vy = 0; // velocity y
 
