@@ -1,3 +1,6 @@
+export const FPS = 60; // 1 秒間のフレーム数
+export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
+
 // ゲームルーム参加時に使用するキー
 export const SERVER_LISTEN_PORT = 2567;
 export const GAME_ROOM_KEY = 'game';

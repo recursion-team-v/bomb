@@ -19,6 +19,7 @@ import { ItemTypes } from '../types/items';
 import { ObjectTypes } from '../types/objects';
 import { Client, Room } from 'colyseus.js';
 import * as Constants from '../../../backend/src/constants/constants';
+import Player from '../../../backend/src/rooms/schema/Player';
 
 export default class Game extends Phaser.Scene {
   private readonly client: Client;
@@ -99,6 +100,14 @@ export default class Game extends Phaser.Scene {
 
   update() {
     if (this.cursors == null || this.myPlayer == null) return;
+
+    setInterval((player: Player) => {
+      this.room.send('move', {
+        x: player.x,
+        y: player.y,
+      });
+    }, Constants.FRAME_RATE, this.myPlayer)
+
     this.myPlayer.update(this.cursors, this.room); // player controller handler
   }
 
