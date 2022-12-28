@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 import { Server } from 'colyseus';
 import { createServer } from 'http';
-import { monitor } from "@colyseus/monitor";
+import { monitor } from '@colyseus/monitor';
 import express from 'express';
 import GameRoom from './rooms/GameRoom';
 import * as Constants from '../../constants/constants';
@@ -14,7 +14,7 @@ const gameServer = new Server({
 });
 
 // TODO: add authentication
-app.use("/monitor", monitor());
+app.use('/monitor', monitor());
 gameServer.define(Constants.GAME_ROOM_KEY, GameRoom);
 
 // TODO: gracefully shutdown
