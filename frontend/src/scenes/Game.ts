@@ -97,7 +97,11 @@ export default class Game extends Phaser.Scene {
       }
     };
 
-    this.room.state.players.onRemove = (player: any, sessionId: string) => {
+    // プレイヤーが切断した時
+    this.room.state.players.onRemove = (player: Player, sessionId: string) => {
+      const entity = this.playerEntities.get(sessionId);
+      entity?.destroy();
+
       this.playerEntities.delete(sessionId);
       console.log('remove' + sessionId);
     };
