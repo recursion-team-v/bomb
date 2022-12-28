@@ -6,7 +6,7 @@ export default class GameRoomState extends Schema {
 
   updatePlayer(sessionId: string, data: any) {
     const player = this.players.get(sessionId);
-    if (player === undefined) return
+    if (player === undefined) return;
     player.x = data.x;
     player.y = data.y;
   }
