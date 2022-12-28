@@ -9,9 +9,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/colyseus/create-colyseus/issues"
-  },
   "devDependencies": {
     "@types/cors": "^2.8.6",
     "@types/express": "^4.17.5",
