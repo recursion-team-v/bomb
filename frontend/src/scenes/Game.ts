@@ -18,7 +18,7 @@ import ScreenConfig from '../config/screenConfig';
 import { ItemTypes } from '../types/items';
 import { ObjectTypes } from '../types/objects';
 import { Client, Room } from 'colyseus.js';
-import * as Constants from '../../../constants/constants';
+import * as Constants from '../../../backend/src/constants/constants';
 
 export default class Game extends Phaser.Scene {
   private readonly client: Client;

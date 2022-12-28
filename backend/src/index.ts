@@ -4,7 +4,7 @@ import { createServer } from 'http';
 import { monitor } from '@colyseus/monitor';
 import express from 'express';
 import GameRoom from './rooms/GameRoom';
-import * as Constants from '../../constants/constants';
+import * as Constants from './constants/constants';
 
 const app = express();
 app.use(express.json());
