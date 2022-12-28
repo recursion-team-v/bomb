@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@unocss/reset": "^0.48.0",
+    "colyseus.js": "^0.14.13",
     "phaser": "^3.55.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
