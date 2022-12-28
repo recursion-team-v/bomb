@@ -22,14 +22,14 @@ import * as Constants from '../../../constants/constants';
 
 export default class Game extends Phaser.Scene {
   private readonly client: Client;
-  private room: Room; // TODO: Room
+  private room!: Room; // TODO: Room
   private myPlayer?: MyPlayer;
   private cursors?: NavKeys;
   private readonly rows: number;
   private readonly cols: number;
   private readonly tileWidth = IngameConfig.tileWidth;
   private readonly tileHeight = IngameConfig.tileHeight;
-  private playerEntities: { [sessionId: string]: any } = {};
+  // private playerEntities: { [sessionId: string]: any } = {};
 
   constructor() {
     super('game');
@@ -56,25 +56,25 @@ export default class Game extends Phaser.Scene {
     // connect with the room
     await this.connect();
 
-    this.room.state.players.onAdd = function (player, sessionId) {
+    this.room.state.players.onAdd = function (player: any, sessionId: string) {
       console.log('add');
       // this.playerEntities[sessionId] = player;
 
       // listening for server updates
-      player.onChange = function (changes) {
+      player.onChange = function (changes: any) {
         console.log('change');
       };
     };
 
-    this.room.state.players.onRemove = function (player, sessionId) {
-      const entity = this.playerEntities[sessionId];
-      if (entity) {
-        // destroy entity
-        entity.destroy();
+    this.room.state.players.onRemove = function (player: any, sessionId: string) {
+      // const entity = this.playerEntities[sessionId];
+      // if (entity) {
+      //   // destroy entity
+      //   entity.destroy();
 
-        // clear local reference
-        delete this.playerEntities[sessionId];
-      }
+      //   // clear local reference
+      //   delete this.playerEntities[sessionId];
+      // }
     };
 
     // add player animations
