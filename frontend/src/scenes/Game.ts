@@ -72,7 +72,6 @@ export default class Game extends Phaser.Scene {
       // if (entity) {
       //   // destroy entity
       //   entity.destroy();
-
       //   // clear local reference
       //   delete this.playerEntities[sessionId];
       // }
@@ -101,12 +100,16 @@ export default class Game extends Phaser.Scene {
   update() {
     if (this.cursors == null || this.myPlayer == null) return;
 
-    setInterval((player: Player) => {
-      this.room.send('move', {
-        x: player.x,
-        y: player.y,
-      });
-    }, Constants.FRAME_RATE, this.myPlayer)
+    setInterval(
+      (player: Player) => {
+        this.room.send('move', {
+          x: player.x,
+          y: player.y,
+        });
+      },
+      Constants.FRAME_RATE,
+      this.myPlayer
+    );
 
     this.myPlayer.update(this.cursors, this.room); // player controller handler
   }
