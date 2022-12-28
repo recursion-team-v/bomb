@@ -21,7 +21,6 @@ import { Client, Room } from 'colyseus.js';
 import * as Constants from '../../../constants/constants';
 
 export default class Game extends Phaser.Scene {
-
   private readonly client: Client;
   private room: Room; // TODO: Room
   private myPlayer?: MyPlayer;
@@ -58,13 +57,13 @@ export default class Game extends Phaser.Scene {
     await this.connect();
 
     this.room.state.players.onAdd = function (player, sessionId) {
-      console.log('add')
+      console.log('add');
       // this.playerEntities[sessionId] = player;
 
       // listening for server updates
       player.onChange = function (changes) {
-        console.log("change")
-      }
+        console.log('change');
+      };
     };
 
     this.room.state.players.onRemove = function (player, sessionId) {
@@ -181,5 +180,4 @@ export default class Game extends Phaser.Scene {
       console.error(e);
     }
   }
-
 }

@@ -56,7 +56,7 @@ export default class MyPlayer extends Player {
       this.placeBomb();
     }
     this.setVelocity(vx, vy);
-    room.send('move', { vx, vy })
+    room.send('move', { vx, vy });
 
     if (vx > 0) this.play('player_right', true);
     else if (vx < 0) this.play('player_left', true);
