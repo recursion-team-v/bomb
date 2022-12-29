@@ -46,7 +46,7 @@ Phaser.GameObjects.GameObjectFactory.register(
   }
 );
 
-class Blast extends Phaser.Physics.Matter.Sprite {
+export class Blast extends Phaser.Physics.Matter.Sprite {
   private readonly bombStrength: number;
 
   constructor(
