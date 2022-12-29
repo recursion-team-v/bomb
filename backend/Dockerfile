@@ -17,7 +17,6 @@ RUN npm run build
 FROM node:18.12-alpine3.17 as runner
 WORKDIR /work
 
-LABEL org.opencontainers.image.source https://github.com/recursion-team-v/bomb
 ENV NODE_ENV production
 ENV PORT 2567
 EXPOSE 2567
