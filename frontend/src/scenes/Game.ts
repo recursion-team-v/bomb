@@ -2,7 +2,6 @@
 import Phaser from 'phaser';
 import '../characters/MyPlayer';
 import '../items/Bomb';
-import '../items/BombExplosion';
 import { createPlayerAnims } from '../anims/PlayerAnims';
 import { generateGroundArray, generateWallArray } from '../utils/generateMap';
 import { NavKeys, Keyboard } from '../types/keyboard';
