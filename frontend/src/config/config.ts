@@ -1,1 +1,1 @@
-export const serverUrl = 'wss://bomb-backend-e47mei43gq-an.a.run.app:443';
+export const serverUrl = 'wss://bomb-e47mei43gq-an.a.run.app:443';
