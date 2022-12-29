@@ -13,6 +13,7 @@ import { Keyboard } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
 import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
+import * as Config from '../config/config';
 import IngameConfig from '../config/ingameConfig';
 import ScreenConfig from '../config/screenConfig';
 import { ItemTypes } from '../types/items';
@@ -47,9 +48,14 @@ export default class Game extends Phaser.Scene {
     this.rows = IngameConfig.tileRows;
     this.cols = IngameConfig.tileCols;
     const protocol = window.location.protocol.replace('http', 'ws');
-    const endpoint = `${protocol}//${window.location.hostname}:${Constants.SERVER_LISTEN_PORT}`; // TODO: production 対応
 
-    this.client = new Client(endpoint);
+    if (import.meta.env.PROD) {
+      const endpoint = Config.serverUrl;
+      this.client = new Client(endpoint);
+    } else {
+      const endpoint = `${protocol}//${window.location.hostname}:${Constants.SERVER_LISTEN_PORT}`;
+      this.client = new Client(endpoint);
+    }
   }
 
   init() {
