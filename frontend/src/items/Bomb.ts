@@ -82,7 +82,6 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
       );
     };
 
-
     // add horizontal explosions
     if (this.bombStrength > 1) {
       for (let i = 1; i < this.bombStrength; i++) {

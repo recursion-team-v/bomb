@@ -3,7 +3,6 @@ import Bomb, { Blast } from '../items/Bomb';
 import Item from '../items/Item';
 import { ItemTypes } from './items';
 
-
 export {};
 
 // declare myPlayer type in GameObjectFactory
