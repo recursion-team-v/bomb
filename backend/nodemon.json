@@ -1,5 +1,5 @@
 {
   "watch": ".",
   "ext": "ts,html,js",
-  "exec": "npm run dev"
+  "exec": "./node_modules/.bin/ts-node src/index.ts"
 }

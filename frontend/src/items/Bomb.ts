@@ -13,6 +13,10 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     bombStrength: number
   ) {
     super(world, x, y, texture);
+
+    const body = this.body as MatterJS.BodyType;
+    body.label = ObjectTypes.BOMB;
+
     this.bombStrength = bombStrength;
   }
 

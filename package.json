@@ -1,6 +1,7 @@
 {
   "scripts": {
     "install:frontend": "cd frontend && npm ci",
+    "lint": "npm run lint:frontend && npm run lint:backend",
     "lint:frontend": "cd frontend && eslint --ext .tsx,.ts src/",
     "install:backend": "cd backend && npm ci",
     "lint:backend": "cd backend && eslint . --ext .ts",

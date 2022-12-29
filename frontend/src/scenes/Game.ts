@@ -1,7 +1,12 @@
 /* eslint-disable import/no-duplicates */
 import Phaser from 'phaser';
+
+// register to GameObjectFactory
 import '../characters/MyPlayer';
 import '../items/Bomb';
+import '../items/InnerWall';
+import '../items/Item';
+
 import { createPlayerAnims } from '../anims/PlayerAnims';
 import { generateGroundArray, generateWallArray } from '../utils/generateMap';
 import { NavKeys, Keyboard } from '../types/keyboard';
@@ -10,19 +15,31 @@ import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
 import IngameConfig from '../config/ingameConfig';
 import ScreenConfig from '../config/screenConfig';
+import { ItemTypes } from '../types/items';
+import { ObjectTypes } from '../types/objects';
+import { Client, Room } from 'colyseus.js';
+import * as Constants from '../../../backend/src/constants/constants';
+import Player from '../../../backend/src/rooms/schema/Player';
 
 export default class Game extends Phaser.Scene {
+  private readonly client: Client;
+  private room!: Room; // TODO: Room
   private myPlayer?: MyPlayer;
   private cursors?: NavKeys;
   private readonly rows: number;
   private readonly cols: number;
   private readonly tileWidth = IngameConfig.tileWidth;
   private readonly tileHeight = IngameConfig.tileHeight;
+  // private playerEntities: { [sessionId: string]: any } = {};
 
   constructor() {
     super('game');
     this.rows = IngameConfig.tileRows;
     this.cols = IngameConfig.tileCols;
+    const protocol = window.location.protocol.replace('http', 'ws');
+    const endpoint = `${protocol}//${window.location.hostname}:${Constants.SERVER_LISTEN_PORT}`; // TODO: production 対応
+
+    this.client = new Client(endpoint);
   }
 
   init() {
@@ -34,8 +51,31 @@ export default class Game extends Phaser.Scene {
     };
   }
 
-  create() {
+  async create() {
     console.log('game: create game');
+
+    // connect with the room
+    await this.connect();
+
+    this.room.state.players.onAdd = function (player: any, sessionId: string) {
+      console.log('add');
+      // this.playerEntities[sessionId] = player;
+
+      // listening for server updates
+      player.onChange = function (changes: any) {
+        console.log('change');
+      };
+    };
+
+    this.room.state.players.onRemove = function (player: any, sessionId: string) {
+      // const entity = this.playerEntities[sessionId];
+      // if (entity) {
+      //   // destroy entity
+      //   entity.destroy();
+      //   // clear local reference
+      //   delete this.playerEntities[sessionId];
+      // }
+    };
 
     // add player animations
     createPlayerAnims(this.anims);
@@ -51,13 +91,30 @@ export default class Game extends Phaser.Scene {
       IngameConfig.playerHeight + IngameConfig.playerHeight / 2 + ScreenConfig.headerHeight,
       'player'
     );
+
+    // add items
+    this.addItems();
+    this.addInnerWalls();
   }
 
   update() {
     if (this.cursors == null || this.myPlayer == null) return;
-    this.myPlayer.update(this.cursors); // player controller handler
+
+    setInterval(
+      (player: Player) => {
+        this.room.send('move', {
+          x: player.x,
+          y: player.y,
+        });
+      },
+      Constants.FRAME_RATE,
+      this.myPlayer
+    );
+
+    this.myPlayer.update(this.cursors, this.room); // player controller handler
   }
 
+  // TODO: move outside Game.ts
   private generateMap() {
     const groundArray = generateGroundArray(this.rows, this.cols);
     const wallArray = generateWallArray(this.rows, this.cols);
@@ -79,6 +136,60 @@ export default class Game extends Phaser.Scene {
     const wallLayer = wallMap
       .createLayer(0, 'tile_walls', 0, ScreenConfig.headerHeight)
       .setCollisionBetween(0, 50);
-    this.matter.world.convertTilemapLayer(wallLayer);
+    this.matter.world.convertTilemapLayer(wallLayer, { label: ObjectTypes.WALL });
+  }
+
+  private addInnerWalls() {
+    for (let i = 1; i < IngameConfig.tileRows; i++) {
+      for (let j = 1; j < IngameConfig.tileCols - 3; j++) {
+        if (i % 2 === 1 || j % 2 === 1) continue;
+        this.add.innerWall(
+          IngameConfig.tileWidth * i + IngameConfig.tileWidth / 2,
+          IngameConfig.tileHeight * j + IngameConfig.tileHeight / 2 + ScreenConfig.headerHeight,
+          IngameConfig.keyInnerWall
+        );
+      }
+    }
+  }
+
+  private addItems() {
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.BOMB_STRENGTH
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.BOMB_STRENGTH
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.BOMB_STRENGTH
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.PLAYER_SPEED
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.PLAYER_SPEED
+    );
+    this.add.item(
+      64 * Phaser.Math.Between(1, 13) + 32,
+      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      ItemTypes.PLAYER_SPEED
+    );
+  }
+
+  async connect() {
+    try {
+      this.room = await this.client.joinOrCreate(Constants.GAME_ROOM_KEY, {});
+    } catch (e) {
+      console.error(e);
+    }
   }
 }
