@@ -58,6 +58,8 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
   ) {
     super(world, x, y, texture);
     this.bombStrength = bombStrength;
+    const body = this.body as MatterJS.BodyType;
+    body.label = ObjectTypes.EXPLOSION;
   }
 
   draw() {
@@ -76,13 +78,10 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
           .setScale(scale, scale)
           .setAngle(angle)
           .play(playkey)
-          .setData('objectType', ObjectTypes.EXPLOSION)
           .setSensor(true)
       );
     };
 
-    // add center explosion
-    addExplodeSprite(group, this.x, this.y, 'bomb_center_explosion', 0, 1.2);
 
     // add horizontal explosions
     if (this.bombStrength > 1) {
@@ -105,7 +104,7 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
           this.x - IngameConfig.tileWidth * i,
           this.y,
           'bomb_horizontal_explosion',
-          90
+          180
         );
         addExplodeSprite(
           group,
@@ -163,6 +162,10 @@ Phaser.GameObjects.GameObjectFactory.register(
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);
+    // add center explosion
+    sprite.setScale(1.2, 1.2);
+    sprite.setSensor(true);
+    sprite.play('bomb_center_explosion');
     sprite.draw();
     return sprite;
   }
