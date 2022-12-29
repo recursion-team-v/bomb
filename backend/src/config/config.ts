@@ -8,7 +8,7 @@ export const INITIAL_SET_BOMB_NUM = 1;
 export const INITIAL_BOMB_STRENGTH = 1;
 
 // プレイヤーの移動速度
-export const INITIAL_PLAYER_SPEED = 5;
+export const INITIAL_PLAYER_SPEED = 1;
 
 // プレイヤーの初期位置
 // TODO: サイズから計算する
