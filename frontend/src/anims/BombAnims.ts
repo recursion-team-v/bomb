@@ -1,13 +1,14 @@
 import Phaser from 'phaser';
+import IngameConfig from '../config/ingameConfig';
 
 export const createBombAnims = (anims: Phaser.Animations.AnimationManager) => {
-  const animsFrameRate = 10;
+  const animsFrame = 18; // 画像の枚数
 
   anims.create({
     key: 'bomb_count',
     frames: anims.generateFrameNames('bomb', {
-      end: 2,
+      end: animsFrame - 1,
     }),
-    frameRate: animsFrameRate * 0.1,
+    frameRate: animsFrame / (IngameConfig.bombExplodedTime / 1000), // 秒間に表示する画像の枚数
   });
 };
