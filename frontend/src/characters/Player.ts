@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+
 import IngameConfig from '../config/ingameConfig';
 import { handleCollide } from '../utils/handleCollide';
 
@@ -52,6 +53,13 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   // ボムを置く
   placeBomb() {
-    this.scene.add.bomb(this.x, this.y, this.bombStrength);
+    const bx =
+      Math.floor(this.x / IngameConfig.tileWidth) * IngameConfig.tileWidth +
+      IngameConfig.tileWidth / 2;
+    const by =
+      Math.floor(this.y / IngameConfig.tileHeight) * IngameConfig.tileHeight +
+      IngameConfig.tileHeight / 2;
+
+    this.scene.add.bomb(bx, by, this.bombStrength);
   }
 }
