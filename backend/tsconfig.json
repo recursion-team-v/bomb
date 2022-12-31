@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "lib",
+    "outDir": "dist",
     "target": "es6", // ESNext などにすると動かない
     "module": "commonjs",
     "strict": true,
@@ -10,5 +10,5 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"]
+  "include": ["/"]
 }
