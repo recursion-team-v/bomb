@@ -1,7 +1,8 @@
 import IngameConfig from './ingameConfig';
+
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class ScreenConfig {
-  static headerHeight: number = 60;
+  static headerHeight: number = 64;
   static headerColorCode: string = '#000000';
   static headerTimerTextColorCode: string = '#FFFFFF';
 
