@@ -23,6 +23,22 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   explode() {
     this.scene.add.blast(this.x, this.y, this.bombStrength);
   }
+
+  // プレイヤーが爆弾を配置した後に、爆弾から離れたときに当たり判定を復活させるメソッド
+  updateCollision() {
+    this.setSensor(false);
+
+    const obj = this.setRectangle(
+      IngameConfig.tileWidth,
+      IngameConfig.tileHeight
+    ) as Phaser.Physics.Matter.Sprite;
+    obj.setStatic(true);
+  }
+
+  // 引数の MatterJS.BodyType が爆弾の当たり判定と重なっているかどうかを返す
+  isOverlapping(mp: Phaser.Physics.Matter.MatterPhysics, target: MatterJS.BodyType) {
+    return mp.overlap(this.body as MatterJS.BodyType, [target]);
+  }
 }
 
 Phaser.GameObjects.GameObjectFactory.register(
@@ -34,6 +50,7 @@ Phaser.GameObjects.GameObjectFactory.register(
     this.updateList.add(sprite);
 
     sprite.setStatic(true);
+    sprite.setSensor(true);
 
     sprite.play('bomb_count', false);
     // bomb_count アニメーションが終わったら explode
