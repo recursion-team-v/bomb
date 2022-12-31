@@ -56,3 +56,6 @@ export const INITIAL_PLAYER_POSITION = [
 
 // 爆弾の爆発までの時間(ms)
 export const BOMB_EXPLOSION_TIME = 2330;
+
+// クライアントとサーバで許容するプレイヤーの位置のズレ(px)
+export const PLAYER_TOLERANCE_DISTANCE = 10;

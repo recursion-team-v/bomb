@@ -87,8 +87,11 @@ export class GameEngine {
     const velocity = player.speed;
 
     while ((data = player.inputQueue.shift())) {
-      const newVx = data.x - player.x;
-      const newVy = data.y - player.y;
+      let newVx = data.x - player.x;
+      let newVy = data.y - player.y;
+
+      if (Math.abs(newVx) > velocity) newVx = velocity * Math.sign(newVx);
+      if (Math.abs(newVy) > velocity) newVy = velocity * Math.sign(newVy);
 
       Matter.Body.setVelocity(playerBody, { x: newVx, y: newVy });
     }
