@@ -21,6 +21,7 @@ import { ObjectTypes } from '../types/objects';
 import { Client, Room } from 'colyseus.js';
 import * as Constants from '../../../backend/src/constants/constants';
 import Player from '../../../backend/src/rooms/schema/Player';
+import Bomb from '../items/Bomb';
 
 export default class Game extends Phaser.Scene {
   private readonly client: Client;
@@ -160,6 +161,8 @@ export default class Game extends Phaser.Scene {
   }
 
   update(time: number, delta: number) {
+    this.updateBombCollision();
+
     if (this.currentPlayer === undefined) return;
 
     // 前回の処理からの経過時間を算出し、1フレームの経過時間を超えていたら処理を実行する
@@ -169,6 +172,18 @@ export default class Game extends Phaser.Scene {
       this.elapsedTime -= this.fixedTimeStep;
       this.fixedTick();
     }
+  }
+
+  // ボム設置後、プレイヤーの挙動によってボムの衝突判定を更新する
+  private updateBombCollision() {
+    this.children.list.forEach((child: Phaser.GameObjects.GameObject) => {
+      if (!(child instanceof Bomb)) return;
+
+      const playerBody = this.currentPlayer.body as MatterJS.BodyType;
+      if (child.isSensor() && !child.isOverlapping(this.matter, playerBody)) {
+        child.updateCollision();
+      }
+    });
   }
 
   // 他のプレイヤーの移動処理
