@@ -104,6 +104,9 @@ export default class Game extends Phaser.Scene {
           });
         };
       } else {
+        // プレイヤー同士はぶつからないようにする
+        entity.setSensor(true);
+
         const randomColor = Math.floor(Math.random() * 16777215);
         entity.setPlayerColor(randomColor);
         player.onChange = () => {

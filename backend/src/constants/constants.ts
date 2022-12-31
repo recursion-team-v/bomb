@@ -56,3 +56,12 @@ export const INITIAL_PLAYER_POSITION = [
 
 // 爆弾の爆発までの時間(ms)
 export const BOMB_EXPLOSION_TIME = 2330;
+
+/*
+衝突判定のカテゴリ
+*/
+
+export const COLLISION_CATEGORY = {
+  DEFAULT: 0x0001, // デフォルト
+  PLAYER: 0x0002, // プレイヤー
+};
