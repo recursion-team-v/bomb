@@ -9,7 +9,7 @@ import '../items/Item';
 
 import { createPlayerAnims } from '../anims/PlayerAnims';
 import { generateGroundArray, generateWallArray } from '../utils/generateMap';
-import { Keyboard } from '../types/keyboard';
+import { Keyboard, NavKeys } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
 import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
@@ -41,7 +41,7 @@ export default class Game extends Phaser.Scene {
     down: false,
   };
 
-  cursorKeys!: Phaser.Types.Input.Keyboard.CursorKeys;
+  cursorKeys!: NavKeys;
 
   constructor() {
     super('game');
@@ -85,12 +85,23 @@ export default class Game extends Phaser.Scene {
         this.currentPlayer = entity;
 
         // サーバ側が認識するプレイヤーの位置を示す四角形
-        this.remoteRef = this.add.rectangle(0, 0, entity.width, entity.height);
-        this.remoteRef.setStrokeStyle(1, 0xff0000);
+        this.remoteRef = this.add.rectangle(
+          player.x,
+          player.y,
+          entity.width,
+          entity.height,
+          0xfff,
+          0.3
+        );
 
-        player.onChange = () => {
-          // console.log('change');
-          this.remoteRef.setPosition(player.x, player.y);
+        player.onChange = (changes) => {
+          changes.forEach((change) => {
+            console.log(change);
+            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+
+            if (change.field === 'x') this.remoteRef.setX(change.value);
+            if (change.field === 'y') this.remoteRef.setY(change.value);
+          });
         };
       } else {
         const randomColor = Math.floor(Math.random() * 16777215);
@@ -170,30 +181,44 @@ export default class Game extends Phaser.Scene {
     const p = this.currentPlayer;
 
     // send input to the server
-    this.inputPayload.left = this.cursorKeys.left.isDown;
-    this.inputPayload.right = this.cursorKeys.right.isDown;
-    this.inputPayload.up = this.cursorKeys.up.isDown;
-    this.inputPayload.down = this.cursorKeys.down.isDown;
+    this.inputPayload.left = this.cursorKeys.left.isDown || this.cursorKeys.A.isDown;
+    this.inputPayload.right = this.cursorKeys.right.isDown || this.cursorKeys.D.isDown;
+    this.inputPayload.up = this.cursorKeys.up.isDown || this.cursorKeys.W.isDown;
+    this.inputPayload.down = this.cursorKeys.down.isDown || this.cursorKeys.S.isDown;
 
     this.room.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, this.inputPayload);
 
-    const oldX = p.x;
-    const oldY = p.y;
+    let vx = 0; // velocity x
+    let vy = 0; // velocity y
 
     const velocity = p.speed;
     if (this.inputPayload.left) {
-      p.x -= velocity;
+      vx -= velocity;
     } else if (this.inputPayload.right) {
-      p.x += velocity;
+      vx += velocity;
     }
 
     if (this.inputPayload.up) {
-      p.y -= velocity;
+      vy -= velocity;
     } else if (this.inputPayload.down) {
-      p.y += velocity;
+      vy += velocity;
     }
 
-    this.playerAnims(p, oldX, oldY);
+    p.setVelocity(vx, vy);
+
+    if (vx > 0) p.play('player_right', true);
+    else if (vx < 0) p.play('player_left', true);
+    else if (vy > 0) p.play('player_down', true);
+    else if (vy < 0) p.play('player_up', true);
+    else p.stop();
+
+    // bomb 設置
+    const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(this.cursorKeys.space);
+    if (isSpaceJustDown) {
+      p.placeBomb();
+    }
+
+    // this.playerAnims(p, oldX, oldY);
   }
 
   private fixedTick() {
@@ -273,21 +298,21 @@ export default class Game extends Phaser.Scene {
       64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
       ItemTypes.BOMB_STRENGTH
     );
-    this.add.item(
-      64 * Phaser.Math.Between(1, 13) + 32,
-      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
-      ItemTypes.PLAYER_SPEED
-    );
-    this.add.item(
-      64 * Phaser.Math.Between(1, 13) + 32,
-      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
-      ItemTypes.PLAYER_SPEED
-    );
-    this.add.item(
-      64 * Phaser.Math.Between(1, 13) + 32,
-      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
-      ItemTypes.PLAYER_SPEED
-    );
+    // this.add.item(
+    //   64 * Phaser.Math.Between(1, 13) + 32,
+    //   64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+    //   ItemTypes.PLAYER_SPEED
+    // );
+    // this.add.item(
+    //   64 * Phaser.Math.Between(1, 13) + 32,
+    //   64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+    //   ItemTypes.PLAYER_SPEED
+    // );
+    // this.add.item(
+    //   64 * Phaser.Math.Between(1, 13) + 32,
+    //   64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+    //   ItemTypes.PLAYER_SPEED
+    // );
   }
 
   async connect() {

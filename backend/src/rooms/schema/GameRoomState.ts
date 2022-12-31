@@ -8,13 +8,6 @@ export default class GameRoomState extends Schema {
     return this.players.get(sessionId);
   }
 
-  updatePlayer(sessionId: string, data: any) {
-    const player = this.getPlayer(sessionId);
-    if (player === undefined) return;
-    player.x = data.x;
-    player.y = data.y;
-  }
-
   getPlayersCount() {
     return this.players.size;
   }
