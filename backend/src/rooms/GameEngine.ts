@@ -4,6 +4,7 @@ import Matter from 'matter-js';
 import * as Constants from '../constants/constants';
 import GameRoomState from './schema/GameRoomState';
 import Player from './schema/Player';
+import * as Constants from '../constants/constants';
 
 export class GameEngine {
   world: Matter.World;
@@ -28,10 +29,16 @@ export class GameEngine {
       for (let j = 0; j < cols; j++) {
         if (i === 0 || i === rows - 1 || j === 0 || j === cols - 1) {
           walls.push(
-            Matter.Bodies.rectangle(32 + 64 * j, 92 + 64 * i, 64, 64, {
-              isStatic: true,
-              label: 'WALL',
-            })
+            Matter.Bodies.rectangle(
+              Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * j,
+              Constants.HEADER_HEIGHT + Constants.TILE_HEIGHT / 2 + Constants.TILE_HEIGHT * i,
+              Constants.TILE_WIDTH,
+              Constants.TILE_HEIGHT,
+              {
+                isStatic: true,
+                label: 'WALL',
+              }
+            )
           );
         }
       }
@@ -41,7 +48,7 @@ export class GameEngine {
 
   init() {
     // create walls
-    Matter.Composite.add(this.world, this.addWalls(13, 15));
+    Matter.Composite.add(this.world, this.addWalls(Constants.TILE_ROWS, Constants.TILE_COLS));
     this.initUpdateEvents();
   }
 
@@ -66,16 +73,22 @@ export class GameEngine {
 
   addPlayer(sessionId: string) {
     const player = this.state.createPlayer(sessionId);
-    const playerBody = Matter.Bodies.rectangle(player.x, player.y, 64, 64, {
-      label: 'PLAYER',
-      chamfer: {
-        radius: 10,
-      },
-      friction: 0,
-      frictionStatic: 0,
-      frictionAir: 0,
-      restitution: 0,
-    });
+    const playerBody = Matter.Bodies.rectangle(
+      player.x,
+      player.y,
+      Constants.PLAYER_WIDTH,
+      Constants.PLAYER_HEIGHT,
+      {
+        label: 'PLAYER',
+        chamfer: {
+          radius: 10,
+        },
+        friction: 0,
+        frictionStatic: 0,
+        frictionAir: 0,
+        restitution: 0,
+      }
+    );
     this.playerBodies.set(sessionId, playerBody);
     Matter.Composite.add(this.world, [playerBody]);
     playerBody.collisionFilter.category = Constants.COLLISION_CATEGORY.PLAYER;
