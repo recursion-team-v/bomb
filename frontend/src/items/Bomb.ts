@@ -37,7 +37,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
   // 引数の MatterJS.BodyType が爆弾の当たり判定と重なっているかどうかを返す
   isOverlapping(mp: Phaser.Physics.Matter.MatterPhysics, target: MatterJS.BodyType) {
-    return mp.overlap(this.body as MatterJS.BodyType, target);
+    return mp.overlap(this.body as MatterJS.BodyType, [target]);
   }
 }
 
