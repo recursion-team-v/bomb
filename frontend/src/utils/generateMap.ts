@@ -32,24 +32,25 @@ export const generateWallArray = (rows: number, cols: number) => {
 
   const defaultWalls = [10, 19];
   const defaultWallCorners = 21;
-  const crate = 1;
+  // const crate = 1;
 
   const arr = Array(rows)
     .fill(-1)
     .map(() => Array(cols).fill(-1));
 
-  let crateCnt = 0;
+  // let crateCnt = 0;
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
-      const rand = Phaser.Math.Between(1, 10);
+      // const rand = Phaser.Math.Between(1, 10);
       if (i === 0 || i === rows - 1) {
         arr[i][j] = defaultWalls[1];
       } else if (i === rows - 1 || j === 0 || j === cols - 1) {
         arr[i][j] = defaultWalls[0];
-      } else if (crateCnt < 10 && rand < 2) {
-        arr[i][j] = crate;
-        crateCnt++;
       }
+      // else if (crateCnt < 10 && rand < 2) {
+      //   arr[i][j] = crate;
+      //   crateCnt++;
+      // }
     }
   }
 

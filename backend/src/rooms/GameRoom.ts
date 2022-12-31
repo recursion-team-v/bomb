@@ -1,11 +1,17 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { Client, Room } from 'colyseus';
+import Matter from 'matter-js';
 import * as Constants from '../constants/constants';
+import { GameEngine } from './GameEngine';
 import GameRoomState from './schema/GameRoomState';
 
 export default class GameRoom extends Room<GameRoomState> {
+  engine!: GameEngine;
+
   onCreate(options: any) {
     this.setState(new GameRoomState());
+
+    this.engine = new GameEngine(this.state);
 
     // クライアントからの移動入力を受け取ってキューに詰める
     this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, (client, data: any) => {
@@ -23,39 +29,27 @@ export default class GameRoom extends Room<GameRoomState> {
 
       while (elapsedTime >= Constants.FRAME_RATE) {
         elapsedTime -= Constants.FRAME_RATE;
-        this.fixedUpdate(Constants.FRAME_RATE);
+        for (const [, player] of this.state.players) {
+          this.engine.updatePlayer(player);
+        }
+        Matter.Engine.update(this.engine.engine, deltaTime);
       }
     });
   }
 
   // キューに詰められた入力を処理し、キャラの移動を行う
   // TODO: 当たり判定
-  private fixedUpdate(deltaTime: number) {
-    this.state.players.forEach((player) => {
-      const velocity = player.speed;
-      let data: any;
-
-      while ((data = player.inputQueue.shift())) {
-        if (data.left) {
-          player.x -= velocity;
-        } else if (data.right) {
-          player.x += velocity;
-        }
-
-        if (data.up) {
-          player.y -= velocity;
-        } else if (data.down) {
-          player.y += velocity;
-        }
-      }
-    });
-  }
+  // private fixedUpdate(deltaTime: number) {
+  //   this.state.players.forEach((player) => {
+  //     this.engine?.updatePlayer(player, deltaTime);
+  //   });
+  // }
 
   onJoin(client: Client, options: any) {
     console.log(client.sessionId, 'joined!');
 
-    // create Player instance
-    this.state.createPlayer(client.sessionId);
+    // create Player instance and add to matter
+    this.engine.addPlayer(client.sessionId);
   }
 
   onLeave(client: Client, consented: boolean) {

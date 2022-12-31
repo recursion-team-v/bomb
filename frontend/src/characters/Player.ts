@@ -17,14 +17,13 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     super(world, x, y, texture, frame, options);
     this.setScale(1, 1);
     this.setRectangle(IngameConfig.defaultTipSize, IngameConfig.defaultTipSize, {
-      chamfer: 100,
+      chamfer: 10,
       friction: 0,
       frictionStatic: 0,
       frictionAir: 0,
     });
     this.setOrigin(0.5, 0.5);
     this.setFixedRotation();
-    this.setSpeed(5);
     this.play('player_down', true); // 最初は下向いてる
 
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
