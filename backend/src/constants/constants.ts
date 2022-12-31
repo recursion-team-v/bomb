@@ -1,4 +1,4 @@
-export const FPS = 120; // 1 秒間のフレーム数
+export const FPS = 60; // 1 秒間のフレーム数
 export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
 
 // Dockerfile の中と、デプロイ時にポートを指定しているので、ここの設定は開発時にしか利用されません。
@@ -31,3 +31,6 @@ export const GAME_STATE = {
 } as const;
 
 export type GAME_STATE_TYPE = typeof GAME_STATE[keyof typeof GAME_STATE];
+
+// 爆弾の爆発までの時間(ms)
+export const BOMB_EXPLOSION_TIME = 2330;
