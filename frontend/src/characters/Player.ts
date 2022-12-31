@@ -25,7 +25,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     });
     this.setOrigin(0.5, 0.5);
     this.setFixedRotation();
-    this.setSpeed(5);
+    this.setSpeed(1);
     this.play('player_down', true); // 最初は下向いてる
 
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
