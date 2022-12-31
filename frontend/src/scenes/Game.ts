@@ -96,11 +96,15 @@ export default class Game extends Phaser.Scene {
 
         player.onChange = (changes) => {
           changes.forEach((change) => {
-            console.log(change);
+            // console.log(change);
             // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
 
             if (change.field === 'x') this.remoteRef.setX(change.value);
             if (change.field === 'y') this.remoteRef.setY(change.value);
+
+            // console.log(
+            //   `${this.currentPlayer.x} : ${this.remoteRef.x}, ${this.currentPlayer.y} : ${this.remoteRef.y}`
+            // );
           });
         };
       } else {
@@ -186,8 +190,6 @@ export default class Game extends Phaser.Scene {
     this.inputPayload.up = this.cursorKeys.up.isDown || this.cursorKeys.W.isDown;
     this.inputPayload.down = this.cursorKeys.down.isDown || this.cursorKeys.S.isDown;
 
-    this.room.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, this.inputPayload);
-
     let vx = 0; // velocity x
     let vy = 0; // velocity y
 
@@ -205,6 +207,8 @@ export default class Game extends Phaser.Scene {
     }
 
     p.setVelocity(vx, vy);
+
+    this.room.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, p);
 
     if (vx > 0) p.play('player_right', true);
     else if (vx < 0) p.play('player_left', true);

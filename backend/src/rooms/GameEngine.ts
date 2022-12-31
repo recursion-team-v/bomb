@@ -51,8 +51,8 @@ export class GameEngine {
         const playerBody = this.playerBodies.get(key);
         if (!playerState || !playerBody) continue;
 
-        playerState.x = Math.floor(playerBody.position.x);
-        playerState.y = Math.floor(playerBody.position.y);
+        playerState.x = playerBody.position.x;
+        playerState.y = playerBody.position.y;
         playerState.vx = playerBody.velocity.x;
         playerState.vy = playerBody.velocity.y;
 
@@ -87,20 +87,8 @@ export class GameEngine {
     const velocity = player.speed;
 
     while ((data = player.inputQueue.shift())) {
-      let newVx = 0;
-      let newVy = 0;
-
-      if (data.left) {
-        newVx -= velocity;
-      } else if (data.right) {
-        newVx += velocity;
-      }
-
-      if (data.up) {
-        newVy -= velocity;
-      } else if (data.down) {
-        newVy += velocity;
-      }
+      const newVx = data.x - player.x;
+      const newVy = data.y - player.y;
 
       Matter.Body.setVelocity(playerBody, { x: newVx, y: newVy });
     }
