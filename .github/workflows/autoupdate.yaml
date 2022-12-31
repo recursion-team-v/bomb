@@ -1,0 +1,25 @@
+# https://github.com/marketplace/actions/auto-update
+name: autoupdate
+on:
+  push:
+    branches:
+      - main
+jobs:
+  autoupdate:
+    name: autoupdate
+    runs-on: ubuntu-latest
+    steps:
+      # 予期せぬものに突然変更されないように commit hash 指定に変更
+      # https://github.com/chinthakagodawita/autoupdate/commit/95c97b013bcd901adb6b42831b9db8552b9a330f
+      - uses: chinthakagodawita/autoupdate@95c97b013bcd901adb6b42831b9db8552b9a330f # v1.5.0
+        # https://github.com/chinthakagodawita/autoupdate#configuration
+        env:
+          EXCLUDED_LABELS: "no-autoupdate"
+          # https://docs.github.com/ja/actions/learn-github-actions/events-that-trigger-workflows#triggering-new-workflows-using-a-personal-access-token
+          # リポジトリのGITHUB_TOKENを使ってGitHub Actions アプリケーションの代わりにタスクを実行した場合、
+          # そのGITHUB_TOKENによって生じたイベントは、新たなワークフローの実行を生じさせず、
+          # autoupdate時に実行されなくなるので個人アクセストークンを利用する。
+          GITHUB_TOKEN: "${{ secrets.BOT_ACCESS_TOKEN }}"
+          MERGE_CONFLICT_ACTION: "fail"
+          # レビュー可能なPRのみ対象にする
+          PR_READY_STATE: "ready_for_review"
