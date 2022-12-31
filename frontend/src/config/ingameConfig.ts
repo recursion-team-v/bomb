@@ -15,6 +15,4 @@ export default class IngameConfig {
   static playerWith = this.defaultTipSize; // プレイヤーの横幅
   static playerHeight = this.defaultTipSize; // プレイヤーの縦幅
   static keyInnerWall = 'innerWall';
-
-  static bombExplodedTime: number = 2500; // 爆弾の爆発するまでの時間(msec)
 }

@@ -1,5 +1,7 @@
 import { Schema, type } from '@colyseus/schema';
-import * as Config from '../../config/config';
+
+import * as Constants from '../../constants/constants';
+
 export default class Player extends Schema {
   @type('string')
   sessionId: string;
@@ -23,7 +25,7 @@ export default class Player extends Schema {
   vy: number = 0;
 
   @type('number')
-  speed: number = Config.INITIAL_PLAYER_SPEED;
+  speed: number = Constants.INITIAL_PLAYER_SPEED;
 
   // ボムの破壊力
   @type('number')
@@ -39,9 +41,9 @@ export default class Player extends Schema {
     super();
     this.sessionId = sessionId;
     this.idx = idx;
-    this.x = Config.INITIAL_PLAYER_POSITION[idx].x;
-    this.y = Config.INITIAL_PLAYER_POSITION[idx].y;
-    this.bombStrength = Config.INITIAL_BOMB_STRENGTH;
-    this.bombNum = Config.INITIAL_SET_BOMB_NUM;
+    this.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
+    this.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
+    this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
+    this.bombNum = Constants.INITIAL_SET_BOMB_NUM;
   }
 }
