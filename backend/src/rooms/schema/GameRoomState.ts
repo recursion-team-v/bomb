@@ -1,6 +1,8 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
+
+import * as Constants from '../../constants/constants';
 import Player from './Player';
-import * as Config from '../../config/config';
+
 export default class GameRoomState extends Schema {
   @type({ map: Player }) players = new MapSchema<Player>();
 
@@ -16,8 +18,8 @@ export default class GameRoomState extends Schema {
     const player = new Player(sessionId, this.getPlayersCount());
     const idx = this.getPlayersCount();
     player.idx = idx;
-    player.x = Config.INITIAL_PLAYER_POSITION[idx].x;
-    player.y = Config.INITIAL_PLAYER_POSITION[idx].y;
+    player.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
+    player.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
     this.players.set(sessionId, player);
     return player;
   }

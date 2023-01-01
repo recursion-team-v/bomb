@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 
+import * as Constants from '../../../backend/src/constants/constants';
 import IngameConfig from '../config/ingameConfig';
 import { handleCollide } from '../utils/handleCollide';
 
@@ -17,16 +18,20 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     options?: Phaser.Types.Physics.Matter.MatterBodyConfig
   ) {
     super(world, x, y, texture, frame, options);
+
+    this.speed = Constants.INITIAL_PLAYER_SPEED;
+    this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
+
     this.setScale(1, 1);
     this.setRectangle(IngameConfig.defaultTipSize, IngameConfig.defaultTipSize, {
-      chamfer: 10,
+      chamfer: 0,
       friction: 0,
       frictionStatic: 0,
       frictionAir: 0,
     });
     this.setOrigin(0.5, 0.5);
     this.setFixedRotation();
-    this.setSpeed(1);
+    this.setSpeed(this.speed);
     this.play('player_down', true); // 最初は下向いてる
 
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
@@ -70,7 +75,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
       Math.floor(this.y / IngameConfig.tileHeight) * IngameConfig.tileHeight +
       IngameConfig.tileHeight / 2;
 
-    this.scene.add.bomb(bx, by, this.bombStrength,this);
+    this.scene.add.bomb(bx, by, this.bombStrength, this);
     this.havableBomb--;
   }
 
