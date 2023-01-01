@@ -90,7 +90,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       270
     );
   }
-  
+
   updateCollision() {
     this.setSensor(false);
 
@@ -122,6 +122,7 @@ Phaser.GameObjects.GameObjectFactory.register(
     this.updateList.add(sprite);
 
     sprite.setStatic(true);
+    sprite.setSensor(true);
     sprite.play('bomb_count', false);
 
     // bomb_count アニメーションが終わったら explode
