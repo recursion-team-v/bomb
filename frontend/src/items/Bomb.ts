@@ -113,7 +113,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   // ボムが爆発した後の処理
   afterExplosion() {
     this.destroy();
-    this.player.recoverCurrentSettableBombCount();
+    this.player.recoverSettableBombCount();
   }
 }
 

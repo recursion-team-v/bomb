@@ -331,6 +331,16 @@ export default class Game extends Phaser.Scene {
       64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
       ItemTypes.BOMB_STRENGTH
     );
+
+    const bombPossessionUpCount = 10;
+    for (let i = 0; i < bombPossessionUpCount; i++) {
+      this.add.item(
+        64 * Phaser.Math.Between(1, 13) + 32,
+        64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+        ItemTypes.BOMB_POSSESSION_UP
+      );
+    }
+
     // this.add.item(
     //   64 * Phaser.Math.Between(1, 13) + 32,
     //   64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,

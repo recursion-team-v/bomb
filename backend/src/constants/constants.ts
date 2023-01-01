@@ -39,7 +39,7 @@ export const MAX_PLAYER = 4;
 export const INITIAL_SETTABLE_BOMB_COUNT = 1;
 
 // 最大に設置できる爆弾の数
-export const MAX_SETTABLE_BOMB_COUNT = 5;
+export const MAX_SETTABLE_BOMB_COUNT = 8;
 
 // 初期の爆弾の破壊力
 export const INITIAL_BOMB_STRENGTH = 1;

@@ -7,8 +7,8 @@ import { handleCollide } from '../utils/handleCollide';
 export default class Player extends Phaser.Physics.Matter.Sprite {
   public speed: number;
   public bombStrength: number;
-  private settableBombCount: number; // 一度に設置できるボムの個数
-  private currentSettableBombCount: number; // 現在設置できるボムの個数
+  private settableBombCount: number; // 今設置できるボムの個数
+  private maxBombCount: number; // 設置できるボムの最大個数
 
   constructor(
     world: Phaser.Physics.Matter.World,
@@ -23,7 +23,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.speed = Constants.INITIAL_PLAYER_SPEED;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.settableBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
-    this.currentSettableBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
+    this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
 
     this.setScale(1, 1);
     this.setRectangle(IngameConfig.defaultTipSize, IngameConfig.defaultTipSize, {
@@ -60,29 +60,33 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.tint = color;
   }
 
+  increaseMaxBombCount() {
+    console.log(this.maxBombCount, Constants.MAX_SETTABLE_BOMB_COUNT);
+    if (this.maxBombCount < Constants.MAX_SETTABLE_BOMB_COUNT) {
+      this.maxBombCount++;
+      this.settableBombCount++;
+    }
+  }
+
   // ボムを置ける最大数を増やす
-  increaseSettableBombCount() {
-    if (this.settableBombCount < Constants.MAX_SETTABLE_BOMB_COUNT) this.settableBombCount++;
+  recoverSettableBombCount() {
+    this.settableBombCount++;
   }
 
-  // ボムを置ける数を回復する
-  recoverCurrentSettableBombCount() {
-    this.currentSettableBombCount++;
-  }
-
-  // ボムを設置したら、置ける数を減らす
-  consumeCurrentSettableBombCount() {
-    if (this.canSetBomb()) this.currentSettableBombCount--;
+  // 現在設置しているボムの数を減らす
+  consumeCurrentSetBombCount() {
+    this.settableBombCount--;
   }
 
   // ボムを設置できるかをチェックする
   canSetBomb(): boolean {
-    return this.currentSettableBombCount > 0;
+    return this.settableBombCount > 0;
   }
 
   // ボムを置く
   placeBomb() {
     if (!this.canSetBomb()) return;
+    console.log(this.maxBombCount, this.settableBombCount);
 
     const bx =
       Math.floor(this.x / IngameConfig.tileWidth) * IngameConfig.tileWidth +
@@ -94,7 +98,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.scene.add.bomb(bx, by, this.bombStrength, this);
 
     // ボムを置ける数を減らす
-    this.consumeCurrentSettableBombCount();
+    this.consumeCurrentSetBombCount();
   }
 
   gameOver() {
