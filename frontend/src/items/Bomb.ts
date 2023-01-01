@@ -7,6 +7,7 @@ import { handleCollide } from '../utils/handleCollide';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly bombStrength: number;
+  private readonly player: Player;
 
   constructor(
     world: Phaser.Physics.Matter.World,
@@ -21,6 +22,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     const body = this.body as MatterJS.BodyType;
     body.label = ObjectTypes.BOMB;
 
+    this.player = player;
     this.bombStrength = bombStrength;
   }
 
@@ -106,6 +108,12 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   isOverlapping(mp: Phaser.Physics.Matter.MatterPhysics, target: MatterJS.BodyType) {
     return mp.overlap(this.body as MatterJS.BodyType, [target]);
   }
+
+  // ボムが爆発した後の処理
+  afterExplosion() {
+    this.destroy();
+    this.player.recoverCurrentSettableBombCount();
+  }
 }
 
 Phaser.GameObjects.GameObjectFactory.register(
@@ -129,8 +137,7 @@ Phaser.GameObjects.GameObjectFactory.register(
     // bomb_count アニメーションが終わったら explode
     sprite.once('animationcomplete', () => {
       sprite.explode();
-      sprite.destroy();
-      player.increaseSettableBombCount();
+      sprite.afterExplosion();
     });
 
     return sprite;
