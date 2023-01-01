@@ -33,7 +33,7 @@ export default class Player extends Schema {
 
   // 設置できるボムの個数
   @type('number')
-  bombNum: number;
+  settableBombCount: number;
 
   inputQueue: any[] = [];
 
@@ -44,6 +44,6 @@ export default class Player extends Schema {
     this.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
     this.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
-    this.bombNum = Constants.INITIAL_SET_BOMB_NUM;
+    this.settableBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
   }
 }

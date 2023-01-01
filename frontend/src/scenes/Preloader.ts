@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+
 import IngameConfig from '../config/ingameConfig';
 import { ItemTypes } from '../types/items';
 
@@ -45,6 +46,7 @@ export default class Preloader extends Phaser.Scene {
       frameWidth,
       frameHeight,
     });
+    this.load.image(ItemTypes.BOMB_POSSESSION_UP, 'assets/items/item_bomb_up.png');
     this.load.image(ItemTypes.BOMB_STRENGTH, 'assets/items/item_bomb_strength.png');
     this.load.image(ItemTypes.PLAYER_SPEED, 'assets/items/item_player_speed.png');
     console.log('preloader: sprites loaded');
