@@ -95,14 +95,11 @@ export default class Game extends Phaser.Scene {
           0.3
         );
 
-        player.onChange = (changes) => {
-          changes.forEach((change) => {
-            console.log(change);
-            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+        player.onChange = () => {
+          this.remoteRef.setPosition(player.x, player.y);
 
-            if (change.field === 'x') this.remoteRef.setX(change.value);
-            if (change.field === 'y') this.remoteRef.setY(change.value);
-          });
+          // ずれが一定以上の場合は強制移動
+          this.forceMovePlayerPosition(player);
         };
       } else {
         const randomColor = Math.floor(Math.random() * 16777215);
@@ -144,6 +141,24 @@ export default class Game extends Phaser.Scene {
 
   // 1フレームの経過時間
   private readonly fixedTimeStep: number = Constants.FRAME_RATE;
+
+  // 一定以上のズレなら強制同期
+  private forceMovePlayerPosition(player: Player) {
+    let forceX = 0;
+    let forceY = 0;
+
+    if (Math.abs(this.currentPlayer.x - player.x) > Constants.PLAYER_TOLERANCE_DISTANCE) {
+      forceX = (this.currentPlayer.x - player.x) * -1;
+    }
+
+    if (Math.abs(this.currentPlayer.y - player.y) > Constants.PLAYER_TOLERANCE_DISTANCE) {
+      forceY = (this.currentPlayer.y - player.y) * -1;
+    }
+
+    if (forceX === 0 && forceY === 0) return;
+    console.log('force move');
+    this.currentPlayer.setVelocity(forceX, forceY);
+  }
 
   update(time: number, delta: number) {
     this.updateBombCollision();
@@ -201,8 +216,6 @@ export default class Game extends Phaser.Scene {
     this.inputPayload.up = this.cursorKeys.up.isDown || this.cursorKeys.W.isDown;
     this.inputPayload.down = this.cursorKeys.down.isDown || this.cursorKeys.S.isDown;
 
-    this.room.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, this.inputPayload);
-
     let vx = 0; // velocity x
     let vy = 0; // velocity y
 
@@ -220,6 +233,8 @@ export default class Game extends Phaser.Scene {
     }
 
     p.setVelocity(vx, vy);
+
+    this.room.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, p);
 
     if (vx > 0) p.play('player_right', true);
     else if (vx < 0) p.play('player_left', true);
