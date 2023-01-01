@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-import ScreenConfig from './config/screenConfig';
+import * as Constants from '../../backend/src/constants/constants';
 import Game from './scenes/Game';
 import GameHeader from './scenes/GameHeader';
 import GameResult from './scenes/GameResult';
@@ -12,8 +12,8 @@ const config: Phaser.Types.Core.GameConfig = {
   pixelArt: true,
   scale: {
     mode: Phaser.Scale.ScaleModes.FIT,
-    width: ScreenConfig.width,
-    height: ScreenConfig.height,
+    width: Constants.WIDTH,
+    height: Constants.HEIGHT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   physics: {

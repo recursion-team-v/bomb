@@ -70,6 +70,9 @@ export const BOMB_COLLISION_RATIO = 0.6;
 // クライアントとサーバで許容するプレイヤーの位置のズレ(px)
 export const PLAYER_TOLERANCE_DISTANCE = 10;
 
+// ゲームの制限時間
+export const TIME_LIMIT_SEC = 181; // (+1秒するといい感じに表示される)
+
 /*
 衝突判定のカテゴリ
 */

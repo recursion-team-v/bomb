@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import IngameConfig from '../config/ingameConfig';
-import ScreenConfig from '../config/screenConfig';
+
+import * as Constants from '../../../backend/src/constants/constants';
 import convertSecondsToMMSS from '../utils/timer';
 
 export default class GameHeader extends Phaser.Scene {
@@ -19,11 +19,11 @@ export default class GameHeader extends Phaser.Scene {
   constructor() {
     super('gameHeader');
 
-    this.height = ScreenConfig.headerHeight;
-    this.width = ScreenConfig.width;
-    this.headerColorCode = ScreenConfig.headerColorCode;
-    this.headerTimerTextColorCode = ScreenConfig.headerTimerTextColorCode;
-    this.timeLimitsSec = IngameConfig.timeLimitsSec;
+    this.height = Constants.HEADER_HEIGHT;
+    this.width = Constants.HEADER_WIDTH;
+    this.headerColorCode = Constants.HEADER_COLOR_CODE;
+    this.headerTimerTextColorCode = Constants.HEADER_TIMER_TEXT_COLOR_CODE;
+    this.timeLimitsSec = Constants.TIME_LIMIT_SEC;
   }
 
   init() {

@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-import IngameConfig from '../config/ingameConfig';
 import { handleCollide } from '../utils/handleCollide';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
@@ -26,7 +25,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
 
     this.setScale(1, 1);
-    this.setRectangle(IngameConfig.defaultTipSize, IngameConfig.defaultTipSize, {
+    this.setRectangle(Constants.PLAYER_WIDTH, Constants.PLAYER_HEIGHT, {
       chamfer: 0,
       friction: 0,
       frictionStatic: 0,
@@ -89,11 +88,10 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     console.log(this.maxBombCount, this.settableBombCount);
 
     const bx =
-      Math.floor(this.x / IngameConfig.tileWidth) * IngameConfig.tileWidth +
-      IngameConfig.tileWidth / 2;
+      Math.floor(this.x / Constants.TILE_WIDTH) * Constants.TILE_WIDTH + Constants.TILE_WIDTH / 2;
     const by =
-      Math.floor(this.y / IngameConfig.tileHeight) * IngameConfig.tileHeight +
-      IngameConfig.tileHeight / 2;
+      Math.floor(this.y / Constants.TILE_HEIGHT) * Constants.TILE_HEIGHT +
+      Constants.TILE_HEIGHT / 2;
 
     this.scene.add.bomb(bx, by, this.bombStrength, this);
 
