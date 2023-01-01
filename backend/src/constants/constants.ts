@@ -61,7 +61,7 @@ export const INITIAL_PLAYER_POSITION = [
 export const BOMB_EXPLOSION_TIME = 2330;
 
 // 爆弾が誘爆する時の遅延時間(ms)
-export const BOMB_DETONATION_DELAY = 200;
+export const BOMB_DETONATION_DELAY = 50;
 
 // クライアントとサーバで許容するプレイヤーの位置のズレ(px)
 export const PLAYER_TOLERANCE_DISTANCE = 10;
