@@ -1,10 +1,7 @@
-import { Blast } from './../items/Bomb';
 import MyPlayer from '../characters/MyPlayer';
-import Bomb from '../items/Bomb';
 import Item from '../items/Item';
 import { ItemTypes } from '../types/items';
 import { ObjectTypes } from '../types/objects';
-import Player from '../characters/Player';
 
 export const handleCollide = (bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) => {
   /**
@@ -47,6 +44,5 @@ export const handleCollide = (bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType
   }
   // A = PLAYER, B = EXPLOSION
 
-    console.log('player hit explosion');
-  }
+  console.log('player hit explosion');
 };
