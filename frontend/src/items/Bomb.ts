@@ -102,6 +102,9 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       Constants.TILE_HEIGHT
     ) as Phaser.Physics.Matter.Sprite;
     obj.setStatic(true);
+
+    const body = this.body as MatterJS.BodyType;
+    body.label = ObjectTypes.BOMB;
   }
 
   // 引数の MatterJS.BodyType が爆弾の当たり判定と重なっているかどうかを返す
@@ -161,7 +164,7 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
     body.label = ObjectTypes.EXPLOSION;
 
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
-      console.log(data);
+      // console.log(data);
       const currBody = this.body as MatterJS.BodyType;
       data.bodyA.id === currBody.id
         ? handleCollide(data.bodyA, data.bodyB)
