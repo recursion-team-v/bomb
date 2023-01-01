@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import Matter from 'matter-js';
 
-import * as Constants from '../constants/constants';
 import GameRoomState from './schema/GameRoomState';
 import Player from './schema/Player';
 import * as Constants from '../constants/constants';
