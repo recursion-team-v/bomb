@@ -2,7 +2,6 @@ import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import Player from '../characters/Player';
-import IngameConfig from '../config/ingameConfig';
 import { ObjectTypes } from '../types/object';
 import { handleCollide } from '../utils/handleCollide';
 
@@ -47,22 +46,22 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
     if (this.bombStrength > 1) {
       for (let i = 1; i < this.bombStrength; i++) {
-        addExplodeSprite(this.x + IngameConfig.tileWidth * i, this.y, 'bomb_horizontal_explosion');
+        addExplodeSprite(this.x + Constants.TILE_WIDTH * i, this.y, 'bomb_horizontal_explosion');
         addExplodeSprite(
           this.x,
-          this.y + IngameConfig.tileWidth * i,
+          this.y + Constants.TILE_WIDTH * i,
           'bomb_horizontal_explosion',
           90
         );
         addExplodeSprite(
-          this.x - IngameConfig.tileWidth * i,
+          this.x - Constants.TILE_WIDTH * i,
           this.y,
           'bomb_horizontal_explosion',
           180
         );
         addExplodeSprite(
           this.x,
-          this.y - IngameConfig.tileWidth * i,
+          this.y - Constants.TILE_WIDTH * i,
           'bomb_horizontal_explosion',
           270
         );
@@ -71,25 +70,25 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
     // add horizontal end explosions
     addExplodeSprite(
-      this.x + IngameConfig.tileWidth * this.bombStrength,
+      this.x + Constants.TILE_WIDTH * this.bombStrength,
       this.y,
       'bomb_horizontal_end_explosion'
     );
     addExplodeSprite(
       this.x,
-      this.y + IngameConfig.tileWidth * this.bombStrength,
+      this.y + Constants.TILE_WIDTH * this.bombStrength,
       'bomb_horizontal_end_explosion',
       90
     );
     addExplodeSprite(
-      this.x - IngameConfig.tileWidth * this.bombStrength,
+      this.x - Constants.TILE_WIDTH * this.bombStrength,
       this.y,
       'bomb_horizontal_end_explosion',
       180
     );
     addExplodeSprite(
       this.x,
-      this.y - IngameConfig.tileWidth * this.bombStrength,
+      this.y - Constants.TILE_WIDTH * this.bombStrength,
       'bomb_horizontal_end_explosion',
       270
     );
@@ -99,8 +98,8 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.setSensor(false);
 
     const obj = this.setRectangle(
-      IngameConfig.tileWidth,
-      IngameConfig.tileHeight
+      Constants.TILE_WIDTH,
+      Constants.TILE_HEIGHT
     ) as Phaser.Physics.Matter.Sprite;
     obj.setStatic(true);
   }

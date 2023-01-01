@@ -14,8 +14,6 @@ import MyPlayer from '../characters/MyPlayer';
 import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
 import * as Config from '../config/config';
-import IngameConfig from '../config/ingameConfig';
-import ScreenConfig from '../config/screenConfig';
 import { ItemTypes } from '../types/items';
 import { ObjectTypes } from '../types/objects';
 import { Client, Room } from 'colyseus.js';
@@ -28,8 +26,8 @@ export default class Game extends Phaser.Scene {
   private room!: Room; // TODO: Room
   private readonly rows: number;
   private readonly cols: number;
-  private readonly tileWidth = IngameConfig.tileWidth;
-  private readonly tileHeight = IngameConfig.tileHeight;
+  private readonly tileWidth = Constants.TILE_WIDTH;
+  private readonly tileHeight = Constants.TILE_HEIGHT;
   // eslint-disable-next-line @typescript-eslint/prefer-readonly, @typescript-eslint/consistent-indexed-object-style
   private playerEntities: Map<string, MyPlayer> = new Map();
   private currentPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
@@ -46,8 +44,8 @@ export default class Game extends Phaser.Scene {
 
   constructor() {
     super('game');
-    this.rows = IngameConfig.tileRows;
-    this.cols = IngameConfig.tileCols;
+    this.rows = Constants.TILE_ROWS;
+    this.cols = Constants.TILE_COLS;
     const protocol = window.location.protocol.replace('http', 'ws');
 
     if (import.meta.env.PROD) {
@@ -288,7 +286,7 @@ export default class Game extends Phaser.Scene {
       tileHeight: this.tileHeight,
     });
     groundMap.addTilesetImage('tile_grounds', undefined, this.tileWidth, this.tileHeight, 0, 0);
-    groundMap.createLayer(0, 'tile_grounds', 0, ScreenConfig.headerHeight);
+    groundMap.createLayer(0, 'tile_grounds', 0, Constants.HEADER_HEIGHT);
 
     const wallMap = this.make.tilemap({
       data: wallArray,
@@ -297,19 +295,19 @@ export default class Game extends Phaser.Scene {
     });
     wallMap.addTilesetImage('tile_walls', undefined, this.tileWidth, this.tileHeight, 0, 0);
     const wallLayer = wallMap
-      .createLayer(0, 'tile_walls', 0, ScreenConfig.headerHeight)
+      .createLayer(0, 'tile_walls', 0, Constants.HEADER_HEIGHT)
       .setCollisionBetween(0, 50);
     this.matter.world.convertTilemapLayer(wallLayer, { label: ObjectTypes.WALL });
   }
 
   private addInnerWalls() {
-    for (let i = 1; i < IngameConfig.tileRows; i++) {
-      for (let j = 1; j < IngameConfig.tileCols - 3; j++) {
+    for (let i = 1; i < Constants.TILE_ROWS; i++) {
+      for (let j = 1; j < Constants.TILE_COLS - 3; j++) {
         if (i % 2 === 1 || j % 2 === 1) continue;
         this.add.innerWall(
-          IngameConfig.tileWidth * i + IngameConfig.tileWidth / 2,
-          IngameConfig.tileHeight * j + IngameConfig.tileHeight / 2 + ScreenConfig.headerHeight,
-          IngameConfig.keyInnerWall
+          Constants.TILE_WIDTH * i + Constants.TILE_WIDTH / 2,
+          Constants.TILE_HEIGHT * j + Constants.TILE_HEIGHT / 2 + Constants.HEADER_HEIGHT,
+          'innerWall'
         );
       }
     }
@@ -318,17 +316,17 @@ export default class Game extends Phaser.Scene {
   private addItems() {
     this.add.item(
       64 * Phaser.Math.Between(1, 13) + 32,
-      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
       ItemTypes.BOMB_STRENGTH
     );
     this.add.item(
       64 * Phaser.Math.Between(1, 13) + 32,
-      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
       ItemTypes.BOMB_STRENGTH
     );
     this.add.item(
       64 * Phaser.Math.Between(1, 13) + 32,
-      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
       ItemTypes.BOMB_STRENGTH
     );
 
@@ -336,24 +334,24 @@ export default class Game extends Phaser.Scene {
     for (let i = 0; i < bombPossessionUpCount; i++) {
       this.add.item(
         64 * Phaser.Math.Between(1, 13) + 32,
-        64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+        64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
         ItemTypes.BOMB_POSSESSION_UP
       );
     }
 
     // this.add.item(
     //   64 * Phaser.Math.Between(1, 13) + 32,
-    //   64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+    //   64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
     //   ItemTypes.PLAYER_SPEED
     // );
     // this.add.item(
     //   64 * Phaser.Math.Between(1, 13) + 32,
-    //   64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+    //   64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
     //   ItemTypes.PLAYER_SPEED
     // );
     // this.add.item(
     //   64 * Phaser.Math.Between(1, 13) + 32,
-    //   64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+    //   64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
     //   ItemTypes.PLAYER_SPEED
     // );
   }
