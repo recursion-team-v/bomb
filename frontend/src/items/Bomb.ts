@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 
+import * as Constants from '../../../backend/src/constants/constants';
 import Player from '../characters/Player';
 import IngameConfig from '../config/ingameConfig';
 import { ObjectTypes } from '../types/object';
@@ -122,7 +123,7 @@ Phaser.GameObjects.GameObjectFactory.register(
     this: Phaser.GameObjects.GameObjectFactory,
     x: number,
     y: number,
-    bombStrength = 1,
+    bombStrength = Constants.INITIAL_BOMB_STRENGTH,
     player: Player
   ) {
     const sprite = new Bomb(this.scene.matter.world, x, y, 'bomb', bombStrength, player);
