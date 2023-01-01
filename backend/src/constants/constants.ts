@@ -61,6 +61,15 @@ export const BOMB_EXPLOSION_TIME = 2330;
 export const PLAYER_TOLERANCE_DISTANCE = 10;
 
 /*
+衝突判定のカテゴリ
+*/
+
+export const COLLISION_CATEGORY = {
+  DEFAULT: 0x0001, // デフォルト
+  PLAYER: 0x0002, // プレイヤー
+};
+
+/*
 マップの定義
 */
 
