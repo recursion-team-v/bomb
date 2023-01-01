@@ -58,12 +58,14 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.tint = color;
   }
 
+  // ボムを置ける数を増やす
   increaseSettableBombCount() {
-    this.settableBombCount++;
+    if (this.settableBombCount < Constants.MAX_SETTABLE_BOMB_COUNT) this.settableBombCount++;
   }
 
+  // ボムを置ける数を減らす
   decreaseSettableBombCount() {
-    this.settableBombCount--;
+    if (this.settableBombCount > Constants.INITIAL_SETTABLE_BOMB_COUNT) this.settableBombCount--;
   }
 
   // ボムを置く
