@@ -33,65 +33,101 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       by: number,
       playKey: string,
       angle: number = 0,
-      scale: number = 1
+      rectVertical: boolean = false,
+      rectHorizontal: boolean = false
     ) => {
+      const rx = rectVertical
+        ? Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO
+        : Constants.DEFAULT_TIP_SIZE;
+      const ry = rectHorizontal
+        ? Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO
+        : Constants.DEFAULT_TIP_SIZE;
+
       this.scene.add
-        .blast(bx, by, playKey, this.bombStrength)
-        .setScale(scale, scale)
+        .blast(bx, by, playKey, this.bombStrength, rx, ry)
+        .setScale(1, 1)
         .setAngle(angle)
         .play(playKey)
         .setSensor(true);
     };
 
-    addExplodeSprite(this.x, this.y, 'bomb_center_explosion');
+    addExplodeSprite(this.x, this.y, 'bomb_center_explosion', 0);
 
     if (this.bombStrength > 1) {
       for (let i = 1; i < this.bombStrength; i++) {
-        addExplodeSprite(this.x + IngameConfig.tileWidth * i, this.y, 'bomb_horizontal_explosion');
+        addExplodeSprite(
+          this.x + IngameConfig.tileWidth * i,
+          this.y,
+          'bomb_horizontal_explosion',
+          0,
+          false,
+          true
+        );
         addExplodeSprite(
           this.x,
           this.y + IngameConfig.tileWidth * i,
           'bomb_horizontal_explosion',
-          90
+          90,
+          false,
+          true
         );
         addExplodeSprite(
           this.x - IngameConfig.tileWidth * i,
           this.y,
           'bomb_horizontal_explosion',
-          180
+          180,
+          false,
+          true
         );
         addExplodeSprite(
           this.x,
           this.y - IngameConfig.tileWidth * i,
           'bomb_horizontal_explosion',
-          270
+          270,
+          false,
+          true
         );
       }
     }
 
-    // add horizontal end explosions
+    // 右
     addExplodeSprite(
       this.x + IngameConfig.tileWidth * this.bombStrength,
       this.y,
-      'bomb_horizontal_end_explosion'
+      'bomb_horizontal_end_explosion',
+      0,
+      false,
+      true
     );
+
+    // 下
     addExplodeSprite(
       this.x,
       this.y + IngameConfig.tileWidth * this.bombStrength,
       'bomb_horizontal_end_explosion',
-      90
+      90,
+      false,
+      true
     );
+
+    // 左
     addExplodeSprite(
       this.x - IngameConfig.tileWidth * this.bombStrength,
       this.y,
       'bomb_horizontal_end_explosion',
-      180
+      180,
+      false,
+      true
     );
+
+    // 上
     addExplodeSprite(
       this.x,
       this.y - IngameConfig.tileWidth * this.bombStrength,
       'bomb_horizontal_end_explosion',
-      270
+      270,
+      false,
+      true
     );
   }
 
@@ -153,7 +189,9 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
     x: number,
     y: number,
     texture: string,
-    bombStrength: number
+    bombStrength: number,
+    rectangleX: number,
+    rectangleY: number
   ) {
     super(world, x, y, texture);
     this.bombStrength = bombStrength;
@@ -161,6 +199,8 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
     const body = this.body as MatterJS.BodyType;
     body.label = ObjectTypes.EXPLOSION;
 
+    console.log(rectangleX, rectangleY);
+    this.setRectangle(rectangleX, rectangleY);
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
       console.log(data);
       const currBody = this.body as MatterJS.BodyType;
@@ -187,9 +227,19 @@ Phaser.GameObjects.GameObjectFactory.register(
     x: number,
     y: number,
     texture: string,
-    bombStrength = 1
+    bombStrength = 1,
+    rectangleX: number,
+    rectangleY: number
   ) {
-    const sprite = new Blast(this.scene.matter.world, x, y, texture, bombStrength);
+    const sprite = new Blast(
+      this.scene.matter.world,
+      x,
+      y,
+      texture,
+      bombStrength,
+      rectangleX,
+      rectangleY
+    );
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);
