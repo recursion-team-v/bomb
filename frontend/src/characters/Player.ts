@@ -5,9 +5,9 @@ import IngameConfig from '../config/ingameConfig';
 import { handleCollide } from '../utils/handleCollide';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
-  public speed = 1;
-  public bombStrength = 1;
-  public havableBomb = 1;
+  public speed: number;
+  public bombStrength: number;
+  public havableBomb: number = 1;
 
   constructor(
     world: Phaser.Physics.Matter.World,

@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+
 import Player from '../characters/Player';
 import IngameConfig from '../config/ingameConfig';
 import { ObjectTypes } from '../types/object';
