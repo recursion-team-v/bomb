@@ -41,6 +41,7 @@ export const handleCollide = (bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType
     item.destroy();
   }
   // A = PLAYER, B = EXPLOSION
-
-  // console.log('player hit explosion');
+  else if (aType === ObjectTypes.PLAYER && bType === ObjectTypes.EXPLOSION) {
+    console.log('player hit explosion');
+  }
 };
