@@ -34,7 +34,7 @@ export const handleCollide = (bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType
 
         break;
       case ItemTypes.POSSESSION_UP:
-        player.increaseHavableBomb();
+        player.increasesettableBombCount();
         item.destroy();
 
         break;

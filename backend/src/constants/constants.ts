@@ -36,7 +36,7 @@ export type GAME_STATE_TYPE = typeof GAME_STATE[keyof typeof GAME_STATE];
 export const MAX_PLAYER = 4;
 
 // 初期に設置できる爆弾の数
-export const INITIAL_SET_BOMB_NUM = 1;
+export const INITIAL_SETTABLE_BOMB_COUNT = 1;
 
 // 初期の爆弾の破壊力
 export const INITIAL_BOMB_STRENGTH = 1;

@@ -130,7 +130,7 @@ Phaser.GameObjects.GameObjectFactory.register(
     sprite.once('animationcomplete', () => {
       sprite.explode();
       sprite.destroy();
-      player.increaseHavableBomb();
+      player.increaseSettableBombCount();
     });
 
     return sprite;

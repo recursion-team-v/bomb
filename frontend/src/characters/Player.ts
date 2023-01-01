@@ -7,7 +7,7 @@ import { handleCollide } from '../utils/handleCollide';
 export default class Player extends Phaser.Physics.Matter.Sprite {
   public speed: number;
   public bombStrength: number;
-  public havableBomb: number = 1;
+  public settableBombCount: number;
 
   constructor(
     world: Phaser.Physics.Matter.World,
@@ -21,6 +21,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
     this.speed = Constants.INITIAL_PLAYER_SPEED;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
+    this.settableBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
 
     this.setScale(1, 1);
     this.setRectangle(IngameConfig.defaultTipSize, IngameConfig.defaultTipSize, {
@@ -57,17 +58,17 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.tint = color;
   }
 
-  increaseHavableBomb() {
-    this.havableBomb++;
+  increaseSettableBombCount() {
+    this.settableBombCount++;
   }
 
-  decreaseHavableBomb() {
-    this.havableBomb--;
+  decreaseSettableBombCount() {
+    this.settableBombCount--;
   }
 
   // ボムを置く
   placeBomb() {
-    if (this.havableBomb === 0) return;
+    if (this.settableBombCount === 0) return;
     const bx =
       Math.floor(this.x / IngameConfig.tileWidth) * IngameConfig.tileWidth +
       IngameConfig.tileWidth / 2;
@@ -76,7 +77,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
       IngameConfig.tileHeight / 2;
 
     this.scene.add.bomb(bx, by, this.bombStrength, this);
-    this.havableBomb--;
+    this.settableBombCount--;
   }
 
   gameOver() {
