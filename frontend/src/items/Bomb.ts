@@ -31,15 +31,15 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     const addExplodeSprite = (
       bx: number,
       by: number,
-      playkey: string,
+      playKey: string,
       angle: number = 0,
       scale: number = 1
     ) => {
       this.scene.add
-        .blast(bx, by, playkey, this.bombStrength)
+        .blast(bx, by, playKey, this.bombStrength)
         .setScale(scale, scale)
         .setAngle(angle)
-        .play(playkey)
+        .play(playKey)
         .setSensor(true);
     };
 
