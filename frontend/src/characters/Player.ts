@@ -7,7 +7,8 @@ import { handleCollide } from '../utils/handleCollide';
 export default class Player extends Phaser.Physics.Matter.Sprite {
   public speed: number;
   public bombStrength: number;
-  public settableBombCount: number;
+  private settableBombCount: number; // 一度に設置できるボムの個数
+  private currentSettableBombCount: number; // 現在設置できるボムの個数
 
   constructor(
     world: Phaser.Physics.Matter.World,
@@ -22,6 +23,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.speed = Constants.INITIAL_PLAYER_SPEED;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.settableBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
+    this.currentSettableBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
 
     this.setScale(1, 1);
     this.setRectangle(IngameConfig.defaultTipSize, IngameConfig.defaultTipSize, {
@@ -58,19 +60,30 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.tint = color;
   }
 
-  // ボムを置ける数を増やす
+  // ボムを置ける最大数を増やす
   increaseSettableBombCount() {
     if (this.settableBombCount < Constants.MAX_SETTABLE_BOMB_COUNT) this.settableBombCount++;
   }
 
-  // ボムを置ける数を減らす
-  decreaseSettableBombCount() {
-    if (this.settableBombCount > Constants.INITIAL_SETTABLE_BOMB_COUNT) this.settableBombCount--;
+  // ボムを置ける数を回復する
+  recoverCurrentSettableBombCount() {
+    this.currentSettableBombCount++;
+  }
+
+  // ボムを設置したら、置ける数を減らす
+  consumeCurrentSettableBombCount() {
+    if (this.canSetBomb()) this.currentSettableBombCount--;
+  }
+
+  // ボムを設置できるかをチェックする
+  canSetBomb(): boolean {
+    return this.currentSettableBombCount > 0;
   }
 
   // ボムを置く
   placeBomb() {
-    if (this.settableBombCount === 0) return;
+    if (!this.canSetBomb()) return;
+
     const bx =
       Math.floor(this.x / IngameConfig.tileWidth) * IngameConfig.tileWidth +
       IngameConfig.tileWidth / 2;
@@ -79,7 +92,9 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
       IngameConfig.tileHeight / 2;
 
     this.scene.add.bomb(bx, by, this.bombStrength, this);
-    this.settableBombCount--;
+
+    // ボムを置ける数を減らす
+    this.consumeCurrentSettableBombCount();
   }
 
   gameOver() {
