@@ -59,3 +59,29 @@ export const BOMB_EXPLOSION_TIME = 2330;
 
 // クライアントとサーバで許容するプレイヤーの位置のズレ(px)
 export const PLAYER_TOLERANCE_DISTANCE = 10;
+
+/*
+マップの定義
+*/
+
+export const DEFAULT_TIP_SIZE = 64; // デフォルトのチップサイズ
+
+// マップの設定
+export const TILE_ROWS = 13; // タイルの行数
+export const TILE_COLS = 15; // タイルの列数
+export const TILE_WIDTH = DEFAULT_TIP_SIZE; // タイルの横幅
+export const TILE_HEIGHT = DEFAULT_TIP_SIZE; // タイルの縦幅
+
+export const PLAYER_WIDTH = DEFAULT_TIP_SIZE; // プレイヤーの横幅
+export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
+
+/*
+画面の定義
+*/
+
+export const HEIGHT = TILE_HEIGHT * TILE_ROWS; // 画面の高さ
+export const WIDTH = TILE_WIDTH * TILE_COLS; // 画面の幅
+export const HEADER_COLOR_CODE = '#000000'; // ヘッダーの色
+export const HEADER_TIMER_TEXT_COLOR_CODE = '#FFFFFF'; // ヘッダーのタイマーの文字色
+export const HEADER_HEIGHT = 64; // ヘッダーの高さ
+export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
