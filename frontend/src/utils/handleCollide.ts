@@ -1,7 +1,10 @@
+import { Blast } from './../items/Bomb';
 import MyPlayer from '../characters/MyPlayer';
+import Bomb from '../items/Bomb';
 import Item from '../items/Item';
 import { ItemTypes } from '../types/items';
 import { ObjectTypes } from '../types/objects';
+import Player from '../characters/Player';
 
 export const handleCollide = (bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) => {
   /**
@@ -26,19 +29,24 @@ export const handleCollide = (bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType
       case ItemTypes.BOMB_STRENGTH:
         player.setBombStrength(player.bombStrength + 1);
         item.destroy();
-        break;
 
+        break;
       case ItemTypes.PLAYER_SPEED:
         player.setSpeed(player.speed + 1);
         item.destroy();
-        break;
 
+        break;
+      case ItemTypes.POSSESSION_UP:
+        player.increaseHavableBomb();
+        item.destroy();
+
+        break;
       default:
         break;
     }
   }
   // A = PLAYER, B = EXPLOSION
-  else if (aType === ObjectTypes.PLAYER && bType === ObjectTypes.EXPLOSION) {
+
     console.log('player hit explosion');
   }
 };

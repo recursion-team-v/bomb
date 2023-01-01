@@ -6,6 +6,7 @@ import { handleCollide } from '../utils/handleCollide';
 export default class Player extends Phaser.Physics.Matter.Sprite {
   public speed = 1;
   public bombStrength = 1;
+  public havableBomb = 1;
 
   constructor(
     world: Phaser.Physics.Matter.World,
@@ -51,8 +52,17 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.tint = color;
   }
 
+  increaseHavableBomb() {
+    this.havableBomb++;
+  }
+
+  decreaseHavableBomb() {
+    this.havableBomb--;
+  }
+
   // ボムを置く
   placeBomb() {
+    if (this.havableBomb === 0) return;
     const bx =
       Math.floor(this.x / IngameConfig.tileWidth) * IngameConfig.tileWidth +
       IngameConfig.tileWidth / 2;
@@ -60,6 +70,11 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
       Math.floor(this.y / IngameConfig.tileHeight) * IngameConfig.tileHeight +
       IngameConfig.tileHeight / 2;
 
-    this.scene.add.bomb(bx, by, this.bombStrength);
+    this.scene.add.bomb(bx, by, this.bombStrength,this);
+    this.havableBomb--;
+  }
+
+  gameOver() {
+    // this.destroy();
   }
 }

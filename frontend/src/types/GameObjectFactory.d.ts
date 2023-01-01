@@ -1,4 +1,5 @@
 import MyPlayer from '../characters/MyPlayer';
+import Player from '../characters/Player';
 import Bomb, { Blast } from '../items/Bomb';
 import Item from '../items/Item';
 import { ItemTypes } from './items';
@@ -16,8 +17,8 @@ declare global {
         frame?: string | number,
         options?: Phaser.Types.PhysicsWMatter.MatterBodyConfig
       ) => MyPlayer;
-      bomb: (x: number, y: number, bombStrength: number) => Bomb;
-      blast: (x: number, y: number, bombStrength: number) => Blast;
+      bomb: (x: number, y: number, bombStrength: number,player:Player) => Bomb;
+      blast: (x: number, y: number, playkey: string, bombStrength: number) => Blast;
       item: (x: number, y: number, itemType: ItemTypes) => Item;
       innerWall: (x: number, y: number, texture) => InnerWall;
     }
