@@ -29,7 +29,8 @@ export default class GameRoom extends Room<GameRoomState> {
       const player = this.state.getPlayer(client.sessionId);
       if (player === undefined) return;
 
-      this.engine.playerService.placeBomb(player); // ボムを設置する
+      this.engine.playerService.placeBomb(player); // ボムを設置する  TODO:
+      this.state.getBombQueue().enqueue(data); // ボムキューに詰める
     });
 
     // FRAME_RATE ごとに fixedUpdate を呼ぶ
@@ -41,6 +42,11 @@ export default class GameRoom extends Room<GameRoomState> {
         elapsedTime -= Constants.FRAME_RATE;
         for (const [, player] of this.state.players) {
           this.engine.playerService.updatePlayer(player);
+        }
+
+        // TODO: 爆発処理
+        for (const [, bomb] of this.state.bombs) {
+          // this.engine.bombService.updateBomb(bomb);
         }
         Matter.Engine.update(this.engine.engine, deltaTime);
       }

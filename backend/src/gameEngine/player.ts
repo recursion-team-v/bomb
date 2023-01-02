@@ -2,7 +2,6 @@ import Matter from 'matter-js';
 
 import * as Constants from '../constants/constants';
 import GameEngine from '../rooms/GameEngine';
-import { getSettablePosition } from '../rooms/schema/Bomb';
 import Player from '../rooms/schema/Player';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -58,21 +57,8 @@ export default class PlayerService {
 
   placeBomb(player: Player) {
     if (!player.canSetBomb()) return;
-
-    const { x, y } = getSettablePosition(player.x, player.y);
-    const bombBody = Matter.Bodies.rectangle(
-      x,
-      y,
-      Constants.DEFAULT_TIP_SIZE,
-      Constants.DEFAULT_TIP_SIZE,
-      {
-        label: Constants.LABEL_BOMB,
-        isSensor: true,
-        isStatic: true,
-      }
-    );
-    Matter.Composite.add(this.gameEngine.world, [bombBody]);
+    const bomb = this.gameEngine.state.createBomb(player, player.x, player.y, player.bombStrength);
+    this.gameEngine.bombService.addBomb(bomb);
     player.settableBombCount -= 1;
-    this.gameEngine.bombBodies.set(bombBody.id, bombBody);
   }
 }

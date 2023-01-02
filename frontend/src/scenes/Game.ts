@@ -19,6 +19,7 @@ import { ObjectTypes } from '../types/objects';
 import { Client, Room } from 'colyseus.js';
 import * as Constants from '../../../backend/src/constants/constants';
 import Player from '../../../backend/src/rooms/schema/Player';
+import ServerBomb from '../../../backend/src/rooms/schema/Player';
 import Bomb from '../items/Bomb';
 
 export default class Game extends Phaser.Scene {
@@ -72,6 +73,11 @@ export default class Game extends Phaser.Scene {
     // connect with the room
     await this.connect();
 
+    this.room.state.bombs.onAdd = (bomb: ServerBomb, sessionId: string) => {
+      console.log('bomb add');
+      if (bomb === undefined) return;
+      this.add.rectangle(bomb.x, bomb.y, 64, 64, 0xfff333, 0.3);
+    };
     this.room.state.players.onAdd = (player: Player, sessionId: string) => {
       console.log('player add');
       if (player === undefined) return;

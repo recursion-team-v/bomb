@@ -2,9 +2,9 @@
 import Matter from 'matter-js';
 
 import * as Constants from '../constants/constants';
+import BombService from '../gameEngine/bomb';
 import PlayerService from '../gameEngine/player';
 import WallService from '../gameEngine/wall';
-import GameQueue from '../utils/GameQueue';
 import GameRoomState from './schema/GameRoomState';
 
 export default class GameEngine {
@@ -12,11 +12,9 @@ export default class GameEngine {
   state: GameRoomState;
   engine: Matter.Engine;
 
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly
-  private inputQueue: GameQueue;
-
   playerBodies = new Map<string, Matter.Body>();
-  bombBodies = new Map<number, Matter.Body>();
+  bombBodies = new Map<string, Matter.Body>();
+  bombService: BombService;
   playerService: PlayerService;
   wallService: WallService;
 
@@ -25,9 +23,8 @@ export default class GameEngine {
     this.state = state;
     this.world = this.engine.world;
 
-    this.inputQueue = new GameQueue();
-
     this.engine.gravity.y = 0;
+    this.bombService = new BombService(this);
     this.playerService = new PlayerService(this);
     this.wallService = new WallService(this);
 
