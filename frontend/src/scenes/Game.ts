@@ -18,10 +18,9 @@ import { ItemTypes } from '../types/items';
 import { ObjectTypes } from '../types/objects';
 import { Client, Room } from 'colyseus.js';
 import * as Constants from '../../../backend/src/constants/constants';
-import Player from '../../../backend/src/rooms/schema/Player';
-import ServerBomb from '../../../backend/src/rooms/schema/Player';
+import ServerPlayer from '../../../backend/src/rooms/schema/Player';
+import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import Bomb from '../items/Bomb';
-import Player from '../characters/Player';
 
 export default class Game extends Phaser.Scene {
   private readonly client: Client;
@@ -79,7 +78,7 @@ export default class Game extends Phaser.Scene {
     this.room.state.bombs.onAdd = (serverBomb: ServerBomb) => this.addBombEvent(serverBomb);
 
     // プレイヤーが追加された時の処理
-    this.room.state.players.onAdd = (player: Player, sessionId: string) => {
+    this.room.state.players.onAdd = (player: ServerPlayer, sessionId: string) => {
       console.log('player add');
       if (player === undefined) return;
 
@@ -123,7 +122,7 @@ export default class Game extends Phaser.Scene {
     };
 
     // プレイヤーが切断した時
-    this.room.state.players.onRemove = (player: Player, sessionId: string) => {
+    this.room.state.players.onRemove = (player: ServerPlayer, sessionId: string) => {
       const entity = this.playerEntities.get(sessionId);
       entity?.destroy();
 
@@ -151,7 +150,7 @@ export default class Game extends Phaser.Scene {
   private readonly fixedTimeStep: number = Constants.FRAME_RATE;
 
   // 一定以上のズレなら強制同期
-  private forceMovePlayerPosition(player: Player) {
+  private forceMovePlayerPosition(player: ServerPlayer) {
     let forceX = 0;
     let forceY = 0;
 
