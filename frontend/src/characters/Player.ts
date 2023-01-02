@@ -23,7 +23,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
     this.setScale(1, 1);
     this.setRectangle(IngameConfig.defaultTipSize, IngameConfig.defaultTipSize, {
-      chamfer: 0,
+      chamfer: 10,
       friction: 0,
       frictionStatic: 0,
       frictionAir: 0,

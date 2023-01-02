@@ -9,7 +9,6 @@ export default class Preloader extends Phaser.Scene {
 
   preload() {
     // load sprite sheet
-
     const frameWidth = IngameConfig.defaultTipSize;
     const frameHeight = IngameConfig.defaultTipSize;
 

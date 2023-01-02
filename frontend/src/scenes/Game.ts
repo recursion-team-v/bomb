@@ -8,7 +8,7 @@ import '../items/InnerWall';
 import '../items/Item';
 
 import { createPlayerAnims } from '../anims/PlayerAnims';
-import { generateGroundArray, generateWallArray } from '../utils/generateMap';
+import { generateGroundArray } from '../utils/generateMap';
 import { Keyboard, NavKeys } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
 import { createBombAnims } from '../anims/BombAnims';
@@ -21,11 +21,12 @@ import { ObjectTypes } from '../types/objects';
 import { Client, Room } from 'colyseus.js';
 import * as Constants from '../../../backend/src/constants/constants';
 import Player from '../../../backend/src/rooms/schema/Player';
+import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
 
 export default class Game extends Phaser.Scene {
   private readonly client: Client;
-  private room!: Room; // TODO: Room
+  private room!: Room<GameRoomState>; // TODO: Room
   private readonly rows: number;
   private readonly cols: number;
   private readonly tileWidth = IngameConfig.tileWidth;
@@ -128,12 +129,16 @@ export default class Game extends Phaser.Scene {
     createBombAnims(this.anims);
     createExplodeAnims(this.anims);
 
-    // add map
-    this.generateMap();
+    // draw ground map
+    this.drawGround();
 
     // add items
     this.addItems();
-    // this.addInnerWalls();
+
+    this.room.onStateChange.once((state) => {
+      // GameRoomState の mapArr が初期化された際それを取得する
+      this.drawMapFromArr(state.mapArr);
+    });
   }
 
   // 経過時間
@@ -274,18 +279,16 @@ export default class Game extends Phaser.Scene {
     }
   }
 
-  // TODO: move outside Game.ts
-  private generateMap() {
-    const groundArray = generateGroundArray(this.rows, this.cols);
-    const wallArray = generateWallArray(this.rows, this.cols);
+  private drawMapFromArr(mapArr: number[]) {
+    const wallArray = Array(this.rows)
+      .fill(-1)
+      .map(() => Array(this.cols).fill(-1));
 
-    const groundMap = this.make.tilemap({
-      data: groundArray,
-      tileWidth: this.tileWidth,
-      tileHeight: this.tileHeight,
-    });
-    groundMap.addTilesetImage('tile_grounds', undefined, this.tileWidth, this.tileHeight, 0, 0);
-    groundMap.createLayer(0, 'tile_grounds', 0, ScreenConfig.headerHeight);
+    for (let y = 0; y < this.rows; y++) {
+      for (let x = 0; x < this.cols; x++) {
+        wallArray[y][x] = mapArr[x + this.cols * y];
+      }
+    }
 
     const wallMap = this.make.tilemap({
       data: wallArray,
@@ -295,21 +298,20 @@ export default class Game extends Phaser.Scene {
     wallMap.addTilesetImage('tile_walls', undefined, this.tileWidth, this.tileHeight, 0, 0);
     const wallLayer = wallMap
       .createLayer(0, 'tile_walls', 0, ScreenConfig.headerHeight)
+      .setDepth(-1)
       .setCollisionBetween(0, 50);
     this.matter.world.convertTilemapLayer(wallLayer, { label: ObjectTypes.WALL });
   }
 
-  private addInnerWalls() {
-    for (let i = 1; i < IngameConfig.tileRows; i++) {
-      for (let j = 1; j < IngameConfig.tileCols - 3; j++) {
-        if (i % 2 === 1 || j % 2 === 1) continue;
-        this.add.innerWall(
-          IngameConfig.tileWidth * i + IngameConfig.tileWidth / 2,
-          IngameConfig.tileHeight * j + IngameConfig.tileHeight / 2 + ScreenConfig.headerHeight,
-          IngameConfig.keyInnerWall
-        );
-      }
-    }
+  private drawGround() {
+    const groundArray = generateGroundArray(this.rows, this.cols);
+    const groundMap = this.make.tilemap({
+      data: groundArray,
+      tileWidth: this.tileWidth,
+      tileHeight: this.tileHeight,
+    });
+    groundMap.addTilesetImage('tile_grounds', undefined, this.tileWidth, this.tileHeight, 0, 0);
+    groundMap.createLayer(0, 'tile_grounds', 0, ScreenConfig.headerHeight).setDepth(-2);
   }
 
   private addItems() {
@@ -328,16 +330,6 @@ export default class Game extends Phaser.Scene {
       64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
       ItemTypes.BOMB_STRENGTH
     );
-    // this.add.item(
-    //   64 * Phaser.Math.Between(1, 13) + 32,
-    //   64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
-    //   ItemTypes.PLAYER_SPEED
-    // );
-    // this.add.item(
-    //   64 * Phaser.Math.Between(1, 13) + 32,
-    //   64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
-    //   ItemTypes.PLAYER_SPEED
-    // );
     // this.add.item(
     //   64 * Phaser.Math.Between(1, 13) + 32,
     //   64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
