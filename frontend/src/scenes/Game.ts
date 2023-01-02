@@ -24,10 +24,6 @@ import Bomb from '../items/Bomb';
 export default class Game extends Phaser.Scene {
   private readonly client: Client;
   private room!: Room<GameRoomState>;
-  private readonly rows: number;
-  private readonly cols: number;
-  private readonly tileWidth = Constants.TILE_WIDTH;
-  private readonly tileHeight = Constants.TILE_HEIGHT;
   // eslint-disable-next-line @typescript-eslint/prefer-readonly, @typescript-eslint/consistent-indexed-object-style
   private playerEntities: Map<string, MyPlayer> = new Map();
   private currentPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
@@ -44,8 +40,6 @@ export default class Game extends Phaser.Scene {
 
   constructor() {
     super('game');
-    this.rows = Constants.TILE_ROWS;
-    this.cols = Constants.TILE_COLS;
     const protocol = window.location.protocol.replace('http', 'ws');
 
     if (import.meta.env.PROD) {
