@@ -7,7 +7,7 @@ import { handleCollide } from '../utils/handleCollide';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly bombStrength: number;
-  private readonly player: Player;
+  private readonly player: PlayerInterface;
 
   // 誘爆時は状況によって爆弾が消えてしまい、座標やシーンが取得できなくなるため保存しておく
   private readonly stableX: number; // 爆弾が消えても座標を保持するための変数
@@ -20,7 +20,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     y: number,
     texture: string,
     bombStrength: number,
-    player: Player
+    player: PlayerInterface
   ) {
     super(world, x, y, texture);
 
@@ -211,3 +211,12 @@ Phaser.GameObjects.GameObjectFactory.register(
     return sprite;
   }
 );
+
+interface PlayerInterface {
+  setBombStrength: (bombStrength: number) => void;
+  increaseMaxBombCount: () => void;
+  recoverSettableBombCount: () => void;
+  consumeSettableBombCount: () => void;
+  canSetBomb: () => boolean;
+  placeBomb: () => void;
+}

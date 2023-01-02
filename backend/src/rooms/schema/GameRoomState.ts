@@ -8,7 +8,7 @@ import Player from './Player';
 export default class GameRoomState extends Schema {
   @type({ map: Player }) players = new MapSchema<Player>();
   @type({ map: Bomb }) bombs = new MapSchema<Bomb>();
-  private readonly bombQueue: GameQueue = new GameQueue();
+  private readonly bombQueue: GameQueue<Bomb> = new GameQueue<Bomb>();
 
   getPlayer(sessionId: string): Player | undefined {
     return this.players.get(sessionId);
@@ -35,7 +35,11 @@ export default class GameRoomState extends Schema {
     return bomb;
   }
 
-  getBombQueue(): GameQueue {
+  deleteBomb(bomb: Bomb) {
+    this.bombs.delete(bomb.id);
+  }
+
+  getBombQueue(): GameQueue<Bomb> {
     return this.bombQueue;
   }
 }

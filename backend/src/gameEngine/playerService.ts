@@ -2,6 +2,7 @@ import Matter from 'matter-js';
 
 import * as Constants from '../constants/constants';
 import GameEngine from '../rooms/GameEngine';
+import { Bomb } from '../rooms/schema/Bomb';
 import Player from '../rooms/schema/Player';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -55,10 +56,11 @@ export default class PlayerService {
     }
   }
 
-  placeBomb(player: Player) {
-    if (!player.canSetBomb()) return;
+  placeBomb(player: Player): Bomb | null {
+    if (!player.canSetBomb()) return null;
     const bomb = this.gameEngine.state.createBomb(player, player.x, player.y, player.bombStrength);
     this.gameEngine.bombService.addBomb(bomb);
     player.settableBombCount -= 1;
+    return bomb;
   }
 }

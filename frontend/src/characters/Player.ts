@@ -3,13 +3,17 @@ import Phaser from 'phaser';
 import * as Constants from '../../../backend/src/constants/constants';
 import { handleCollide } from '../utils/handleCollide';
 
+import { ObjectTypes } from '../types/objects';
+
 export default class Player extends Phaser.Physics.Matter.Sprite {
   public speed: number;
   public bombStrength: number;
   private settableBombCount: number; // 今設置できるボムの個数
   private maxBombCount: number; // 設置できるボムの最大個数
+  private readonly sessionId: string; // サーバが一意にセットするセッションID
 
   constructor(
+    sessionId: string,
     world: Phaser.Physics.Matter.World,
     x: number,
     y: number,
@@ -19,6 +23,10 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   ) {
     super(world, x, y, texture, frame, options);
 
+    const body = this.body as MatterJS.BodyType;
+    body.label = ObjectTypes.PLAYER;
+
+    this.sessionId = sessionId;
     this.speed = Constants.INITIAL_PLAYER_SPEED;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.settableBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
@@ -101,5 +109,9 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   gameOver() {
     // this.destroy();
+  }
+
+  isEqualSessionId(sessionId: string): boolean {
+    return this.sessionId === sessionId;
   }
 }

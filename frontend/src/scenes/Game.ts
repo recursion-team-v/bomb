@@ -21,6 +21,7 @@ import * as Constants from '../../../backend/src/constants/constants';
 import Player from '../../../backend/src/rooms/schema/Player';
 import ServerBomb from '../../../backend/src/rooms/schema/Player';
 import Bomb from '../items/Bomb';
+import Player from '../characters/Player';
 
 export default class Game extends Phaser.Scene {
   private readonly client: Client;
@@ -73,16 +74,15 @@ export default class Game extends Phaser.Scene {
     // connect with the room
     await this.connect();
 
-    this.room.state.bombs.onAdd = (bomb: ServerBomb, sessionId: string) => {
-      console.log('bomb add');
-      if (bomb === undefined) return;
-      this.add.rectangle(bomb.x, bomb.y, 64, 64, 0xfff333, 0.3);
-    };
+    // 爆弾が追加された時の処理
+    this.room.state.bombs.onAdd = (serverBomb: ServerBomb) => this.addBombEvent(serverBomb);
+
+    // プレイヤーが追加された時の処理
     this.room.state.players.onAdd = (player: Player, sessionId: string) => {
       console.log('player add');
       if (player === undefined) return;
 
-      const entity = this.add.myPlayer(player.x, player.y, 'player');
+      const entity = this.add.myPlayer(sessionId, player.x, player.y, 'player');
       this.playerEntities.set(sessionId, entity);
 
       // 変更されたのが自分の場合
@@ -369,5 +369,23 @@ export default class Game extends Phaser.Scene {
     } catch (e) {
       console.error(e);
     }
+  }
+
+  /*
+  event 系
+  */
+
+  // ボム追加イベント時に、マップにボムを追加
+  private addBombEvent(serverBomb: ServerBomb) {
+    if (serverBomb === undefined) return;
+
+    const sessionId = serverBomb.owner.sessionId;
+    // 自分のボムは追加しない
+    if (this.currentPlayer.isEqualSessionId(sessionId)) return;
+
+    const player = this.playerEntities.get(sessionId);
+    if (player === undefined) return;
+
+    this.add.bomb(serverBomb.x, serverBomb.y, serverBomb.bombStrength, player);
   }
 }

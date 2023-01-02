@@ -9,6 +9,9 @@ export class Bomb extends Schema {
   @type('string')
   id: string;
 
+  @type('string')
+  sessionId: string;
+
   @type('number')
   x: number;
 
@@ -23,13 +26,19 @@ export class Bomb extends Schema {
   @type(Player)
   owner: Player;
 
+  // ボムが設置された時間
+  @type('number')
+  createdAt: number;
+
   constructor(owner: Player, x: number, y: number, bombStrength: number) {
     super();
     this.id = uuidv4();
+    this.sessionId = owner.sessionId;
     this.owner = owner;
     this.x = x;
     this.y = y;
     this.bombStrength = bombStrength;
+    this.createdAt = Date.now();
   }
 
   updateBombStrength(strength: number) {

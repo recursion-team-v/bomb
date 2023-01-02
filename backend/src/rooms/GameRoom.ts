@@ -4,6 +4,7 @@ import Matter from 'matter-js';
 
 import * as Constants from '../constants/constants';
 import GameEngine from './GameEngine';
+import { Bomb } from './schema/Bomb';
 import GameRoomState from './schema/GameRoomState';
 
 export default class GameRoom extends Room<GameRoomState> {
@@ -25,12 +26,13 @@ export default class GameRoom extends Room<GameRoomState> {
 
     // TODO:クライアントからのボム設置入力を受け取ってキューに詰める
     this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, (client, data: any) => {
-      // get reference to the player who sent the message
       const player = this.state.getPlayer(client.sessionId);
       if (player === undefined) return;
 
-      this.engine.playerService.placeBomb(player); // ボムを設置する  TODO:
-      this.state.getBombQueue().enqueue(data); // ボムキューに詰める
+      const bomb = this.engine.playerService.placeBomb(player); // ボムを設置する  TODO:
+
+      if (bomb === null) return;
+      this.state.getBombQueue().enqueue(bomb); // ボムキューに詰める
     });
 
     // FRAME_RATE ごとに fixedUpdate を呼ぶ
@@ -40,14 +42,20 @@ export default class GameRoom extends Room<GameRoomState> {
 
       while (elapsedTime >= Constants.FRAME_RATE) {
         elapsedTime -= Constants.FRAME_RATE;
+
         for (const [, player] of this.state.players) {
           this.engine.playerService.updatePlayer(player);
         }
 
         // TODO: 爆発処理
-        for (const [, bomb] of this.state.bombs) {
-          // this.engine.bombService.updateBomb(bomb);
+        let bomb: Bomb | undefined;
+        while ((bomb = this.state.getBombQueue().dequeue())) {
+          if (bomb.createdAt + Constants.BOMB_EXPLOSION_TIME <= Date.now()) {
+            this.state.deleteBomb(bomb);
+            this.engine.bombService.explode(bomb);
+          }
         }
+
         Matter.Engine.update(this.engine.engine, deltaTime);
       }
     });

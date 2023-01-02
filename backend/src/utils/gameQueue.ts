@@ -1,11 +1,12 @@
-export default class GameQueue {
-  private queue: any[] = [];
+export default class GameQueue<T> {
+  // eslint-disable-next-line @typescript-eslint/prefer-readonly
+  private queue: T[] = [];
 
-  enqueue(item: any) {
+  enqueue(item: T) {
     this.queue.push(item);
   }
 
-  dequeue(): any | undefined {
+  dequeue(): T | undefined {
     return this.queue.shift();
   }
 
