@@ -1,7 +1,9 @@
 import MyPlayer from '../characters/MyPlayer';
+import Bomb from '../items/Bomb';
 import Item from '../items/Item';
 import { ItemTypes } from '../types/items';
 import { ObjectTypes } from '../types/objects';
+import * as Constants from '../../../backend/src/constants/constants';
 
 export const handleCollide = (bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) => {
   /**
@@ -43,5 +45,19 @@ export const handleCollide = (bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType
   // A = PLAYER, B = EXPLOSION
   else if (aType === ObjectTypes.PLAYER && bType === ObjectTypes.EXPLOSION) {
     console.log('player hit explosion');
+  }
+
+  // A = EXPLOSION, B = BOMB
+  else if (aType === ObjectTypes.EXPLOSION && bType === ObjectTypes.BOMB) {
+    const bomb = bodyB.gameObject as Bomb;
+
+    bomb.scene.time.addEvent({
+      delay: Constants.BOMB_DETONATION_DELAY,
+      callback: () => {
+        if (bodyB === null) return;
+        bomb.explode();
+        bomb.afterExplosion();
+      },
+    });
   }
 };
