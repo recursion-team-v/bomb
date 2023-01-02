@@ -99,6 +99,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       this.stableX + Constants.TILE_WIDTH * this.bombStrength,
       this.stableY,
       'bomb_horizontal_end_explosion',
+      0,
       false,
       true
     );
