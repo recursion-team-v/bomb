@@ -246,6 +246,7 @@ export default class Game extends Phaser.Scene {
     // bomb 設置
     const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(this.cursorKeys.space);
     if (isSpaceJustDown) {
+      this.room.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, p);
       p.placeBomb();
     }
 

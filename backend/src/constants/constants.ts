@@ -103,3 +103,10 @@ export const HEADER_COLOR_CODE = '#000000'; // ヘッダーの色
 export const HEADER_TIMER_TEXT_COLOR_CODE = '#FFFFFF'; // ヘッダーのタイマーの文字色
 export const HEADER_HEIGHT = 64; // ヘッダーの高さ
 export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
+
+/*
+ラベルの定義
+*/
+
+export const LABEL_PLAYER = 'PLAYER';
+export const LABEL_BOMB = 'BOMB';

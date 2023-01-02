@@ -1,5 +1,6 @@
 import { Schema, type } from '@colyseus/schema';
 
+import * as Constants from '../../constants/constants';
 import Player from './Player';
 
 export default class Bomb extends Schema {
@@ -31,4 +32,14 @@ export default class Bomb extends Schema {
   updateBombStrength(strength: number) {
     this.bombStrength = strength;
   }
+}
+
+// TODO: クライアントもこっちを参照するようにする
+// 指定の座標から設置可能な座標を返します
+export function getSettablePosition(x: number, y: number): { x: number; y: number } {
+  const bx = Math.floor(x / Constants.TILE_WIDTH) * Constants.TILE_WIDTH + Constants.TILE_WIDTH / 2;
+  const by =
+    Math.floor(y / Constants.TILE_HEIGHT) * Constants.TILE_HEIGHT + Constants.TILE_HEIGHT / 2;
+
+  return { x: bx, y: by };
 }

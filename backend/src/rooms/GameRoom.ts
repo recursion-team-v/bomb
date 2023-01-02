@@ -23,6 +23,15 @@ export default class GameRoom extends Room<GameRoomState> {
       player.inputQueue.push(data);
     });
 
+    // TODO:クライアントからのボム設置入力を受け取ってキューに詰める
+    this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, (client, data: any) => {
+      // get reference to the player who sent the message
+      const player = this.state.getPlayer(client.sessionId);
+      if (player === undefined) return;
+
+      this.engine.playerService.placeBomb(player); // ボムを設置する
+    });
+
     // FRAME_RATE ごとに fixedUpdate を呼ぶ
     let elapsedTime: number = 0;
     this.setSimulationInterval((deltaTime) => {

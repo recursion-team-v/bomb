@@ -12,6 +12,7 @@ export default class GameEngine {
   engine: Matter.Engine;
 
   playerBodies = new Map<string, Matter.Body>();
+  bombBodies = new Map<number, Matter.Body>();
   playerService: PlayerService;
   wallService: WallService;
 
