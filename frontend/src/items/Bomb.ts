@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-import Player from '../characters/Player';
 import { ObjectTypes } from '../types/object';
 import { handleCollide } from '../utils/handleCollide';
 
