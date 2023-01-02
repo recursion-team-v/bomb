@@ -89,6 +89,8 @@ export const TILE_ROWS = 13; // タイルの行数
 export const TILE_COLS = 15; // タイルの列数
 export const TILE_WIDTH = DEFAULT_TIP_SIZE; // タイルの横幅
 export const TILE_HEIGHT = DEFAULT_TIP_SIZE; // タイルの縦幅
+export const MAX_BLOCKS = 50;
+export const MIN_BLOCKS = 40;
 
 // マップのタイルシートの idx
 export const TILE_GROUND = {
@@ -100,13 +102,13 @@ export const TILE_WALL = {
   DEFAULT_2_IDX: 19, // 外壁タイル2の idx
   DEFAULT_CORNER_IDX: 21, // 外壁タイル（角）の idx
 };
-export const TILE_CRATE_IDX = 1; // 破壊できる箱の idx
+export const TILE_BLOCK_IDX = 1; // 破壊できる箱の idx
 
 export const PLAYER_WIDTH = DEFAULT_TIP_SIZE; // プレイヤーの横幅
 export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
 
 /*
-画面の定義
+画面の定義 
 */
 export const HEADER_HEIGHT = 64; // ヘッダーの高さ
 export const HEIGHT = TILE_HEIGHT * TILE_ROWS + HEADER_HEIGHT; // 画面の高さ

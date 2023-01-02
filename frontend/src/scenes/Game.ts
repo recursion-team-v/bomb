@@ -8,14 +8,13 @@ import '../items/InnerWall';
 import '../items/Item';
 
 import { createPlayerAnims } from '../anims/PlayerAnims';
-import { generateGroundArray } from '../utils/generateMap';
+import { drawBlocks, drawGround, drawWalls } from '../utils/drawMap';
 import { Keyboard, NavKeys } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
 import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
 import * as Config from '../config/config';
 import { ItemTypes } from '../types/items';
-import { ObjectTypes } from '../types/objects';
 import { Client, Room } from 'colyseus.js';
 import * as Constants from '../../../backend/src/constants/constants';
 import Player from '../../../backend/src/rooms/schema/Player';
@@ -24,7 +23,7 @@ import Bomb from '../items/Bomb';
 
 export default class Game extends Phaser.Scene {
   private readonly client: Client;
-  private room!: Room<GameRoomState>; // TODO: Room
+  private room!: Room<GameRoomState>;
   private readonly rows: number;
   private readonly cols: number;
   private readonly tileWidth = Constants.TILE_WIDTH;
@@ -131,14 +130,15 @@ export default class Game extends Phaser.Scene {
     createExplodeAnims(this.anims);
 
     // draw ground map
-    this.drawGround();
+    drawGround(this);
 
     // add items
     this.addItems();
 
     this.room.onStateChange.once((state) => {
-      // GameRoomState の mapArr が初期化された際それを取得する
-      this.drawMapFromArr(state.mapArr);
+      // GameRoomState の wallArr, blockArr が初期化された際それを取得して描画する
+      drawWalls(this, state.gameMap.wallArr);
+      drawBlocks(this, state.gameMap.blockArr);
     });
   }
 
@@ -278,41 +278,6 @@ export default class Game extends Phaser.Scene {
     if (isSpaceJustDown) {
       localPlayer.placeBomb();
     }
-  }
-
-  private drawMapFromArr(mapArr: number[]) {
-    const wallArray = Array(this.rows)
-      .fill(-1)
-      .map(() => Array(this.cols).fill(-1));
-
-    for (let y = 0; y < this.rows; y++) {
-      for (let x = 0; x < this.cols; x++) {
-        wallArray[y][x] = mapArr[x + this.cols * y];
-      }
-    }
-
-    const wallMap = this.make.tilemap({
-      data: wallArray,
-      tileWidth: this.tileWidth,
-      tileHeight: this.tileHeight,
-    });
-    wallMap.addTilesetImage('tile_walls', undefined, this.tileWidth, this.tileHeight, 0, 0);
-    const wallLayer = wallMap
-      .createLayer(0, 'tile_walls', 0, Constants.HEADER_HEIGHT)
-      .setDepth(-1)
-      .setCollisionBetween(0, 50);
-    this.matter.world.convertTilemapLayer(wallLayer, { label: ObjectTypes.WALL });
-  }
-
-  private drawGround() {
-    const groundArray = generateGroundArray(this.rows, this.cols);
-    const groundMap = this.make.tilemap({
-      data: groundArray,
-      tileWidth: this.tileWidth,
-      tileHeight: this.tileHeight,
-    });
-    groundMap.addTilesetImage('tile_grounds', undefined, this.tileWidth, this.tileHeight, 0, 0);
-    groundMap.createLayer(0, 'tile_grounds', 0, Constants.HEADER_HEIGHT).setDepth(-2);
   }
 
   private addItems() {
