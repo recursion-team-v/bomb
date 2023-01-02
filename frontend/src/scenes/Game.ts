@@ -199,6 +199,16 @@ export default class Game extends Phaser.Scene {
       const oldX = localPlayer.x;
       const oldY = localPlayer.y;
 
+      // 壁にちょっと触れるだけで移動扱いでアニメーションが発生するので
+      // ほぼ同じ位置なら移動しないようにする(*10は少数第一位までを比較するため)
+      if (
+        Math.floor(serverX * 10) === Math.floor(oldX * 10) &&
+        Math.floor(serverY * 10) === Math.floor(oldY * 10)
+      ) {
+        localPlayer.stop();
+        return;
+      }
+
       // 線形補完(TODO: 調整)
       localPlayer.x = Phaser.Math.Linear(localPlayer.x, serverX, 0.2);
       localPlayer.y = Phaser.Math.Linear(localPlayer.y, serverY, 0.2);
@@ -262,17 +272,24 @@ export default class Game extends Phaser.Scene {
     const xDiff = localPlayer.x - oldX;
     const yDiff = localPlayer.y - oldY;
 
-    if (xDiff > 0) localPlayer.play('player_right', true);
-    else if (xDiff < 0) localPlayer.play('player_left', true);
-    else if (yDiff > 0) localPlayer.play('player_down', true);
-    else if (yDiff < 0) localPlayer.play('player_up', true);
-    else localPlayer.stop();
+    // 変化量の大きい方を向きとする
+    const direction = () => {
+      if (Math.abs(xDiff) > Math.abs(yDiff)) return 'horizontal';
+      if (Math.abs(xDiff) < Math.abs(yDiff)) return 'vertical';
+      return 'none';
+    };
 
-    // bomb 設置
-    const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(this.cursorKeys.space);
-    if (isSpaceJustDown) {
-      localPlayer.placeBomb();
+    let playKey = '';
+    if (direction() === 'horizontal') {
+      playKey = xDiff > 0 ? 'player_right' : 'player_left';
+    } else if (direction() === 'vertical') {
+      playKey = yDiff > 0 ? 'player_down' : 'player_up';
+    } else {
+      localPlayer.stop();
+      return;
     }
+
+    localPlayer.play(playKey, true);
   }
 
   // TODO: move outside Game.ts
