@@ -4,7 +4,6 @@ import Matter from 'matter-js';
 
 import * as Constants from '../constants/constants';
 import GameEngine from './GameEngine';
-import { Bomb } from './schema/Bomb';
 import GameRoomState from './schema/GameRoomState';
 
 export default class GameRoom extends Room<GameRoomState> {
@@ -25,15 +24,9 @@ export default class GameRoom extends Room<GameRoomState> {
     });
 
     // TODO:クライアントからのボム設置入力を受け取ってキューに詰める
-    this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, (client, data: any) => {
-      const player = this.state.getPlayer(client.sessionId);
-      if (player === undefined) return;
-
-      const bomb = this.engine.playerService.placeBomb(player); // ボムを設置する  TODO:
-
-      if (bomb === null) return;
-      this.state.getBombQueue().enqueue(bomb); // ボムキューに詰める
-    });
+    this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, (client) =>
+      this.addBombEvent(client.sessionId)
+    );
 
     // FRAME_RATE ごとに fixedUpdate を呼ぶ
     let elapsedTime: number = 0;
@@ -47,14 +40,8 @@ export default class GameRoom extends Room<GameRoomState> {
           this.engine.playerService.updatePlayer(player);
         }
 
-        // TODO: 爆発処理
-        let bomb: Bomb | undefined;
-        while ((bomb = this.state.getBombQueue().dequeue())) {
-          if (bomb.createdAt + Constants.BOMB_EXPLOSION_TIME <= Date.now()) {
-            this.state.deleteBomb(bomb);
-            this.engine.bombService.explode(bomb);
-          }
-        }
+        // 爆弾の処理
+        this.bombProcess();
 
         Matter.Engine.update(this.engine.engine, deltaTime);
       }
@@ -83,5 +70,40 @@ export default class GameRoom extends Room<GameRoomState> {
 
   onDispose() {
     console.log('room', this.roomId, 'disposing...');
+  }
+
+  /*
+  イベント関連
+  */
+
+  // 爆弾追加のイべント
+  private addBombEvent(sessionId: string) {
+    const player = this.state.getPlayer(sessionId);
+    if (player === undefined) return;
+
+    const bomb = this.engine.playerService.placeBomb(player); // ボムを設置する  TODO:
+    if (bomb !== null) this.state.getBombQueue().enqueue(bomb); // ボムキューに詰める
+  }
+
+  /*
+  フレームごとの処理関連
+  */
+
+  // 爆弾の処理
+  private bombProcess() {
+    // ボムキューに詰められたボムを処理する
+    while (!this.state.getBombQueue().isEmpty()) {
+      const bomb = this.state.getBombQueue().read();
+
+      // ボムが爆発していない場合は処理を終了する
+      if (bomb === undefined || !bomb.isExploded()) break;
+
+      // ボムを爆発して、削除する
+      this.state.getBombQueue().dequeue();
+      this.engine.bombService.explode(bomb);
+      this.state.deleteBomb(bomb);
+
+      // TODO: 爆風の処理
+    }
   }
 }

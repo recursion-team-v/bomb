@@ -35,7 +35,7 @@ export default class Player extends Schema {
   @type('number')
   settableBombCount: number;
 
-  // 設置できるボムの個数
+  // 設置できるボムの最大個数
   @type('number')
   maxBombCount: number;
 
@@ -55,5 +55,15 @@ export default class Player extends Schema {
   // ボムを設置できるかをチェックする
   canSetBomb(): boolean {
     return this.settableBombCount > 0;
+  }
+
+  // ボムを置ける最大数を増やす
+  recoverSettableBombCount() {
+    this.settableBombCount++;
+  }
+
+  // 現在設置しているボムの数を減らす
+  consumeCurrentSetBombCount() {
+    this.settableBombCount--;
   }
 }

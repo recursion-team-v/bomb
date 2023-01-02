@@ -44,6 +44,10 @@ export class Bomb extends Schema {
   updateBombStrength(strength: number) {
     this.bombStrength = strength;
   }
+
+  isExploded(): boolean {
+    return this.createdAt + Constants.BOMB_EXPLOSION_TIME <= Date.now();
+  }
 }
 
 // TODO: クライアントもこっちを参照するようにする

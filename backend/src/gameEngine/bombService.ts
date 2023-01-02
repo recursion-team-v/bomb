@@ -40,7 +40,7 @@ export default class BombService {
     // TODO: 爆風処理を実装する
 
     // 設置者のボム数を増やす
-    bomb.owner.settableBombCount++;
+    bomb.owner.recoverSettableBombCount();
 
     // ボムを削除する
     this.deleteBomb(bomb);

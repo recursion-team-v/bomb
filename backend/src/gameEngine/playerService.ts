@@ -60,7 +60,7 @@ export default class PlayerService {
     if (!player.canSetBomb()) return null;
     const bomb = this.gameEngine.state.createBomb(player, player.x, player.y, player.bombStrength);
     this.gameEngine.bombService.addBomb(bomb);
-    player.settableBombCount -= 1;
+    player.consumeCurrentSetBombCount();
     return bomb;
   }
 }
