@@ -108,9 +108,9 @@ export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
 /*
 画面の定義
 */
-export const HEIGHT = TILE_HEIGHT * TILE_ROWS; // 画面の高さ
+export const HEADER_HEIGHT = 64; // ヘッダーの高さ
+export const HEIGHT = TILE_HEIGHT * TILE_ROWS + HEADER_HEIGHT; // 画面の高さ
 export const WIDTH = TILE_WIDTH * TILE_COLS; // 画面の幅
 export const HEADER_COLOR_CODE = '#000000'; // ヘッダーの色
 export const HEADER_TIMER_TEXT_COLOR_CODE = '#FFFFFF'; // ヘッダーのタイマーの文字色
-export const HEADER_HEIGHT = 64; // ヘッダーの高さ
 export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
