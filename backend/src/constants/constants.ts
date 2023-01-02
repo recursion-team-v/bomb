@@ -36,7 +36,10 @@ export type GAME_STATE_TYPE = typeof GAME_STATE[keyof typeof GAME_STATE];
 export const MAX_PLAYER = 4;
 
 // 初期に設置できる爆弾の数
-export const INITIAL_SET_BOMB_NUM = 1;
+export const INITIAL_SETTABLE_BOMB_COUNT = 1;
+
+// 最大に設置できる爆弾の数
+export const MAX_SETTABLE_BOMB_COUNT = 8;
 
 // 初期の爆弾の破壊力
 export const INITIAL_BOMB_STRENGTH = 1;
@@ -57,8 +60,23 @@ export const INITIAL_PLAYER_POSITION = [
 // 爆弾の爆発までの時間(ms)
 export const BOMB_EXPLOSION_TIME = 2330;
 
+// 爆弾が誘爆する時の遅延時間(ms)
+export const BOMB_DETONATION_DELAY = 50;
+
 // クライアントとサーバで許容するプレイヤーの位置のズレ(px)
 export const PLAYER_TOLERANCE_DISTANCE = 10;
+
+// ゲームの制限時間
+export const TIME_LIMIT_SEC = 181; // (+1秒するといい感じに表示される)
+
+/*
+衝突判定のカテゴリ
+*/
+
+export const COLLISION_CATEGORY = {
+  DEFAULT: 0x0001, // デフォルト
+  PLAYER: 0x0002, // プレイヤー
+};
 
 /*
 マップの定義

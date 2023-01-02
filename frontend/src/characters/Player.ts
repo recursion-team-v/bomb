@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-import IngameConfig from '../config/ingameConfig';
 import { handleCollide } from '../utils/handleCollide';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
   public speed: number;
   public bombStrength: number;
+  private settableBombCount: number; // 今設置できるボムの個数
+  private maxBombCount: number; // 設置できるボムの最大個数
 
   constructor(
     world: Phaser.Physics.Matter.World,
@@ -20,9 +21,11 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
     this.speed = Constants.INITIAL_PLAYER_SPEED;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
+    this.settableBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
+    this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
 
     this.setScale(1, 1);
-    this.setRectangle(IngameConfig.defaultTipSize, IngameConfig.defaultTipSize, {
+    this.setRectangle(Constants.PLAYER_WIDTH, Constants.PLAYER_HEIGHT, {
       chamfer: 10,
       friction: 0,
       frictionStatic: 0,
@@ -56,15 +59,47 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.tint = color;
   }
 
+  increaseMaxBombCount() {
+    console.log(this.maxBombCount, Constants.MAX_SETTABLE_BOMB_COUNT);
+    if (this.maxBombCount < Constants.MAX_SETTABLE_BOMB_COUNT) {
+      this.maxBombCount++;
+      this.settableBombCount++;
+    }
+  }
+
+  // ボムを置ける最大数を増やす
+  recoverSettableBombCount() {
+    this.settableBombCount++;
+  }
+
+  // 現在設置しているボムの数を減らす
+  consumeCurrentSetBombCount() {
+    this.settableBombCount--;
+  }
+
+  // ボムを設置できるかをチェックする
+  canSetBomb(): boolean {
+    return this.settableBombCount > 0;
+  }
+
   // ボムを置く
   placeBomb() {
-    const bx =
-      Math.floor(this.x / IngameConfig.tileWidth) * IngameConfig.tileWidth +
-      IngameConfig.tileWidth / 2;
-    const by =
-      Math.floor(this.y / IngameConfig.tileHeight) * IngameConfig.tileHeight +
-      IngameConfig.tileHeight / 2;
+    if (!this.canSetBomb()) return;
+    console.log(this.maxBombCount, this.settableBombCount);
 
-    this.scene.add.bomb(bx, by, this.bombStrength);
+    const bx =
+      Math.floor(this.x / Constants.TILE_WIDTH) * Constants.TILE_WIDTH + Constants.TILE_WIDTH / 2;
+    const by =
+      Math.floor(this.y / Constants.TILE_HEIGHT) * Constants.TILE_HEIGHT +
+      Constants.TILE_HEIGHT / 2;
+
+    this.scene.add.bomb(bx, by, this.bombStrength, this);
+
+    // ボムを置ける数を減らす
+    this.consumeCurrentSetBombCount();
+  }
+
+  gameOver() {
+    // this.destroy();
   }
 }

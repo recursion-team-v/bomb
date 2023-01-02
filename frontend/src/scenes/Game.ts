@@ -14,8 +14,6 @@ import MyPlayer from '../characters/MyPlayer';
 import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
 import * as Config from '../config/config';
-import IngameConfig from '../config/ingameConfig';
-import ScreenConfig from '../config/screenConfig';
 import { ItemTypes } from '../types/items';
 import { ObjectTypes } from '../types/objects';
 import { Client, Room } from 'colyseus.js';
@@ -29,8 +27,8 @@ export default class Game extends Phaser.Scene {
   private room!: Room<GameRoomState>; // TODO: Room
   private readonly rows: number;
   private readonly cols: number;
-  private readonly tileWidth = IngameConfig.tileWidth;
-  private readonly tileHeight = IngameConfig.tileHeight;
+  private readonly tileWidth = Constants.TILE_WIDTH;
+  private readonly tileHeight = Constants.TILE_HEIGHT;
   // eslint-disable-next-line @typescript-eslint/prefer-readonly, @typescript-eslint/consistent-indexed-object-style
   private playerEntities: Map<string, MyPlayer> = new Map();
   private currentPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
@@ -47,8 +45,8 @@ export default class Game extends Phaser.Scene {
 
   constructor() {
     super('game');
-    this.rows = IngameConfig.tileRows;
-    this.cols = IngameConfig.tileCols;
+    this.rows = Constants.TILE_ROWS;
+    this.cols = Constants.TILE_COLS;
     const protocol = window.location.protocol.replace('http', 'ws');
 
     if (import.meta.env.PROD) {
@@ -103,6 +101,9 @@ export default class Game extends Phaser.Scene {
           this.forceMovePlayerPosition(player);
         };
       } else {
+        // プレイヤー同士はぶつからないようにする
+        entity.setSensor(true);
+
         const randomColor = Math.floor(Math.random() * 16777215);
         entity.setPlayerColor(randomColor);
         player.onChange = () => {
@@ -297,7 +298,7 @@ export default class Game extends Phaser.Scene {
     });
     wallMap.addTilesetImage('tile_walls', undefined, this.tileWidth, this.tileHeight, 0, 0);
     const wallLayer = wallMap
-      .createLayer(0, 'tile_walls', 0, ScreenConfig.headerHeight)
+      .createLayer(0, 'tile_walls', 0, Constants.HEADER_HEIGHT)
       .setDepth(-1)
       .setCollisionBetween(0, 50);
     this.matter.world.convertTilemapLayer(wallLayer, { label: ObjectTypes.WALL });
@@ -311,28 +312,38 @@ export default class Game extends Phaser.Scene {
       tileHeight: this.tileHeight,
     });
     groundMap.addTilesetImage('tile_grounds', undefined, this.tileWidth, this.tileHeight, 0, 0);
-    groundMap.createLayer(0, 'tile_grounds', 0, ScreenConfig.headerHeight).setDepth(-2);
+    groundMap.createLayer(0, 'tile_grounds', 0, Constants.HEADER_HEIGHT).setDepth(-2);
   }
 
   private addItems() {
     this.add.item(
       64 * Phaser.Math.Between(1, 13) + 32,
-      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
       ItemTypes.BOMB_STRENGTH
     );
     this.add.item(
       64 * Phaser.Math.Between(1, 13) + 32,
-      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
       ItemTypes.BOMB_STRENGTH
     );
     this.add.item(
       64 * Phaser.Math.Between(1, 13) + 32,
-      64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+      64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
       ItemTypes.BOMB_STRENGTH
     );
+
+    const bombPossessionUpCount = 10;
+    for (let i = 0; i < bombPossessionUpCount; i++) {
+      this.add.item(
+        64 * Phaser.Math.Between(1, 13) + 32,
+        64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
+        ItemTypes.BOMB_POSSESSION_UP
+      );
+    }
+
     // this.add.item(
     //   64 * Phaser.Math.Between(1, 13) + 32,
-    //   64 * Phaser.Math.Between(1, 11) + ScreenConfig.headerHeight + 32,
+    //   64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
     //   ItemTypes.PLAYER_SPEED
     // );
   }
