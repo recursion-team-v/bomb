@@ -2,13 +2,17 @@ import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import Player from '../characters/Player';
-import IngameConfig from '../config/ingameConfig';
 import { ObjectTypes } from '../types/object';
 import { handleCollide } from '../utils/handleCollide';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly bombStrength: number;
   private readonly player: Player;
+
+  // 誘爆時は状況によって爆弾が消えてしまい、座標やシーンが取得できなくなるため保存しておく
+  private readonly stableX: number; // 爆弾が消えても座標を保持するための変数
+  private readonly stableY: number; // 爆弾が消えても座標を保持するための変数
+  private readonly stableScene: Phaser.Scene; // 爆弾が消えてもシーンを保持するための変数
 
   constructor(
     world: Phaser.Physics.Matter.World,
@@ -25,6 +29,9 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
     this.player = player;
     this.bombStrength = bombStrength;
+    this.stableX = x;
+    this.stableY = y;
+    this.stableScene = this.scene;
   }
 
   // 指定の座標から設置可能な座標を返します
@@ -45,7 +52,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       angle: number = 0,
       scale: number = 1
     ) => {
-      this.scene.add
+      this.stableScene.add
         .blast(bx, by, playKey, this.bombStrength)
         .setScale(scale, scale)
         .setAngle(angle)
@@ -53,26 +60,30 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
         .setSensor(true);
     };
 
-    addExplodeSprite(this.x, this.y, 'bomb_center_explosion');
+    addExplodeSprite(this.stableX, this.stableY, 'bomb_center_explosion');
 
     if (this.bombStrength > 1) {
       for (let i = 1; i < this.bombStrength; i++) {
-        addExplodeSprite(this.x + IngameConfig.tileWidth * i, this.y, 'bomb_horizontal_explosion');
         addExplodeSprite(
-          this.x,
-          this.y + IngameConfig.tileWidth * i,
+          this.stableX + Constants.TILE_WIDTH * i,
+          this.stableY,
+          'bomb_horizontal_explosion'
+        );
+        addExplodeSprite(
+          this.stableX,
+          this.stableY + Constants.TILE_WIDTH * i,
           'bomb_horizontal_explosion',
           90
         );
         addExplodeSprite(
-          this.x - IngameConfig.tileWidth * i,
-          this.y,
+          this.stableX - Constants.TILE_WIDTH * i,
+          this.stableY,
           'bomb_horizontal_explosion',
           180
         );
         addExplodeSprite(
-          this.x,
-          this.y - IngameConfig.tileWidth * i,
+          this.stableX,
+          this.stableY - Constants.TILE_WIDTH * i,
           'bomb_horizontal_explosion',
           270
         );
@@ -81,25 +92,25 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
     // add horizontal end explosions
     addExplodeSprite(
-      this.x + IngameConfig.tileWidth * this.bombStrength,
-      this.y,
+      this.stableX + Constants.TILE_WIDTH * this.bombStrength,
+      this.stableY,
       'bomb_horizontal_end_explosion'
     );
     addExplodeSprite(
-      this.x,
-      this.y + IngameConfig.tileWidth * this.bombStrength,
+      this.stableX,
+      this.stableY + Constants.TILE_WIDTH * this.bombStrength,
       'bomb_horizontal_end_explosion',
       90
     );
     addExplodeSprite(
-      this.x - IngameConfig.tileWidth * this.bombStrength,
-      this.y,
+      this.stableX - Constants.TILE_WIDTH * this.bombStrength,
+      this.stableY,
       'bomb_horizontal_end_explosion',
       180
     );
     addExplodeSprite(
-      this.x,
-      this.y - IngameConfig.tileWidth * this.bombStrength,
+      this.stableX,
+      this.stableY - Constants.TILE_WIDTH * this.bombStrength,
       'bomb_horizontal_end_explosion',
       270
     );
@@ -109,10 +120,13 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.setSensor(false);
 
     const obj = this.setRectangle(
-      IngameConfig.tileWidth,
-      IngameConfig.tileHeight
+      Constants.TILE_WIDTH,
+      Constants.TILE_HEIGHT
     ) as Phaser.Physics.Matter.Sprite;
     obj.setStatic(true);
+
+    const body = this.body as MatterJS.BodyType;
+    body.label = ObjectTypes.BOMB;
   }
 
   // 引数の MatterJS.BodyType が爆弾の当たり判定と重なっているかどうかを返す
