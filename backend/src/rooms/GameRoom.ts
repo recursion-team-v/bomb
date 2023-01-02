@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { Client, Room } from 'colyseus';
 import Matter from 'matter-js';
+
 import * as Constants from '../constants/constants';
-import { GameEngine } from './GameEngine';
+import GameEngine from './GameEngine';
 import GameRoomState from './schema/GameRoomState';
 
 export default class GameRoom extends Room<GameRoomState> {
@@ -30,7 +31,7 @@ export default class GameRoom extends Room<GameRoomState> {
       while (elapsedTime >= Constants.FRAME_RATE) {
         elapsedTime -= Constants.FRAME_RATE;
         for (const [, player] of this.state.players) {
-          this.engine.updatePlayer(player);
+          this.engine.playerService.updatePlayer(player);
         }
         Matter.Engine.update(this.engine.engine, deltaTime);
       }
@@ -49,7 +50,7 @@ export default class GameRoom extends Room<GameRoomState> {
     console.log(client.sessionId, 'joined!');
 
     // create Player instance and add to matter
-    this.engine.addPlayer(client.sessionId);
+    this.engine.playerService.addPlayer(client.sessionId);
   }
 
   onLeave(client: Client, consented: boolean) {
