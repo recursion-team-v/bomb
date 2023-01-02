@@ -14,7 +14,10 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly stableY: number; // 爆弾が消えても座標を保持するための変数
   private readonly stableScene: Phaser.Scene; // 爆弾が消えてもシーンを保持するための変数
 
+  private readonly sessionId: string; // サーバが一意にセットするセッションID(誰の爆弾か)
+
   constructor(
+    sessionId: string,
     world: Phaser.Physics.Matter.World,
     x: number,
     y: number,
@@ -27,6 +30,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     const body = this.body as MatterJS.BodyType;
     body.label = ObjectTypes.BOMB;
 
+    this.sessionId = sessionId;
     this.player = player;
     this.bombStrength = bombStrength;
     this.stableX = x;
@@ -127,7 +131,9 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   // ボムが爆発した後の処理
   afterExplosion() {
     this.destroy();
-    this.player.recoverSettableBombCount();
+
+    // 自分の爆弾の時のみ爆弾の数を回復する
+    if (this.player.isEqualSessionId(this.sessionId)) this.player.recoverSettableBombCount();
   }
 }
 
@@ -135,12 +141,13 @@ Phaser.GameObjects.GameObjectFactory.register(
   'bomb',
   function (
     this: Phaser.GameObjects.GameObjectFactory,
+    sessionId: string,
     x: number,
     y: number,
     bombStrength = Constants.INITIAL_BOMB_STRENGTH,
-    player: Player
+    player: PlayerInterface
   ) {
-    const sprite = new Bomb(this.scene.matter.world, x, y, 'bomb', bombStrength, player);
+    const sprite = new Bomb(sessionId, this.scene.matter.world, x, y, 'bomb', bombStrength, player);
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);
@@ -219,4 +226,5 @@ interface PlayerInterface {
   consumeSettableBombCount: () => void;
   canSetBomb: () => boolean;
   placeBomb: () => void;
+  isEqualSessionId: (sessionId: string) => boolean;
 }

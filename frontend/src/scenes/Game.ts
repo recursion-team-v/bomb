@@ -75,6 +75,7 @@ export default class Game extends Phaser.Scene {
     await this.connect();
 
     // 爆弾が追加された時の処理
+    // TODO: アイテムをとって火力が上がった場合の処理を追加する
     this.room.state.bombs.onAdd = (serverBomb: ServerBomb) => this.addBombEvent(serverBomb);
 
     // プレイヤーが追加された時の処理
@@ -380,12 +381,13 @@ export default class Game extends Phaser.Scene {
     if (serverBomb === undefined) return;
 
     const sessionId = serverBomb.owner.sessionId;
-    // 自分のボムは追加しない
+
+    // 自分のボムは表示しない
     if (this.currentPlayer.isEqualSessionId(sessionId)) return;
 
     const player = this.playerEntities.get(sessionId);
     if (player === undefined) return;
 
-    this.add.bomb(serverBomb.x, serverBomb.y, serverBomb.bombStrength, player);
+    this.add.bomb(sessionId, serverBomb.x, serverBomb.y, serverBomb.bombStrength, player);
   }
 }

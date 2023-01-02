@@ -101,7 +101,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
       Math.floor(this.y / Constants.TILE_HEIGHT) * Constants.TILE_HEIGHT +
       Constants.TILE_HEIGHT / 2;
 
-    this.scene.add.bomb(bx, by, this.bombStrength, this);
+    this.scene.add.bomb(this.sessionId, bx, by, this.bombStrength, this);
 
     // ボムを置ける数を減らす
     this.consumeCurrentSetBombCount();
