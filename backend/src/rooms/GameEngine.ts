@@ -22,20 +22,41 @@ export class GameEngine {
     this.init();
   }
 
-  private addWalls(rows: number, cols: number) {
+  private createMap(rows: number, cols: number) {
+    const tileWidth = Constants.TILE_WIDTH;
+    const tileHeight = Constants.TILE_HEIGHT;
     const walls = [];
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        if (i === 0 || i === rows - 1 || j === 0 || j === cols - 1) {
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const wallIdx = this.state.gameMap.wallArr[x + cols * y];
+        const blockIdx = this.state.gameMap.blockArr[x + cols * y];
+        if (
+          wallIdx === Constants.TILE_WALL.DEFAULT_1_IDX ||
+          wallIdx === Constants.TILE_WALL.DEFAULT_2_IDX ||
+          wallIdx === Constants.TILE_WALL.DEFAULT_CORNER_IDX
+        ) {
           walls.push(
             Matter.Bodies.rectangle(
-              Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * j,
-              Constants.HEADER_HEIGHT + Constants.TILE_HEIGHT / 2 + Constants.TILE_HEIGHT * i,
-              Constants.TILE_WIDTH,
-              Constants.TILE_HEIGHT,
+              tileWidth / 2 + tileWidth * x,
+              Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
+              tileWidth,
+              tileHeight,
               {
                 isStatic: true,
                 label: 'WALL',
+              }
+            )
+          );
+        } else if (blockIdx === Constants.TILE_BLOCK_IDX) {
+          walls.push(
+            Matter.Bodies.rectangle(
+              tileWidth / 2 + tileWidth * x,
+              Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
+              tileWidth,
+              tileHeight,
+              {
+                isStatic: true,
+                label: 'BLOCK',
               }
             )
           );
@@ -47,7 +68,7 @@ export class GameEngine {
 
   init() {
     // create walls
-    Matter.Composite.add(this.world, this.addWalls(Constants.TILE_ROWS, Constants.TILE_COLS));
+    Matter.Composite.add(this.world, this.createMap(Constants.TILE_ROWS, Constants.TILE_COLS));
     this.initUpdateEvents();
   }
 
