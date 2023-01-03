@@ -186,7 +186,7 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
 
   playAnim() {
     this.scene.time.addEvent({
-      delay: 1000,
+      delay: Constants.BLAST_AVAILABLE_TIME,
       callback: () => {
         this.destroy();
       },

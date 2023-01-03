@@ -63,6 +63,10 @@ export const BOMB_EXPLOSION_TIME = 2330;
 // 爆弾が誘爆する時の遅延時間(ms)
 export const BOMB_DETONATION_DELAY = 50;
 
+// 爆風が維持される時間(ms)
+// この時間だけ当たり判定が残る
+export const BLAST_AVAILABLE_TIME = 500;
+
 // クライアントとサーバで許容するプレイヤーの位置のズレ(px)
 export const PLAYER_TOLERANCE_DISTANCE = 100;
 
@@ -108,7 +112,7 @@ export const PLAYER_WIDTH = DEFAULT_TIP_SIZE; // プレイヤーの横幅
 export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
 
 /*
-画面の定義 
+画面の定義
 */
 export const HEADER_HEIGHT = 64; // ヘッダーの高さ
 export const HEIGHT = TILE_HEIGHT * TILE_ROWS + HEADER_HEIGHT; // 画面の高さ
