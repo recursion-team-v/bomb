@@ -29,4 +29,4 @@ RUN npm ci --omit=dev && npm cache clean --force
 COPY --from=builder /work/dist ./dist
 
 # Node.js アプリを起動
-CMD ["node", "./dist/work/index.js"]
+CMD ["node", "/work/dist/index.js"]
