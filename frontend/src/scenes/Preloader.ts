@@ -50,8 +50,8 @@ export default class Preloader extends Phaser.Scene {
     this.load.image(ItemTypes.PLAYER_SPEED, 'assets/items/item_player_speed.png');
 
     if (isMobile()) {
-      this.load.image('a', 'assets/joystick-base.png');
-      this.load.image('b', 'assets/joystick-red.png');
+      this.load.image(Constants.JOYSTICK_BASE_KEY, 'assets/joystick-base.png');
+      this.load.image(Constants.JOYSTICK_STICK_KEY, 'assets/joystick-red.png');
     }
     console.log('preloader: sprites loaded');
   }

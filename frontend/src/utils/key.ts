@@ -7,13 +7,14 @@ import Button from 'phaser3-rex-plugins/plugins/button.js';
 import Game from '../scenes/Game';
 
 export default function initializeKeys(game: Game): NavKeys {
-  const kp = game.input.keyboard;
+  const kb = game.input.keyboard;
 
   let keys = {
-    ...kp.createCursorKeys(),
-    ...(kp.addKeys('W,S,A,D,SPACE') as Keyboard),
+    ...kb.createCursorKeys(),
+    ...(kb.addKeys('W,S,A,D,SPACE') as Keyboard),
   };
 
+  // モバイルの場合は仮想ジョイスティックを表示する
   if (isMobile()) {
     const joyStick = new VirtualJoystick(game, {
       x: Constants.JOYSTICK_X,

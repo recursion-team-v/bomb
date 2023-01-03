@@ -53,9 +53,7 @@ export default class Game extends Phaser.Scene {
     }
   }
 
-  init() {}
-
-  preload() {
+  init() {
     // initialize key inputs
     this.cursorKeys = initializeKeys(this);
   }

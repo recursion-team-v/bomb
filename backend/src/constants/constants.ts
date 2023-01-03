@@ -133,13 +133,11 @@ export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
 
 export const JOYSTICK_X = 200; // ジョイスティックの x 座標
 export const JOYSTICK_Y = HEIGHT + 150; // ジョイスティックの y 座標
+export const JOYSTICK_BASE_KEY = 'joystick-base'; // ジョイスティックのベースのキー
+export const JOYSTICK_STICK_KEY = 'joystick-stick'; // ジョイスティックのスティックのキー
 
-// FIXME: なぜか不明だが短いキーにしないと動かない
-export const JOYSTICK_BASE_KEY = 'a'; // ジョイスティックのベースのキー
-export const JOYSTICK_STICK_KEY = 'b'; // ジョイスティックのスティックのキー
-
-export const BUTTON_X = WIDTH - 200; // ジョイスティックの x 座標
-export const BUTTON_Y = JOYSTICK_Y; // ジョイスティックの y 座標
-export const BUTTON_RADIUS = 100; // ジョイスティックの半径
+export const BUTTON_X = WIDTH - 200; // ボタンの x 座標
+export const BUTTON_Y = JOYSTICK_Y; // ボタンの y 座標
+export const BUTTON_RADIUS = 100; // ボタンの半径
 export const BUTTON_COLOR_CODE = BLUE; // ボタンの色
 export const BUTTON_STROKE_COLOR_CODE = GRAY; // ボタンの枠線の色
