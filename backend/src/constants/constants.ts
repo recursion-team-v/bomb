@@ -89,17 +89,30 @@ export const TILE_ROWS = 13; // タイルの行数
 export const TILE_COLS = 15; // タイルの列数
 export const TILE_WIDTH = DEFAULT_TIP_SIZE; // タイルの横幅
 export const TILE_HEIGHT = DEFAULT_TIP_SIZE; // タイルの縦幅
+export const MAX_BLOCKS = 50;
+export const MIN_BLOCKS = 40;
+
+// マップのタイルシートの idx
+export const TILE_GROUND = {
+  DEFAULT_IDX: [3, 4, 5], // 地面タイルの idx (3, 4, 5)
+  SPAWN_IDX: [0, 1, 2], // 地面（スポーン）タイルの idx (0, 1, 2)
+};
+export const TILE_WALL = {
+  DEFAULT_1_IDX: 10, // 外壁タイル1の idx
+  DEFAULT_2_IDX: 19, // 外壁タイル2の idx
+  DEFAULT_CORNER_IDX: 21, // 外壁タイル（角）の idx
+};
+export const TILE_BLOCK_IDX = 1; // 破壊できる箱の idx
 
 export const PLAYER_WIDTH = DEFAULT_TIP_SIZE; // プレイヤーの横幅
 export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
 
 /*
-画面の定義
+画面の定義 
 */
-
-export const HEIGHT = TILE_HEIGHT * TILE_ROWS; // 画面の高さ
+export const HEADER_HEIGHT = 64; // ヘッダーの高さ
+export const HEIGHT = TILE_HEIGHT * TILE_ROWS + HEADER_HEIGHT; // 画面の高さ
 export const WIDTH = TILE_WIDTH * TILE_COLS; // 画面の幅
 export const HEADER_COLOR_CODE = '#000000'; // ヘッダーの色
 export const HEADER_TIMER_TEXT_COLOR_CODE = '#FFFFFF'; // ヘッダーのタイマーの文字色
-export const HEADER_HEIGHT = 64; // ヘッダーの高さ
 export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
