@@ -74,6 +74,9 @@ export default class Game extends Phaser.Scene {
     // タイマーの変更イベント
     this.room.state.timer.onChange = (data) => this.timerChangeEvent(data);
 
+    // ゲームの状態の変更イベント
+    this.room.state.gameState.onChange = async (data) => await this.gameStateChangeEvent(data);
+
     this.room.state.players.onAdd = (player: Player, sessionId: string) => {
       console.log('player add');
       if (player === undefined) return;
@@ -338,6 +341,18 @@ export default class Game extends Phaser.Scene {
     data.forEach((v: any) => {
       if (v.field === 'remainTime') sc.updateTimerText(v.value);
     });
+  }
+
+  // ゲームステートが更新されたイベント
+  private async gameStateChangeEvent(data: any) {
+    const state = data[0].value as Constants.GAME_STATE_TYPE;
+
+    if (state === Constants.GAME_STATE.FINISHED) {
+      await this.room.leave();
+      this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
+      this.scene.stop(Config.SCENE_NAME_GAME);
+      this.scene.start(Config.SCENE_NAME_GAME_RESULT);
+    }
   }
 
   async connect() {

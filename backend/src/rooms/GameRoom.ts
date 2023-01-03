@@ -32,9 +32,9 @@ export default class GameRoom extends Room<GameRoomState> {
 
       while (elapsedTime >= Constants.FRAME_RATE) {
         // 時間切れになったらゲーム終了
-        if (!this.state.timer.isInTime() && this.state.isPlaying()) {
+        if (!this.state.timer.isInTime() && this.state.gameState.isPlaying()) {
           try {
-            this.state.setGameStateFinished();
+            this.state.gameState.setFinished();
           } catch (e) {
             console.error(e);
           }
@@ -56,7 +56,7 @@ export default class GameRoom extends Room<GameRoomState> {
   // ゲーム開始イベント
   private gameStartEvent() {
     try {
-      this.state.setGameStatePlaying();
+      this.state.gameState.setPlaying();
       this.state.setTimer();
     } catch (e) {
       console.error(e);

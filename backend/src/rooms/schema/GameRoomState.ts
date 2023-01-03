@@ -1,13 +1,14 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
 
 import * as Constants from '../../constants/constants';
+import GameState from './GameState';
 import Timer from './Timer';
 import Player from './Player';
 import Map from './Map';
 
 export default class GameRoomState extends Schema {
-  @type('number')
-  private gameState: number = Constants.GAME_STATE.WAITING;
+  @type(GameState)
+  gameState: GameState = new GameState();
 
   @type(Timer)
   readonly timer = new Timer();
@@ -36,31 +37,5 @@ export default class GameRoomState extends Schema {
     player.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
     this.players.set(sessionId, player);
     return player;
-  }
-
-  setGameStatePlaying() {
-    if (!this.isWaiting()) {
-      throw new Error('Invalid game state');
-    }
-    this.gameState = Constants.GAME_STATE.PLAYING;
-  }
-
-  setGameStateFinished() {
-    if (!this.isPlaying()) {
-      throw new Error('Invalid game state');
-    }
-    this.gameState = Constants.GAME_STATE.FINISHED;
-  }
-
-  isWaiting() {
-    return this.gameState === Constants.GAME_STATE.WAITING;
-  }
-
-  isPlaying() {
-    return this.gameState === Constants.GAME_STATE.PLAYING;
-  }
-
-  isFinished() {
-    return this.gameState === Constants.GAME_STATE.FINISHED;
   }
 }

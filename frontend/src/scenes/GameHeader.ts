@@ -11,7 +11,7 @@ export default class GameHeader extends Phaser.Scene {
   private readonly headerTimerTextColorCode: string;
 
   private timerText!: Phaser.GameObjects.Text;
-  private remainTime: number = Infinity;
+  private remainTime: number = 0;
 
   constructor() {
     super(Config.SCENE_NAME_GAME_HEADER);
@@ -38,17 +38,6 @@ export default class GameHeader extends Phaser.Scene {
 
   updateTimerText(timeLimit: number) {
     this.remainTime = timeLimit / 1000;
-    const formatRemainTime: string = convertSecondsToMMSS(this.remainTime);
-    this.timerText.setText(formatRemainTime);
-  }
-
-  create() {}
-
-  update() {
-    if (this.remainTime <= 0) {
-      this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
-      this.scene.stop(Config.SCENE_NAME_GAME);
-      this.scene.start(Config.SCENE_NAME_GAME_RESULT);
-    }
+    this.timerText.setText(convertSecondsToMMSS(this.remainTime));
   }
 }
