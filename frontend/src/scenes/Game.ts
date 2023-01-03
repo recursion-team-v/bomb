@@ -28,6 +28,7 @@ export default class Game extends Phaser.Scene {
   // eslint-disable-next-line @typescript-eslint/prefer-readonly, @typescript-eslint/consistent-indexed-object-style
   private playerEntities: Map<string, MyPlayer> = new Map();
   private currentPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
+
   private remoteRef!: Phaser.GameObjects.Rectangle; // サーバ側が認識するプレイヤーの位置を示す四角形
 
   inputPayload = {
@@ -304,6 +305,10 @@ export default class Game extends Phaser.Scene {
     //   64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
     //   ItemTypes.PLAYER_SPEED
     // );
+  }
+
+  public getCurrentPlayer(): MyPlayer {
+    return this.currentPlayer;
   }
 
   async connect() {

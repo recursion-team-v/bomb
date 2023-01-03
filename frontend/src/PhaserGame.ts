@@ -6,6 +6,8 @@ import GameHeader from './scenes/GameHeader';
 import GameResult from './scenes/GameResult';
 import Preloader from './scenes/Preloader';
 import VirtualJoystick from 'phaser3-rex-plugins/plugins/virtualjoystick.js';
+import ButtonPlugin from 'phaser3-rex-plugins/plugins/button-plugin.js';
+
 import isMobile from './utils/mobile';
 
 const screenHeight = () => (isMobile() ? Constants.MOBILE_HEIGHT : Constants.HEIGHT);
@@ -34,6 +36,11 @@ const config: Phaser.Types.Core.GameConfig = {
       {
         key: 'rexVirtualJoystick',
         plugin: VirtualJoystick,
+        start: false,
+      },
+      {
+        key: 'rexButton',
+        plugin: ButtonPlugin,
         start: false,
       },
     ],
