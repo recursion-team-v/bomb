@@ -4,7 +4,6 @@ import Item from '../items/Item';
 import { ItemTypes } from '../types/items';
 import { ObjectTypes } from '../types/objects';
 import * as Constants from '../../../backend/src/constants/constants';
-import { Schema } from '@colyseus/schema';
 
 export const handleCollide = (bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) => {
   /**
