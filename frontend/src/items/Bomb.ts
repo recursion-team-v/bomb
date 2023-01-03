@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-import { ObjectTypes } from '../types/object';
+import { ObjectTypes } from '../types/objects';
 import { handleCollide } from '../utils/handleCollide';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {

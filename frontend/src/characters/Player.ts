@@ -34,7 +34,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
     this.setScale(1, 1);
     this.setRectangle(Constants.PLAYER_WIDTH, Constants.PLAYER_HEIGHT, {
-      chamfer: 0,
+      chamfer: 10, // 0だと壁に対して斜め移動すると突っかかるので増やす
       friction: 0,
       frictionStatic: 0,
       frictionAir: 0,

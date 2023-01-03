@@ -4,11 +4,14 @@ import * as Constants from '../../constants/constants';
 import GameQueue from '../../utils/gameQueue';
 import { Bomb, getSettablePosition } from './Bomb';
 import Player from './Player';
+import Map from './Map';
 
 export default class GameRoomState extends Schema {
   @type({ map: Player }) players = new MapSchema<Player>();
   @type({ map: Bomb }) bombs = new MapSchema<Bomb>();
   private readonly bombQueue: GameQueue<Bomb> = new GameQueue<Bomb>();
+
+  @type(Map) gameMap = new Map();
 
   getPlayer(sessionId: string): Player | undefined {
     return this.players.get(sessionId);

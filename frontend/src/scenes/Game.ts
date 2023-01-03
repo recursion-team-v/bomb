@@ -8,27 +8,23 @@ import '../items/InnerWall';
 import '../items/Item';
 
 import { createPlayerAnims } from '../anims/PlayerAnims';
-import { generateGroundArray, generateWallArray } from '../utils/generateMap';
+import { drawBlocks, drawGround, drawWalls } from '../utils/drawMap';
 import { Keyboard, NavKeys } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
 import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
 import * as Config from '../config/config';
 import { ItemTypes } from '../types/items';
-import { ObjectTypes } from '../types/objects';
 import { Client, Room } from 'colyseus.js';
 import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
+import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
 
 export default class Game extends Phaser.Scene {
   private readonly client: Client;
-  private room!: Room; // TODO: Room
-  private readonly rows: number;
-  private readonly cols: number;
-  private readonly tileWidth = Constants.TILE_WIDTH;
-  private readonly tileHeight = Constants.TILE_HEIGHT;
+  private room!: Room<GameRoomState>;
   // eslint-disable-next-line @typescript-eslint/prefer-readonly, @typescript-eslint/consistent-indexed-object-style
   private playerEntities: Map<string, MyPlayer> = new Map();
   private currentPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
@@ -45,8 +41,6 @@ export default class Game extends Phaser.Scene {
 
   constructor() {
     super('game');
-    this.rows = Constants.TILE_ROWS;
-    this.cols = Constants.TILE_COLS;
     const protocol = window.location.protocol.replace('http', 'ws');
 
     if (import.meta.env.PROD) {
@@ -135,12 +129,17 @@ export default class Game extends Phaser.Scene {
     createBombAnims(this.anims);
     createExplodeAnims(this.anims);
 
-    // add map
-    this.generateMap();
+    // draw ground map
+    drawGround(this);
 
     // add items
     this.addItems();
-    // this.addInnerWalls();
+
+    this.room.onStateChange.once((state) => {
+      // GameRoomState の wallArr, blockArr が初期化された際それを取得して描画する
+      drawWalls(this, state.gameMap.wallArr);
+      drawBlocks(this, state.gameMap.blockArr);
+    });
   }
 
   // 経過時間
@@ -204,6 +203,16 @@ export default class Game extends Phaser.Scene {
 
       const oldX = localPlayer.x;
       const oldY = localPlayer.y;
+
+      // 壁にちょっと触れるだけで移動扱いでアニメーションが発生するので
+      // ほぼ同じ位置なら移動しないようにする(*10は少数第一位までを比較するため)
+      if (
+        Math.floor(serverX * 10) === Math.floor(oldX * 10) &&
+        Math.floor(serverY * 10) === Math.floor(oldY * 10)
+      ) {
+        localPlayer.stop();
+        return;
+      }
 
       // 線形補完(TODO: 調整)
       localPlayer.x = Phaser.Math.Linear(localPlayer.x, serverX, 0.2);
@@ -269,55 +278,24 @@ export default class Game extends Phaser.Scene {
     const xDiff = localPlayer.x - oldX;
     const yDiff = localPlayer.y - oldY;
 
-    if (xDiff > 0) localPlayer.play('player_right', true);
-    else if (xDiff < 0) localPlayer.play('player_left', true);
-    else if (yDiff > 0) localPlayer.play('player_down', true);
-    else if (yDiff < 0) localPlayer.play('player_up', true);
-    else localPlayer.stop();
+    // 変化量の大きい方を向きとする
+    const direction = () => {
+      if (Math.abs(xDiff) > Math.abs(yDiff)) return 'horizontal';
+      if (Math.abs(xDiff) < Math.abs(yDiff)) return 'vertical';
+      return 'none';
+    };
 
-    // bomb 設置
-    const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(this.cursorKeys.space);
-    if (isSpaceJustDown) {
-      localPlayer.placeBomb();
+    let playKey = '';
+    if (direction() === 'horizontal') {
+      playKey = xDiff > 0 ? 'player_right' : 'player_left';
+    } else if (direction() === 'vertical') {
+      playKey = yDiff > 0 ? 'player_down' : 'player_up';
+    } else {
+      localPlayer.stop();
+      return;
     }
-  }
 
-  // TODO: move outside Game.ts
-  private generateMap() {
-    const groundArray = generateGroundArray(this.rows, this.cols);
-    const wallArray = generateWallArray(this.rows, this.cols);
-
-    const groundMap = this.make.tilemap({
-      data: groundArray,
-      tileWidth: this.tileWidth,
-      tileHeight: this.tileHeight,
-    });
-    groundMap.addTilesetImage('tile_grounds', undefined, this.tileWidth, this.tileHeight, 0, 0);
-    groundMap.createLayer(0, 'tile_grounds', 0, Constants.HEADER_HEIGHT);
-
-    const wallMap = this.make.tilemap({
-      data: wallArray,
-      tileWidth: this.tileWidth,
-      tileHeight: this.tileHeight,
-    });
-    wallMap.addTilesetImage('tile_walls', undefined, this.tileWidth, this.tileHeight, 0, 0);
-    const wallLayer = wallMap
-      .createLayer(0, 'tile_walls', 0, Constants.HEADER_HEIGHT)
-      .setCollisionBetween(0, 50);
-    this.matter.world.convertTilemapLayer(wallLayer, { label: ObjectTypes.WALL });
-  }
-
-  private addInnerWalls() {
-    for (let i = 1; i < Constants.TILE_ROWS; i++) {
-      for (let j = 1; j < Constants.TILE_COLS - 3; j++) {
-        if (i % 2 === 1 || j % 2 === 1) continue;
-        this.add.innerWall(
-          Constants.TILE_WIDTH * i + Constants.TILE_WIDTH / 2,
-          Constants.TILE_HEIGHT * j + Constants.TILE_HEIGHT / 2 + Constants.HEADER_HEIGHT,
-          'innerWall'
-        );
-      }
-    }
+    localPlayer.play(playKey, true);
   }
 
   private addItems() {
@@ -346,16 +324,6 @@ export default class Game extends Phaser.Scene {
       );
     }
 
-    // this.add.item(
-    //   64 * Phaser.Math.Between(1, 13) + 32,
-    //   64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
-    //   ItemTypes.PLAYER_SPEED
-    // );
-    // this.add.item(
-    //   64 * Phaser.Math.Between(1, 13) + 32,
-    //   64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
-    //   ItemTypes.PLAYER_SPEED
-    // );
     // this.add.item(
     //   64 * Phaser.Math.Between(1, 13) + 32,
     //   64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
