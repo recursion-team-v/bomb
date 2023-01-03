@@ -39,12 +39,28 @@ export default class GameRoomState extends Schema {
   }
 
   setGameStatePlaying() {
-    if (this.gameState !== Constants.GAME_STATE.WAITING) return;
+    if (!this.isWaiting()) {
+      throw new Error('Invalid game state');
+    }
     this.gameState = Constants.GAME_STATE.PLAYING;
   }
 
   setGameStateFinished() {
-    if (this.gameState !== Constants.GAME_STATE.PLAYING) return;
+    if (!this.isPlaying()) {
+      throw new Error('Invalid game state');
+    }
     this.gameState = Constants.GAME_STATE.FINISHED;
+  }
+
+  isWaiting() {
+    return this.gameState === Constants.GAME_STATE.WAITING;
+  }
+
+  isPlaying() {
+    return this.gameState === Constants.GAME_STATE.PLAYING;
+  }
+
+  isFinished() {
+    return this.gameState === Constants.GAME_STATE.FINISHED;
   }
 }

@@ -11,6 +11,10 @@ export default class Timer extends Schema {
   @type('number')
   private finishedAt!: number;
 
+  // 残り時間
+  @type('number')
+  private remainTime!: number;
+
   // 制限時間をセットする
   set(epochtime: number) {
     this.startedAt = epochtime;
@@ -20,9 +24,13 @@ export default class Timer extends Schema {
     this.finishedAt = epochtime + Constants.TIME_LIMIT_SEC * 1000;
   }
 
-  // 残り時間を返す
-  remainTime(): number {
-    return this.isInTime() ? this.finishedAt - Date.now() : 0;
+  // 残り時間をセットする
+  setRemainTime() {
+    this.remainTime = this.isInTime() ? this.finishedAt - Date.now() : 0;
+  }
+
+  getRemainTime() {
+    return this.remainTime;
   }
 
   // 制限時間内かどうかを返す

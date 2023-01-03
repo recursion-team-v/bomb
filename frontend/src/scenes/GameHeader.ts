@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
+import * as Config from '../config/config';
 import convertSecondsToMMSS from '../utils/timer';
 
 export default class GameHeader extends Phaser.Scene {
@@ -10,20 +11,15 @@ export default class GameHeader extends Phaser.Scene {
   private readonly headerTimerTextColorCode: string;
 
   private timerText!: Phaser.GameObjects.Text;
-
-  // private timerOneShot!: Phaser.Time.TimerEvent;
-  private timerRepeat!: Phaser.Time.TimerEvent;
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly
-  private timeLimitsSec: number; // ゲームの制限時間
+  private remainTime: number = Infinity;
 
   constructor() {
-    super('gameHeader');
+    super(Config.SCENE_NAME_GAME_HEADER);
 
     this.height = Constants.HEADER_HEIGHT;
     this.width = Constants.HEADER_WIDTH;
     this.headerColorCode = Constants.HEADER_COLOR_CODE;
     this.headerTimerTextColorCode = Constants.HEADER_TIMER_TEXT_COLOR_CODE;
-    this.timeLimitsSec = Constants.TIME_LIMIT_SEC;
   }
 
   init() {
@@ -35,26 +31,24 @@ export default class GameHeader extends Phaser.Scene {
       .text(0, 0, '', { fontSize: `${fontSize}px` })
       .setColor(this.headerTimerTextColorCode)
       .setPadding(10, paddingHeight, 10, paddingHeight);
-  }
 
-  create() {
     this.cameras.main.setSize(this.width, this.height);
     this.cameras.main.setBackgroundColor(this.headerColorCode);
-
-    this.timerRepeat = this.time.addEvent({
-      delay: 1000 * this.timeLimitsSec,
-      repeat: 0,
-    });
   }
 
-  update() {
-    const formatRemainTime: string = convertSecondsToMMSS(this.timerRepeat.getRemainingSeconds());
+  updateTimerText(timeLimit: number) {
+    this.remainTime = timeLimit / 1000;
+    const formatRemainTime: string = convertSecondsToMMSS(this.remainTime);
     this.timerText.setText(formatRemainTime);
+  }
 
-    if (this.timerRepeat.getRemainingSeconds() <= 0) {
-      this.scene.stop('gameHeader');
-      this.scene.stop('game');
-      this.scene.start('gameResult');
+  create() {}
+
+  update() {
+    if (this.remainTime <= 0) {
+      this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
+      this.scene.stop(Config.SCENE_NAME_GAME);
+      this.scene.start(Config.SCENE_NAME_GAME_RESULT);
     }
   }
 }

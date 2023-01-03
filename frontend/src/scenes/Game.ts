@@ -20,6 +20,7 @@ import * as Constants from '../../../backend/src/constants/constants';
 import Player from '../../../backend/src/rooms/schema/Player';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
+import GameHeader from './GameHeader';
 
 export default class Game extends Phaser.Scene {
   private readonly client: Client;
@@ -39,7 +40,7 @@ export default class Game extends Phaser.Scene {
   cursorKeys!: NavKeys;
 
   constructor() {
-    super('game');
+    super(Config.SCENE_NAME_GAME);
     const protocol = window.location.protocol.replace('http', 'ws');
 
     if (import.meta.env.PROD) {
@@ -70,9 +71,8 @@ export default class Game extends Phaser.Scene {
       this.room.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS);
     });
 
-    this.room.state.timer.onChange = (time) => {
-      console.log(time);
-    };
+    // タイマーの変更イベント
+    this.room.state.timer.onChange = (data) => this.timerChangeEvent(data);
 
     this.room.state.players.onAdd = (player: Player, sessionId: string) => {
       console.log('player add');
@@ -330,6 +330,14 @@ export default class Game extends Phaser.Scene {
     //   64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
     //   ItemTypes.PLAYER_SPEED
     // );
+  }
+
+  // タイマーが更新されたイベント
+  private timerChangeEvent(data: any) {
+    const sc = this.scene.get(Config.SCENE_NAME_GAME_HEADER) as GameHeader;
+    data.forEach((v: any) => {
+      if (v.field === 'remainTime') sc.updateTimerText(v.value);
+    });
   }
 
   async connect() {
