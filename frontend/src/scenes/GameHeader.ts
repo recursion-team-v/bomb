@@ -18,8 +18,8 @@ export default class GameHeader extends Phaser.Scene {
 
     this.height = Constants.HEADER_HEIGHT;
     this.width = Constants.HEADER_WIDTH;
-    this.headerColorCode = Constants.HEADER_COLOR_CODE;
-    this.headerTimerTextColorCode = Constants.HEADER_TIMER_TEXT_COLOR_CODE;
+    this.headerColorCode = Constants.HEADER_COLOR_CODE.toString(16);
+    this.headerTimerTextColorCode = Constants.HEADER_TIMER_TEXT_COLOR_CODE.toString(16);
   }
 
   init() {
