@@ -2,9 +2,12 @@ import { MapSchema, Schema, type } from '@colyseus/schema';
 
 import * as Constants from '../../constants/constants';
 import Player from './Player';
+import Map from './Map';
 
 export default class GameRoomState extends Schema {
   @type({ map: Player }) players = new MapSchema<Player>();
+
+  @type(Map) gameMap = new Map();
 
   getPlayer(sessionId: string): Player | undefined {
     return this.players.get(sessionId);

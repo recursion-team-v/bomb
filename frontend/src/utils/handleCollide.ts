@@ -40,7 +40,7 @@ export const handleCollide = (bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType
       default:
         return;
     }
-    item.destroy();
+    item.removeItem();
   }
   // A = PLAYER, B = EXPLOSION
   else if (aType === ObjectTypes.PLAYER && bType === ObjectTypes.EXPLOSION) {
