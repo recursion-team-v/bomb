@@ -9,7 +9,7 @@ import '../items/Item';
 
 import { createPlayerAnims } from '../anims/PlayerAnims';
 import { drawBlocks, drawGround, drawWalls } from '../utils/drawMap';
-import { Keyboard, NavKeys } from '../types/keyboard';
+import { NavKeys } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
 import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
@@ -20,6 +20,7 @@ import * as Constants from '../../../backend/src/constants/constants';
 import Player from '../../../backend/src/rooms/schema/Player';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
+import initializeKeys from '../utils/key';
 
 export default class Game extends Phaser.Scene {
   private readonly client: Client;
@@ -27,6 +28,7 @@ export default class Game extends Phaser.Scene {
   // eslint-disable-next-line @typescript-eslint/prefer-readonly, @typescript-eslint/consistent-indexed-object-style
   private playerEntities: Map<string, MyPlayer> = new Map();
   private currentPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
+
   private remoteRef!: Phaser.GameObjects.Rectangle; // サーバ側が認識するプレイヤーの位置を示す四角形
 
   inputPayload = {
@@ -52,12 +54,8 @@ export default class Game extends Phaser.Scene {
   }
 
   init() {
-    // preload の前に呼ばれる
     // initialize key inputs
-    this.cursorKeys = {
-      ...this.input.keyboard.createCursorKeys(),
-      ...(this.input.keyboard.addKeys('W,S,A,D,SPACE') as Keyboard),
-    };
+    this.cursorKeys = initializeKeys(this);
   }
 
   async create() {
@@ -322,6 +320,10 @@ export default class Game extends Phaser.Scene {
     //   64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
     //   ItemTypes.PLAYER_SPEED
     // );
+  }
+
+  public getCurrentPlayer(): MyPlayer {
+    return this.currentPlayer;
   }
 
   async connect() {

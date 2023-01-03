@@ -1,3 +1,12 @@
+/*
+色の定義
+*/
+
+export const BLACK = 0x000000;
+export const WHITE = 0xffffff;
+export const GRAY = 0x808080;
+export const BLUE = 0x0000ff;
+
 export const FPS = 60; // 1 秒間のフレーム数
 export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
 
@@ -116,7 +125,23 @@ export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
 */
 export const HEADER_HEIGHT = 64; // ヘッダーの高さ
 export const HEIGHT = TILE_HEIGHT * TILE_ROWS + HEADER_HEIGHT; // 画面の高さ
+export const MOBILE_HEIGHT = HEIGHT + 300; // モバイル用の余白
 export const WIDTH = TILE_WIDTH * TILE_COLS; // 画面の幅
-export const HEADER_COLOR_CODE = '#000000'; // ヘッダーの色
-export const HEADER_TIMER_TEXT_COLOR_CODE = '#FFFFFF'; // ヘッダーのタイマーの文字色
+export const HEADER_COLOR_CODE = BLACK; // ヘッダーの色
+export const HEADER_TIMER_TEXT_COLOR_CODE = WHITE; // ヘッダーのタイマーの文字色
 export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
+
+/*
+モバイル用の操作アイコンの定義
+*/
+
+export const JOYSTICK_X = 200; // ジョイスティックの x 座標
+export const JOYSTICK_Y = HEIGHT + 150; // ジョイスティックの y 座標
+export const JOYSTICK_BASE_KEY = 'joystick-base'; // ジョイスティックのベースのキー
+export const JOYSTICK_STICK_KEY = 'joystick-stick'; // ジョイスティックのスティックのキー
+
+export const BUTTON_X = WIDTH - 200; // ボタンの x 座標
+export const BUTTON_Y = JOYSTICK_Y; // ボタンの y 座標
+export const BUTTON_RADIUS = 100; // ボタンの半径
+export const BUTTON_COLOR_CODE = BLUE; // ボタンの色
+export const BUTTON_STROKE_COLOR_CODE = GRAY; // ボタンの枠線の色
