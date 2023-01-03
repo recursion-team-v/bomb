@@ -9,7 +9,7 @@ import '../items/Item';
 
 import { createPlayerAnims } from '../anims/PlayerAnims';
 import { drawBlocks, drawGround, drawWalls } from '../utils/drawMap';
-import { Keyboard, NavKeys } from '../types/keyboard';
+import { NavKeys } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
 import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
@@ -20,6 +20,7 @@ import * as Constants from '../../../backend/src/constants/constants';
 import Player from '../../../backend/src/rooms/schema/Player';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
+import initializeKeys from '../utils/key';
 
 export default class Game extends Phaser.Scene {
   private readonly client: Client;
@@ -51,13 +52,11 @@ export default class Game extends Phaser.Scene {
     }
   }
 
-  init() {
-    // preload の前に呼ばれる
+  init() {}
+
+  preload() {
     // initialize key inputs
-    this.cursorKeys = {
-      ...this.input.keyboard.createCursorKeys(),
-      ...(this.input.keyboard.addKeys('W,S,A,D,SPACE') as Keyboard),
-    };
+    this.cursorKeys = initializeKeys(this);
   }
 
   async create() {

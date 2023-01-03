@@ -16,7 +16,11 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "typeRoots": ["node_modules/@types", "node_modules/phaser/types"],
+    "typeRoots": [
+      "node_modules/@types",
+      "node_modules/phaser/types",
+      "node_modules/phaser3-rex-plugins-types"
+    ],
     "types": ["phaser"]
   },
   "include": ["src"],

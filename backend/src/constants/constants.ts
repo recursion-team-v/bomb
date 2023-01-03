@@ -1,3 +1,5 @@
+import isMobile from '../../../frontend/src/utils/mobile';
+
 export const FPS = 60; // 1 秒間のフレーム数
 export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
 
@@ -108,11 +110,24 @@ export const PLAYER_WIDTH = DEFAULT_TIP_SIZE; // プレイヤーの横幅
 export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
 
 /*
-画面の定義 
+画面の定義
 */
 export const HEADER_HEIGHT = 64; // ヘッダーの高さ
 export const HEIGHT = TILE_HEIGHT * TILE_ROWS + HEADER_HEIGHT; // 画面の高さ
+export const MOBILE_HEIGHT = HEIGHT + 300; // モバイル用の余白
 export const WIDTH = TILE_WIDTH * TILE_COLS; // 画面の幅
 export const HEADER_COLOR_CODE = '#000000'; // ヘッダーの色
 export const HEADER_TIMER_TEXT_COLOR_CODE = '#FFFFFF'; // ヘッダーのタイマーの文字色
 export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
+
+/*
+モバイル用のジョイスティックの定義
+*/
+
+export const JOYSTICK_X = 200; // ジョイスティックの x 座標
+export const JOYSTICK_Y = HEIGHT + 150; // ジョイスティックの y 座標
+export const JOYSTICK_RADIUS = 50; // ジョイスティックの半径
+
+// FIXME: なぜか不明だが短いキーにしないと動かない
+export const JOYSTICK_BASE_KEY = 'a'; // ジョイスティックのベースのキー
+export const JOYSTICK_STICK_KEY = 'b'; // ジョイスティックのスティックのキー

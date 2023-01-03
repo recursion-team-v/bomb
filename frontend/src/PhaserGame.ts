@@ -5,6 +5,10 @@ import Game from './scenes/Game';
 import GameHeader from './scenes/GameHeader';
 import GameResult from './scenes/GameResult';
 import Preloader from './scenes/Preloader';
+import VirtualJoystick from 'phaser3-rex-plugins/plugins/virtualjoystick.js';
+import isMobile from './utils/mobile';
+
+const screenHeight = () => (isMobile() ? Constants.MOBILE_HEIGHT : Constants.HEIGHT);
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -13,7 +17,7 @@ const config: Phaser.Types.Core.GameConfig = {
   scale: {
     mode: Phaser.Scale.ScaleModes.FIT,
     width: Constants.WIDTH,
-    height: Constants.HEIGHT,
+    height: screenHeight(),
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   physics: {
@@ -25,6 +29,15 @@ const config: Phaser.Types.Core.GameConfig = {
   },
   autoFocus: true,
   scene: [Preloader, Game, GameHeader, GameResult],
+  plugins: {
+    global: [
+      {
+        key: 'rexVirtualJoystick',
+        plugin: VirtualJoystick,
+        start: false,
+      },
+    ],
+  },
 };
 
 const phaserGame = new Phaser.Game(config);
