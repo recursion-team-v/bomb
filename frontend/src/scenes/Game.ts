@@ -64,7 +64,15 @@ export default class Game extends Phaser.Scene {
     console.log('game: create game');
 
     // connect with the room
-    await this.connect();
+    await this.connect().then(() => {
+      // ゲーム開始の通知
+      // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
+      this.room.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS);
+    });
+
+    this.room.state.timer.onChange = (time) => {
+      console.log(time);
+    };
 
     this.room.state.players.onAdd = (player: Player, sessionId: string) => {
       console.log('player add');

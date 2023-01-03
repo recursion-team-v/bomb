@@ -10,7 +10,7 @@ export default class GameRoomState extends Schema {
   private gameState: number = Constants.GAME_STATE.WAITING;
 
   @type(Timer)
-  private readonly timer = new Timer();
+  readonly timer = new Timer();
 
   @type({ map: Player }) players = new MapSchema<Player>();
 
@@ -22,10 +22,6 @@ export default class GameRoomState extends Schema {
 
   getPlayersCount() {
     return this.players.size;
-  }
-
-  getTimer() {
-    return this.timer;
   }
 
   setTimer() {

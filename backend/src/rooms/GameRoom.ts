@@ -13,6 +13,12 @@ export default class GameRoom extends Room<GameRoomState> {
 
     this.engine = new GameEngine(this.state);
 
+    // ゲーム開始をクライアントから受け取る
+    this.onMessage(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, () => {
+      this.state.setGameStatePlaying();
+      this.state.setTimer();
+    });
+
     // クライアントからの移動入力を受け取ってキューに詰める
     this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, (client, data: any) => {
       // get reference to the player who sent the message
@@ -29,7 +35,7 @@ export default class GameRoom extends Room<GameRoomState> {
 
       while (elapsedTime >= Constants.FRAME_RATE) {
         // 時間切れになったらゲーム終了
-        if (!this.state.getTimer().isInTime()) {
+        if (!this.state.timer.isInTime()) {
           this.state.setGameStateFinished();
           return;
         }
