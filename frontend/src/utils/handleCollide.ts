@@ -4,6 +4,7 @@ import Item from '../items/Item';
 import { ItemTypes } from '../types/items';
 import { ObjectTypes } from '../types/objects';
 import * as Constants from '../../../backend/src/constants/constants';
+import { Schema } from '@colyseus/schema';
 
 export const handleCollide = (bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) => {
   /**
@@ -59,5 +60,17 @@ export const handleCollide = (bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType
         bomb.afterExplosion();
       },
     });
+  }
+
+  // A = EXPLOSION, B = BLOCK
+  // 爆弾で壁を破壊する
+  else if (aType === ObjectTypes.EXPLOSION && bType === ObjectTypes.BLOCK) {
+    // タイルとオブジェクトを別々に削除しないと、タイルが消えない
+    const tile = bodyB.gameObject.tile as Phaser.Tilemaps.Tile;
+    const tilemap = bodyB.gameObject.tile.layer.tilemapLayer.tilemap as Phaser.Tilemaps.Tilemap;
+    tilemap.removeTile(tile);
+
+    const block = bodyB.gameObject as Phaser.Physics.Matter.Sprite;
+    block.destroy();
   }
 };
