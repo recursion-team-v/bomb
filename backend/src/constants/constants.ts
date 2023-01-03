@@ -35,6 +35,12 @@ export type GAME_STATE_TYPE = typeof GAME_STATE[keyof typeof GAME_STATE];
 // ルームの最大人数
 export const MAX_PLAYER = 4;
 
+// プレイヤーの初期HP
+export const INITIAL_PLAYER_HP = 1;
+
+// プレイヤーの最大HP
+export const MAX_PLAYER_HP = 3;
+
 // 初期に設置できる爆弾の数
 export const INITIAL_SETTABLE_BOMB_COUNT = 1;
 

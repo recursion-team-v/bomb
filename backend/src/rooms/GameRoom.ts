@@ -19,6 +19,10 @@ export default class GameRoom extends Room<GameRoomState> {
       const player = this.state.getPlayer(client.sessionId);
       if (player === undefined) return;
 
+      // 死んでたら操作を受け付けない
+      // TODO: 同様の処理をボムとアイテムにも入れる
+      if (!player.isAlive) return;
+
       player.inputQueue.push(data);
     });
 
@@ -31,6 +35,7 @@ export default class GameRoom extends Room<GameRoomState> {
         elapsedTime -= Constants.FRAME_RATE;
         for (const [, player] of this.state.players) {
           this.engine.updatePlayer(player);
+          // TODO: プレイヤーを削除する
         }
         Matter.Engine.update(this.engine.engine, deltaTime);
       }

@@ -25,6 +25,9 @@ export default class Player extends Schema {
   vy: number = 0;
 
   @type('number')
+  hp: number;
+
+  @type('number')
   speed: number = Constants.INITIAL_PLAYER_SPEED;
 
   // ボムの破壊力
@@ -43,7 +46,25 @@ export default class Player extends Schema {
     this.idx = idx;
     this.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
     this.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
+    this.hp = Constants.INITIAL_PLAYER_HP;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.settableBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
+  }
+
+  // ダメージを受けてHPを減らします
+  damage(damage: number) {
+    this.hp - damage < 0 ? (this.hp = 0) : (this.hp -= damage);
+  }
+
+  // HPを回復します
+  recoverHp(recover: number) {
+    this.hp + recover > Constants.MAX_PLAYER_HP
+      ? (this.hp = Constants.MAX_PLAYER_HP)
+      : (this.hp += recover);
+  }
+
+  // プレイヤーが死んでいるかどうかを返します
+  isAlive(): boolean {
+    return this.hp > 0;
   }
 }
