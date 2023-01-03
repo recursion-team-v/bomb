@@ -4,7 +4,7 @@ import Phaser from 'phaser';
 // register to GameObjectFactory
 import '../characters/MyPlayer';
 import '../items/Bomb';
-import '../items/InnerWall';
+import '../items/Wall';
 import '../items/Item';
 
 import { createPlayerAnims } from '../anims/PlayerAnims';
@@ -28,6 +28,7 @@ export default class Game extends Phaser.Scene {
   // eslint-disable-next-line @typescript-eslint/prefer-readonly, @typescript-eslint/consistent-indexed-object-style
   private playerEntities: Map<string, MyPlayer> = new Map();
   private currentPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
+  public blockMap?: number[][];
 
   private remoteRef!: Phaser.GameObjects.Rectangle; // サーバ側が認識するプレイヤーの位置を示す四角形
 
@@ -121,16 +122,18 @@ export default class Game extends Phaser.Scene {
     createBombAnims(this.anims);
     createExplodeAnims(this.anims);
 
-    // draw ground map
-    drawGround(this);
-
     // add items
     this.addItems();
 
     this.room.onStateChange.once((state) => {
-      // GameRoomState の wallArr, blockArr が初期化された際それを取得して描画する
-      drawWalls(this, state.gameMap.wallArr);
-      drawBlocks(this, state.gameMap.blockArr);
+      // GameRoomState の blockArr が初期化されたら block（破壊）を描画
+      const mapTiles = state.gameMap.mapTiles;
+      // draw ground
+      drawGround(this, mapTiles.GROUND_IDX);
+      // draw walls
+      drawWalls(this, mapTiles);
+      // draw blocks
+      this.blockMap = drawBlocks(this, state.gameMap.blockArr);
     });
   }
 
@@ -207,8 +210,8 @@ export default class Game extends Phaser.Scene {
       }
 
       // 線形補完(TODO: 調整)
-      localPlayer.x = Phaser.Math.Linear(localPlayer.x, serverX, 0.2);
-      localPlayer.y = Phaser.Math.Linear(localPlayer.y, serverY, 0.2);
+      localPlayer.x = Phaser.Math.Linear(localPlayer.x, serverX, 0.35); // 動きがちょっと滑らか過ぎるから 0.2 -> 0.35
+      localPlayer.y = Phaser.Math.Linear(localPlayer.y, serverY, 0.35);
 
       this.playerAnims(localPlayer, oldX, oldY);
     });
