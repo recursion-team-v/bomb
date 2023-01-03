@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import { handleCollide } from '../utils/handleCollide';
-import { ObjectTypes } from '../types/object';
+import { ObjectTypes } from '../types/objects';
 import Bomb from '../items/Bomb';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
