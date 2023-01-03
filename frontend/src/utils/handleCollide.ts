@@ -73,4 +73,11 @@ export const handleCollide = (bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType
     const block = bodyB.gameObject as Phaser.Physics.Matter.Sprite;
     block.destroy();
   }
+
+  // A = EXPLOSION, B = ITEM
+  // 爆弾でアイテムを破壊する
+  else if (aType === ObjectTypes.EXPLOSION && bType === ObjectTypes.ITEM) {
+    const item = bodyB.gameObject as Item;
+    item.removeItem();
+  }
 };
