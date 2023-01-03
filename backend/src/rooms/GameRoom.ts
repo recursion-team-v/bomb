@@ -28,6 +28,12 @@ export default class GameRoom extends Room<GameRoomState> {
       elapsedTime += deltaTime;
 
       while (elapsedTime >= Constants.FRAME_RATE) {
+        // 時間切れになったらゲーム終了
+        if (!this.state.getTimer().isInTime()) {
+          this.state.setGameStateFinished();
+          return;
+        }
+
         elapsedTime -= Constants.FRAME_RATE;
         for (const [, player] of this.state.players) {
           this.engine.updatePlayer(player);
