@@ -71,7 +71,7 @@ export const BOMB_COLLISION_RATIO = 0.6;
 export const BOMB_DETONATION_DELAY = 50;
 
 // クライアントとサーバで許容するプレイヤーの位置のズレ(px)
-export const PLAYER_TOLERANCE_DISTANCE = 10;
+export const PLAYER_TOLERANCE_DISTANCE = 100;
 
 // ゲームの制限時間
 export const TIME_LIMIT_SEC = 181; // (+1秒するといい感じに表示される)
