@@ -5,6 +5,7 @@ import { ObjectTypes } from '../types/objects';
 
 export default class MyPlayer extends Player {
   constructor(
+    sessionId: string,
     world: Phaser.Physics.Matter.World,
     x: number,
     y: number,
@@ -12,7 +13,7 @@ export default class MyPlayer extends Player {
     frame?: string | number,
     options?: Phaser.Types.Physics.Matter.MatterBodyConfig
   ) {
-    super(world, x, y, texture, frame, options);
+    super(sessionId, world, x, y, texture, frame, options);
 
     const body = this.body as MatterJS.BodyType;
     body.label = ObjectTypes.PLAYER;
@@ -25,13 +26,14 @@ Phaser.GameObjects.GameObjectFactory.register(
   'myPlayer',
   function (
     this: Phaser.GameObjects.GameObjectFactory,
+    sessionId: string,
     x: number,
     y: number,
     texture: string,
     frame?: string | number,
     options?: Phaser.Types.Physics.Matter.MatterBodyConfig
   ) {
-    const sprite = new MyPlayer(this.scene.matter.world, x, y, texture, frame, options);
+    const sprite = new MyPlayer(sessionId, this.scene.matter.world, x, y, texture, frame, options);
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);

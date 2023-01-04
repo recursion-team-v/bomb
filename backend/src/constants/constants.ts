@@ -141,6 +141,13 @@ export const HEADER_TIMER_TEXT_COLOR_CODE = WHITE; // ヘッダーのタイマ�
 export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
 
 /*
+ラベルの定義
+*/
+
+export const LABEL_PLAYER = 'PLAYER';
+export const LABEL_BOMB = 'BOMB';
+
+/*
 モバイル用の操作アイコンの定義
 */
 

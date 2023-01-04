@@ -17,7 +17,8 @@ import * as Config from '../config/config';
 import { ItemTypes } from '../types/items';
 import { Client, Room } from 'colyseus.js';
 import * as Constants from '../../../backend/src/constants/constants';
-import Player from '../../../backend/src/rooms/schema/Player';
+import ServerPlayer from '../../../backend/src/rooms/schema/Player';
+import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
 import GameHeader from './GameHeader';
@@ -76,11 +77,16 @@ export default class Game extends Phaser.Scene {
     // ゲームの状態の変更イベント
     this.room.state.gameState.onChange = async (data) => await this.gameStateChangeEvent(data);
 
-    this.room.state.players.onAdd = (player: Player, sessionId: string) => {
+    // 爆弾が追加された時の処理
+    // TODO: アイテムをとって火力が上がった場合の処理を追加する
+    this.room.state.bombs.onAdd = (serverBomb: ServerBomb) => this.addBombEvent(serverBomb);
+
+    // プレイヤーが追加された時の処理
+    this.room.state.players.onAdd = (player: ServerPlayer, sessionId: string) => {
       console.log('player add');
       if (player === undefined) return;
 
-      const entity = this.add.myPlayer(player.x, player.y, 'player');
+      const entity = this.add.myPlayer(sessionId, player.x, player.y, 'player');
       this.playerEntities.set(sessionId, entity);
 
       // 変更されたのが自分の場合
@@ -120,7 +126,7 @@ export default class Game extends Phaser.Scene {
     };
 
     // プレイヤーが切断した時
-    this.room.state.players.onRemove = (player: Player, sessionId: string) => {
+    this.room.state.players.onRemove = (player: ServerPlayer, sessionId: string) => {
       const entity = this.playerEntities.get(sessionId);
       entity?.destroy();
 
@@ -155,7 +161,7 @@ export default class Game extends Phaser.Scene {
   private readonly fixedTimeStep: number = Constants.FRAME_RATE;
 
   // 一定以上のズレなら強制同期
-  private forceMovePlayerPosition(player: Player) {
+  private forceMovePlayerPosition(player: ServerPlayer) {
     let forceX = 0;
     let forceY = 0;
 
@@ -267,6 +273,7 @@ export default class Game extends Phaser.Scene {
     // bomb 設置
     const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(this.cursorKeys.space);
     if (isSpaceJustDown) {
+      this.room.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, p);
       p.placeBomb(this.matter);
     }
 
@@ -366,5 +373,24 @@ export default class Game extends Phaser.Scene {
     } catch (e) {
       console.error(e);
     }
+  }
+
+  /*
+  event 系
+  */
+
+  // ボム追加イベント時に、マップにボムを追加
+  private addBombEvent(serverBomb: ServerBomb) {
+    if (serverBomb === undefined) return;
+
+    const sessionId = serverBomb.owner.sessionId;
+
+    // 自分のボムは表示しない
+    if (this.currentPlayer.isEqualSessionId(sessionId)) return;
+
+    const player = this.playerEntities.get(sessionId);
+    if (player === undefined) return;
+
+    this.add.bomb(sessionId, serverBomb.x, serverBomb.y, serverBomb.bombStrength, player);
   }
 }

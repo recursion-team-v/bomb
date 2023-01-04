@@ -1,6 +1,5 @@
 import MyPlayer from '../characters/MyPlayer';
-import Player from '../characters/Player';
-import Bomb, { Blast } from '../items/Bomb';
+import Bomb, { Blast, PlayerInterface } from '../items/Bomb';
 import Item from '../items/Item';
 import { InnerWall, OuterWall } from '../items/Wall';
 import { ItemTypes } from './items';
@@ -12,13 +11,20 @@ declare global {
   namespace Phaser.GameObjects {
     interface GameObjectFactory {
       myPlayer: (
+        sessionId: string,
         x: number,
         y: number,
         texture: string,
         frame?: string | number,
-        options?: Phaser.Types.PhysicsWMatter.MatterBodyConfig
+        options?: Phaser.Types.Physics.Matter.MatterBodyConfig
       ) => MyPlayer;
-      bomb: (x: number, y: number, bombStrength: number, player: Player) => Bomb;
+      bomb: (
+        sessionId: string,
+        x: number,
+        y: number,
+        bombStrength: number,
+        player: PlayerInterface
+      ) => Bomb;
       blast: (
         x: number,
         y: number,
