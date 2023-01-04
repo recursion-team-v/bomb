@@ -81,7 +81,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   }
 
   // 現在設置しているボムの数を減らす
-  consumeCurrentSetBombCount() {
+  consumeSettableBombCount() {
     this.settableBombCount--;
   }
 
@@ -109,7 +109,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.scene.add.bomb(this.sessionId, x, y, this.bombStrength, this);
 
     // ボムを置ける数を減らす
-    this.consumeCurrentSetBombCount();
+    this.consumeSettableBombCount();
   }
 
   gameOver() {
