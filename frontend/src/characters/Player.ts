@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import { handleCollide } from '../utils/handleCollide';
+import { ObjectTypes } from '../types/objects';
+import Bomb from '../items/Bomb';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
   public speed: number;
@@ -78,22 +80,27 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   }
 
   // ボムを設置できるかをチェックする
-  canSetBomb(): boolean {
+  canSetBomb(mp: Phaser.Physics.Matter.MatterPhysics): boolean {
+    // 同じ場所にボムを置けないようにする
+    const { x, y } = Bomb.getSettablePosition(this.x, this.y);
+
+    const bodies = mp.intersectPoint(x, y);
+    for (let i = 0; i < bodies.length; i++) {
+      const bodyType = bodies[i] as MatterJS.BodyType;
+      if (bodyType.label === ObjectTypes.BOMB) {
+        return false;
+      }
+    }
+
     return this.settableBombCount > 0;
   }
 
   // ボムを置く
-  placeBomb() {
-    if (!this.canSetBomb()) return;
-    console.log(this.maxBombCount, this.settableBombCount);
+  placeBomb(mp: Phaser.Physics.Matter.MatterPhysics) {
+    if (!this.canSetBomb(mp)) return;
 
-    const bx =
-      Math.floor(this.x / Constants.TILE_WIDTH) * Constants.TILE_WIDTH + Constants.TILE_WIDTH / 2;
-    const by =
-      Math.floor(this.y / Constants.TILE_HEIGHT) * Constants.TILE_HEIGHT +
-      Constants.TILE_HEIGHT / 2;
-
-    this.scene.add.bomb(bx, by, this.bombStrength, this);
+    const { x, y } = Bomb.getSettablePosition(this.x, this.y);
+    this.scene.add.bomb(x, y, this.bombStrength, this);
 
     // ボムを置ける数を減らす
     this.consumeCurrentSetBombCount();
