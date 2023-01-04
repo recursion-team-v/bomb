@@ -68,7 +68,6 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   }
 
   increaseMaxBombCount() {
-    console.log(this.maxBombCount, Constants.MAX_SETTABLE_BOMB_COUNT);
     if (this.maxBombCount < Constants.MAX_SETTABLE_BOMB_COUNT) {
       this.maxBombCount++;
       this.settableBombCount++;

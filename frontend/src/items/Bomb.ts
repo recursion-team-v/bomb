@@ -275,7 +275,7 @@ export interface PlayerInterface {
   increaseMaxBombCount: () => void;
   recoverSettableBombCount: () => void;
   consumeSettableBombCount: () => void;
-  canSetBomb: () => boolean;
-  placeBomb: () => void;
+  canSetBomb: (mp: Phaser.Physics.Matter.MatterPhysics) => boolean;
+  placeBomb: (mp: Phaser.Physics.Matter.MatterPhysics) => void;
   isEqualSessionId: (sessionId: string) => boolean;
 }
