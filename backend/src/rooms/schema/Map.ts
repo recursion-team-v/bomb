@@ -82,8 +82,8 @@ const createWall = (x: number, y: number, tileWidth: number, tileHeight: number,
   return Matter.Bodies.rectangle(
     tileWidth / 2 + tileWidth * x,
     Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
-    tileWidth,
-    tileHeight,
+    tileWidth * 0.9,
+    tileHeight * 0.9,
     {
       chamfer: {
         radius,

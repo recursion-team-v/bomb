@@ -111,7 +111,7 @@ export const TILE_WALL = {
   OUTER_LEFT_RIGHT: [10],
   OUTER_CORNER: [21, 22, 23],
   INNER: [12, 13, 14, 19, 24, 25, 27],
-  INNER_CHAMFER: 20, // 内壁タイルの chamfer
+  INNER_CHAMFER: 25, // 内壁タイルの chamfer
 };
 export const TILE_BLOCK_IDX = 1; // 破壊できる箱の idx
 

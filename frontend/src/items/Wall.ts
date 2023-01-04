@@ -4,9 +4,13 @@ import { ObjectTypes } from '../types/objects';
 
 export class InnerWall extends Phaser.Physics.Matter.Sprite {
   constructor(world: Phaser.Physics.Matter.World, x: number, y: number, frame: number) {
-    super(world, x, y, ObjectTypes.WALL, frame, {
-      chamfer: Constants.TILE_WALL.INNER_CHAMFER,
+    super(world, x, y, ObjectTypes.WALL, frame);
+
+    this.setRectangle(Constants.TILE_WIDTH, Constants.TILE_HEIGHT, {
       isStatic: true,
+      chamfer: {
+        radius: Constants.TILE_WALL.INNER_CHAMFER,
+      },
     });
 
     const body = this.body as MatterJS.BodyType;

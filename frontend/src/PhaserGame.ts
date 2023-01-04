@@ -29,6 +29,10 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: true,
     },
   },
+  fps: {
+    target: 60,
+    forceSetTimeOut: true,
+  },
   autoFocus: true,
   scene: [Preloader, Game, GameHeader, GameResult],
   plugins: {
