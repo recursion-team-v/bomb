@@ -34,6 +34,16 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.stableScene = this.scene;
   }
 
+  // 指定の座標から設置可能な座標を返します
+  static getSettablePosition(x: number, y: number): { x: number; y: number } {
+    const bx =
+      Math.floor(x / Constants.TILE_WIDTH) * Constants.TILE_WIDTH + Constants.TILE_WIDTH / 2;
+    const by =
+      Math.floor(y / Constants.TILE_HEIGHT) * Constants.TILE_HEIGHT + Constants.TILE_HEIGHT / 2;
+
+    return { x: bx, y: by };
+  }
+
   explode() {
     const addExplodeSprite = (
       bx: number,
@@ -209,7 +219,6 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
     console.log(rectangleX, rectangleY);
     this.setRectangle(rectangleX, rectangleY);
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
-      // console.log(data);
       const currBody = this.body as MatterJS.BodyType;
       data.bodyA.id === currBody.id
         ? handleCollide(data.bodyA, data.bodyB)

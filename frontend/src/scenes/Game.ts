@@ -253,7 +253,7 @@ export default class Game extends Phaser.Scene {
     // bomb 設置
     const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(this.cursorKeys.space);
     if (isSpaceJustDown) {
-      p.placeBomb();
+      p.placeBomb(this.matter);
     }
 
     // this.playerAnims(p, oldX, oldY);
