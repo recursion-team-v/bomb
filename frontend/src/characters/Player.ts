@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-import collisionHandler from '../gameEngine/collision_handler/collision_handler';
+import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import Bomb from '../items/Bomb';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {

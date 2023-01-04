@@ -2,10 +2,10 @@
 import Matter from 'matter-js';
 
 import * as Constants from '../constants/constants';
-import collisionHandler from '../gameEngine/collision_handler/collision_handler';
-import BombService from '../gameEngine/services/bombService';
-import MapService from '../gameEngine/services/mapService';
-import PlayerService from '../gameEngine/services/playerService';
+import collisionHandler from '../game_engine/collision_handler/collision_handler';
+import BombService from '../game_engine/services/bombService';
+import MapService from '../game_engine/services/mapService';
+import PlayerService from '../game_engine/services/playerService';
 import GameRoomState from './schema/GameRoomState';
 
 export default class GameEngine {
