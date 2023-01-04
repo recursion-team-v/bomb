@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-import { handleCollide } from '../utils/handleCollide';
-import { ObjectTypes } from '../types/objects';
 import Bomb from '../items/Bomb';
+import { ObjectTypes } from '../types/objects';
+import { handleCollide } from '../utils/handleCollide';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
   public speed: number;
@@ -50,6 +50,16 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
         ? handleCollide(data.bodyA, data.bodyB)
         : handleCollide(data.bodyB, data.bodyA);
     });
+  }
+
+  // 爆弾の破壊力を取得する
+  getBombStrength(): number {
+    return this.bombStrength;
+  }
+
+  // 速さを取得する
+  getSpeed(): number {
+    return this.speed;
   }
 
   // set player speed
