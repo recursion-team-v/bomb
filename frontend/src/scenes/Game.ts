@@ -120,6 +120,7 @@ export default class Game extends Phaser.Scene {
           if (localPlayer === undefined) return;
           localPlayer.setData('serverX', player.x);
           localPlayer.setData('serverY', player.y);
+          localPlayer.setData('frameKey', player.frameKey);
         };
       }
     };
@@ -210,26 +211,26 @@ export default class Game extends Phaser.Scene {
       if (sessionId === this.room.sessionId) return;
 
       // interpolate all player entities
-      const { serverX, serverY } = localPlayer.data.values;
+      const { serverX, serverY, frameKey } = localPlayer.data.values;
 
       const oldX = localPlayer.x;
       const oldY = localPlayer.y;
-
-      // 壁にちょっと触れるだけで移動扱いでアニメーションが発生するので
-      // ほぼ同じ位置なら移動しないようにする(*10は少数第一位までを比較するため)
-      if (
-        Math.floor(serverX * 10) === Math.floor(oldX * 10) &&
-        Math.floor(serverY * 10) === Math.floor(oldY * 10)
-      ) {
-        localPlayer.stop();
-        return;
-      }
 
       // 線形補完(TODO: 調整)
       localPlayer.x = Phaser.Math.Linear(localPlayer.x, serverX, 0.35); // 動きがちょっと滑らか過ぎるから 0.2 -> 0.35
       localPlayer.y = Phaser.Math.Linear(localPlayer.y, serverY, 0.35);
 
-      this.playerAnims(localPlayer, oldX, oldY);
+      // 壁にちょっと触れるだけで移動扱いでアニメーションが発生するので
+      // ほぼ同じ位置なら移動しないようにする(*10は少数第一位までを比較するため)
+      if (
+        Math.floor(localPlayer.x * 10) === Math.floor(oldX * 10) &&
+        Math.floor(localPlayer.y * 10) === Math.floor(oldY * 10)
+      ) {
+        localPlayer.stop();
+        return;
+      }
+
+      localPlayer.setFrame(frameKey);
     });
   }
 
@@ -385,7 +386,7 @@ export default class Game extends Phaser.Scene {
     const sessionId = serverBomb.owner.sessionId;
 
     // 自分のボムは表示しない
-    if (this.currentPlayer.isEqualSessionId(sessionId)) return;
+    if (this.currentPlayer.isEqualSessionId(sessionId) === true) return;
 
     const player = this.playerEntities.get(sessionId);
     if (player === undefined) return;
