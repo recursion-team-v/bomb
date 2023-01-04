@@ -18,7 +18,14 @@ declare global {
         options?: Phaser.Types.PhysicsWMatter.MatterBodyConfig
       ) => MyPlayer;
       bomb: (x: number, y: number, bombStrength: number, player: Player) => Bomb;
-      blast: (x: number, y: number, playKey: string, bombStrength: number) => Blast;
+      blast: (
+        x: number,
+        y: number,
+        playKey: string,
+        bombStrength: number,
+        rectangleX: number,
+        rectangleY: number
+      ) => Blast;
       item: (x: number, y: number, itemType: ItemTypes) => Item;
       innerWall: (x: number, y: number, texture) => InnerWall;
     }
