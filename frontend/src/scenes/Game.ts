@@ -20,6 +20,7 @@ import * as Constants from '../../../backend/src/constants/constants';
 import Player from '../../../backend/src/rooms/schema/Player';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
+import GameHeader from './GameHeader';
 import initializeKeys from '../utils/key';
 
 export default class Game extends Phaser.Scene {
@@ -42,7 +43,7 @@ export default class Game extends Phaser.Scene {
   cursorKeys!: NavKeys;
 
   constructor() {
-    super('game');
+    super(Config.SCENE_NAME_GAME);
     const protocol = window.location.protocol.replace('http', 'ws');
 
     if (import.meta.env.PROD) {
@@ -63,7 +64,17 @@ export default class Game extends Phaser.Scene {
     console.log('game: create game');
 
     // connect with the room
-    await this.connect();
+    await this.connect().then(() => {
+      // ゲーム開始の通知
+      // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
+      this.room.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS);
+    });
+
+    // タイマーの変更イベント
+    this.room.state.timer.onChange = (data) => this.timerChangeEvent(data);
+
+    // ゲームの状態の変更イベント
+    this.room.state.gameState.onChange = async (data) => await this.gameStateChangeEvent(data);
 
     this.room.state.players.onAdd = (player: Player, sessionId: string) => {
       console.log('player add');
@@ -323,6 +334,26 @@ export default class Game extends Phaser.Scene {
     //   64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
     //   ItemTypes.PLAYER_SPEED
     // );
+  }
+
+  // タイマーが更新されたイベント
+  private timerChangeEvent(data: any) {
+    const sc = this.scene.get(Config.SCENE_NAME_GAME_HEADER) as GameHeader;
+    data.forEach((v: any) => {
+      if (v.field === 'remainTime') sc.updateTimerText(v.value);
+    });
+  }
+
+  // ゲームステートが更新されたイベント
+  private async gameStateChangeEvent(data: any) {
+    const state = data[0].value as Constants.GAME_STATE_TYPE;
+
+    if (state === Constants.GAME_STATE.FINISHED) {
+      await this.room.leave();
+      this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
+      this.scene.stop(Config.SCENE_NAME_GAME);
+      this.scene.start(Config.SCENE_NAME_GAME_RESULT);
+    }
   }
 
   public getCurrentPlayer(): MyPlayer {

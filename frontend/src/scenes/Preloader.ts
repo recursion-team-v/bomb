@@ -1,11 +1,13 @@
 import Phaser from 'phaser';
 import { ItemTypes } from '../types/items';
 import * as Constants from '../../../backend/src/constants/constants';
+import * as Config from '../config/config';
 import isMobile from '../utils/mobile';
 import { ObjectTypes } from '../types/objects';
+
 export default class Preloader extends Phaser.Scene {
   constructor() {
-    super('preloader');
+    super(Config.SCENE_NAME_PRELOADER);
   }
 
   preload() {
@@ -58,8 +60,8 @@ export default class Preloader extends Phaser.Scene {
   }
 
   create() {
-    this.scene.start('game');
-    this.scene.start('gameHeader');
+    this.scene.start(Config.SCENE_NAME_GAME);
+    this.scene.start(Config.SCENE_NAME_GAME_HEADER);
     console.log('preloader: start game');
   }
 }
