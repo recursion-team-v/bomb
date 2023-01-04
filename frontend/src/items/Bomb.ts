@@ -3,7 +3,6 @@ import Phaser from 'phaser';
 import * as Constants from '../../../backend/src/constants/constants';
 import BombInterface from '../../../backend/src/interfaces/bomb';
 import collisionHandler from '../gameEngine/collision_handler/collision_handler';
-import { ObjectTypes } from '../types/objects';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly bombStrength: number;
@@ -28,7 +27,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     super(world, x, y, texture);
 
     const body = this.body as MatterJS.BodyType;
-    body.label = ObjectTypes.BOMB;
+    body.label = Constants.OBJECT_LABEL.BOMB;
 
     this.sessionId = sessionId;
     this.player = player;
@@ -160,7 +159,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     obj.setStatic(true);
 
     const body = this.body as MatterJS.BodyType;
-    body.label = ObjectTypes.BOMB;
+    body.label = Constants.OBJECT_LABEL.BOMB;
   }
 
   // 引数の MatterJS.BodyType が爆弾の当たり判定と重なっているかどうかを返す
@@ -235,7 +234,7 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
     this.bombStrength = bombStrength;
 
     const body = this.body as MatterJS.BodyType;
-    body.label = ObjectTypes.EXPLOSION;
+    body.label = Constants.OBJECT_LABEL.EXPLOSION;
 
     console.log(rectangleX, rectangleY);
     this.setRectangle(rectangleX, rectangleY);

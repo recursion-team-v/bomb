@@ -155,11 +155,9 @@ export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
 ラベルの定義
 */
 
-export const LABEL_PLAYER = 'PLAYER';
-export const LABEL_BOMB = 'BOMB';
-
 export const OBJECT_LABEL = {
   BOMB: 'BOMB',
+  BLOCK: 'BLOCK',
   EXPLOSION: 'EXPLOSION',
   ITEM: 'ITEM',
   PLAYER: 'PLAYER',

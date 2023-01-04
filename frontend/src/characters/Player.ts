@@ -3,7 +3,6 @@ import Phaser from 'phaser';
 import * as Constants from '../../../backend/src/constants/constants';
 import collisionHandler from '../gameEngine/collision_handler/collision_handler';
 import Bomb from '../items/Bomb';
-import { ObjectTypes } from '../types/objects';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
   public speed: number;
@@ -24,7 +23,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     super(world, x, y, texture, frame, options);
 
     const body = this.body as MatterJS.BodyType;
-    body.label = ObjectTypes.PLAYER;
+    body.label = Constants.OBJECT_LABEL.PLAYER;
 
     this.sessionId = sessionId;
     this.speed = Constants.INITIAL_PLAYER_SPEED;
@@ -102,7 +101,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     const bodies = mp.intersectPoint(x, y);
     for (let i = 0; i < bodies.length; i++) {
       const bodyType = bodies[i] as MatterJS.BodyType;
-      if (bodyType.label === ObjectTypes.BOMB) {
+      if (bodyType.label === Constants.OBJECT_LABEL.BOMB) {
         return false;
       }
     }

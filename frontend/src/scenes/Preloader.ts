@@ -2,7 +2,6 @@ import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import * as Config from '../config/config';
-import { ObjectTypes } from '../types/objects';
 import isMobile from '../utils/mobile';
 
 export default class Preloader extends Phaser.Scene {
@@ -44,7 +43,7 @@ export default class Preloader extends Phaser.Scene {
     this.load.image('tile_grounds', 'assets/tile_grounds.png');
     this.load.image('tile_walls', 'assets/tile_walls.png');
 
-    this.load.spritesheet(ObjectTypes.WALL, 'assets/tile_walls.png', {
+    this.load.spritesheet(Constants.OBJECT_LABEL.WALL, 'assets/tile_walls.png', {
       frameWidth,
       frameHeight,
     });
