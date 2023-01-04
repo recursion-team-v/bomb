@@ -213,22 +213,9 @@ export default class Game extends Phaser.Scene {
       // interpolate all player entities
       const { serverX, serverY, frameKey } = localPlayer.data.values;
 
-      const oldX = localPlayer.x;
-      const oldY = localPlayer.y;
-
       // 線形補完(TODO: 調整)
-      localPlayer.x = Phaser.Math.Linear(localPlayer.x, serverX, 0.35); // 動きがちょっと滑らか過ぎるから 0.2 -> 0.35
-      localPlayer.y = Phaser.Math.Linear(localPlayer.y, serverY, 0.35);
-
-      // 壁にちょっと触れるだけで移動扱いでアニメーションが発生するので
-      // ほぼ同じ位置なら移動しないようにする(*10は少数第一位までを比較するため)
-      if (
-        Math.floor(localPlayer.x * 10) === Math.floor(oldX * 10) &&
-        Math.floor(localPlayer.y * 10) === Math.floor(oldY * 10)
-      ) {
-        localPlayer.stop();
-        return;
-      }
+      localPlayer.x = Math.ceil(Phaser.Math.Linear(localPlayer.x, serverX, 0.35)); // 動きがちょっと滑らか過ぎるから 0.2 -> 0.35
+      localPlayer.y = Math.ceil(Phaser.Math.Linear(localPlayer.y, serverY, 0.35));
 
       // playerState の frameKey を使ってアニメーションを描画
       localPlayer.setFrame(frameKey);
