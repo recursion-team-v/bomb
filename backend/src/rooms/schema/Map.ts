@@ -1,4 +1,5 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
+
 import * as Constants from '../../constants/constants';
 import MapTiles from './MapTiles';
 

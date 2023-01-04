@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
+
 import * as Constants from '../../../backend/src/constants/constants';
-import { ObjectTypes } from '../types/objects';
 
 export class InnerWall extends Phaser.Physics.Matter.Sprite {
   constructor(world: Phaser.Physics.Matter.World, x: number, y: number, frame: number) {
-    super(world, x, y, ObjectTypes.WALL, frame);
+    super(world, x, y, Constants.OBJECT_LABEL.WALL, frame);
 
     this.setRectangle(Constants.TILE_WIDTH, Constants.TILE_HEIGHT, {
       isStatic: true,
@@ -14,18 +14,18 @@ export class InnerWall extends Phaser.Physics.Matter.Sprite {
     });
 
     const body = this.body as MatterJS.BodyType;
-    body.label = ObjectTypes.WALL;
+    body.label = Constants.OBJECT_LABEL.WALL;
   }
 }
 
 export class OuterWall extends Phaser.Physics.Matter.Sprite {
   constructor(world: Phaser.Physics.Matter.World, x: number, y: number, frame: number) {
-    super(world, x, y, ObjectTypes.WALL, frame, {
+    super(world, x, y, Constants.OBJECT_LABEL.WALL, frame, {
       isStatic: true,
     });
 
     const body = this.body as MatterJS.BodyType;
-    body.label = ObjectTypes.WALL;
+    body.label = Constants.OBJECT_LABEL.WALL;
   }
 }
 

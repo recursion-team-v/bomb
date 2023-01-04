@@ -90,6 +90,17 @@ export const PLAYER_TOLERANCE_DISTANCE = 100;
 export const TIME_LIMIT_SEC = 181; // (+1秒するといい感じに表示される)
 
 /*
+アイテムの定義
+*/
+export const ITEM_TYPE = {
+  BOMB_STRENGTH: 'BOMB_STRENGTH', // ボムの威力アップ
+  BOMB_POSSESSION_UP: 'BOMB_POSSESSION_UP', // ボムの所持数アップ
+  PLAYER_SPEED: 'PLAYER_SPEED', // プレイヤーの移動速度アップ
+} as const;
+
+export type ITEM_TYPES = typeof ITEM_TYPE[keyof typeof ITEM_TYPE];
+
+/*
 衝突判定のカテゴリ
 */
 
@@ -144,8 +155,16 @@ export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
 ラベルの定義
 */
 
-export const LABEL_PLAYER = 'PLAYER';
-export const LABEL_BOMB = 'BOMB';
+export const OBJECT_LABEL = {
+  BOMB: 'BOMB',
+  BLOCK: 'BLOCK',
+  EXPLOSION: 'EXPLOSION',
+  ITEM: 'ITEM',
+  PLAYER: 'PLAYER',
+  WALL: 'WALL',
+} as const;
+
+export type OBJECT_LABELS = typeof OBJECT_LABEL[keyof typeof OBJECT_LABEL];
 
 /*
 モバイル用の操作アイコンの定義

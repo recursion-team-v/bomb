@@ -52,9 +52,31 @@ export default class Player extends Schema {
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
   }
 
+  // 爆弾の破壊力を取得する
+  getBombStrength(): number {
+    return this.bombStrength;
+  }
+
+  // 速さを取得する
+  getSpeed(): number {
+    return this.speed;
+  }
+
+  // 速さを変更する
+  setSpeed(speed: number) {
+    // TODO: 上限を設ける
+    this.speed = speed;
+  }
+
   // ボムを設置できるかをチェックする
   canSetBomb(): boolean {
     return this.settableBombCount > 0;
+  }
+
+  // ボムの火力を変更する
+  setBombStrength(bombStrength: number) {
+    // TODO: 上限を設ける
+    this.bombStrength = bombStrength;
   }
 
   // ボムを置ける最大数を増やす
@@ -65,5 +87,11 @@ export default class Player extends Schema {
   // 現在設置しているボムの数を減らす
   consumeCurrentSetBombCount() {
     this.settableBombCount--;
+  }
+
+  // ボムの最大数を増やす
+  increaseMaxBombCount() {
+    // TODO: not implemented
+    console.log('increaseMaxBombCount');
   }
 }

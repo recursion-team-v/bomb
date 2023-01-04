@@ -1,9 +1,9 @@
 import Matter from 'matter-js';
 
-import * as Constants from '../constants/constants';
-import GameEngine from '../rooms/GameEngine';
-import { Bomb } from '../rooms/schema/Bomb';
-import Player from '../rooms/schema/Player';
+import * as Constants from '../../constants/constants';
+import GameEngine from '../../rooms/GameEngine';
+import { Bomb } from '../../rooms/schema/Bomb';
+import Player from '../../rooms/schema/Player';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class PlayerService {
@@ -21,7 +21,7 @@ export default class PlayerService {
       Constants.PLAYER_WIDTH,
       Constants.PLAYER_HEIGHT,
       {
-        label: Constants.LABEL_PLAYER,
+        label: Constants.OBJECT_LABEL.PLAYER,
         chamfer: {
           radius: 10,
         },
@@ -31,7 +31,10 @@ export default class PlayerService {
         restitution: 0,
       }
     );
+
     this.gameEngine.playerBodies.set(sessionId, playerBody);
+    this.gameEngine.sessionIdByBodyId.set(playerBody.id, sessionId);
+
     Matter.Composite.add(this.gameEngine.world, [playerBody]);
     playerBody.collisionFilter.category = Constants.COLLISION_CATEGORY.PLAYER;
     playerBody.collisionFilter.mask = Constants.COLLISION_CATEGORY.DEFAULT;

@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-import { ObjectTypes } from '../types/objects';
-import { handleCollide } from '../utils/handleCollide';
+import BombInterface from '../../../backend/src/interfaces/bomb';
+import collisionHandler from '../game_engine/collision_handler/collision_handler';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly bombStrength: number;
@@ -27,7 +27,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     super(world, x, y, texture);
 
     const body = this.body as MatterJS.BodyType;
-    body.label = ObjectTypes.BOMB;
+    body.label = Constants.OBJECT_LABEL.BOMB;
 
     this.sessionId = sessionId;
     this.player = player;
@@ -159,7 +159,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     obj.setStatic(true);
 
     const body = this.body as MatterJS.BodyType;
-    body.label = ObjectTypes.BOMB;
+    body.label = Constants.OBJECT_LABEL.BOMB;
   }
 
   // 引数の MatterJS.BodyType が爆弾の当たり判定と重なっているかどうかを返す
@@ -173,6 +173,19 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
     // 自分の爆弾の時のみ爆弾の数を回復する
     if (this.player.isEqualSessionId(this.sessionId)) this.player.recoverSettableBombCount();
+  }
+
+  // 誘爆時の処理
+  detonated(bomb: BombInterface) {
+    const b = bomb as Bomb;
+    b.scene.time.addEvent({
+      delay: Constants.BOMB_DETONATION_DELAY,
+      callback: () => {
+        if (b === null) return;
+        b.explode();
+        b.afterExplosion();
+      },
+    });
   }
 }
 
@@ -219,18 +232,16 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
   ) {
     super(world, x, y, texture);
     this.bombStrength = bombStrength;
-
-    const body = this.body as MatterJS.BodyType;
-    body.label = ObjectTypes.EXPLOSION;
-
-    console.log(rectangleX, rectangleY);
     this.setRectangle(rectangleX, rectangleY);
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
       const currBody = this.body as MatterJS.BodyType;
       data.bodyA.id === currBody.id
-        ? handleCollide(data.bodyA, data.bodyB)
-        : handleCollide(data.bodyB, data.bodyA);
+        ? collisionHandler(data.bodyA, data.bodyB)
+        : collisionHandler(data.bodyB, data.bodyA);
     });
+
+    const body = this.body as MatterJS.BodyType;
+    body.label = Constants.OBJECT_LABEL.EXPLOSION;
   }
 
   playAnim() {

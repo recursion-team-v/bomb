@@ -1,8 +1,7 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-import { handleCollide } from '../utils/handleCollide';
-import { ObjectTypes } from '../types/objects';
+import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import Bomb from '../items/Bomb';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
@@ -24,7 +23,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     super(world, x, y, texture, frame, options);
 
     const body = this.body as MatterJS.BodyType;
-    body.label = ObjectTypes.PLAYER;
+    body.label = Constants.OBJECT_LABEL.PLAYER;
 
     this.sessionId = sessionId;
     this.speed = Constants.INITIAL_PLAYER_SPEED;
@@ -47,9 +46,19 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
       const currBody = this.body as MatterJS.BodyType;
       data.bodyA.id === currBody.id
-        ? handleCollide(data.bodyA, data.bodyB)
-        : handleCollide(data.bodyB, data.bodyA);
+        ? collisionHandler(data.bodyA, data.bodyB)
+        : collisionHandler(data.bodyB, data.bodyA);
     });
+  }
+
+  // 爆弾の破壊力を取得する
+  getBombStrength(): number {
+    return this.bombStrength;
+  }
+
+  // 速さを取得する
+  getSpeed(): number {
+    return this.speed;
   }
 
   // set player speed
@@ -92,7 +101,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     const bodies = mp.intersectPoint(x, y);
     for (let i = 0; i < bodies.length; i++) {
       const bodyType = bodies[i] as MatterJS.BodyType;
-      if (bodyType.label === ObjectTypes.BOMB) {
+      if (bodyType.label === Constants.OBJECT_LABEL.BOMB) {
         return false;
       }
     }

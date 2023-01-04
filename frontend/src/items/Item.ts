@@ -1,19 +1,24 @@
 import Phaser from 'phaser';
-import { ObjectTypes } from '../types/objects';
-import { ItemTypes } from '../types/items';
+
+import * as Constants from '../../../backend/src/constants/constants';
 
 export default class Item extends Phaser.Physics.Matter.Sprite {
-  public readonly itemType: ItemTypes;
+  public readonly itemType: Constants.ITEM_TYPES;
   private readonly tween?: Phaser.Tweens.Tween;
 
-  constructor(world: Phaser.Physics.Matter.World, x: number, y: number, itemType: ItemTypes) {
+  constructor(
+    world: Phaser.Physics.Matter.World,
+    x: number,
+    y: number,
+    itemType: Constants.ITEM_TYPES
+  ) {
     super(world, x, y + 5, itemType, undefined, {
       isSensor: true,
       isStatic: true,
     });
 
     const body = this.body as MatterJS.BodyType;
-    body.label = ObjectTypes.ITEM;
+    body.label = Constants.OBJECT_LABEL.ITEM;
 
     this.setScale(0.45);
     this.itemType = itemType;
@@ -32,11 +37,20 @@ export default class Item extends Phaser.Physics.Matter.Sprite {
     this.tween?.remove();
     this.destroy();
   }
+
+  getType(): Constants.ITEM_TYPES {
+    return this.itemType;
+  }
 }
 
 Phaser.GameObjects.GameObjectFactory.register(
   'item',
-  function (this: Phaser.GameObjects.GameObjectFactory, x: number, y: number, itemType: ItemTypes) {
+  function (
+    this: Phaser.GameObjects.GameObjectFactory,
+    x: number,
+    y: number,
+    itemType: Constants.ITEM_TYPES
+  ) {
     const sprite = new Item(this.scene.matter.world, x, y, itemType);
 
     this.displayList.add(sprite);

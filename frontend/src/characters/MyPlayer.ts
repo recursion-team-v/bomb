@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
-import Player from './Player';
 
-import { ObjectTypes } from '../types/objects';
+import * as Constants from '../../../backend/src/constants/constants';
+import Player from './Player';
 
 export default class MyPlayer extends Player {
   constructor(
@@ -16,7 +16,7 @@ export default class MyPlayer extends Player {
     super(sessionId, world, x, y, texture, frame, options);
 
     const body = this.body as MatterJS.BodyType;
-    body.label = ObjectTypes.PLAYER;
+    body.label = Constants.OBJECT_LABEL.PLAYER;
   }
 }
 

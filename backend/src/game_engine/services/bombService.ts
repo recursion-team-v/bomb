@@ -1,8 +1,8 @@
 import Matter from 'matter-js';
 
-import * as Constants from '../constants/constants';
-import GameEngine from '../rooms/GameEngine';
-import { Bomb } from '../rooms/schema/Bomb';
+import * as Constants from '../../constants/constants';
+import GameEngine from '../../rooms/GameEngine';
+import { Bomb } from '../../rooms/schema/Bomb';
 
 export default class BombService {
   private readonly gameEngine: GameEngine;
@@ -19,13 +19,14 @@ export default class BombService {
       Constants.DEFAULT_TIP_SIZE,
       Constants.DEFAULT_TIP_SIZE,
       {
-        label: Constants.LABEL_BOMB,
+        label: Constants.OBJECT_LABEL.BOMB,
         isSensor: true,
         isStatic: true,
       }
     );
     Matter.Composite.add(this.gameEngine.world, [bombBody]);
     this.gameEngine.bombBodies.set(bomb.id, bombBody);
+    this.gameEngine.bombIdByBodyId.set(bombBody.id, bomb.id);
   }
 
   // ボムを matter から削除する

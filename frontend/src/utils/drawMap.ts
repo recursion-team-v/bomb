@@ -1,6 +1,5 @@
 import * as Constants from '../../../backend/src/constants/constants';
 import MapTiles from '../../../backend/src/rooms/schema/MapTiles';
-import { ObjectTypes } from '../types/objects';
 
 const rows = Constants.TILE_ROWS;
 const cols = Constants.TILE_COLS;
@@ -50,7 +49,7 @@ export const drawBlocks = (scene: Phaser.Scene, blockArr: number[]) => {
     .createLayer(0, 'tile_walls', 0, Constants.HEADER_HEIGHT)
     .setDepth(-1)
     .setCollision([Constants.TILE_BLOCK_IDX]);
-  scene.matter.world.convertTilemapLayer(blockLayer, { label: ObjectTypes.BLOCK });
+  scene.matter.world.convertTilemapLayer(blockLayer, { label: Constants.OBJECT_LABEL.BLOCK });
 
   return arr;
 };

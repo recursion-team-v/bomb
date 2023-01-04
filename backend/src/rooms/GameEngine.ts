@@ -2,9 +2,10 @@
 import Matter from 'matter-js';
 
 import * as Constants from '../constants/constants';
-import BombService from '../gameEngine/bombService';
-import PlayerService from '../gameEngine/playerService';
-import MapService from '../gameEngine/mapService';
+import collisionHandler from '../game_engine/collision_handler/collision_handler';
+import BombService from '../game_engine/services/bombService';
+import MapService from '../game_engine/services/mapService';
+import PlayerService from '../game_engine/services/playerService';
 import GameRoomState from './schema/GameRoomState';
 
 export default class GameEngine {
@@ -13,7 +14,14 @@ export default class GameEngine {
   engine: Matter.Engine;
 
   playerBodies = new Map<string, Matter.Body>();
+
+  // 衝突判定時に、衝突した bodyId から player の sessionId を取得し player を取得するために利用
+  sessionIdByBodyId = new Map<number, string>();
+
   bombBodies = new Map<string, Matter.Body>();
+  // 衝突判定時に、衝突した bodyId から bombId を取得し bomb を取得するために利用
+  bombIdByBodyId = new Map<number, string>(); // bodyId: bombId
+
   bombService: BombService;
   playerService: PlayerService;
   mapService: MapService;
@@ -35,6 +43,7 @@ export default class GameEngine {
     // create map
     this.mapService.createMapWalls(Constants.TILE_ROWS, Constants.TILE_COLS);
     this.initUpdateEvents();
+    this.initCollision();
   }
 
   initUpdateEvents() {
@@ -54,5 +63,9 @@ export default class GameEngine {
     });
   }
 
-  initCollision() {}
+  initCollision() {
+    Matter.Events.on(this.engine, 'collisionActive', (event) => {
+      event.pairs.forEach((pair) => collisionHandler(this, pair.bodyA, pair.bodyB));
+    });
+  }
 }

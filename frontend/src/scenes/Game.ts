@@ -14,7 +14,6 @@ import MyPlayer from '../characters/MyPlayer';
 import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
 import * as Config from '../config/config';
-import { ItemTypes } from '../types/items';
 import { Client, Room } from 'colyseus.js';
 import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
@@ -314,17 +313,17 @@ export default class Game extends Phaser.Scene {
     this.add.item(
       64 * Phaser.Math.Between(1, 13) + 32,
       64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
-      ItemTypes.BOMB_STRENGTH
+      Constants.ITEM_TYPE.BOMB_STRENGTH
     );
     this.add.item(
       64 * Phaser.Math.Between(1, 13) + 32,
       64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
-      ItemTypes.BOMB_STRENGTH
+      Constants.ITEM_TYPE.BOMB_STRENGTH
     );
     this.add.item(
       64 * Phaser.Math.Between(1, 13) + 32,
       64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
-      ItemTypes.BOMB_STRENGTH
+      Constants.ITEM_TYPE.BOMB_STRENGTH
     );
 
     const bombPossessionUpCount = 10;
@@ -332,7 +331,7 @@ export default class Game extends Phaser.Scene {
       this.add.item(
         64 * Phaser.Math.Between(1, 13) + 32,
         64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
-        ItemTypes.BOMB_POSSESSION_UP
+        Constants.ITEM_TYPE.BOMB_POSSESSION_UP
       );
     }
 
