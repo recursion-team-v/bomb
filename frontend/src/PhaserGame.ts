@@ -26,8 +26,12 @@ const config: Phaser.Types.Core.GameConfig = {
     default: 'matter',
     matter: {
       gravity: { y: 0 },
-      debug: false,
+      debug: true,
     },
+  },
+  fps: {
+    target: 60,
+    forceSetTimeOut: true,
   },
   autoFocus: true,
   scene: [Preloader, Game, GameHeader, GameResult],
