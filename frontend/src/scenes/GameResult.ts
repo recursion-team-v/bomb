@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
 import * as Constants from '../../../backend/src/constants/constants';
+import * as Config from '../config/config';
+
 export default class GameResult extends Phaser.Scene {
   constructor() {
-    super('gameResult');
+    super(Config.SCENE_NAME_GAME_RESULT);
   }
 
   create() {
@@ -15,6 +17,6 @@ export default class GameResult extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    this.input.on('pointerup', () => this.scene.start('preloader'), this);
+    this.input.on('pointerup', () => this.scene.start(Config.SCENE_NAME_PRELOADER), this);
   }
 }
