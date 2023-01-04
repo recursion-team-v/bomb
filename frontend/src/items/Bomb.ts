@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import BombInterface from '../../../backend/src/interfaces/bomb';
-import collisionHandler from '../gameEngine/collision_handler/collision_handler';
+import collisionHandler from '../game_engine/collision_handler/collision_handler';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly bombStrength: number;
@@ -232,11 +232,6 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
   ) {
     super(world, x, y, texture);
     this.bombStrength = bombStrength;
-
-    const body = this.body as MatterJS.BodyType;
-    body.label = Constants.OBJECT_LABEL.EXPLOSION;
-
-    console.log(rectangleX, rectangleY);
     this.setRectangle(rectangleX, rectangleY);
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
       const currBody = this.body as MatterJS.BodyType;
@@ -244,6 +239,9 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
         ? collisionHandler(data.bodyA, data.bodyB)
         : collisionHandler(data.bodyB, data.bodyA);
     });
+
+    const body = this.body as MatterJS.BodyType;
+    body.label = Constants.OBJECT_LABEL.EXPLOSION;
   }
 
   playAnim() {
