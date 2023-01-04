@@ -4,15 +4,21 @@ import * as Constants from '../../../backend/src/constants/constants';
 import * as Config from '../config/config';
 import isMobile from '../utils/mobile';
 import { ObjectTypes } from '../types/objects';
+import Network from '../services/Network';
+import { createPlayerAnims } from '../anims/PlayerAnims';
+import { createBombAnims } from '../anims/BombAnims';
+import { createExplodeAnims } from '../anims/explodeAnims';
 
 export default class Preloader extends Phaser.Scene {
+  private preloadComplete = false;
+  network?: Network;
+
   constructor() {
     super(Config.SCENE_NAME_PRELOADER);
   }
 
   preload() {
     // load sprite sheet
-
     const frameWidth = Constants.DEFAULT_TIP_SIZE;
     const frameHeight = Constants.DEFAULT_TIP_SIZE;
 
@@ -56,12 +62,25 @@ export default class Preloader extends Phaser.Scene {
       this.load.image(Constants.JOYSTICK_BASE_KEY, 'assets/joystick-base.png');
       this.load.image(Constants.JOYSTICK_STICK_KEY, 'assets/joystick-red.png');
     }
-    console.log('preloader: sprites loaded');
+
+    this.load.on('complete', () => {
+      this.preloadComplete = true;
+      // add animations
+      createPlayerAnims(this.anims);
+      createBombAnims(this.anims);
+      createExplodeAnims(this.anims);
+    });
   }
 
-  create() {
-    this.scene.start(Config.SCENE_NAME_GAME);
-    this.scene.start(Config.SCENE_NAME_GAME_HEADER);
+  init() {
+    this.network = new Network();
+  }
+
+  update() {
+    if (!this.preloadComplete || this.network == null) return;
+    this.scene.start(Config.SCENE_NAME_LOBBY, {
+      network: this.network,
+    });
     console.log('preloader: start game');
   }
 }

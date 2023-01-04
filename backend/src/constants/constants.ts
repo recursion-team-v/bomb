@@ -12,8 +12,11 @@ export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
 
 // Dockerfile の中と、デプロイ時にポートを指定しているので、ここの設定は開発時にしか利用されません。
 export const SERVER_LISTEN_PORT = 2567;
+
 // ゲームルーム参加時に使用するキー
 export const GAME_ROOM_KEY = 'game';
+// ロビー参加時に使用するキー
+export const GAME_LOBBY_KEY = 'lobby';
 
 export const NOTIFICATION_TYPE = {
   // 1 番台はゲーム情報を通知するためのタイプ

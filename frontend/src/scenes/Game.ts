@@ -7,30 +7,31 @@ import '../items/Bomb';
 import '../items/Wall';
 import '../items/Item';
 
-import { createPlayerAnims } from '../anims/PlayerAnims';
-import { drawGround, drawWalls } from '../utils/drawMap';
+import { drawGround, drawWalls, drawBlocks } from '../utils/drawMap';
 import { NavKeys } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
-import { createBombAnims } from '../anims/BombAnims';
-import { createExplodeAnims } from '../anims/explodeAnims';
 import * as Config from '../config/config';
 import { ItemTypes } from '../types/items';
-import { Client, Room } from 'colyseus.js';
+import { Room } from 'colyseus.js';
 import * as Constants from '../../../backend/src/constants/constants';
 import Player from '../../../backend/src/rooms/schema/Player';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
 import GameHeader from './GameHeader';
 import initializeKeys from '../utils/key';
+import Network from '../services/Network';
 
 export default class Game extends Phaser.Scene {
-  private readonly client: Client;
   private room!: Room<GameRoomState>;
+  private network!: Network;
   // eslint-disable-next-line @typescript-eslint/prefer-readonly, @typescript-eslint/consistent-indexed-object-style
   private playerEntities: Map<string, MyPlayer> = new Map();
   private currentPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
   public blockMap?: number[][];
-
+  // 経過時間
+  private elapsedTime: number = 0;
+  // 1フレームの経過時間
+  private readonly fixedTimeStep: number = Constants.FRAME_RATE;
   private remoteRef!: Phaser.GameObjects.Rectangle; // サーバ側が認識するプレイヤーの位置を示す四角形
 
   inputPayload = {
@@ -44,15 +45,6 @@ export default class Game extends Phaser.Scene {
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
-    const protocol = window.location.protocol.replace('http', 'ws');
-
-    if (import.meta.env.PROD) {
-      const endpoint = Config.serverUrl;
-      this.client = new Client(endpoint);
-    } else {
-      const endpoint = `${protocol}//${window.location.hostname}:${Constants.SERVER_LISTEN_PORT}`;
-      this.client = new Client(endpoint);
-    }
   }
 
   init() {
@@ -60,14 +52,29 @@ export default class Game extends Phaser.Scene {
     this.cursorKeys = initializeKeys(this);
   }
 
-  async create() {
-    console.log('game: create game');
+  create(data: { network: Network }) {
+    if (data.network == null) {
+      throw new Error('server instance missing');
+    } else {
+      this.network = data.network;
+      if (this.network.room == null) {
+        throw new Error('failed to join room');
+      }
+      this.room = this.network.room;
+    }
 
-    // connect with the room
-    await this.connect().then(() => {
-      // ゲーム開始の通知
-      // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
-      this.room.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS);
+    // ロビーで参加したプレイヤーをゲームに追加
+    this.room.state.players.forEach((player, sessionId) => {
+      this.addPlayers(player, sessionId);
+    });
+
+    // プレイヤーが切断した時
+    this.network.onPlayerLeftRoom((player: Player, sessionId: string) => {
+      const entity = this.playerEntities.get(sessionId);
+      entity?.destroy();
+
+      this.playerEntities.delete(sessionId);
+      console.log('remove' + sessionId);
     });
 
     // タイマーの変更イベント
@@ -75,63 +82,6 @@ export default class Game extends Phaser.Scene {
 
     // ゲームの状態の変更イベント
     this.room.state.gameState.onChange = async (data) => await this.gameStateChangeEvent(data);
-
-    this.room.state.players.onAdd = (player: Player, sessionId: string) => {
-      console.log('player add');
-      if (player === undefined) return;
-
-      const entity = this.add.myPlayer(player.x, player.y, 'player');
-      this.playerEntities.set(sessionId, entity);
-
-      // 変更されたのが自分の場合
-      if (sessionId === this.room.sessionId) {
-        this.currentPlayer = entity;
-
-        // サーバ側が認識するプレイヤーの位置を示す四角形
-        this.remoteRef = this.add.rectangle(
-          player.x,
-          player.y,
-          entity.width,
-          entity.height,
-          0xfff,
-          0.3
-        );
-
-        player.onChange = () => {
-          this.remoteRef.setPosition(player.x, player.y);
-
-          // ずれが一定以上の場合は強制移動
-          this.forceMovePlayerPosition(player);
-        };
-      } else {
-        // プレイヤー同士はぶつからないようにする
-        entity.setSensor(true);
-
-        const randomColor = Math.floor(Math.random() * 16777215);
-        entity.setPlayerColor(randomColor);
-        player.onChange = () => {
-          // console.log('change');
-          const localPlayer = this.playerEntities.get(sessionId);
-          if (localPlayer === undefined) return;
-          localPlayer.setData('serverX', player.x);
-          localPlayer.setData('serverY', player.y);
-        };
-      }
-    };
-
-    // プレイヤーが切断した時
-    this.room.state.players.onRemove = (player: Player, sessionId: string) => {
-      const entity = this.playerEntities.get(sessionId);
-      entity?.destroy();
-
-      this.playerEntities.delete(sessionId);
-      console.log('remove' + sessionId);
-    };
-
-    // add player animations
-    createPlayerAnims(this.anims);
-    createBombAnims(this.anims);
-    createExplodeAnims(this.anims);
 
     // add items
     this.addItems();
@@ -144,15 +94,51 @@ export default class Game extends Phaser.Scene {
       // draw walls
       drawWalls(this, mapTiles);
       // draw blocks
-      // this.blockMap = drawBlocks(this, state.gameMap.blockArr);
+      this.blockMap = drawBlocks(this, state.gameMap.blockArr);
     });
   }
 
-  // 経過時間
-  private elapsedTime: number = 0;
+  private addPlayers(player: Player, sessionId: string) {
+    if (player === undefined) return;
 
-  // 1フレームの経過時間
-  private readonly fixedTimeStep: number = Constants.FRAME_RATE;
+    const entity = this.add.myPlayer(player.x, player.y, 'player');
+    this.playerEntities.set(sessionId, entity);
+
+    // 変更されたのが自分の場合
+    if (sessionId === this.room.sessionId) {
+      this.currentPlayer = entity;
+
+      // サーバ側が認識するプレイヤーの位置を示す四角形
+      this.remoteRef = this.add.rectangle(
+        player.x,
+        player.y,
+        entity.width,
+        entity.height,
+        0xfff,
+        0.3
+      );
+
+      player.onChange = () => {
+        this.remoteRef.setPosition(player.x, player.y);
+
+        // ずれが一定以上の場合は強制移動
+        this.forceMovePlayerPosition(player);
+      };
+    } else {
+      // プレイヤー同士はぶつからないようにする
+      entity.setSensor(true);
+
+      const randomColor = Math.floor(Math.random() * 16777215);
+      entity.setPlayerColor(randomColor);
+      player.onChange = () => {
+        // console.log('change');
+        const localPlayer = this.playerEntities.get(sessionId);
+        if (localPlayer === undefined) return;
+        localPlayer.setData('serverX', player.x);
+        localPlayer.setData('serverY', player.y);
+      };
+    }
+  }
 
   // 一定以上のズレなら強制同期
   private forceMovePlayerPosition(player: Player) {
@@ -201,7 +187,7 @@ export default class Game extends Phaser.Scene {
   // 他のプレイヤーの移動処理
   private moveOtherPlayer() {
     this.playerEntities.forEach((localPlayer: MyPlayer, sessionId: string) => {
-      if (localPlayer === undefined) return;
+      if (localPlayer === undefined || localPlayer.data == null) return;
       if (sessionId === this.room.sessionId) return;
 
       // interpolate all player entities
@@ -358,13 +344,5 @@ export default class Game extends Phaser.Scene {
 
   public getCurrentPlayer(): MyPlayer {
     return this.currentPlayer;
-  }
-
-  async connect() {
-    try {
-      this.room = await this.client.joinOrCreate(Constants.GAME_ROOM_KEY, {});
-    } catch (e) {
-      console.error(e);
-    }
   }
 }

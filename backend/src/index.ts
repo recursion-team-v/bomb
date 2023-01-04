@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
-import { Server } from 'colyseus';
+import { LobbyRoom, Server } from 'colyseus';
 import { createServer } from 'http';
 import { monitor } from '@colyseus/monitor';
 import express from 'express';
@@ -15,7 +15,12 @@ const gameServer = new Server({
 
 // TODO: add authentication
 app.use('/monitor', monitor());
-gameServer.define(Constants.GAME_ROOM_KEY, GameRoom);
+
+// Room
+gameServer.define(Constants.GAME_ROOM_KEY, GameRoom).enableRealtimeListing();
+
+// Lobby
+gameServer.define('lobby', LobbyRoom);
 
 // TODO: add latency simulation
 // gameServer.simulateLatency(200);
