@@ -230,6 +230,7 @@ export default class Game extends Phaser.Scene {
         return;
       }
 
+      // playerState の frameKey を使ってアニメーションを描画
       localPlayer.setFrame(frameKey);
     });
   }
@@ -276,38 +277,11 @@ export default class Game extends Phaser.Scene {
       this.room.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, p);
       p.placeBomb(this.matter);
     }
-
-    // this.playerAnims(p, oldX, oldY);
   }
 
   private fixedTick() {
     this.moveOwnPlayer();
     this.moveOtherPlayer();
-  }
-
-  // 移動アニメーション
-  private playerAnims(localPlayer: MyPlayer, oldX: number, oldY: number) {
-    const xDiff = localPlayer.x - oldX;
-    const yDiff = localPlayer.y - oldY;
-
-    // 変化量の大きい方を向きとする
-    const direction = () => {
-      if (Math.abs(xDiff) > Math.abs(yDiff)) return 'horizontal';
-      if (Math.abs(xDiff) < Math.abs(yDiff)) return 'vertical';
-      return 'none';
-    };
-
-    let playKey = '';
-    if (direction() === 'horizontal') {
-      playKey = xDiff > 0 ? 'player_right' : 'player_left';
-    } else if (direction() === 'vertical') {
-      playKey = yDiff > 0 ? 'player_down' : 'player_up';
-    } else {
-      localPlayer.stop();
-      return;
-    }
-
-    localPlayer.play(playKey, true);
   }
 
   private addItems() {
