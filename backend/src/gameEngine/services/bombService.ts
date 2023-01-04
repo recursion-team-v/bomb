@@ -19,13 +19,14 @@ export default class BombService {
       Constants.DEFAULT_TIP_SIZE,
       Constants.DEFAULT_TIP_SIZE,
       {
-        label: Constants.LABEL_BOMB,
+        label: Constants.OBJECT_LABEL.BOMB,
         isSensor: true,
         isStatic: true,
       }
     );
     Matter.Composite.add(this.gameEngine.world, [bombBody]);
     this.gameEngine.bombBodies.set(bomb.id, bombBody);
+    this.gameEngine.bombIdByBodyId.set(bombBody.id, bomb.id);
   }
 
   // ボムを matter から削除する

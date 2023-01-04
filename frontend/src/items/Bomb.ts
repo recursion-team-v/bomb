@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
+import BombInterface from '../../../backend/src/interfaces/bomb';
 import { ObjectTypes } from '../types/objects';
 import { handleCollide } from '../utils/handleCollide';
 
@@ -173,6 +174,19 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
     // 自分の爆弾の時のみ爆弾の数を回復する
     if (this.player.isEqualSessionId(this.sessionId)) this.player.recoverSettableBombCount();
+  }
+
+  // 誘爆時の処理
+  detonated(bomb: BombInterface) {
+    const b = bomb as Bomb;
+    b.scene.time.addEvent({
+      delay: Constants.BOMB_DETONATION_DELAY,
+      callback: () => {
+        if (b === null) return;
+        b.explode();
+        b.afterExplosion();
+      },
+    });
   }
 }
 

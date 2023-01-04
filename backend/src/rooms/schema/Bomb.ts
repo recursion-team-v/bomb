@@ -2,6 +2,7 @@ import { Schema, type } from '@colyseus/schema';
 import { v4 as uuidv4 } from 'uuid';
 
 import * as Constants from '../../constants/constants';
+import BombInterface from '../../interfaces/bomb';
 import Player from './Player';
 
 export class Bomb extends Schema {
@@ -47,6 +48,11 @@ export class Bomb extends Schema {
 
   isExploded(): boolean {
     return this.createdAt + Constants.BOMB_EXPLOSION_TIME <= Date.now();
+  }
+
+  // TODO: not implemented
+  detonated(bomb: BombInterface) {
+    console.log('detonated');
   }
 }
 

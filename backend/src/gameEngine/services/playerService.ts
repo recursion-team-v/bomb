@@ -21,7 +21,7 @@ export default class PlayerService {
       Constants.PLAYER_WIDTH,
       Constants.PLAYER_HEIGHT,
       {
-        label: Constants.LABEL_PLAYER,
+        label: Constants.OBJECT_LABEL.PLAYER,
         chamfer: {
           radius: 10,
         },
@@ -31,7 +31,10 @@ export default class PlayerService {
         restitution: 0,
       }
     );
+
     this.gameEngine.playerBodies.set(sessionId, playerBody);
+    this.gameEngine.sessionIdByBodyId.set(playerBody.id, sessionId);
+
     Matter.Composite.add(this.gameEngine.world, [playerBody]);
     playerBody.collisionFilter.category = Constants.COLLISION_CATEGORY.PLAYER;
     playerBody.collisionFilter.mask = Constants.COLLISION_CATEGORY.DEFAULT;

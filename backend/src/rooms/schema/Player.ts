@@ -88,4 +88,10 @@ export default class Player extends Schema {
   consumeCurrentSetBombCount() {
     this.settableBombCount--;
   }
+
+  // ボムの最大数を増やす
+  increaseMaxBombCount() {
+    // TODO: not implemented
+    console.log('increaseMaxBombCount');
+  }
 }

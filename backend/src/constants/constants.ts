@@ -93,9 +93,9 @@ export const TIME_LIMIT_SEC = 181; // (+1秒するといい感じに表示され
 アイテムの定義
 */
 export const ITEM_TYPE = {
-  BOMB_STRENGTH: 0, // ボムの威力アップ
-  BOMB_POSSESSION_UP: 1, // ボムの所持数アップ
-  PLAYER_SPEED: 2, // プレイヤーの移動速度アップ
+  BOMB_STRENGTH: 'BOMB_STRENGTH', // ボムの威力アップ
+  BOMB_POSSESSION_UP: 'BOMB_POSSESSION_UP', // ボムの所持数アップ
+  PLAYER_SPEED: 'PLAYER_SPEED', // プレイヤーの移動速度アップ
 } as const;
 
 export type ITEM_TYPES = typeof ITEM_TYPE[keyof typeof ITEM_TYPE];
@@ -157,6 +157,16 @@ export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
 
 export const LABEL_PLAYER = 'PLAYER';
 export const LABEL_BOMB = 'BOMB';
+
+export const OBJECT_LABEL = {
+  BOMB: 'BOMB',
+  EXPLOSION: 'EXPLOSION',
+  ITEM: 'ITEM',
+  PLAYER: 'PLAYER',
+  WALL: 'WALL',
+} as const;
+
+export type OBJECT_LABELS = typeof OBJECT_LABEL[keyof typeof OBJECT_LABEL];
 
 /*
 モバイル用の操作アイコンの定義

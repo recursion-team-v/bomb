@@ -53,7 +53,7 @@ export default class MapService {
           radius,
         },
         isStatic: true,
-        label: 'WALL',
+        label: Constants.OBJECT_LABEL.WALL,
       }
     );
   };
