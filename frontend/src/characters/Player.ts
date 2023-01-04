@@ -10,8 +10,10 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   public bombStrength: number;
   private settableBombCount: number; // 今設置できるボムの個数
   private maxBombCount: number; // 設置できるボムの最大個数
+  private readonly sessionId: string; // サーバが一意にセットするセッションID
 
   constructor(
+    sessionId: string,
     world: Phaser.Physics.Matter.World,
     x: number,
     y: number,
@@ -21,6 +23,10 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   ) {
     super(world, x, y, texture, frame, options);
 
+    const body = this.body as MatterJS.BodyType;
+    body.label = ObjectTypes.PLAYER;
+
+    this.sessionId = sessionId;
     this.speed = Constants.INITIAL_PLAYER_SPEED;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.settableBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
@@ -62,7 +68,6 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   }
 
   increaseMaxBombCount() {
-    console.log(this.maxBombCount, Constants.MAX_SETTABLE_BOMB_COUNT);
     if (this.maxBombCount < Constants.MAX_SETTABLE_BOMB_COUNT) {
       this.maxBombCount++;
       this.settableBombCount++;
@@ -75,7 +80,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   }
 
   // 現在設置しているボムの数を減らす
-  consumeCurrentSetBombCount() {
+  consumeSettableBombCount() {
     this.settableBombCount--;
   }
 
@@ -100,13 +105,17 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     if (!this.canSetBomb(mp)) return;
 
     const { x, y } = Bomb.getSettablePosition(this.x, this.y);
-    this.scene.add.bomb(x, y, this.bombStrength, this);
+    this.scene.add.bomb(this.sessionId, x, y, this.bombStrength, this);
 
     // ボムを置ける数を減らす
-    this.consumeCurrentSetBombCount();
+    this.consumeSettableBombCount();
   }
 
   gameOver() {
     // this.destroy();
+  }
+
+  isEqualSessionId(sessionId: string): boolean {
+    return this.sessionId === sessionId;
   }
 }

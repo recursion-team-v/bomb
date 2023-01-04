@@ -1,17 +1,22 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import Matter from 'matter-js';
 
-import GameRoomState from './schema/GameRoomState';
-import Player from './schema/Player';
 import * as Constants from '../constants/constants';
-import { createMapWalls } from './schema/Map';
+import BombService from '../gameEngine/bombService';
+import PlayerService from '../gameEngine/playerService';
+import MapService from '../gameEngine/mapService';
+import GameRoomState from './schema/GameRoomState';
 
-export class GameEngine {
+export default class GameEngine {
   world: Matter.World;
   state: GameRoomState;
   engine: Matter.Engine;
 
   playerBodies = new Map<string, Matter.Body>();
+  bombBodies = new Map<string, Matter.Body>();
+  bombService: BombService;
+  playerService: PlayerService;
+  mapService: MapService;
 
   constructor(state: GameRoomState) {
     this.engine = Matter.Engine.create();
@@ -19,13 +24,16 @@ export class GameEngine {
     this.world = this.engine.world;
 
     this.engine.gravity.y = 0;
+    this.bombService = new BombService(this);
+    this.playerService = new PlayerService(this);
+    this.mapService = new MapService(this);
 
     this.init();
   }
 
   init() {
-    // create walls
-    Matter.Composite.add(this.world, createMapWalls(Constants.TILE_ROWS, Constants.TILE_COLS));
+    // create map
+    this.mapService.createMapWalls(Constants.TILE_ROWS, Constants.TILE_COLS);
     this.initUpdateEvents();
   }
 
@@ -47,46 +55,4 @@ export class GameEngine {
   }
 
   initCollision() {}
-
-  addPlayer(sessionId: string) {
-    const player = this.state.createPlayer(sessionId);
-    const playerBody = Matter.Bodies.rectangle(
-      player.x,
-      player.y,
-      Constants.PLAYER_WIDTH,
-      Constants.PLAYER_HEIGHT,
-      {
-        label: 'PLAYER',
-        chamfer: {
-          radius: 10,
-        },
-        friction: 0,
-        frictionStatic: 0,
-        frictionAir: 0,
-        restitution: 0,
-      }
-    );
-    this.playerBodies.set(sessionId, playerBody);
-    Matter.Composite.add(this.world, [playerBody]);
-    playerBody.collisionFilter.category = Constants.COLLISION_CATEGORY.PLAYER;
-    playerBody.collisionFilter.mask = Constants.COLLISION_CATEGORY.DEFAULT;
-  }
-
-  updatePlayer(player: Player, deltaTime?: number) {
-    const playerBody = this.playerBodies.get(player.sessionId);
-    if (playerBody === undefined) return;
-
-    let data: any;
-    const velocity = player.speed;
-
-    while ((data = player.inputQueue.shift())) {
-      let newVx = data.x - player.x;
-      let newVy = data.y - player.y;
-
-      if (Math.abs(newVx) > velocity) newVx = velocity * Math.sign(newVx);
-      if (Math.abs(newVy) > velocity) newVy = velocity * Math.sign(newVy);
-
-      Matter.Body.setVelocity(playerBody, { x: newVx, y: newVy });
-    }
-  }
 }

@@ -1,32 +1,35 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-import Player from '../characters/Player';
 import { ObjectTypes } from '../types/objects';
 import { handleCollide } from '../utils/handleCollide';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly bombStrength: number;
-  private readonly player: Player;
+  private readonly player: PlayerInterface;
 
   // 誘爆時は状況によって爆弾が消えてしまい、座標やシーンが取得できなくなるため保存しておく
   private readonly stableX: number; // 爆弾が消えても座標を保持するための変数
   private readonly stableY: number; // 爆弾が消えても座標を保持するための変数
   private readonly stableScene: Phaser.Scene; // 爆弾が消えてもシーンを保持するための変数
 
+  private readonly sessionId: string; // サーバが一意にセットするセッションID(誰の爆弾か)
+
   constructor(
+    sessionId: string,
     world: Phaser.Physics.Matter.World,
     x: number,
     y: number,
     texture: string,
     bombStrength: number,
-    player: Player
+    player: PlayerInterface
   ) {
     super(world, x, y, texture);
 
     const body = this.body as MatterJS.BodyType;
     body.label = ObjectTypes.BOMB;
 
+    this.sessionId = sessionId;
     this.player = player;
     this.bombStrength = bombStrength;
     this.stableX = x;
@@ -166,7 +169,9 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   // ボムが爆発した後の処理
   afterExplosion() {
     this.destroy();
-    this.player.recoverSettableBombCount();
+
+    // 自分の爆弾の時のみ爆弾の数を回復する
+    if (this.player.isEqualSessionId(this.sessionId)) this.player.recoverSettableBombCount();
   }
 }
 
@@ -174,12 +179,13 @@ Phaser.GameObjects.GameObjectFactory.register(
   'bomb',
   function (
     this: Phaser.GameObjects.GameObjectFactory,
+    sessionId: string,
     x: number,
     y: number,
     bombStrength = Constants.INITIAL_BOMB_STRENGTH,
-    player: Player
+    player: PlayerInterface
   ) {
-    const sprite = new Bomb(this.scene.matter.world, x, y, 'bomb', bombStrength, player);
+    const sprite = new Bomb(sessionId, this.scene.matter.world, x, y, 'bomb', bombStrength, player);
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);
@@ -263,3 +269,13 @@ Phaser.GameObjects.GameObjectFactory.register(
     return sprite;
   }
 );
+
+export interface PlayerInterface {
+  setBombStrength: (bombStrength: number) => void;
+  increaseMaxBombCount: () => void;
+  recoverSettableBombCount: () => void;
+  consumeSettableBombCount: () => void;
+  canSetBomb: (mp: Phaser.Physics.Matter.MatterPhysics) => boolean;
+  placeBomb: (mp: Phaser.Physics.Matter.MatterPhysics) => void;
+  isEqualSessionId: (sessionId: string) => boolean;
+}

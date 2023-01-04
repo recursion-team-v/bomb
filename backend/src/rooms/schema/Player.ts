@@ -31,9 +31,13 @@ export default class Player extends Schema {
   @type('number')
   bombStrength: number;
 
-  // 設置できるボムの個数
+  // 今設置できるボムの個数
   @type('number')
   settableBombCount: number;
+
+  // 設置できるボムの最大個数
+  @type('number')
+  maxBombCount: number;
 
   inputQueue: any[] = [];
 
@@ -45,5 +49,21 @@ export default class Player extends Schema {
     this.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.settableBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
+    this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
+  }
+
+  // ボムを設置できるかをチェックする
+  canSetBomb(): boolean {
+    return this.settableBombCount > 0;
+  }
+
+  // ボムを置ける最大数を増やす
+  recoverSettableBombCount() {
+    this.settableBombCount++;
+  }
+
+  // 現在設置しているボムの数を減らす
+  consumeCurrentSetBombCount() {
+    this.settableBombCount--;
   }
 }
