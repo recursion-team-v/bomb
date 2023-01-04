@@ -4,12 +4,12 @@ import Phaser from 'phaser';
 // register to GameObjectFactory
 import '../characters/MyPlayer';
 import '../items/Bomb';
-import '../items/InnerWall';
+import '../items/Wall';
 import '../items/Item';
 
 import { createPlayerAnims } from '../anims/PlayerAnims';
-import { drawBlocks, drawGround, drawWalls } from '../utils/drawMap';
-import { Keyboard, NavKeys } from '../types/keyboard';
+import { drawGround, drawWalls, drawBlocks } from '../utils/drawMap';
+import { NavKeys } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
 import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
@@ -21,6 +21,8 @@ import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
+import GameHeader from './GameHeader';
+import initializeKeys from '../utils/key';
 
 export default class Game extends Phaser.Scene {
   private readonly client: Client;
@@ -28,6 +30,8 @@ export default class Game extends Phaser.Scene {
   // eslint-disable-next-line @typescript-eslint/prefer-readonly, @typescript-eslint/consistent-indexed-object-style
   private playerEntities: Map<string, MyPlayer> = new Map();
   private currentPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
+  public blockMap?: number[][];
+
   private remoteRef!: Phaser.GameObjects.Rectangle; // サーバ側が認識するプレイヤーの位置を示す四角形
 
   inputPayload = {
@@ -40,7 +44,7 @@ export default class Game extends Phaser.Scene {
   cursorKeys!: NavKeys;
 
   constructor() {
-    super('game');
+    super(Config.SCENE_NAME_GAME);
     const protocol = window.location.protocol.replace('http', 'ws');
 
     if (import.meta.env.PROD) {
@@ -53,19 +57,25 @@ export default class Game extends Phaser.Scene {
   }
 
   init() {
-    // preload の前に呼ばれる
     // initialize key inputs
-    this.cursorKeys = {
-      ...this.input.keyboard.createCursorKeys(),
-      ...(this.input.keyboard.addKeys('W,S,A,D,SPACE') as Keyboard),
-    };
+    this.cursorKeys = initializeKeys(this);
   }
 
   async create() {
     console.log('game: create game');
 
     // connect with the room
-    await this.connect();
+    await this.connect().then(() => {
+      // ゲーム開始の通知
+      // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
+      this.room.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS);
+    });
+
+    // タイマーの変更イベント
+    this.room.state.timer.onChange = (data) => this.timerChangeEvent(data);
+
+    // ゲームの状態の変更イベント
+    this.room.state.gameState.onChange = async (data) => await this.gameStateChangeEvent(data);
 
     // 爆弾が追加された時の処理
     // TODO: アイテムをとって火力が上がった場合の処理を追加する
@@ -129,16 +139,18 @@ export default class Game extends Phaser.Scene {
     createBombAnims(this.anims);
     createExplodeAnims(this.anims);
 
-    // draw ground map
-    drawGround(this);
-
     // add items
     this.addItems();
 
     this.room.onStateChange.once((state) => {
-      // GameRoomState の wallArr, blockArr が初期化された際それを取得して描画する
-      drawWalls(this, state.gameMap.wallArr);
-      drawBlocks(this, state.gameMap.blockArr);
+      // GameRoomState の blockArr が初期化されたら block（破壊）を描画
+      const mapTiles = state.gameMap.mapTiles;
+      // draw ground
+      drawGround(this, mapTiles.GROUND_IDX);
+      // draw walls
+      drawWalls(this, mapTiles);
+      // draw blocks
+      this.blockMap = drawBlocks(this, state.gameMap.blockArr);
     });
   }
 
@@ -215,8 +227,8 @@ export default class Game extends Phaser.Scene {
       }
 
       // 線形補完(TODO: 調整)
-      localPlayer.x = Phaser.Math.Linear(localPlayer.x, serverX, 0.2);
-      localPlayer.y = Phaser.Math.Linear(localPlayer.y, serverY, 0.2);
+      localPlayer.x = Phaser.Math.Linear(localPlayer.x, serverX, 0.35); // 動きがちょっと滑らか過ぎるから 0.2 -> 0.35
+      localPlayer.y = Phaser.Math.Linear(localPlayer.y, serverY, 0.35);
 
       this.playerAnims(localPlayer, oldX, oldY);
     });
@@ -262,7 +274,7 @@ export default class Game extends Phaser.Scene {
     const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(this.cursorKeys.space);
     if (isSpaceJustDown) {
       this.room.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, p);
-      p.placeBomb();
+      p.placeBomb(this.matter);
     }
 
     // this.playerAnims(p, oldX, oldY);
@@ -329,6 +341,30 @@ export default class Game extends Phaser.Scene {
     //   64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
     //   ItemTypes.PLAYER_SPEED
     // );
+  }
+
+  // タイマーが更新されたイベント
+  private timerChangeEvent(data: any) {
+    const sc = this.scene.get(Config.SCENE_NAME_GAME_HEADER) as GameHeader;
+    data.forEach((v: any) => {
+      if (v.field === 'remainTime') sc.updateTimerText(v.value);
+    });
+  }
+
+  // ゲームステートが更新されたイベント
+  private async gameStateChangeEvent(data: any) {
+    const state = data[0].value as Constants.GAME_STATE_TYPE;
+
+    if (state === Constants.GAME_STATE.FINISHED) {
+      await this.room.leave();
+      this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
+      this.scene.stop(Config.SCENE_NAME_GAME);
+      this.scene.start(Config.SCENE_NAME_GAME_RESULT);
+    }
+  }
+
+  public getCurrentPlayer(): MyPlayer {
+    return this.currentPlayer;
   }
 
   async connect() {

@@ -37,17 +37,35 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.stableScene = this.scene;
   }
 
+  // 指定の座標から設置可能な座標を返します
+  static getSettablePosition(x: number, y: number): { x: number; y: number } {
+    const bx =
+      Math.floor(x / Constants.TILE_WIDTH) * Constants.TILE_WIDTH + Constants.TILE_WIDTH / 2;
+    const by =
+      Math.floor(y / Constants.TILE_HEIGHT) * Constants.TILE_HEIGHT + Constants.TILE_HEIGHT / 2;
+
+    return { x: bx, y: by };
+  }
+
   explode() {
     const addExplodeSprite = (
       bx: number,
       by: number,
       playKey: string,
       angle: number = 0,
-      scale: number = 1
+      rectVertical: boolean = false,
+      rectHorizontal: boolean = false
     ) => {
+      const rx = rectVertical
+        ? Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO
+        : Constants.DEFAULT_TIP_SIZE;
+      const ry = rectHorizontal
+        ? Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO
+        : Constants.DEFAULT_TIP_SIZE;
+
       this.stableScene.add
-        .blast(bx, by, playKey, this.bombStrength)
-        .setScale(scale, scale)
+        .blast(bx, by, playKey, this.bombStrength, rx, ry)
+        .setScale(1, 1)
         .setAngle(angle)
         .play(playKey)
         .setSensor(true);
@@ -66,46 +84,67 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
           this.stableX,
           this.stableY + Constants.TILE_WIDTH * i,
           'bomb_horizontal_explosion',
-          90
+          90,
+          false,
+          true
         );
         addExplodeSprite(
           this.stableX - Constants.TILE_WIDTH * i,
           this.stableY,
           'bomb_horizontal_explosion',
-          180
+          180,
+          false,
+          true
         );
         addExplodeSprite(
           this.stableX,
           this.stableY - Constants.TILE_WIDTH * i,
           'bomb_horizontal_explosion',
-          270
+          270,
+          false,
+          true
         );
       }
     }
 
-    // add horizontal end explosions
+    // 右
     addExplodeSprite(
       this.stableX + Constants.TILE_WIDTH * this.bombStrength,
       this.stableY,
-      'bomb_horizontal_end_explosion'
+      'bomb_horizontal_end_explosion',
+      0,
+      false,
+      true
     );
+
+    // 下
     addExplodeSprite(
       this.stableX,
       this.stableY + Constants.TILE_WIDTH * this.bombStrength,
       'bomb_horizontal_end_explosion',
-      90
+      90,
+      false,
+      true
     );
+
+    // 左
     addExplodeSprite(
       this.stableX - Constants.TILE_WIDTH * this.bombStrength,
       this.stableY,
       'bomb_horizontal_end_explosion',
-      180
+      180,
+      false,
+      true
     );
+
+    // 上
     addExplodeSprite(
       this.stableX,
       this.stableY - Constants.TILE_WIDTH * this.bombStrength,
       'bomb_horizontal_end_explosion',
-      270
+      270,
+      false,
+      true
     );
   }
 
@@ -173,7 +212,9 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
     x: number,
     y: number,
     texture: string,
-    bombStrength: number
+    bombStrength: number,
+    rectangleX: number,
+    rectangleY: number
   ) {
     super(world, x, y, texture);
     this.bombStrength = bombStrength;
@@ -181,8 +222,9 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
     const body = this.body as MatterJS.BodyType;
     body.label = ObjectTypes.EXPLOSION;
 
+    console.log(rectangleX, rectangleY);
+    this.setRectangle(rectangleX, rectangleY);
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
-      // console.log(data);
       const currBody = this.body as MatterJS.BodyType;
       data.bodyA.id === currBody.id
         ? handleCollide(data.bodyA, data.bodyB)
@@ -192,7 +234,7 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
 
   playAnim() {
     this.scene.time.addEvent({
-      delay: 1000,
+      delay: Constants.BLAST_AVAILABLE_TIME,
       callback: () => {
         this.destroy();
       },
@@ -207,9 +249,19 @@ Phaser.GameObjects.GameObjectFactory.register(
     x: number,
     y: number,
     texture: string,
-    bombStrength = 1
+    bombStrength = 1,
+    rectangleX: number,
+    rectangleY: number
   ) {
-    const sprite = new Blast(this.scene.matter.world, x, y, texture, bombStrength);
+    const sprite = new Blast(
+      this.scene.matter.world,
+      x,
+      y,
+      texture,
+      bombStrength,
+      rectangleX,
+      rectangleY
+    );
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);
@@ -218,7 +270,7 @@ Phaser.GameObjects.GameObjectFactory.register(
   }
 );
 
-interface PlayerInterface {
+export interface PlayerInterface {
   setBombStrength: (bombStrength: number) => void;
   increaseMaxBombCount: () => void;
   recoverSettableBombCount: () => void;

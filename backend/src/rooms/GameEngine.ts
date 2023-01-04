@@ -33,7 +33,7 @@ export default class GameEngine {
 
   init() {
     // create map
-    this.mapService.createMap(Constants.TILE_ROWS, Constants.TILE_COLS);
+    this.mapService.createMapWalls(Constants.TILE_ROWS, Constants.TILE_COLS);
     this.initUpdateEvents();
   }
 

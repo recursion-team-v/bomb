@@ -1,3 +1,12 @@
+/*
+色の定義
+*/
+
+export const BLACK = 0x000000;
+export const WHITE = 0xffffff;
+export const GRAY = 0x808080;
+export const BLUE = 0x0000ff;
+
 export const FPS = 60; // 1 秒間のフレーム数
 export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
 
@@ -57,11 +66,22 @@ export const INITIAL_PLAYER_POSITION = [
   { x: 480, y: 476 },
 ];
 
+/*
+ボムの定義
+*/
+
 // 爆弾の爆発までの時間(ms)
 export const BOMB_EXPLOSION_TIME = 2330;
 
+// 爆弾の衝突判定の割合
+export const BOMB_COLLISION_RATIO = 0.6;
+
 // 爆弾が誘爆する時の遅延時間(ms)
 export const BOMB_DETONATION_DELAY = 50;
+
+// 爆風が維持される時間(ms)
+// この時間だけ当たり判定が残る
+export const BLAST_AVAILABLE_TIME = 500;
 
 // クライアントとサーバで許容するプレイヤーの位置のズレ(px)
 export const PLAYER_TOLERANCE_DISTANCE = 100;
@@ -98,9 +118,11 @@ export const TILE_GROUND = {
   SPAWN_IDX: [0, 1, 2], // 地面（スポーン）タイルの idx (0, 1, 2)
 };
 export const TILE_WALL = {
-  DEFAULT_1_IDX: 10, // 外壁タイル1の idx
-  DEFAULT_2_IDX: 19, // 外壁タイル2の idx
-  DEFAULT_CORNER_IDX: 21, // 外壁タイル（角）の idx
+  OUTER_TOP_BOT: [19],
+  OUTER_LEFT_RIGHT: [10],
+  OUTER_CORNER: [21, 22, 23],
+  INNER: [12, 13, 14, 19, 24, 25, 27],
+  INNER_CHAMFER: 25, // 内壁タイルの chamfer
 };
 export const TILE_BLOCK_IDX = 1; // 破壊できる箱の idx
 
@@ -108,13 +130,14 @@ export const PLAYER_WIDTH = DEFAULT_TIP_SIZE; // プレイヤーの横幅
 export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
 
 /*
-画面の定義 
+画面の定義
 */
 export const HEADER_HEIGHT = 64; // ヘッダーの高さ
 export const HEIGHT = TILE_HEIGHT * TILE_ROWS + HEADER_HEIGHT; // 画面の高さ
+export const MOBILE_HEIGHT = HEIGHT + 300; // モバイル用の余白
 export const WIDTH = TILE_WIDTH * TILE_COLS; // 画面の幅
-export const HEADER_COLOR_CODE = '#000000'; // ヘッダーの色
-export const HEADER_TIMER_TEXT_COLOR_CODE = '#FFFFFF'; // ヘッダーのタイマーの文字色
+export const HEADER_COLOR_CODE = BLACK; // ヘッダーの色
+export const HEADER_TIMER_TEXT_COLOR_CODE = WHITE; // ヘッダーのタイマーの文字色
 export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
 
 /*
@@ -123,3 +146,18 @@ export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
 
 export const LABEL_PLAYER = 'PLAYER';
 export const LABEL_BOMB = 'BOMB';
+
+/*
+モバイル用の操作アイコンの定義
+*/
+
+export const JOYSTICK_X = 200; // ジョイスティックの x 座標
+export const JOYSTICK_Y = HEIGHT + 150; // ジョイスティックの y 座標
+export const JOYSTICK_BASE_KEY = 'joystick-base'; // ジョイスティックのベースのキー
+export const JOYSTICK_STICK_KEY = 'joystick-stick'; // ジョイスティックのスティックのキー
+
+export const BUTTON_X = WIDTH - 200; // ボタンの x 座標
+export const BUTTON_Y = JOYSTICK_Y; // ボタンの y 座標
+export const BUTTON_RADIUS = 100; // ボタンの半径
+export const BUTTON_COLOR_CODE = BLUE; // ボタンの色
+export const BUTTON_STROKE_COLOR_CODE = GRAY; // ボタンの枠線の色

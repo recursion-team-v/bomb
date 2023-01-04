@@ -14,6 +14,9 @@ export default class GameRoom extends Room<GameRoomState> {
 
     this.engine = new GameEngine(this.state);
 
+    // ゲーム開始をクライアントから受け取る
+    this.onMessage(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, () => this.gameStartEvent());
+
     // クライアントからの移動入力を受け取ってキューに詰める
     this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, (client, data: any) => {
       // get reference to the player who sent the message
@@ -34,6 +37,19 @@ export default class GameRoom extends Room<GameRoomState> {
       elapsedTime += deltaTime;
 
       while (elapsedTime >= Constants.FRAME_RATE) {
+        // 時間切れになったらゲーム終了
+        if (!this.state.timer.isInTime() && this.state.gameState.isPlaying()) {
+          try {
+            this.state.gameState.setFinished();
+          } catch (e) {
+            console.error(e);
+          }
+          return;
+        }
+
+        // 残り時間の更新
+        this.state.timer.setRemainTime();
+
         elapsedTime -= Constants.FRAME_RATE;
 
         for (const [, player] of this.state.players) {
@@ -46,6 +62,16 @@ export default class GameRoom extends Room<GameRoomState> {
         Matter.Engine.update(this.engine.engine, deltaTime);
       }
     });
+  }
+
+  // ゲーム開始イベント
+  private gameStartEvent() {
+    try {
+      this.state.gameState.setPlaying();
+      this.state.setTimer();
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   // キューに詰められた入力を処理し、キャラの移動を行う

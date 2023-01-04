@@ -3,10 +3,18 @@ import { MapSchema, Schema, type } from '@colyseus/schema';
 import * as Constants from '../../constants/constants';
 import GameQueue from '../../utils/gameQueue';
 import { Bomb, getSettablePosition } from './Bomb';
+import GameState from './GameState';
+import Timer from './Timer';
 import Player from './Player';
 import Map from './Map';
 
 export default class GameRoomState extends Schema {
+  @type(GameState)
+  gameState: GameState = new GameState();
+
+  @type(Timer)
+  readonly timer = new Timer();
+
   @type({ map: Player }) players = new MapSchema<Player>();
   @type({ map: Bomb }) bombs = new MapSchema<Bomb>();
   private readonly bombQueue: GameQueue<Bomb> = new GameQueue<Bomb>();
@@ -19,6 +27,10 @@ export default class GameRoomState extends Schema {
 
   getPlayersCount() {
     return this.players.size;
+  }
+
+  setTimer() {
+    this.timer.set(Date.now());
   }
 
   createPlayer(sessionId: string): Player {
