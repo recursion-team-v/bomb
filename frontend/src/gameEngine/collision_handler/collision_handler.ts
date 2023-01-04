@@ -1,11 +1,11 @@
-import explosionToBomb from '../../../backend/src/gameEngine/collision_handler/explosion';
-import { playerToExplosion, playerToItem } from '../../../backend/src/gameEngine/collision_handler/player';
-import MyPlayer from '../characters/MyPlayer';
-import Bomb from '../items/Bomb';
-import Item from '../items/Item';
-import { ObjectTypes } from '../types/objects';
+import explosionToBomb from '../../../../backend/src/gameEngine/collision_handler/explosion';
+import { playerToExplosion, playerToItem } from '../../../../backend/src/gameEngine/collision_handler/player';
+import MyPlayer from '../../characters/MyPlayer';
+import Bomb from '../../items/Bomb';
+import Item from '../../items/Item';
+import { ObjectTypes } from '../../types/objects';
 
-export const handleCollide = (bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) => {
+export default function collisionHandler(bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) {
   /**
    * bodyA <- this のオブジェクト
    * bodyB <- 他 のオブジェクト
@@ -35,4 +35,4 @@ export const handleCollide = (bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType
   else if (aType === ObjectTypes.EXPLOSION && bType === ObjectTypes.BOMB) {
     explosionToBomb(bodyB.gameObject as Bomb);
   }
-};
+}

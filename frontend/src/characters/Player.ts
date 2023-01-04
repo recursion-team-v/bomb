@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
+import collisionHandler from '../gameEngine/collision_handler/collision_handler';
 import Bomb from '../items/Bomb';
 import { ObjectTypes } from '../types/objects';
-import { handleCollide } from '../utils/handleCollide';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
   public speed: number;
@@ -47,8 +47,8 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
       const currBody = this.body as MatterJS.BodyType;
       data.bodyA.id === currBody.id
-        ? handleCollide(data.bodyA, data.bodyB)
-        : handleCollide(data.bodyB, data.bodyA);
+        ? collisionHandler(data.bodyA, data.bodyB)
+        : collisionHandler(data.bodyB, data.bodyA);
     });
   }
 
