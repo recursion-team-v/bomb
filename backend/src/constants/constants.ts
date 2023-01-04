@@ -118,9 +118,11 @@ export const TILE_GROUND = {
   SPAWN_IDX: [0, 1, 2], // 地面（スポーン）タイルの idx (0, 1, 2)
 };
 export const TILE_WALL = {
-  DEFAULT_1_IDX: 10, // 外壁タイル1の idx
-  DEFAULT_2_IDX: 19, // 外壁タイル2の idx
-  DEFAULT_CORNER_IDX: 21, // 外壁タイル（角）の idx
+  OUTER_TOP_BOT: [19],
+  OUTER_LEFT_RIGHT: [10],
+  OUTER_CORNER: [21, 22, 23],
+  INNER: [12, 13, 14, 19, 24, 25, 27],
+  INNER_CHAMFER: 25, // 内壁タイルの chamfer
 };
 export const TILE_BLOCK_IDX = 1; // 破壊できる箱の idx
 

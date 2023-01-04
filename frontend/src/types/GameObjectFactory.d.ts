@@ -2,6 +2,7 @@ import MyPlayer from '../characters/MyPlayer';
 import Player from '../characters/Player';
 import Bomb, { Blast } from '../items/Bomb';
 import Item from '../items/Item';
+import { InnerWall, OuterWall } from '../items/Wall';
 import { ItemTypes } from './items';
 
 export {};
@@ -27,7 +28,8 @@ declare global {
         rectangleY: number
       ) => Blast;
       item: (x: number, y: number, itemType: ItemTypes) => Item;
-      innerWall: (x: number, y: number, texture) => InnerWall;
+      innerWall: (x: number, y: number, frame: number) => InnerWall;
+      outerWall: (x: number, y: number, frame: number) => OuterWall;
     }
   }
 }

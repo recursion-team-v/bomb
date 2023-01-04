@@ -4,6 +4,7 @@ import Matter from 'matter-js';
 import GameRoomState from './schema/GameRoomState';
 import Player from './schema/Player';
 import * as Constants from '../constants/constants';
+import { createMapWalls } from './schema/Map';
 
 export class GameEngine {
   world: Matter.World;
@@ -22,53 +23,9 @@ export class GameEngine {
     this.init();
   }
 
-  private createMap(rows: number, cols: number) {
-    const tileWidth = Constants.TILE_WIDTH;
-    const tileHeight = Constants.TILE_HEIGHT;
-    const walls = [];
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < cols; x++) {
-        const wallIdx = this.state.gameMap.wallArr[x + cols * y];
-        const blockIdx = this.state.gameMap.blockArr[x + cols * y];
-        if (
-          wallIdx === Constants.TILE_WALL.DEFAULT_1_IDX ||
-          wallIdx === Constants.TILE_WALL.DEFAULT_2_IDX ||
-          wallIdx === Constants.TILE_WALL.DEFAULT_CORNER_IDX
-        ) {
-          walls.push(
-            Matter.Bodies.rectangle(
-              tileWidth / 2 + tileWidth * x,
-              Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
-              tileWidth,
-              tileHeight,
-              {
-                isStatic: true,
-                label: 'WALL',
-              }
-            )
-          );
-        } else if (blockIdx === Constants.TILE_BLOCK_IDX) {
-          walls.push(
-            Matter.Bodies.rectangle(
-              tileWidth / 2 + tileWidth * x,
-              Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
-              tileWidth,
-              tileHeight,
-              {
-                isStatic: true,
-                label: 'BLOCK',
-              }
-            )
-          );
-        }
-      }
-    }
-    return walls;
-  }
-
   init() {
     // create walls
-    Matter.Composite.add(this.world, this.createMap(Constants.TILE_ROWS, Constants.TILE_COLS));
+    Matter.Composite.add(this.world, createMapWalls(Constants.TILE_ROWS, Constants.TILE_COLS));
     this.initUpdateEvents();
   }
 
