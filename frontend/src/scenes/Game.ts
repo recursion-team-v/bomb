@@ -8,7 +8,7 @@ import '../items/Wall';
 import '../items/Item';
 
 import { createPlayerAnims } from '../anims/PlayerAnims';
-import { drawGround, drawWalls } from '../utils/drawMap';
+import { drawGround, drawWalls, drawBlocks } from '../utils/drawMap';
 import { NavKeys } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
 import { createBombAnims } from '../anims/BombAnims';
@@ -133,7 +133,7 @@ export default class Game extends Phaser.Scene {
       // draw walls
       drawWalls(this, mapTiles);
       // draw blocks
-      // this.blockMap = drawBlocks(this, state.gameMap.blockArr);
+      this.blockMap = drawBlocks(this, state.gameMap.blockArr);
     });
   }
 
