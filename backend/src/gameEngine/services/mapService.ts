@@ -1,7 +1,7 @@
 import Matter from 'matter-js';
 
-import * as Constants from '../constants/constants';
-import GameEngine from '../rooms/GameEngine';
+import * as Constants from '../../constants/constants';
+import GameEngine from '../../rooms/GameEngine';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class MapService {

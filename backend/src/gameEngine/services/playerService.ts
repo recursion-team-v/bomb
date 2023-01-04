@@ -1,9 +1,9 @@
 import Matter from 'matter-js';
 
-import * as Constants from '../constants/constants';
-import GameEngine from '../rooms/GameEngine';
-import { Bomb } from '../rooms/schema/Bomb';
-import Player from '../rooms/schema/Player';
+import * as Constants from '../../constants/constants';
+import GameEngine from '../../rooms/GameEngine';
+import { Bomb } from '../../rooms/schema/Bomb';
+import Player from '../../rooms/schema/Player';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class PlayerService {

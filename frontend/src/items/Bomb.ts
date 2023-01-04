@@ -54,7 +54,8 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       playKey: string,
       angle: number = 0,
       rectVertical: boolean = false,
-      rectHorizontal: boolean = false
+      rectHorizontal: boolean = false,
+      scale: number = 1
     ) => {
       const rx = rectVertical
         ? Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO
@@ -65,13 +66,13 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
       this.stableScene.add
         .blast(bx, by, playKey, this.bombStrength, rx, ry)
-        .setScale(1, 1)
+        .setScale(scale, scale)
         .setAngle(angle)
         .play(playKey)
         .setSensor(true);
     };
 
-    addExplodeSprite(this.stableX, this.stableY, 'bomb_center_explosion');
+    addExplodeSprite(this.stableX, this.stableY, 'bomb_center_explosion', 0, true, true, 1.2);
 
     if (this.bombStrength > 1) {
       for (let i = 1; i < this.bombStrength; i++) {

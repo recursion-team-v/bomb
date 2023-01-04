@@ -2,9 +2,9 @@
 import Matter from 'matter-js';
 
 import * as Constants from '../constants/constants';
-import BombService from '../gameEngine/bombService';
-import PlayerService from '../gameEngine/playerService';
-import MapService from '../gameEngine/mapService';
+import BombService from '../gameEngine/services/bombService';
+import MapService from '../gameEngine/services/mapService';
+import PlayerService from '../gameEngine/services/playerService';
 import GameRoomState from './schema/GameRoomState';
 
 export default class GameEngine {

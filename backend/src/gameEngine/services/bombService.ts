@@ -1,8 +1,8 @@
 import Matter from 'matter-js';
 
-import * as Constants from '../constants/constants';
-import GameEngine from '../rooms/GameEngine';
-import { Bomb } from '../rooms/schema/Bomb';
+import * as Constants from '../../constants/constants';
+import GameEngine from '../../rooms/GameEngine';
+import { Bomb } from '../../rooms/schema/Bomb';
 
 export default class BombService {
   private readonly gameEngine: GameEngine;
