@@ -347,7 +347,7 @@ export default class Game extends Phaser.Scene {
     const sessionId = serverBomb.owner.sessionId;
 
     // 自分のボムは表示しない
-    if (this.currentPlayer.isEqualSessionId(sessionId) === true) return;
+    if (this.currentPlayer.isEqualSessionId(sessionId)) return;
 
     const player = this.playerEntities.get(sessionId);
     if (player === undefined) return;
