@@ -79,6 +79,10 @@ export const BOMB_COLLISION_RATIO = 0.6;
 // 爆弾が誘爆する時の遅延時間(ms)
 export const BOMB_DETONATION_DELAY = 50;
 
+// 爆風が維持される時間(ms)
+// この時間だけ当たり判定が残る
+export const BLAST_AVAILABLE_TIME = 500;
+
 // クライアントとサーバで許容するプレイヤーの位置のズレ(px)
 export const PLAYER_TOLERANCE_DISTANCE = 100;
 
