@@ -90,6 +90,17 @@ export const PLAYER_TOLERANCE_DISTANCE = 100;
 export const TIME_LIMIT_SEC = 181; // (+1秒するといい感じに表示される)
 
 /*
+アイテムの定義
+*/
+export const ITEM_TYPE = {
+  BOMB_STRENGTH: 0, // ボムの威力アップ
+  BOMB_POSSESSION_UP: 1, // ボムの所持数アップ
+  PLAYER_SPEED: 2, // プレイヤーの移動速度アップ
+} as const;
+
+export type ITEM_TYPES = typeof ITEM_TYPE[keyof typeof ITEM_TYPE];
+
+/*
 衝突判定のカテゴリ
 */
 
