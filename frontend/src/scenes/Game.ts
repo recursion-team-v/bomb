@@ -62,7 +62,6 @@ export default class Game extends Phaser.Scene {
 
   async create() {
     console.log('game: create game');
-
     // connect with the room
     await this.connect().then(() => {
       // ゲーム開始の通知
@@ -75,7 +74,6 @@ export default class Game extends Phaser.Scene {
 
     // ゲームの状態の変更イベント
     this.room.state.gameState.onChange = async (data) => await this.gameStateChangeEvent(data);
-
     // 爆弾が追加された時の処理
     // TODO: アイテムをとって火力が上がった場合の処理を追加する
     this.room.state.bombs.onAdd = (serverBomb: ServerBomb) => this.addBombEvent(serverBomb);
@@ -139,18 +137,24 @@ export default class Game extends Phaser.Scene {
     createBombAnims(this.anims);
     createExplodeAnims(this.anims);
 
-    // add items
-    this.addItems();
-
     this.room.onStateChange.once((state) => {
       // GameRoomState の blockArr が初期化されたら block（破壊）を描画
       const mapTiles = state.gameMap.mapTiles;
+
       // draw ground
       drawGround(this, mapTiles.GROUND_IDX);
       // draw walls
       drawWalls(this, mapTiles);
       // draw blocks
+
       this.blockMap = drawBlocks(this, state.gameMap.blockArr);
+      state.items.forEach((item) => {
+        this.add.item(
+          Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * item.x,
+          Constants.TILE_HEIGHT / 2 + Constants.TILE_HEIGHT * item.y,
+          item.itemType
+        );
+      });
     });
   }
 
