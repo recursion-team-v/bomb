@@ -8,12 +8,9 @@ import '../items/Wall';
 import '../items/Block';
 import '../items/Item';
 
-import { createPlayerAnims } from '../anims/PlayerAnims';
 import { drawGround, drawWalls, drawBlocks } from '../utils/drawMap';
 import { NavKeys } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
-import { createBombAnims } from '../anims/BombAnims';
-import { createExplodeAnims } from '../anims/explodeAnims';
 import * as Config from '../config/config';
 import { Room } from 'colyseus.js';
 import * as Constants from '../../../backend/src/constants/constants';
@@ -59,20 +56,18 @@ export default class Game extends Phaser.Scene {
     if (this.network.room == null) return;
     this.room = this.network.room;
 
+    console.log(this.network);
+
     // プレイヤーをゲームに追加
     this.addPlayers();
 
     // Colyseus のイベントを追加
     this.initNetworkEvents();
 
-    // add player animations
-    createPlayerAnims(this.anims);
-    createBombAnims(this.anims);
-    createExplodeAnims(this.anims);
-
     // add items
     this.addItems();
 
+    // TODO: Preloader（Lobby）で読み込んで Game Scene に渡す
     this.room.onStateChange.once((state) => {
       // GameRoomState の blockArr が初期化されたら block（破壊）を描画
       const mapTiles = state.gameMap.mapTiles;

@@ -23,9 +23,7 @@ export default class Network {
       const endpoint = `${protocol}//${window.location.hostname}:${Constants.SERVER_LISTEN_PORT}`;
       this.client = new Client(endpoint);
     }
-    this.joinOrCreateRoom()
-      .then(() => console.log('done joining room'))
-      .catch((err) => console.log(err));
+    this.joinOrCreateRoom().catch((err) => console.log(err));
   }
 
   async joinOrCreateRoom() {
@@ -43,10 +41,9 @@ export default class Network {
 
     this.room.state.players.onAdd = (player: ServerPlayer, sessionId: string) => {
       if (sessionId === this.mySessionId) {
-        console.log('myPlayer joined');
+        gameEvents.emit(Event.MY_PLAYER_JOINED_ROOM, player, sessionId);
         return;
       }
-      console.log('otherPlayer joined');
       gameEvents.emit(Event.PLAYER_JOINED_ROOM, player, sessionId);
     };
 
@@ -65,6 +62,11 @@ export default class Network {
     this.room.state.gameState.onChange = (data: any) => {
       gameEvents.emit(Event.GAME_STATE_UPDATED, data);
     };
+  }
+
+  // 自分がルームに参加した時
+  onMyPlayerJoinedRoom(callback: (player: ServerPlayer, sessionId: string) => void, context?: any) {
+    gameEvents.on(Event.MY_PLAYER_JOINED_ROOM, callback, context);
   }
 
   // 他のプレイヤーがルームに参加した時
