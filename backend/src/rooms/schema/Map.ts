@@ -24,22 +24,24 @@ export default class Map extends Schema {
     const xMin = 1;
     const xMax = cols - 2;
 
-    const maxBlocks = Math.floor(
-      Math.random() * (Constants.MAX_BLOCKS - Constants.MIN_BLOCKS + 1) + Constants.MIN_BLOCKS
-    );
-    let blockCnt = 0;
-
-    while (blockCnt < maxBlocks) {
-      const y = Math.floor(Math.random() * (yMax - yMin + 1) + yMin);
-      const x = Math.floor(Math.random() * (xMax - xMin + 1) + xMin);
-
-      const blockCondition =
-        !(y % 2 === 0 && x % 2 === 0) && arr[x + cols * y] !== Constants.TILE_BLOCK_IDX;
-
-      if (blockCondition) {
-        arr[x + cols * y] = Constants.TILE_BLOCK_IDX;
-        blockCnt++;
+    const blockPlacements: number[][] = [];
+    for (let y = yMin; y <= yMax; y++) {
+      for (let x = xMin; x <= xMax; x++) {
+        if (!(y % 2 === 0 && x % 2 === 0)) {
+          blockPlacements.push([x, y]);
+        }
       }
+    }
+
+    blockPlacements.sort(() => Math.random() - 0.5);
+
+    let maxBlocks = Constants.MAX_BLOCKS;
+    for (const coords of blockPlacements) {
+      if (maxBlocks <= 0) break;
+      const x = coords[0];
+      const y = coords[1];
+      arr[x + cols * y] = Constants.TILE_BLOCK_IDX;
+      maxBlocks--;
     }
 
     // プレイヤーが最低限移動できる位置にはブロックを配置しない
