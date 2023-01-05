@@ -72,19 +72,19 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
         .setSensor(true);
     };
 
-    addExplodeSprite(this.stableX, this.stableY, 'bomb_center_explosion', 0, true, true, 1.2);
+    addExplodeSprite(this.stableX, this.stableY, 'bomb_center_blast', 0, true, true, 1.2);
 
     if (this.bombStrength > 1) {
       for (let i = 1; i < this.bombStrength; i++) {
         addExplodeSprite(
           this.stableX + Constants.TILE_WIDTH * i,
           this.stableY,
-          'bomb_horizontal_explosion'
+          'bomb_horizontal_blast'
         );
         addExplodeSprite(
           this.stableX,
           this.stableY + Constants.TILE_WIDTH * i,
-          'bomb_horizontal_explosion',
+          'bomb_horizontal_blast',
           90,
           false,
           true
@@ -92,7 +92,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
         addExplodeSprite(
           this.stableX - Constants.TILE_WIDTH * i,
           this.stableY,
-          'bomb_horizontal_explosion',
+          'bomb_horizontal_blast',
           180,
           false,
           true
@@ -100,7 +100,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
         addExplodeSprite(
           this.stableX,
           this.stableY - Constants.TILE_WIDTH * i,
-          'bomb_horizontal_explosion',
+          'bomb_horizontal_blast',
           270,
           false,
           true
@@ -112,7 +112,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     addExplodeSprite(
       this.stableX + Constants.TILE_WIDTH * this.bombStrength,
       this.stableY,
-      'bomb_horizontal_end_explosion',
+      'bomb_horizontal_end_blast',
       0,
       false,
       true
@@ -122,7 +122,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     addExplodeSprite(
       this.stableX,
       this.stableY + Constants.TILE_WIDTH * this.bombStrength,
-      'bomb_horizontal_end_explosion',
+      'bomb_horizontal_end_blast',
       90,
       false,
       true
@@ -132,7 +132,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     addExplodeSprite(
       this.stableX - Constants.TILE_WIDTH * this.bombStrength,
       this.stableY,
-      'bomb_horizontal_end_explosion',
+      'bomb_horizontal_end_blast',
       180,
       false,
       true
@@ -142,7 +142,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     addExplodeSprite(
       this.stableX,
       this.stableY - Constants.TILE_WIDTH * this.bombStrength,
-      'bomb_horizontal_end_explosion',
+      'bomb_horizontal_end_blast',
       270,
       false,
       true

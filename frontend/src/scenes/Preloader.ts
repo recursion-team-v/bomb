@@ -20,23 +20,19 @@ export default class Preloader extends Phaser.Scene {
       frameHeight,
     });
 
-    this.load.spritesheet('bomb_center_explosion', 'assets/items/bomb/center_explosion.png', {
+    this.load.spritesheet('bomb_center_blast', 'assets/items/bomb/center_blast.png', {
+      frameWidth,
+      frameHeight,
+    });
+
+    this.load.spritesheet('bomb_horizontal_blast', 'assets/items/bomb/horizontal_blast.png', {
       frameWidth,
       frameHeight,
     });
 
     this.load.spritesheet(
-      'bomb_horizontal_explosion',
-      'assets/items/bomb/horizontal_explosion.png',
-      {
-        frameWidth,
-        frameHeight,
-      }
-    );
-
-    this.load.spritesheet(
-      'bomb_horizontal_end_explosion',
-      'assets/items/bomb/horizontal_end_explosion.png',
+      'bomb_horizontal_end_blast',
+      'assets/items/bomb/horizontal_end_blast.png',
       {
         frameWidth,
         frameHeight,
