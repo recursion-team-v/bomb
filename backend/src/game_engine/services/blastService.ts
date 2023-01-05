@@ -7,7 +7,7 @@ import { Bomb, getSettablePosition } from '../../rooms/schema/Bomb';
 export default class BlastService {
   private readonly gameEngine: GameEngine;
   // eslint-disable-next-line @typescript-eslint/prefer-readonly
-  private blastComposite?: Matter.Composite;
+  private bodies?: Matter.Body[];
   private readonly bomb: Bomb;
 
   constructor(gameEngine: GameEngine, bomb: Bomb) {
@@ -30,6 +30,12 @@ export default class BlastService {
     ];
 
     Matter.Composite.add(this.gameEngine.world, bodies);
+    this.bodies = bodies;
+
+    // 爆風の有効時間を過ぎたら削除する
+    setTimeout(() => {
+      this.delete();
+    }, Constants.BLAST_AVAILABLE_TIME);
   }
 
   // 現在位置の爆風を matter に追加する
@@ -91,8 +97,7 @@ export default class BlastService {
 
   // 爆風を matter から削除する
   private delete() {
-    if (this.blastComposite === undefined) return;
-    Matter.Composite.remove(this.gameEngine.world, this.blastComposite);
+    this.bodies?.forEach((body) => Matter.Composite.remove(this.gameEngine.world, body));
   }
 
   // 爆風の範囲を計算する

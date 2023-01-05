@@ -41,6 +41,7 @@ export default function collisionHandler(
 
   // PLAYER & EXPLOSION
   else if (isPlayer && isExplosion) {
+    // TODO: 爆風に当たると30hitぐらいしちゃうので、回復アイテムを入れるならヒット後は数秒無敵にした方がいい
     console.log('player hit explosion');
   }
 
