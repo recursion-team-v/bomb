@@ -120,8 +120,7 @@ export const TILE_ROWS = 13; // タイルの行数
 export const TILE_COLS = 15; // タイルの列数
 export const TILE_WIDTH = DEFAULT_TIP_SIZE; // タイルの横幅
 export const TILE_HEIGHT = DEFAULT_TIP_SIZE; // タイルの縦幅
-export const MAX_BLOCKS = 50;
-export const MIN_BLOCKS = 40;
+export const MAX_BLOCKS = 100;
 
 // マップのタイルシートの idx
 export const TILE_GROUND = {

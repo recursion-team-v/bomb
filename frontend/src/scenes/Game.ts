@@ -5,6 +5,7 @@ import Phaser from 'phaser';
 import '../characters/MyPlayer';
 import '../items/Bomb';
 import '../items/Wall';
+import '../items/Block';
 import '../items/Item';
 
 import { createPlayerAnims } from '../anims/PlayerAnims';

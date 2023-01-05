@@ -43,13 +43,13 @@ export const drawWalls = (scene: Phaser.Scene, mapTiles: MapTiles) => {
 
 export const drawBlocks = (scene: Phaser.Scene, blockArr: number[]) => {
   const arr = convertTo2D(blockArr);
-  const blockMap = scene.make.tilemap({ data: arr, tileWidth, tileHeight });
-  blockMap.addTilesetImage('tile_walls', undefined, tileWidth, tileHeight, 0, 0);
-  const blockLayer = blockMap
-    .createLayer(0, 'tile_walls', 0, Constants.HEADER_HEIGHT)
-    .setDepth(-1)
-    .setCollision([Constants.TILE_BLOCK_IDX]);
-  scene.matter.world.convertTilemapLayer(blockLayer, { label: Constants.OBJECT_LABEL.BLOCK });
+  for (let y = 1; y < rows - 1; y++) {
+    for (let x = 1; x < cols - 1; x++) {
+      if (arr[y][x] === Constants.TILE_BLOCK_IDX) {
+        addBlock(scene, x, y, Constants.TILE_BLOCK_IDX);
+      }
+    }
+  }
 
   return arr;
 };
@@ -94,6 +94,14 @@ const addInnerWall = (scene: Phaser.Scene, x: number, y: number, frame: number) 
 
 const addOuterWall = (scene: Phaser.Scene, x: number, y: number, frame: number) => {
   scene.add.outerWall(
+    tileWidth / 2 + tileWidth * x,
+    Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
+    frame
+  );
+};
+
+const addBlock = (scene: Phaser.Scene, x: number, y: number, frame: number) => {
+  scene.add.block(
     tileWidth / 2 + tileWidth * x,
     Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
     frame
