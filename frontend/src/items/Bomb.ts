@@ -241,7 +241,7 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
     });
 
     const body = this.body as MatterJS.BodyType;
-    body.label = Constants.OBJECT_LABEL.EXPLOSION;
+    body.label = Constants.OBJECT_LABEL.BLAST;
   }
 
   playAnim() {

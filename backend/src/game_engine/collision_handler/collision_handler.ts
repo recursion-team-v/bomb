@@ -21,7 +21,7 @@ export default function collisionHandler(
   };
 
   const isBomb = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.BOMB);
-  const isExplosion = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.EXPLOSION);
+  const isExplosion = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.BLAST);
   const isItem = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.ITEM);
   const isPlayer = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.PLAYER);
 

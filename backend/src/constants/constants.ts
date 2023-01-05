@@ -159,7 +159,6 @@ export const OBJECT_LABEL = {
   BOMB: 'BOMB',
   BLAST: 'BLAST',
   BLOCK: 'BLOCK',
-  EXPLOSION: 'EXPLOSION',
   ITEM: 'ITEM',
   PLAYER: 'PLAYER',
   WALL: 'WALL',
