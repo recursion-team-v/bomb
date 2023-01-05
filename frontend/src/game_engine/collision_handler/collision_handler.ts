@@ -1,6 +1,9 @@
 import * as Constants from '../../../../backend/src/constants/constants';
 import blastToBomb from '../../../../backend/src/game_engine/collision_handler/blast';
-import { playerToBlast, playerToItem } from '../../../../backend/src/game_engine/collision_handler/player';
+import {
+  playerToBlast,
+  playerToItem,
+} from '../../../../backend/src/game_engine/collision_handler/player';
 import MyPlayer from '../../characters/MyPlayer';
 import Bomb from '../../items/Bomb';
 import Item from '../../items/Item';
