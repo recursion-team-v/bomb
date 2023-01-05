@@ -2,16 +2,17 @@ import { Client, Room, RoomAvailable } from 'colyseus.js';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import * as Config from '../config/config';
 import * as Constants from '../../../backend/src/constants/constants';
-import Player from '../../../backend/src/rooms/schema/Player';
-import { phaserEvents, Event } from '../events/PhaserEvents';
+import ServerPlayer from '../../../backend/src/rooms/schema/Player';
+import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
+import { gameEvents, Event } from '../events/GameEvents';
+import GameHeader from '../scenes/GameHeader';
 
 export default class Network {
   private readonly client: Client;
   public room?: Room<GameRoomState>;
-  public lobby?: Room;
 
   allRooms: RoomAvailable[] = [];
-  mySessionId?: string;
+  mySessionId!: string;
 
   constructor() {
     const protocol = window.location.protocol.replace('http', 'ws');
@@ -23,7 +24,9 @@ export default class Network {
       const endpoint = `${protocol}//${window.location.hostname}:${Constants.SERVER_LISTEN_PORT}`;
       this.client = new Client(endpoint);
     }
-    this.joinOrCreateRoom().catch((err) => console.log(err));
+    this.joinOrCreateRoom()
+      .then(() => console.log('done joining room'))
+      .catch((err) => console.log(err));
   }
 
   async joinOrCreateRoom() {
@@ -35,31 +38,74 @@ export default class Network {
   }
 
   initialize() {
-    if (this.room == null || this.lobby == null) return;
+    if (this.room == null) return;
 
     this.mySessionId = this.room.sessionId;
 
-    this.room.state.players.onAdd = (player: Player, sessionId: string) => {
+    this.room.state.players.onAdd = (player: ServerPlayer, sessionId: string) => {
       if (sessionId === this.mySessionId) {
         console.log('myPlayer joined');
-      } else {
-        console.log('otherPlayer joined');
+        return;
       }
-      phaserEvents.emit(Event.PLAYER_JOINED_ROOM, player, sessionId);
+      console.log('otherPlayer joined');
+      gameEvents.emit(Event.PLAYER_JOINED_ROOM, player, sessionId);
     };
 
-    this.room.state.players.onRemove = (player: Player, sessionId: string) => {
-      phaserEvents.emit(Event.PLAYER_LEFT_ROOM, player, sessionId);
+    this.room.state.players.onRemove = (player: ServerPlayer, sessionId: string) => {
+      gameEvents.emit(Event.PLAYER_LEFT_ROOM, player, sessionId);
+    };
+
+    this.room.state.bombs.onAdd = (bomb: ServerBomb) => {
+      gameEvents.emit(Event.BOMB_ADDED, bomb);
+    };
+
+    this.room.state.timer.onChange = (data: any) => {
+      gameEvents.emit(Event.TIMER_UPDATED, data);
+    };
+
+    this.room.state.gameState.onChange = (data: any) => {
+      gameEvents.emit(Event.GAME_STATE_UPDATED, data);
     };
   }
 
-  // プレイヤーがルームに参加した時の callback を定義する
-  onPlayerJoinedRoom(callback: (player: Player, sessionId: string) => void, context?: any) {
-    phaserEvents.on(Event.PLAYER_JOINED_ROOM, callback, context);
+  // 他のプレイヤーがルームに参加した時
+  onPlayerJoinedRoom(callback: (player: ServerPlayer, sessionId: string) => void, context?: any) {
+    gameEvents.on(Event.PLAYER_JOINED_ROOM, callback, context);
   }
 
-  // プレイヤーがルームを退出した時の callback を定義する
-  onPlayerLeftRoom(callback: (player: Player, sessionId: string) => void, context?: any) {
-    phaserEvents.on(Event.PLAYER_LEFT_ROOM, callback, context);
+  // プレイヤーがルームを退出した時
+  onPlayerLeftRoom(callback: (player: ServerPlayer, sessionId: string) => void, context?: any) {
+    gameEvents.on(Event.PLAYER_LEFT_ROOM, callback, context);
+  }
+
+  // 他のプレイヤーがボムを追加した時
+  onBombAdded(callback: (bomb: ServerBomb) => void, context?: any) {
+    gameEvents.on(Event.BOMB_ADDED, callback, context);
+  }
+
+  // タイマーが更新された時
+  onTimerUpdated(context: Phaser.Scene) {
+    const callback = (data: any) => {
+      const sc = context.scene.get(Config.SCENE_NAME_GAME_HEADER) as GameHeader;
+      data.forEach((v: any) => {
+        if (v.field === 'remainTime') sc.updateTimerText(v.value);
+      });
+    };
+    gameEvents.on(Event.TIMER_UPDATED, callback, context);
+  }
+
+  // gameState が更新された時
+  onGameStateUpdated(context: Phaser.Scene) {
+    const callback = async (data: any) => {
+      const state = data[0].value as Constants.GAME_STATE_TYPE;
+
+      if (state === Constants.GAME_STATE.FINISHED && this.room !== undefined) {
+        await this.room.leave();
+        context.scene.stop(Config.SCENE_NAME_GAME_HEADER);
+        context.scene.stop(Config.SCENE_NAME_GAME);
+        context.scene.start(Config.SCENE_NAME_GAME_RESULT);
+      }
+    };
+    gameEvents.on(Event.GAME_STATE_UPDATED, callback, context);
   }
 }
