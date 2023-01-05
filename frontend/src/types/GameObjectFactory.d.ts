@@ -1,4 +1,5 @@
 import MyPlayer from '../characters/MyPlayer';
+import { Block } from '../items/Block';
 import Bomb, { Blast, PlayerInterface } from '../items/Bomb';
 import Item from '../items/Item';
 import { InnerWall, OuterWall } from '../items/Wall';
@@ -35,6 +36,7 @@ declare global {
       item: (x: number, y: number, itemType: Constants.ITEM_TYPES) => Item;
       innerWall: (x: number, y: number, frame: number) => InnerWall;
       outerWall: (x: number, y: number, frame: number) => OuterWall;
+      block: (x: number, y: number, frame: number) => Block;
     }
   }
 }
