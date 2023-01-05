@@ -41,8 +41,9 @@ export default class PlayerService {
   }
 
   updatePlayer(player: Player, deltaTime?: number) {
+    const playerState = this.gameEngine.state.getPlayer(player.sessionId);
     const playerBody = this.gameEngine.playerBodies.get(player.sessionId);
-    if (playerBody === undefined) return;
+    if (playerBody === undefined || playerState === undefined) return;
 
     let data: any;
     const velocity = player.speed;
@@ -55,7 +56,12 @@ export default class PlayerService {
       if (Math.abs(newVx) > velocity) newVx = velocity * Math.sign(newVx);
       if (Math.abs(newVy) > velocity) newVy = velocity * Math.sign(newVy);
 
+      newVx = Math.floor(newVx);
+      newVy = Math.floor(newVy);
+
       Matter.Body.setVelocity(playerBody, { x: newVx, y: newVy });
+
+      playerState.frameKey = data.frameKey;
     }
   }
 
