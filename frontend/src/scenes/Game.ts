@@ -23,6 +23,7 @@ import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
 import initializeKeys from '../utils/key';
 import Network from '../services/Network';
+import GameHeader from './GameHeader';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
@@ -59,20 +60,10 @@ export default class Game extends Phaser.Scene {
     this.room = this.network.room;
 
     // プレイヤーをゲームに追加
-    this.room.state.players.forEach((player, sessionId) => {
-      if (sessionId === this.network.mySessionId) {
-        this.addMyPlayer(); // 自分を追加
-      } else {
-        this.handlePlayerJoinedRoom(player, sessionId); // 既に参加しているプレイヤーを追加
-      }
-    });
+    this.addPlayers();
 
-    this.network.onPlayerJoinedRoom(this.handlePlayerJoinedRoom, this); // 他のプレイヤーの参加イベント
-    this.network.onTimerUpdated(this); // タイマーの変更イベント
-    this.network.onGameStateUpdated(this); // gameStateの変更イベント
-    // TODO: アイテムをとって火力が上がった場合の処理を追加する
-    this.network.onBombAdded(this.handleBombAdded, this); // 他のプレイヤーのボム追加イベント
-    this.network.onPlayerLeftRoom(this.handlePlayerLeftRoom, this); // プレイヤーの切断イベント
+    // Colyseus のイベントを追加
+    this.initNetworkEvents();
 
     // add player animations
     createPlayerAnims(this.anims);
@@ -113,6 +104,25 @@ export default class Game extends Phaser.Scene {
     this.moveOtherPlayer();
   }
 
+  private initNetworkEvents() {
+    this.network.onPlayerJoinedRoom(this.handlePlayerJoinedRoom, this); // 他のプレイヤーの参加イベント
+    this.network.onTimerUpdated(this.handleTimerUpdated, this); // タイマーの変更イベント
+    this.network.onGameStateUpdated(this.handleGameStateChanged, this); // gameStateの変更イベント
+    // TODO: アイテムをとって火力が上がった場合の処理を追加する
+    this.network.onBombAdded(this.handleBombAdded, this); // 他のプレイヤーのボム追加イベント
+    this.network.onPlayerLeftRoom(this.handlePlayerLeftRoom, this); // プレイヤーの切断イベント
+  }
+
+  private addPlayers() {
+    this.room.state.players.forEach((player, sessionId) => {
+      if (sessionId === this.network.mySessionId) {
+        this.addMyPlayer(); // 自分を追加
+      } else {
+        this.handlePlayerJoinedRoom(player, sessionId); // 既に参加しているプレイヤーを追加
+      }
+    });
+  }
+
   private addMyPlayer() {
     const player = this.room.state.players.get(this.network.mySessionId);
     if (player === undefined) return;
@@ -133,7 +143,6 @@ export default class Game extends Phaser.Scene {
 
     player.onChange = () => {
       this.remoteRef.setPosition(player.x, player.y);
-
       // ずれが一定以上の場合は強制移動
       this.forceMovePlayerPosition(player);
     };
@@ -163,6 +172,24 @@ export default class Game extends Phaser.Scene {
 
     this.playerEntities.delete(sessionId);
     console.log('remove' + sessionId);
+  }
+
+  private handleTimerUpdated(data: any) {
+    const sc = this.scene.get(Config.SCENE_NAME_GAME_HEADER) as GameHeader;
+    data.forEach((v: any) => {
+      if (v.field === 'remainTime') sc.updateTimerText(v.value);
+    });
+  }
+
+  private async handleGameStateChanged(data: any) {
+    const state = data[0].value as Constants.GAME_STATE_TYPE;
+
+    if (state === Constants.GAME_STATE.FINISHED && this.room !== undefined) {
+      await this.room.leave();
+      this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
+      this.scene.stop(Config.SCENE_NAME_GAME);
+      this.scene.start(Config.SCENE_NAME_GAME_RESULT);
+    }
   }
 
   // ボム追加イベント時に、マップにボムを追加
@@ -229,6 +256,7 @@ export default class Game extends Phaser.Scene {
   }
 
   // 自分が操作するキャラの移動処理
+  // TODO: 出来ればプレイヤー動作は MyPlayer クラスで管理したい
   private moveOwnPlayer() {
     const p = this.myPlayer;
 

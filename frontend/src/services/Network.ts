@@ -5,7 +5,6 @@ import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import { gameEvents, Event } from '../events/GameEvents';
-import GameHeader from '../scenes/GameHeader';
 
 export default class Network {
   private readonly client: Client;
@@ -84,28 +83,12 @@ export default class Network {
   }
 
   // タイマーが更新された時
-  onTimerUpdated(context: Phaser.Scene) {
-    const callback = (data: any) => {
-      const sc = context.scene.get(Config.SCENE_NAME_GAME_HEADER) as GameHeader;
-      data.forEach((v: any) => {
-        if (v.field === 'remainTime') sc.updateTimerText(v.value);
-      });
-    };
+  onTimerUpdated(callback: (data: any) => void, context?: any) {
     gameEvents.on(Event.TIMER_UPDATED, callback, context);
   }
 
   // gameState が更新された時
-  onGameStateUpdated(context: Phaser.Scene) {
-    const callback = async (data: any) => {
-      const state = data[0].value as Constants.GAME_STATE_TYPE;
-
-      if (state === Constants.GAME_STATE.FINISHED && this.room !== undefined) {
-        await this.room.leave();
-        context.scene.stop(Config.SCENE_NAME_GAME_HEADER);
-        context.scene.stop(Config.SCENE_NAME_GAME);
-        context.scene.start(Config.SCENE_NAME_GAME_RESULT);
-      }
-    };
+  onGameStateUpdated(callback: (data: any) => Promise<void>, context?: any) {
     gameEvents.on(Event.GAME_STATE_UPDATED, callback, context);
   }
 }
