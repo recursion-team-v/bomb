@@ -157,6 +157,7 @@ export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
 
 export const OBJECT_LABEL = {
   BOMB: 'BOMB',
+  BLAST: 'BLAST',
   BLOCK: 'BLOCK',
   EXPLOSION: 'EXPLOSION',
   ITEM: 'ITEM',

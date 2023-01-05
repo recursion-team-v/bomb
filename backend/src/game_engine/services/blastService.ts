@@ -1,7 +1,8 @@
 import Matter from 'matter-js';
 
+import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
-import { Bomb } from '../../rooms/schema/Bomb';
+import { Bomb, getSettablePosition } from '../../rooms/schema/Bomb';
 
 export default class BlastService {
   private readonly gameEngine: GameEngine;
@@ -15,7 +16,78 @@ export default class BlastService {
   }
 
   // 爆風を matter に追加する
-  add() {}
+  add() {
+    const power = this.getPlayerBombStrength();
+
+    // TODO: calcBlastRange で爆風の範囲を計算する
+
+    const bodies = [
+      this.centerBlast(),
+      ...this.upperBlast(power),
+      ...this.lowerBlast(power),
+      ...this.leftBlast(power),
+      ...this.rightBlast(power),
+    ];
+
+    Matter.Composite.add(this.gameEngine.world, bodies);
+  }
+
+  // 現在位置の爆風を matter に追加する
+  private centerBlast(): Matter.Body {
+    return this.genBodies(this.bomb.x, this.bomb.y);
+  }
+
+  // 上方向の爆風を count 数分 matter に追加する
+  private upperBlast(count: number): Matter.Body[] {
+    const bodies: Matter.Body[] = [];
+    for (let i = 1; i <= count; i++) {
+      bodies.push(this.genBodies(this.bomb.x, this.bomb.y - i * Constants.DEFAULT_TIP_SIZE));
+    }
+    return bodies;
+  }
+
+  // 下方向の爆風を count 数分 matter に追加する
+  private lowerBlast(count: number): Matter.Body[] {
+    const bodies: Matter.Body[] = [];
+    for (let i = 1; i <= count; i++) {
+      bodies.push(this.genBodies(this.bomb.x, this.bomb.y + i * Constants.DEFAULT_TIP_SIZE));
+    }
+    return bodies;
+  }
+
+  // 左方向の爆風を count 数分 matter に追加する
+  private leftBlast(count: number): Matter.Body[] {
+    const bodies: Matter.Body[] = [];
+    for (let i = 1; i <= count; i++) {
+      bodies.push(this.genBodies(this.bomb.x - i * Constants.DEFAULT_TIP_SIZE, this.bomb.y));
+    }
+    return bodies;
+  }
+
+  // 右方向の爆風を count 数分 matter に追加する
+  private rightBlast(count: number): Matter.Body[] {
+    const bodies: Matter.Body[] = [];
+    for (let i = 1; i <= count; i++) {
+      bodies.push(this.genBodies(this.bomb.x + i * Constants.DEFAULT_TIP_SIZE, this.bomb.y));
+    }
+    return bodies;
+  }
+
+  // 爆風の matter body を作成する
+  private genBodies(x: number, y: number): Matter.Body {
+    const { bx, by } = getSettablePosition(x, y);
+    return Matter.Bodies.rectangle(
+      bx,
+      by,
+      Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO,
+      Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO,
+      {
+        label: Constants.OBJECT_LABEL.BLAST,
+        isSensor: true,
+        isStatic: true,
+      }
+    );
+  }
 
   // 爆風を matter から削除する
   private delete() {
