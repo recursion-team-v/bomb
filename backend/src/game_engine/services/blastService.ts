@@ -82,17 +82,23 @@ export default class BlastService {
   // 爆風の matter body を作成する
   private genBodies(x: number, y: number): Matter.Body {
     const { bx, by } = getSettablePosition(x, y);
-    return Matter.Bodies.rectangle(
-      bx,
-      by,
-      Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO,
-      Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO,
-      {
-        label: Constants.OBJECT_LABEL.BLAST,
-        isSensor: true,
-        isStatic: true,
-      }
-    );
+
+    // 爆弾の位置から上下左右の差分から、縦横のどちらの爆風かチェックして、有効な当たり範囲の比率をかける
+    const rx =
+      x === this.bomb.x
+        ? Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO
+        : Constants.DEFAULT_TIP_SIZE;
+    const ry =
+      y === this.bomb.y
+        ? Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO
+        : Constants.DEFAULT_TIP_SIZE;
+
+    console.log(`x: ${x}, y: ${y}, bx: ${bx}, by: ${by}, rx: ${rx}, ry: ${ry}`);
+    return Matter.Bodies.rectangle(bx, by, rx, ry, {
+      label: Constants.OBJECT_LABEL.BLAST,
+      isSensor: true,
+      isStatic: true,
+    });
   }
 
   // 爆風を matter から削除する
