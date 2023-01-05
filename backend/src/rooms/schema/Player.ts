@@ -25,6 +25,9 @@ export default class Player extends Schema {
   vy: number = 0;
 
   @type('number')
+  frameKey = 0;
+
+  @type('number')
   speed: number = Constants.INITIAL_PLAYER_SPEED;
 
   // ボムの破壊力

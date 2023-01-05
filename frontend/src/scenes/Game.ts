@@ -153,6 +153,7 @@ export default class Game extends Phaser.Scene {
       if (otherPlayer === undefined) return;
       otherPlayer.setData('serverX', player.x);
       otherPlayer.setData('serverY', player.y);
+      otherPlayer.setData('frameKey', player.frameKey);
     };
   }
 
@@ -216,26 +217,14 @@ export default class Game extends Phaser.Scene {
       if (sessionId === this.network.mySessionId) return;
 
       // interpolate all player entities
-      const { serverX, serverY } = otherPlayer.data.values;
-
-      const oldX = otherPlayer.x;
-      const oldY = otherPlayer.y;
-
-      // 壁にちょっと触れるだけで移動扱いでアニメーションが発生するので
-      // ほぼ同じ位置なら移動しないようにする(*10は少数第一位までを比較するため)
-      if (
-        Math.floor(serverX * 10) === Math.floor(oldX * 10) &&
-        Math.floor(serverY * 10) === Math.floor(oldY * 10)
-      ) {
-        otherPlayer.stop();
-        return;
-      }
+      const { serverX, serverY, frameKey } = otherPlayer.data.values;
 
       // 線形補完(TODO: 調整)
-      otherPlayer.x = Phaser.Math.Linear(otherPlayer.x, serverX, 0.35); // 動きがちょっと滑らか過ぎるから 0.2 -> 0.35
-      otherPlayer.y = Phaser.Math.Linear(otherPlayer.y, serverY, 0.35);
+      otherPlayer.x = Math.ceil(Phaser.Math.Linear(otherPlayer.x, serverX, 0.35)); // 動きがちょっと滑らか過ぎるから 0.2 -> 0.35
+      otherPlayer.y = Math.ceil(Phaser.Math.Linear(otherPlayer.y, serverY, 0.35));
 
-      this.playerAnims(otherPlayer, oldX, oldY);
+      // playerState の frameKey を使ってアニメーションを描画
+      otherPlayer.setFrame(frameKey);
     });
   }
 
@@ -281,31 +270,6 @@ export default class Game extends Phaser.Scene {
       this.room.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, p);
       p.placeBomb(this.matter);
     }
-  }
-
-  // 移動アニメーション
-  private playerAnims(localPlayer: MyPlayer, oldX: number, oldY: number) {
-    const xDiff = localPlayer.x - oldX;
-    const yDiff = localPlayer.y - oldY;
-
-    // 変化量の大きい方を向きとする
-    const direction = () => {
-      if (Math.abs(xDiff) > Math.abs(yDiff)) return 'horizontal';
-      if (Math.abs(xDiff) < Math.abs(yDiff)) return 'vertical';
-      return 'none';
-    };
-
-    let playKey = '';
-    if (direction() === 'horizontal') {
-      playKey = xDiff > 0 ? 'player_right' : 'player_left';
-    } else if (direction() === 'vertical') {
-      playKey = yDiff > 0 ? 'player_down' : 'player_up';
-    } else {
-      localPlayer.stop();
-      return;
-    }
-
-    localPlayer.play(playKey, true);
   }
 
   private addItems() {
