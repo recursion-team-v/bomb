@@ -38,12 +38,12 @@ export default class BlastService {
     }, Constants.BLAST_AVAILABLE_TIME);
   }
 
-  // 現在位置の爆風を matter に追加する
+  // 現在位置の爆風を生成する
   private centerBlast(): Matter.Body {
     return this.genBodies(this.bomb.x, this.bomb.y);
   }
 
-  // 上方向の爆風を count 数分 matter に追加する
+  // 上方向の爆風を count の数だけ生成する
   private upperBlast(count: number): Matter.Body[] {
     const bodies: Matter.Body[] = [];
     for (let i = 1; i <= count; i++) {
@@ -52,7 +52,7 @@ export default class BlastService {
     return bodies;
   }
 
-  // 下方向の爆風を count 数分 matter に追加する
+  // 下方向の爆風を count の数だけ生成する
   private lowerBlast(count: number): Matter.Body[] {
     const bodies: Matter.Body[] = [];
     for (let i = 1; i <= count; i++) {
@@ -61,7 +61,7 @@ export default class BlastService {
     return bodies;
   }
 
-  // 左方向の爆風を count 数分 matter に追加する
+  // 左方向の爆風を count の数だけ生成する
   private leftBlast(count: number): Matter.Body[] {
     const bodies: Matter.Body[] = [];
     for (let i = 1; i <= count; i++) {
@@ -70,7 +70,7 @@ export default class BlastService {
     return bodies;
   }
 
-  // 右方向の爆風を count 数分 matter に追加する
+  // 右方向の爆風を count の数だけ生成する
   private rightBlast(count: number): Matter.Body[] {
     const bodies: Matter.Body[] = [];
     for (let i = 1; i <= count; i++) {
