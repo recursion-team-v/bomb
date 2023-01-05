@@ -146,8 +146,8 @@ export default class Game extends Phaser.Scene {
       // draw walls
       drawWalls(this, mapTiles);
       // draw blocks
-
       this.blockMap = drawBlocks(this, state.gameMap.blockArr);
+      // draw item
       state.items.forEach((item) => {
         this.add.item(
           Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * item.x,
@@ -273,39 +273,6 @@ export default class Game extends Phaser.Scene {
   private fixedTick() {
     this.moveOwnPlayer();
     this.moveOtherPlayer();
-  }
-
-  private addItems() {
-    this.add.item(
-      64 * Phaser.Math.Between(1, 13) + 32,
-      64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
-      Constants.ITEM_TYPE.BOMB_STRENGTH
-    );
-    this.add.item(
-      64 * Phaser.Math.Between(1, 13) + 32,
-      64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
-      Constants.ITEM_TYPE.BOMB_STRENGTH
-    );
-    this.add.item(
-      64 * Phaser.Math.Between(1, 13) + 32,
-      64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
-      Constants.ITEM_TYPE.BOMB_STRENGTH
-    );
-
-    const bombPossessionUpCount = 10;
-    for (let i = 0; i < bombPossessionUpCount; i++) {
-      this.add.item(
-        64 * Phaser.Math.Between(1, 13) + 32,
-        64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
-        Constants.ITEM_TYPE.BOMB_POSSESSION_UP
-      );
-    }
-
-    // this.add.item(
-    //   64 * Phaser.Math.Between(1, 13) + 32,
-    //   64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
-    //   ItemTypes.PLAYER_SPEED
-    // );
   }
 
   // タイマーが更新されたイベント
