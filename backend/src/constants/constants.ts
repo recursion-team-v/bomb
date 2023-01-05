@@ -74,7 +74,7 @@ export const INITIAL_PLAYER_POSITION = [
 export const BOMB_EXPLOSION_TIME = 2330;
 
 // 爆弾の衝突判定の割合
-export const BOMB_COLLISION_RATIO = 0.6;
+export const BOMB_COLLISION_RATIO = 0.4;
 
 // 爆弾が誘爆する時の遅延時間(ms)
 export const BOMB_DETONATION_DELAY = 50;
