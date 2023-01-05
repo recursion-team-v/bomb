@@ -93,7 +93,6 @@ export default class BlastService {
         ? Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO
         : Constants.DEFAULT_TIP_SIZE;
 
-    console.log(`x: ${x}, y: ${y}, bx: ${bx}, by: ${by}, rx: ${rx}, ry: ${ry}`);
     return Matter.Bodies.rectangle(bx, by, rx, ry, {
       label: Constants.OBJECT_LABEL.BLAST,
       isSensor: true,
