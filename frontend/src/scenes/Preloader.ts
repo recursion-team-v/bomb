@@ -3,8 +3,12 @@ import Phaser from 'phaser';
 import * as Constants from '../../../backend/src/constants/constants';
 import * as Config from '../config/config';
 import isMobile from '../utils/mobile';
+import Network from '../services/Network';
 
 export default class Preloader extends Phaser.Scene {
+  private preloadComplete = false;
+  network?: Network;
+
   constructor() {
     super(Config.SCENE_NAME_PRELOADER);
   }
@@ -67,10 +71,22 @@ export default class Preloader extends Phaser.Scene {
       this.load.image(Constants.JOYSTICK_BASE_KEY, 'assets/joystick-base.png');
       this.load.image(Constants.JOYSTICK_STICK_KEY, 'assets/joystick-red.png');
     }
+
+    this.load.on('complete', () => {
+      this.preloadComplete = true;
+    });
   }
 
-  create() {
-    this.scene.start(Config.SCENE_NAME_GAME);
+  init() {
+    this.network = new Network();
+  }
+
+  update() {
+    if (!this.preloadComplete || this.network == null || this.network.room == null) return;
+
+    this.scene.start(Config.SCENE_NAME_GAME, {
+      network: this.network,
+    });
     this.scene.start(Config.SCENE_NAME_GAME_HEADER);
   }
 }
