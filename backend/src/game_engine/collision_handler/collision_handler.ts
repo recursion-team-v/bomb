@@ -2,7 +2,7 @@ import Matter from 'matter-js';
 
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
-import explosionToBomb from './explosion';
+import blastToBomb from './blast';
 
 export default function collisionHandler(
   engine: GameEngine,
@@ -21,7 +21,7 @@ export default function collisionHandler(
   };
 
   const isBomb = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.BOMB);
-  const isExplosion = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.EXPLOSION);
+  const isBlast = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.BLAST);
   const isItem = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.ITEM);
   const isPlayer = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.PLAYER);
 
@@ -39,13 +39,14 @@ export default function collisionHandler(
     // playerToItem(player, item);
   }
 
-  // PLAYER & EXPLOSION
-  else if (isPlayer && isExplosion) {
-    console.log('player hit explosion');
+  // PLAYER & BLAST
+  else if (isPlayer && isBlast) {
+    // TODO: 爆風に当たると30hitぐらいしちゃうので、回復アイテムを入れるならヒット後は数秒無敵にした方がいい
+    console.log('player hit blast');
   }
 
-  // EXPLOSION & BOMB
-  else if (isExplosion && isBomb) {
+  // BLAST & BOMB
+  else if (isBlast && isBomb) {
     const bombBody = labelA === Constants.OBJECT_LABEL.BOMB ? bodyA : bodyB;
     const bombId = engine.sessionIdByBodyId.get(bombBody.id);
     if (bombId === undefined) return;
@@ -53,6 +54,6 @@ export default function collisionHandler(
     const bomb = engine.state.bombs.get(bombId);
     if (bomb === undefined) return;
 
-    explosionToBomb(bomb);
+    blastToBomb(bomb);
   }
 }

@@ -1,5 +1,5 @@
 import BombInterface from '../../interfaces/bomb';
 
-export default function explosionToBomb(bomb: BombInterface) {
+export default function blastToBomb(bomb: BombInterface) {
   bomb.detonated(bomb);
 }

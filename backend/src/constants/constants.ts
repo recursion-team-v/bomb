@@ -74,7 +74,7 @@ export const INITIAL_PLAYER_POSITION = [
 export const BOMB_EXPLOSION_TIME = 2330;
 
 // 爆弾の衝突判定の割合
-export const BOMB_COLLISION_RATIO = 0.6;
+export const BOMB_COLLISION_RATIO = 0.4;
 
 // 爆弾が誘爆する時の遅延時間(ms)
 export const BOMB_DETONATION_DELAY = 50;
@@ -130,8 +130,7 @@ export const TILE_ROWS = 13; // タイルの行数
 export const TILE_COLS = 15; // タイルの列数
 export const TILE_WIDTH = DEFAULT_TIP_SIZE; // タイルの横幅
 export const TILE_HEIGHT = DEFAULT_TIP_SIZE; // タイルの縦幅
-export const MAX_BLOCKS = 50;
-export const MIN_BLOCKS = 40;
+export const MAX_BLOCKS = 100;
 
 // マップのタイルシートの idx
 export const TILE_GROUND = {
@@ -167,8 +166,8 @@ export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
 
 export const OBJECT_LABEL = {
   BOMB: 'BOMB',
+  BLAST: 'BLAST',
   BLOCK: 'BLOCK',
-  EXPLOSION: 'EXPLOSION',
   ITEM: 'ITEM',
   PLAYER: 'PLAYER',
   WALL: 'WALL',

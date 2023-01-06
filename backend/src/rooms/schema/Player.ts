@@ -60,6 +60,12 @@ export default class Player extends Schema {
     return this.bombStrength;
   }
 
+  // ボムの火力を変更する
+  setBombStrength(bombStrength: number) {
+    // TODO: 上限を設ける
+    this.bombStrength = bombStrength;
+  }
+
   // 速さを取得する
   getSpeed(): number {
     return this.speed;
@@ -74,12 +80,6 @@ export default class Player extends Schema {
   // ボムを設置できるかをチェックする
   canSetBomb(): boolean {
     return this.settableBombCount > 0;
-  }
-
-  // ボムの火力を変更する
-  setBombStrength(bombStrength: number) {
-    // TODO: 上限を設ける
-    this.bombStrength = bombStrength;
   }
 
   // ボムを置ける最大数を増やす
