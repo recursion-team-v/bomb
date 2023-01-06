@@ -5,31 +5,32 @@ import Phaser from 'phaser';
 import '../characters/MyPlayer';
 import '../items/Bomb';
 import '../items/Wall';
-import '../items/Block';
 import '../items/Item';
 
+import { createPlayerAnims } from '../anims/PlayerAnims';
 import { drawGround, drawWalls, drawBlocks } from '../utils/drawMap';
 import { NavKeys } from '../types/keyboard';
 import MyPlayer from '../characters/MyPlayer';
+import { createBombAnims } from '../anims/BombAnims';
+import { createExplodeAnims } from '../anims/explodeAnims';
 import * as Config from '../config/config';
-import { Room } from 'colyseus.js';
+import { Client, Room } from 'colyseus.js';
 import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
-import initializeKeys from '../utils/key';
-import Network from '../services/Network';
 import GameHeader from './GameHeader';
+import initializeKeys from '../utils/key';
 
 export default class Game extends Phaser.Scene {
-  private network!: Network;
+  private readonly client: Client;
   private room!: Room<GameRoomState>;
-  private readonly playerEntities: Map<string, MyPlayer> = new Map();
-  private myPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
+  // eslint-disable-next-line @typescript-eslint/prefer-readonly, @typescript-eslint/consistent-indexed-object-style
+  private playerEntities: Map<string, MyPlayer> = new Map();
+  private currentPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
+  public blockMap?: number[][];
 
-  private elapsedTime: number = 0; // 経過時間
-  private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
   private remoteRef!: Phaser.GameObjects.Rectangle; // サーバ側が認識するプレイヤーの位置を示す四角形
 
   inputPayload = {
@@ -43,6 +44,15 @@ export default class Game extends Phaser.Scene {
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
+    const protocol = window.location.protocol.replace('http', 'ws');
+
+    if (import.meta.env.PROD) {
+      const endpoint = Config.serverUrl;
+      this.client = new Client(endpoint);
+    } else {
+      const endpoint = `${protocol}//${window.location.hostname}:${Constants.SERVER_LISTEN_PORT}`;
+      this.client = new Client(endpoint);
+    }
   }
 
   init() {
@@ -50,19 +60,82 @@ export default class Game extends Phaser.Scene {
     this.cursorKeys = initializeKeys(this);
   }
 
-  create(data: { network: Network }) {
-    if (data.network == null) return;
-    this.network = data.network;
-    if (this.network.room == null) return;
-    this.room = this.network.room;
+  async create() {
+    console.log('game: create game');
+    // connect with the room
+    await this.connect().then(() => {
+      // ゲーム開始の通知
+      // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
+      this.room.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS);
+    });
 
-    console.log(this.network);
+    // タイマーの変更イベント
+    this.room.state.timer.onChange = (data) => this.timerChangeEvent(data);
 
-    // プレイヤーをゲームに追加
-    this.addPlayers();
+    // ゲームの状態の変更イベント
+    this.room.state.gameState.onChange = async (data) => await this.gameStateChangeEvent(data);
+    // 爆弾が追加された時の処理
+    // TODO: アイテムをとって火力が上がった場合の処理を追加する
+    this.room.state.bombs.onAdd = (serverBomb: ServerBomb) => this.addBombEvent(serverBomb);
 
-    // Colyseus のイベントを追加
-    this.initNetworkEvents();
+    // プレイヤーが追加された時の処理
+    this.room.state.players.onAdd = (player: ServerPlayer, sessionId: string) => {
+      console.log('player add');
+      if (player === undefined) return;
+
+      const entity = this.add.myPlayer(sessionId, player.x, player.y, 'player');
+      this.playerEntities.set(sessionId, entity);
+
+      // 変更されたのが自分の場合
+      if (sessionId === this.room.sessionId) {
+        this.currentPlayer = entity;
+
+        // サーバ側が認識するプレイヤーの位置を示す四角形
+        this.remoteRef = this.add.rectangle(
+          player.x,
+          player.y,
+          entity.width,
+          entity.height,
+          0xfff,
+          0.3
+        );
+
+        player.onChange = () => {
+          this.remoteRef.setPosition(player.x, player.y);
+
+          // ずれが一定以上の場合は強制移動
+          this.forceMovePlayerPosition(player);
+        };
+      } else {
+        // プレイヤー同士はぶつからないようにする
+        entity.setSensor(true);
+
+        const randomColor = Math.floor(Math.random() * 16777215);
+        entity.setPlayerColor(randomColor);
+        player.onChange = () => {
+          // console.log('change');
+          const localPlayer = this.playerEntities.get(sessionId);
+          if (localPlayer === undefined) return;
+          localPlayer.setData('serverX', player.x);
+          localPlayer.setData('serverY', player.y);
+          localPlayer.setData('frameKey', player.frameKey);
+        };
+      }
+    };
+
+    // プレイヤーが切断した時
+    this.room.state.players.onRemove = (player: ServerPlayer, sessionId: string) => {
+      const entity = this.playerEntities.get(sessionId);
+      entity?.destroy();
+
+      this.playerEntities.delete(sessionId);
+      console.log('remove' + sessionId);
+    };
+
+    // add player animations
+    createPlayerAnims(this.anims);
+    createBombAnims(this.anims);
+    createExplodeAnims(this.anims);
 
     this.room.onStateChange.once((state) => {
       // GameRoomState の blockArr が初期化されたら block（破壊）を描画
@@ -73,8 +146,9 @@ export default class Game extends Phaser.Scene {
       // draw walls
       drawWalls(this, mapTiles);
       // draw blocks
-      drawBlocks(this, state.gameMap.blockArr);
+      this.blockMap = drawBlocks(this, state.gameMap.blockArr);
       // draw item
+      console.log(typeof state.items)
       state.items.forEach((item) => {
         this.add.item(
           Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * item.x,
@@ -82,14 +156,37 @@ export default class Game extends Phaser.Scene {
           item.itemType
         );
       });
-      drawBlocks(this, state.gameMap.blockArr);
     });
+  }
+
+  // 経過時間
+  private elapsedTime: number = 0;
+
+  // 1フレームの経過時間
+  private readonly fixedTimeStep: number = Constants.FRAME_RATE;
+
+  // 一定以上のズレなら強制同期
+  private forceMovePlayerPosition(player: ServerPlayer) {
+    let forceX = 0;
+    let forceY = 0;
+
+    if (Math.abs(this.currentPlayer.x - player.x) > Constants.PLAYER_TOLERANCE_DISTANCE) {
+      forceX = (this.currentPlayer.x - player.x) * -1;
+    }
+
+    if (Math.abs(this.currentPlayer.y - player.y) > Constants.PLAYER_TOLERANCE_DISTANCE) {
+      forceY = (this.currentPlayer.y - player.y) * -1;
+    }
+
+    if (forceX === 0 && forceY === 0) return;
+    console.log('force move');
+    this.currentPlayer.setVelocity(forceX, forceY);
   }
 
   update(time: number, delta: number) {
     this.updateBombCollision();
 
-    if (this.myPlayer === undefined) return;
+    if (this.currentPlayer === undefined) return;
 
     // 前回の処理からの経過時間を算出し、1フレームの経過時間を超えていたら処理を実行する
     // https://learn.colyseus.io/phaser/4-fixed-tickrate.html
@@ -100,138 +197,12 @@ export default class Game extends Phaser.Scene {
     }
   }
 
-  private fixedTick() {
-    this.moveOwnPlayer();
-    this.moveOtherPlayer();
-  }
-
-  private initNetworkEvents() {
-    this.network.onPlayerJoinedRoom(this.handlePlayerJoinedRoom, this); // 他のプレイヤーの参加イベント
-    this.network.onTimerUpdated(this.handleTimerUpdated, this); // タイマーの変更イベント
-    this.network.onGameStateUpdated(this.handleGameStateChanged, this); // gameStateの変更イベント
-    // TODO: アイテムをとって火力が上がった場合の処理を追加する
-    this.network.onBombAdded(this.handleBombAdded, this); // 他のプレイヤーのボム追加イベント
-    this.network.onPlayerLeftRoom(this.handlePlayerLeftRoom, this); // プレイヤーの切断イベント
-  }
-
-  private addPlayers() {
-    this.room.state.players.forEach((player, sessionId) => {
-      if (sessionId === this.network.mySessionId) {
-        this.addMyPlayer(); // 自分を追加
-      } else {
-        this.handlePlayerJoinedRoom(player, sessionId); // 既に参加しているプレイヤーを追加
-      }
-    });
-  }
-
-  private addMyPlayer() {
-    const player = this.room.state.players.get(this.network.mySessionId);
-    if (player === undefined) return;
-
-    const myPlayer = this.add.myPlayer(this.network.mySessionId, player.x, player.y, 'player');
-    this.playerEntities.set(this.network.mySessionId, myPlayer);
-    this.myPlayer = myPlayer;
-
-    // サーバ側が認識するプレイヤーの位置を示す四角形
-    this.remoteRef = this.add.rectangle(
-      player.x,
-      player.y,
-      myPlayer.width,
-      myPlayer.height,
-      0xfff,
-      0.3
-    );
-
-    player.onChange = () => {
-      this.remoteRef.setPosition(player.x, player.y);
-      // ずれが一定以上の場合は強制移動
-      this.forceMovePlayerPosition(player);
-    };
-  }
-
-  private handlePlayerJoinedRoom(player: ServerPlayer, sessionId: string) {
-    const otherPlayer = this.add.myPlayer(sessionId, player.x, player.y, 'player');
-    this.playerEntities.set(sessionId, otherPlayer);
-
-    // プレイヤー同士はぶつからないようにする
-    otherPlayer.setSensor(true);
-
-    const randomColor = Math.floor(Math.random() * 16777215);
-    otherPlayer.setPlayerColor(randomColor);
-    player.onChange = () => {
-      const otherPlayer = this.playerEntities.get(sessionId);
-      if (otherPlayer === undefined) return;
-      otherPlayer.setData('serverX', player.x);
-      otherPlayer.setData('serverY', player.y);
-      otherPlayer.setData('frameKey', player.frameKey);
-    };
-  }
-
-  private handlePlayerLeftRoom(player: ServerPlayer, sessionId: string) {
-    const entity = this.playerEntities.get(sessionId);
-    entity?.destroy();
-
-    this.playerEntities.delete(sessionId);
-    console.log('remove' + sessionId);
-  }
-
-  private handleTimerUpdated(data: any) {
-    const sc = this.scene.get(Config.SCENE_NAME_GAME_HEADER) as GameHeader;
-    data.forEach((v: any) => {
-      if (v.field === 'remainTime') sc.updateTimerText(v.value);
-    });
-  }
-
-  private async handleGameStateChanged(data: any) {
-    const state = data[0].value as Constants.GAME_STATE_TYPE;
-
-    if (state === Constants.GAME_STATE.FINISHED && this.room !== undefined) {
-      await this.room.leave();
-      this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
-      this.scene.stop(Config.SCENE_NAME_GAME);
-      this.scene.start(Config.SCENE_NAME_GAME_RESULT);
-    }
-  }
-
-  // ボム追加イベント時に、マップにボムを追加
-  private handleBombAdded(serverBomb: ServerBomb) {
-    if (serverBomb === undefined) return;
-
-    const sessionId = serverBomb.owner.sessionId;
-
-    // 自分のボムは表示しない
-    if (this.myPlayer.isEqualSessionId(sessionId)) return;
-
-    const player = this.playerEntities.get(sessionId);
-    if (player === undefined) return;
-
-    this.add.bomb(sessionId, serverBomb.x, serverBomb.y, serverBomb.bombStrength, player);
-  }
-
-  // 一定以上のズレなら強制同期
-  private forceMovePlayerPosition(player: ServerPlayer) {
-    let forceX = 0;
-    let forceY = 0;
-
-    if (Math.abs(this.myPlayer.x - player.x) > Constants.PLAYER_TOLERANCE_DISTANCE) {
-      forceX = (this.myPlayer.x - player.x) * -1;
-    }
-
-    if (Math.abs(this.myPlayer.y - player.y) > Constants.PLAYER_TOLERANCE_DISTANCE) {
-      forceY = (this.myPlayer.y - player.y) * -1;
-    }
-
-    if (forceX === 0 && forceY === 0) return;
-    console.log('force move');
-    this.myPlayer.setVelocity(forceX, forceY);
-  }
-
   // ボム設置後、プレイヤーの挙動によってボムの衝突判定を更新する
   private updateBombCollision() {
     this.children.list.forEach((child: Phaser.GameObjects.GameObject) => {
       if (!(child instanceof Bomb)) return;
 
-      const playerBody = this.myPlayer.body as MatterJS.BodyType;
+      const playerBody = this.currentPlayer.body as MatterJS.BodyType;
       if (child.isSensor() && !child.isOverlapping(this.matter, playerBody)) {
         child.updateCollision();
       }
@@ -240,26 +211,25 @@ export default class Game extends Phaser.Scene {
 
   // 他のプレイヤーの移動処理
   private moveOtherPlayer() {
-    this.playerEntities.forEach((otherPlayer: MyPlayer, sessionId: string) => {
-      if (otherPlayer === undefined || otherPlayer.data == null) return;
-      if (sessionId === this.network.mySessionId) return;
+    this.playerEntities.forEach((localPlayer: MyPlayer, sessionId: string) => {
+      if (localPlayer === undefined) return;
+      if (sessionId === this.room.sessionId) return;
 
       // interpolate all player entities
-      const { serverX, serverY, frameKey } = otherPlayer.data.values;
+      const { serverX, serverY, frameKey } = localPlayer.data.values;
 
       // 線形補完(TODO: 調整)
-      otherPlayer.x = Math.ceil(Phaser.Math.Linear(otherPlayer.x, serverX, 0.35)); // 動きがちょっと滑らか過ぎるから 0.2 -> 0.35
-      otherPlayer.y = Math.ceil(Phaser.Math.Linear(otherPlayer.y, serverY, 0.35));
+      localPlayer.x = Math.ceil(Phaser.Math.Linear(localPlayer.x, serverX, 0.35)); // 動きがちょっと滑らか過ぎるから 0.2 -> 0.35
+      localPlayer.y = Math.ceil(Phaser.Math.Linear(localPlayer.y, serverY, 0.35));
 
       // playerState の frameKey を使ってアニメーションを描画
-      otherPlayer.setFrame(frameKey);
+      localPlayer.setFrame(frameKey);
     });
   }
 
   // 自分が操作するキャラの移動処理
-  // TODO: 出来ればプレイヤー動作は MyPlayer クラスで管理したい
   private moveOwnPlayer() {
-    const p = this.myPlayer;
+    const p = this.currentPlayer;
 
     // send input to the server
     this.inputPayload.left = this.cursorKeys.left.isDown || this.cursorKeys.A.isDown;
@@ -301,6 +271,11 @@ export default class Game extends Phaser.Scene {
     }
   }
 
+  private fixedTick() {
+    this.moveOwnPlayer();
+    this.moveOtherPlayer();
+  }
+
   // タイマーが更新されたイベント
   private timerChangeEvent(data: any) {
     const sc = this.scene.get(Config.SCENE_NAME_GAME_HEADER) as GameHeader;
@@ -322,6 +297,33 @@ export default class Game extends Phaser.Scene {
   }
 
   public getCurrentPlayer(): MyPlayer {
-    return this.myPlayer;
+    return this.currentPlayer;
+  }
+
+  async connect() {
+    try {
+      this.room = await this.client.joinOrCreate(Constants.GAME_ROOM_KEY, {});
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  /*
+  event 系
+  */
+
+  // ボム追加イベント時に、マップにボムを追加
+  private addBombEvent(serverBomb: ServerBomb) {
+    if (serverBomb === undefined) return;
+
+    const sessionId = serverBomb.owner.sessionId;
+
+    // 自分のボムは表示しない
+    if (this.currentPlayer.isEqualSessionId(sessionId)) return;
+
+    const player = this.playerEntities.get(sessionId);
+    if (player === undefined) return;
+
+    this.add.bomb(sessionId, serverBomb.x, serverBomb.y, serverBomb.bombStrength, player);
   }
 }
