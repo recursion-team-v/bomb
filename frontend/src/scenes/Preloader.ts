@@ -4,6 +4,9 @@ import * as Constants from '../../../backend/src/constants/constants';
 import * as Config from '../config/config';
 import isMobile from '../utils/mobile';
 import Network from '../services/Network';
+import { createPlayerAnims } from '../anims/PlayerAnims';
+import { createBombAnims } from '../anims/BombAnims';
+import { createExplodeAnims } from '../anims/explodeAnims';
 
 export default class Preloader extends Phaser.Scene {
   private preloadComplete = false;
@@ -69,16 +72,21 @@ export default class Preloader extends Phaser.Scene {
     }
 
     this.load.on('complete', () => {
-      this.preloadComplete = true;
+      // add player animations
+      createPlayerAnims(this.anims);
+      createBombAnims(this.anims);
+      createExplodeAnims(this.anims);
     });
   }
 
   init() {
     this.network = new Network();
+    // 自分がルームに参加できたら prelaod 完了
+    this.network.onMyPlayerJoinedRoom(() => (this.preloadComplete = true));
   }
 
   update() {
-    if (!this.preloadComplete || this.network == null || this.network.room == null) return;
+    if (!this.preloadComplete) return;
 
     this.scene.start(Config.SCENE_NAME_GAME, {
       network: this.network,
