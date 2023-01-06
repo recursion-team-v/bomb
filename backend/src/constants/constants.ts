@@ -101,6 +101,16 @@ export const ITEM_TYPE = {
 export type ITEM_TYPES = typeof ITEM_TYPE[keyof typeof ITEM_TYPE];
 
 /*
+アイテムの初期配置数
+*/
+
+export const ITEM_PLACE_COUNT = {
+  [ITEM_TYPE.BOMB_POSSESSION_UP]: 8,
+  [ITEM_TYPE.BOMB_STRENGTH]: 10,
+  [ITEM_TYPE.PLAYER_SPEED]: 5,
+};
+
+/*
 衝突判定のカテゴリ
 */
 

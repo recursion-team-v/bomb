@@ -1,3 +1,4 @@
+import { ITEM_PLACE_COUNT } from './../../constants/constants';
 import Matter from 'matter-js';
 
 import * as Constants from '../../constants/constants';
@@ -14,23 +15,30 @@ export default class ItemService {
 
   createRandomItems(rows: number, cols: number) {
     const items = [];
+    let bombPossessionUpCnt = 0;
+    let bombStrengthCnt = 0;
+    let playerSpeedCnt = 0;
     for (let x = 2; x < cols - 1; x += 2) {
       for (let y = 2; y < rows; y += 2) {
-        const index = Math.floor(Math.random() * 6);
-        if (index === 1)
+        const index = Math.floor(Math.random() * 4);
+        if (index === 1 && Constants.ITEM_PLACE_COUNT.BOMB_POSSESSION_UP > bombPossessionUpCnt) {
           items.push(
             this.addItem(
               this.gameEngine.state.createItem(x, y, Constants.ITEM_TYPE.BOMB_POSSESSION_UP)
             )
           );
-        else if (index === 2)
+          bombPossessionUpCnt++;
+        } else if (index === 2 && Constants.ITEM_PLACE_COUNT.BOMB_STRENGTH > bombStrengthCnt) {
           items.push(
             this.addItem(this.gameEngine.state.createItem(x, y, Constants.ITEM_TYPE.BOMB_STRENGTH))
           );
-        else if (index === 3)
+          bombStrengthCnt++;
+        } else if (index === 3 && ITEM_PLACE_COUNT.PLAYER_SPEED > playerSpeedCnt) {
           items.push(
             this.addItem(this.gameEngine.state.createItem(x, y, Constants.ITEM_TYPE.PLAYER_SPEED))
           );
+          playerSpeedCnt++;
+        }
       }
     }
     Matter.Composite.add(this.gameEngine.world, items);
@@ -43,7 +51,9 @@ export default class ItemService {
       Constants.TILE_WIDTH,
       Constants.TILE_HEIGHT,
       {
-        label: item.itemType,
+        label: Constants.OBJECT_LABEL.ITEM,
+        isStatic: true,
+        isSensor: true,
       }
     );
     this.gameEngine.itemBodies.set(item.id, itemBody);

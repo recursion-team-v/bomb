@@ -6,7 +6,7 @@ export default class Item extends Schema {
   @type('string')
   id: string;
 
-  // プレイヤーの位置
+  // アイテムーの位置
   @type('number')
   x: number;
 
