@@ -27,19 +27,10 @@ export default class Game extends Phaser.Scene {
   private room!: Room<GameRoomState>;
   private readonly playerEntities: Map<string, MyPlayer> = new Map();
   private myPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
+  cursorKeys!: NavKeys;
 
   private elapsedTime: number = 0; // 経過時間
   private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
-  private remoteRef!: Phaser.GameObjects.Rectangle; // サーバ側が認識するプレイヤーの位置を示す四角形
-
-  inputPayload = {
-    left: false,
-    right: false,
-    up: false,
-    down: false,
-  };
-
-  cursorKeys!: NavKeys;
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
@@ -55,8 +46,6 @@ export default class Game extends Phaser.Scene {
     this.network = data.network;
     if (this.network.room == null) return;
     this.room = this.network.room;
-
-    console.log(this.network);
 
     // プレイヤーをゲームに追加
     this.addPlayers();
@@ -121,25 +110,11 @@ export default class Game extends Phaser.Scene {
   private addMyPlayer() {
     const player = this.room.state.players.get(this.network.mySessionId);
     if (player === undefined) return;
-
     const myPlayer = this.add.myPlayer(this.network.mySessionId, player.x, player.y, 'player');
-    this.playerEntities.set(this.network.mySessionId, myPlayer);
     this.myPlayer = myPlayer;
 
-    // サーバ側が認識するプレイヤーの位置を示す四角形
-    this.remoteRef = this.add.rectangle(
-      player.x,
-      player.y,
-      myPlayer.width,
-      myPlayer.height,
-      0xfff,
-      0.3
-    );
-
     player.onChange = () => {
-      this.remoteRef.setPosition(player.x, player.y);
-      // ずれが一定以上の場合は強制移動
-      this.forceMovePlayerPosition(player);
+      this.myPlayer.handleServerChange(player);
     };
   }
 
@@ -202,24 +177,6 @@ export default class Game extends Phaser.Scene {
     this.add.bomb(sessionId, serverBomb.x, serverBomb.y, serverBomb.bombStrength, player);
   }
 
-  // 一定以上のズレなら強制同期
-  private forceMovePlayerPosition(player: ServerPlayer) {
-    let forceX = 0;
-    let forceY = 0;
-
-    if (Math.abs(this.myPlayer.x - player.x) > Constants.PLAYER_TOLERANCE_DISTANCE) {
-      forceX = (this.myPlayer.x - player.x) * -1;
-    }
-
-    if (Math.abs(this.myPlayer.y - player.y) > Constants.PLAYER_TOLERANCE_DISTANCE) {
-      forceY = (this.myPlayer.y - player.y) * -1;
-    }
-
-    if (forceX === 0 && forceY === 0) return;
-    console.log('force move');
-    this.myPlayer.setVelocity(forceX, forceY);
-  }
-
   // ボム設置後、プレイヤーの挙動によってボムの衝突判定を更新する
   private updateBombCollision() {
     this.children.list.forEach((child: Phaser.GameObjects.GameObject) => {
@@ -253,46 +210,8 @@ export default class Game extends Phaser.Scene {
   // 自分が操作するキャラの移動処理
   // TODO: 出来ればプレイヤー動作は MyPlayer クラスで管理したい
   private moveOwnPlayer() {
-    const p = this.myPlayer;
-
-    // send input to the server
-    this.inputPayload.left = this.cursorKeys.left.isDown || this.cursorKeys.A.isDown;
-    this.inputPayload.right = this.cursorKeys.right.isDown || this.cursorKeys.D.isDown;
-    this.inputPayload.up = this.cursorKeys.up.isDown || this.cursorKeys.W.isDown;
-    this.inputPayload.down = this.cursorKeys.down.isDown || this.cursorKeys.S.isDown;
-
-    let vx = 0; // velocity x
-    let vy = 0; // velocity y
-
-    const velocity = p.speed;
-    if (this.inputPayload.left) {
-      vx -= velocity;
-    } else if (this.inputPayload.right) {
-      vx += velocity;
-    }
-
-    if (this.inputPayload.up) {
-      vy -= velocity;
-    } else if (this.inputPayload.down) {
-      vy += velocity;
-    }
-
-    p.setVelocity(vx, vy);
-
-    this.room.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, p);
-
-    if (vx > 0) p.play('player_right', true);
-    else if (vx < 0) p.play('player_left', true);
-    else if (vy > 0) p.play('player_down', true);
-    else if (vy < 0) p.play('player_up', true);
-    else p.stop();
-
-    // bomb 設置
-    const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(this.cursorKeys.space);
-    if (isSpaceJustDown) {
-      this.room.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, p);
-      p.placeBomb(this.matter);
-    }
+    if (this.myPlayer === undefined || this.network === undefined) return;
+    this.myPlayer.update(this.cursorKeys, this.network);
   }
 
   private addItems() {
