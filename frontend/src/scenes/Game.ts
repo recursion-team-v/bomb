@@ -148,7 +148,7 @@ export default class Game extends Phaser.Scene {
       // draw blocks
       this.blockMap = drawBlocks(this, state.gameMap.blockArr);
       // draw item
-      console.log(typeof state.items)
+      console.log(typeof state.items);
       state.items.forEach((item) => {
         this.add.item(
           Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * item.x,
