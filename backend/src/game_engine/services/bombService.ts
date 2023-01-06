@@ -3,9 +3,11 @@ import Matter from 'matter-js';
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
 import { Bomb } from '../../rooms/schema/Bomb';
+import BlastService from './blastService';
 
 export default class BombService {
   private readonly gameEngine: GameEngine;
+  private blastService?: BlastService;
 
   constructor(gameEngine: GameEngine) {
     this.gameEngine = gameEngine;
@@ -27,6 +29,8 @@ export default class BombService {
     Matter.Composite.add(this.gameEngine.world, [bombBody]);
     this.gameEngine.bombBodies.set(bomb.id, bombBody);
     this.gameEngine.bombIdByBodyId.set(bombBody.id, bomb.id);
+
+    this.blastService = new BlastService(this.gameEngine, bomb);
   }
 
   // ボムを matter から削除する
@@ -38,7 +42,8 @@ export default class BombService {
   }
 
   explode(bomb: Bomb) {
-    // TODO: 爆風処理を実装する
+    // 爆風を作成する
+    this.blastService?.add();
 
     // 設置者のボム数を増やす
     bomb.owner.recoverSettableBombCount();

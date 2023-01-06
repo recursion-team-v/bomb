@@ -7,8 +7,8 @@ export const createExplodeAnims = (anims: Phaser.Animations.AnimationManager) =>
   const animsFrameRate = 14;
 
   anims.create({
-    key: 'bomb_center_explosion',
-    frames: anims.generateFrameNames('bomb_center_explosion', {
+    key: 'bomb_center_blast',
+    frames: anims.generateFrameNames('bomb_center_blast', {
       start: 0,
       end: 6,
     }),
@@ -16,8 +16,8 @@ export const createExplodeAnims = (anims: Phaser.Animations.AnimationManager) =>
   });
 
   anims.create({
-    key: 'bomb_horizontal_explosion',
-    frames: anims.generateFrameNames('bomb_horizontal_explosion', {
+    key: 'bomb_horizontal_blast',
+    frames: anims.generateFrameNames('bomb_horizontal_blast', {
       start: 0,
       end: 6,
     }),
@@ -25,8 +25,8 @@ export const createExplodeAnims = (anims: Phaser.Animations.AnimationManager) =>
   });
 
   anims.create({
-    key: 'bomb_horizontal_end_explosion',
-    frames: anims.generateFrameNames('bomb_horizontal_end_explosion', {
+    key: 'bomb_horizontal_end_blast',
+    frames: anims.generateFrameNames('bomb_horizontal_end_blast', {
       start: 0,
       end: 6,
     }),
