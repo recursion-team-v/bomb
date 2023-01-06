@@ -11,7 +11,7 @@ export default class MapService {
     this.gameEngine = gameEngine;
   }
 
-  createMapWalls = (rows: number, cols: number) => {
+  createMapWalls(rows: number, cols: number) {
     const tileWidth = Constants.TILE_WIDTH;
     const tileHeight = Constants.TILE_HEIGHT;
     const walls = [];
@@ -34,15 +34,25 @@ export default class MapService {
     }
 
     Matter.Composite.add(this.gameEngine.world, walls);
-  };
+  }
 
-  private readonly createWall = (
-    x: number,
-    y: number,
-    tileWidth: number,
-    tileHeight: number,
-    radius = 0
-  ) => {
+  createMapBlocks(rows: number, cols: number, blockArr: number[]) {
+    const tileWidth = Constants.TILE_WIDTH;
+    const tileHeight = Constants.TILE_HEIGHT;
+
+    const blocks = [];
+    for (let y = 1; y < rows - 1; y++) {
+      for (let x = 1; x < cols - 1; x++) {
+        if (blockArr[x + y * cols] === Constants.TILE_BLOCK_IDX) {
+          blocks.push(this.createBlock(x, y, tileWidth, tileHeight));
+        }
+      }
+    }
+
+    Matter.Composite.add(this.gameEngine.world, blocks);
+  }
+
+  private createWall(x: number, y: number, tileWidth: number, tileHeight: number, radius = 0) {
     return Matter.Bodies.rectangle(
       tileWidth / 2 + tileWidth * x,
       Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
@@ -56,5 +66,18 @@ export default class MapService {
         label: Constants.OBJECT_LABEL.WALL,
       }
     );
-  };
+  }
+
+  private createBlock(x: number, y: number, tileWidth: number, tileHeight: number) {
+    return Matter.Bodies.rectangle(
+      tileWidth / 2 + tileWidth * x,
+      Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
+      tileWidth,
+      tileHeight,
+      {
+        isStatic: true,
+        label: Constants.OBJECT_LABEL.BLOCK,
+      }
+    );
+  }
 }

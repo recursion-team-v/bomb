@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import Matter from 'matter-js';
 
-import * as Constants from '../constants/constants';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import BombService from '../game_engine/services/bombService';
 import MapService from '../game_engine/services/mapService';
@@ -45,8 +44,12 @@ export default class GameEngine {
 
   init() {
     // create map
-    this.mapService.createMapWalls(Constants.TILE_ROWS, Constants.TILE_COLS);
-    this.itemService.createRandomItems(Constants.TILE_ROWS, Constants.TILE_COLS);
+    this.mapService.createMapWalls(this.state.gameMap.rows, this.state.gameMap.cols);
+    this.mapService.createMapBlocks(
+      this.state.gameMap.rows,
+      this.state.gameMap.cols,
+      this.state.gameMap.blockArr
+    );
     this.initUpdateEvents();
     this.initCollision();
   }
