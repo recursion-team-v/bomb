@@ -6,7 +6,7 @@ import GameEngine from '../../rooms/GameEngine';
 import Item from '../../rooms/schema/Item';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
-export default class ItemService {
+export default class ItemServece {
   private readonly gameEngine: GameEngine;
 
   constructor(gameEngine: GameEngine) {

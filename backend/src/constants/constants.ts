@@ -175,10 +175,6 @@ export const OBJECT_LABEL = {
 
 export type OBJECT_LABELS = typeof OBJECT_LABEL[keyof typeof OBJECT_LABEL];
 
-export const LABEL_PLAYER = 'PLAYER';
-export const LABEL_BOMB = 'BOMB';
-export const LABEL_ITEM = 'ITEM';
-
 /*
 モバイル用の操作アイコンの定義
 */
