@@ -17,16 +17,13 @@ export default class BlastService {
 
   // 爆風を matter に追加する
   add() {
-    const power = this.getPlayerBombStrength();
-
-    // TODO: calcBlastRange で爆風の範囲を計算する
-
+    const br: Map<string, number> = this.calcBlastRange();
     const bodies = [
       this.centerBlast(),
-      ...this.upperBlast(power),
-      ...this.lowerBlast(power),
-      ...this.leftBlast(power),
-      ...this.rightBlast(power),
+      ...this.upperBlast(br.get('upper') ?? 1),
+      ...this.lowerBlast(br.get('lower') ?? 1),
+      ...this.leftBlast(br.get('left') ?? 1),
+      ...this.rightBlast(br.get('right') ?? 1),
     ];
 
     Matter.Composite.add(this.gameEngine.world, bodies);
@@ -106,7 +103,47 @@ export default class BlastService {
   }
 
   // 爆風の範囲を計算する
-  private calcBlastRange() {}
+  private calcBlastRange(): Map<string, number> {
+    // 現在の map を取得
+    const map = this.gameEngine.getDimensionalMap(this.gameEngine.getHighestPriorityFromBodies);
+
+    // 現在のユーザの爆弾の強さを取得
+    const power = this.getPlayerBombStrength();
+
+    // 現在のユーザの爆弾の位置を取得
+    const x = (this.bomb.x - Constants.TILE_WIDTH / 2) / Constants.TILE_WIDTH;
+    const y =
+      (this.bomb.y - Constants.TILE_HEIGHT / 2 - Constants.HEADER_HEIGHT) / Constants.TILE_HEIGHT;
+
+    // 現在のユーザの爆弾の位置から上下左右の範囲を計算
+    const m = new Map<string, number>();
+    m.set('upper', this.calcBlastRangeFromDirection(map, x, y, power, 'upper'));
+    m.set('lower', this.calcBlastRangeFromDirection(map, x, y, power, 'lower'));
+    m.set('left', this.calcBlastRangeFromDirection(map, x, y, power, 'left'));
+    m.set('right', this.calcBlastRangeFromDirection(map, x, y, power, 'right'));
+    return m;
+  }
+
+  private calcBlastRangeFromDirection(
+    map: number[][],
+    x: number,
+    y: number,
+    power: number,
+    direction: 'upper' | 'lower' | 'left' | 'right'
+  ): number {
+    // 現在のユーザの爆弾の位置から上下左右の範囲を計算
+    let size = 0;
+
+    for (let i = 1; i <= power; i++) {
+      if (direction === 'upper' && map[y - i][x] !== 0) break;
+      if (direction === 'lower' && map[y + i][x] !== 0) break;
+      if (direction === 'left' && map[y][x - i] !== 0) break;
+      if (direction === 'right' && map[y][x + i] !== 0) break;
+      size++;
+    }
+
+    return size;
+  }
 
   // 現在のユーザの爆弾の強さを取得する
   private getPlayerBombStrength(): number {
