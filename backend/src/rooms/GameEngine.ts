@@ -6,7 +6,7 @@ import BombService from '../game_engine/services/bombService';
 import MapService from '../game_engine/services/mapService';
 import PlayerService from '../game_engine/services/playerService';
 import GameRoomState from './schema/GameRoomState';
-import ItemServece from '../game_engine/services/itemServece';
+import ItemService from '../game_engine/services/ItemService';
 
 export default class GameEngine {
   world: Matter.World;
@@ -26,7 +26,7 @@ export default class GameEngine {
   bombService: BombService;
   playerService: PlayerService;
   mapService: MapService;
-  itemService: ItemServece;
+  itemService: ItemService;
 
   constructor(state: GameRoomState) {
     this.engine = Matter.Engine.create();
@@ -37,7 +37,7 @@ export default class GameEngine {
     this.bombService = new BombService(this);
     this.playerService = new PlayerService(this);
     this.mapService = new MapService(this);
-    this.itemService = new ItemServece(this);
+    this.itemService = new ItemService(this);
 
     this.init();
   }

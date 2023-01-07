@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 
 // register to GameObjectFactory
 import '../characters/MyPlayer';
+import '../characters/OtherPlayer';
 import '../items/Bomb';
 import '../items/Wall';
 import '../items/Block';
@@ -21,25 +22,17 @@ import Bomb from '../items/Bomb';
 import initializeKeys from '../utils/key';
 import Network from '../services/Network';
 import GameHeader from './GameHeader';
+import OtherPlayer from '../characters/OtherPlayer';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
   private room!: Room<GameRoomState>;
-  private readonly playerEntities: Map<string, MyPlayer> = new Map();
+  private readonly otherPlayers: Map<string, OtherPlayer> = new Map();
   private myPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
+  cursorKeys!: NavKeys;
 
   private elapsedTime: number = 0; // 経過時間
   private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
-  private remoteRef!: Phaser.GameObjects.Rectangle; // サーバ側が認識するプレイヤーの位置を示す四角形
-
-  inputPayload = {
-    left: false,
-    right: false,
-    up: false,
-    down: false,
-  };
-
-  cursorKeys!: NavKeys;
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
@@ -55,8 +48,6 @@ export default class Game extends Phaser.Scene {
     this.network = data.network;
     if (this.network.room == null) return;
     this.room = this.network.room;
-
-    console.log(this.network);
 
     // プレイヤーをゲームに追加
     this.addPlayers();
@@ -86,8 +77,6 @@ export default class Game extends Phaser.Scene {
   }
 
   update(time: number, delta: number) {
-    this.updateBombCollision();
-
     if (this.myPlayer === undefined) return;
 
     // 前回の処理からの経過時間を算出し、1フレームの経過時間を超えていたら処理を実行する
@@ -101,7 +90,8 @@ export default class Game extends Phaser.Scene {
 
   private fixedTick() {
     this.moveOwnPlayer();
-    this.moveOtherPlayer();
+    this.moveOtherPlayers();
+    this.updateBombCollision();
   }
 
   private initNetworkEvents() {
@@ -126,52 +116,27 @@ export default class Game extends Phaser.Scene {
   private addMyPlayer() {
     const player = this.room.state.players.get(this.network.mySessionId);
     if (player === undefined) return;
-
     const myPlayer = this.add.myPlayer(this.network.mySessionId, player.x, player.y, 'player');
-    this.playerEntities.set(this.network.mySessionId, myPlayer);
     this.myPlayer = myPlayer;
 
-    // サーバ側が認識するプレイヤーの位置を示す四角形
-    this.remoteRef = this.add.rectangle(
-      player.x,
-      player.y,
-      myPlayer.width,
-      myPlayer.height,
-      0xfff,
-      0.3
-    );
-
     player.onChange = () => {
-      this.remoteRef.setPosition(player.x, player.y);
-      // ずれが一定以上の場合は強制移動
-      this.forceMovePlayerPosition(player);
+      this.myPlayer.handleServerChange(player);
     };
   }
 
   private handlePlayerJoinedRoom(player: ServerPlayer, sessionId: string) {
-    const otherPlayer = this.add.myPlayer(sessionId, player.x, player.y, 'player');
-    this.playerEntities.set(sessionId, otherPlayer);
+    const otherPlayer = this.add.otherPlayer(sessionId, player.x, player.y, 'player');
+    this.otherPlayers.set(sessionId, otherPlayer);
 
-    // プレイヤー同士はぶつからないようにする
-    otherPlayer.setSensor(true);
-
-    const randomColor = Math.floor(Math.random() * 16777215);
-    otherPlayer.setPlayerColor(randomColor);
     player.onChange = () => {
-      const otherPlayer = this.playerEntities.get(sessionId);
-      if (otherPlayer === undefined) return;
-      otherPlayer.setData('serverX', player.x);
-      otherPlayer.setData('serverY', player.y);
-      otherPlayer.setData('frameKey', player.frameKey);
+      otherPlayer.handleServerChange(player.x, player.y, player.frameKey);
     };
   }
 
   private handlePlayerLeftRoom(player: ServerPlayer, sessionId: string) {
-    const entity = this.playerEntities.get(sessionId);
-    entity?.destroy();
-
-    this.playerEntities.delete(sessionId);
-    console.log('remove' + sessionId);
+    const otherPlayer = this.otherPlayers.get(sessionId);
+    otherPlayer?.destroy();
+    this.otherPlayers.delete(sessionId);
   }
 
   private handleTimerUpdated(data: any) {
@@ -201,28 +166,10 @@ export default class Game extends Phaser.Scene {
     // 自分のボムは表示しない
     if (this.myPlayer.isEqualSessionId(sessionId)) return;
 
-    const player = this.playerEntities.get(sessionId);
-    if (player === undefined) return;
+    const otherPlayer = this.otherPlayers.get(sessionId);
+    if (otherPlayer === undefined) return;
 
-    this.add.bomb(sessionId, serverBomb.x, serverBomb.y, serverBomb.bombStrength, player);
-  }
-
-  // 一定以上のズレなら強制同期
-  private forceMovePlayerPosition(player: ServerPlayer) {
-    let forceX = 0;
-    let forceY = 0;
-
-    if (Math.abs(this.myPlayer.x - player.x) > Constants.PLAYER_TOLERANCE_DISTANCE) {
-      forceX = (this.myPlayer.x - player.x) * -1;
-    }
-
-    if (Math.abs(this.myPlayer.y - player.y) > Constants.PLAYER_TOLERANCE_DISTANCE) {
-      forceY = (this.myPlayer.y - player.y) * -1;
-    }
-
-    if (forceX === 0 && forceY === 0) return;
-    console.log('force move');
-    this.myPlayer.setVelocity(forceX, forceY);
+    this.add.bomb(sessionId, serverBomb.x, serverBomb.y, serverBomb.bombStrength, otherPlayer);
   }
 
   // ボム設置後、プレイヤーの挙動によってボムの衝突判定を更新する
@@ -237,67 +184,17 @@ export default class Game extends Phaser.Scene {
     });
   }
 
-  // 他のプレイヤーの移動処理
-  private moveOtherPlayer() {
-    this.playerEntities.forEach((otherPlayer: MyPlayer, sessionId: string) => {
-      if (otherPlayer === undefined || otherPlayer.data == null) return;
-      if (sessionId === this.network.mySessionId) return;
-
-      // interpolate all player entities
-      const { serverX, serverY, frameKey } = otherPlayer.data.values;
-
-      // 線形補完(TODO: 調整)
-      otherPlayer.x = Math.ceil(Phaser.Math.Linear(otherPlayer.x, serverX, 0.35)); // 動きがちょっと滑らか過ぎるから 0.2 -> 0.35
-      otherPlayer.y = Math.ceil(Phaser.Math.Linear(otherPlayer.y, serverY, 0.35));
-
-      // playerState の frameKey を使ってアニメーションを描画
-      otherPlayer.setFrame(frameKey);
-    });
+  // 自分が操作するキャラの移動処理
+  private moveOwnPlayer() {
+    if (this.myPlayer === undefined || this.network === undefined) return;
+    this.myPlayer.update(this.cursorKeys, this.network);
   }
 
-  // 自分が操作するキャラの移動処理
-  // TODO: 出来ればプレイヤー動作は MyPlayer クラスで管理したい
-  private moveOwnPlayer() {
-    const p = this.myPlayer;
-
-    // send input to the server
-    this.inputPayload.left = this.cursorKeys.left.isDown || this.cursorKeys.A.isDown;
-    this.inputPayload.right = this.cursorKeys.right.isDown || this.cursorKeys.D.isDown;
-    this.inputPayload.up = this.cursorKeys.up.isDown || this.cursorKeys.W.isDown;
-    this.inputPayload.down = this.cursorKeys.down.isDown || this.cursorKeys.S.isDown;
-
-    let vx = 0; // velocity x
-    let vy = 0; // velocity y
-
-    const velocity = p.speed;
-    if (this.inputPayload.left) {
-      vx -= velocity;
-    } else if (this.inputPayload.right) {
-      vx += velocity;
-    }
-
-    if (this.inputPayload.up) {
-      vy -= velocity;
-    } else if (this.inputPayload.down) {
-      vy += velocity;
-    }
-
-    p.setVelocity(vx, vy);
-
-    this.room.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, p);
-
-    if (vx > 0) p.play('player_right', true);
-    else if (vx < 0) p.play('player_left', true);
-    else if (vy > 0) p.play('player_down', true);
-    else if (vy < 0) p.play('player_up', true);
-    else p.stop();
-
-    // bomb 設置
-    const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(this.cursorKeys.space);
-    if (isSpaceJustDown) {
-      this.room.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, p);
-      p.placeBomb(this.matter);
-    }
+  // 他のプレイヤーの移動処理
+  private moveOtherPlayers() {
+    this.otherPlayers.forEach((otherPlayer: OtherPlayer) => {
+      otherPlayer.update();
+    });
   }
 
   public getCurrentPlayer(): MyPlayer {
