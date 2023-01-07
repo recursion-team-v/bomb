@@ -72,6 +72,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   // interface を満たすだけのダミーメソッド
   damaged(damage: number) {
     this.hp -= damage;
+    this.animationShakeScreen();
     this.animationFlash(Constants.PLAYER_INVINCIBLE_TIME);
   }
 
@@ -200,5 +201,9 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     };
 
     juice.rotate(this, rotateConfig);
+  }
+
+  private animationShakeScreen(duration: number = 300) {
+    this.scene.cameras.main.shake(duration, 0.01);
   }
 }
