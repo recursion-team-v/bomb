@@ -58,10 +58,10 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       scale: number = 1
     ) => {
       const rx = rectVertical
-        ? Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO
+        ? Constants.DEFAULT_TIP_SIZE * Constants.BLAST_COLLISION_RATIO
         : Constants.DEFAULT_TIP_SIZE;
       const ry = rectHorizontal
-        ? Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO
+        ? Constants.DEFAULT_TIP_SIZE * Constants.BLAST_COLLISION_RATIO
         : Constants.DEFAULT_TIP_SIZE;
 
       this.stableScene.add

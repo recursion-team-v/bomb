@@ -86,11 +86,11 @@ export default class BlastService {
     // 爆弾の位置から上下左右の差分から、縦横のどちらの爆風かチェックして、有効な当たり範囲の比率をかける
     const rx =
       x === this.bomb.x
-        ? Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO
+        ? Constants.DEFAULT_TIP_SIZE * Constants.BLAST_COLLISION_RATIO
         : Constants.DEFAULT_TIP_SIZE;
     const ry =
       y === this.bomb.y
-        ? Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO
+        ? Constants.DEFAULT_TIP_SIZE * Constants.BLAST_COLLISION_RATIO
         : Constants.DEFAULT_TIP_SIZE;
 
     return Matter.Bodies.rectangle(bx, by, rx, ry, {
