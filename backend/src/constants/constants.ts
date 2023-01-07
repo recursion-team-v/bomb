@@ -175,6 +175,22 @@ export const OBJECT_LABEL = {
 
 export type OBJECT_LABELS = typeof OBJECT_LABEL[keyof typeof OBJECT_LABEL];
 
+// 各オブジェクトと爆風の衝突判定
+// 0: 爆風の邪魔をしないオブジェクト(床、プレイヤーなど)
+// 1: 爆風の邪魔をするオブジェクト(壁、箱など)
+export const OBJECT_COLLISION_TO_BLAST = {
+  NONE: 0,
+  [OBJECT_LABEL.BOMB]: 1,
+  [OBJECT_LABEL.BLAST]: 0,
+  [OBJECT_LABEL.BLOCK]: 1,
+  [OBJECT_LABEL.ITEM]: 1,
+  [OBJECT_LABEL.PLAYER]: 0,
+  [OBJECT_LABEL.WALL]: 1,
+} as const;
+
+export type OBJECT_COLLISIONS_TO_BLAST =
+  typeof OBJECT_COLLISION_TO_BLAST[keyof typeof OBJECT_COLLISION_TO_BLAST];
+
 /*
 モバイル用の操作アイコンの定義
 */
