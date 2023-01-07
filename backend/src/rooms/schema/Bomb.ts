@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 import * as Constants from '../../constants/constants';
 import BombInterface from '../../interfaces/bomb';
-import Player from './Player';
 
 export class Bomb extends Schema {
   // 位置
@@ -23,19 +22,14 @@ export class Bomb extends Schema {
   @type('number')
   bombStrength: number;
 
-  // ボムを設置したプレイヤー
-  @type(Player)
-  owner: Player;
-
   // ボムが設置された時間
   @type('number')
   createdAt: number;
 
-  constructor(owner: Player, x: number, y: number, bombStrength: number) {
+  constructor(x: number, y: number, bombStrength: number, sessionId: string) {
     super();
     this.id = uuidv4();
-    this.sessionId = owner.sessionId;
-    this.owner = owner;
+    this.sessionId = sessionId;
     this.x = x;
     this.y = y;
     this.bombStrength = bombStrength;
