@@ -64,9 +64,6 @@ export default class Game extends Phaser.Scene {
     // Colyseus のイベントを追加
     this.initNetworkEvents();
 
-    // add items
-    this.addItems();
-
     // TODO: Preloader（Lobby）で読み込んで Game Scene に渡す
     this.room.onStateChange.once((state) => {
       // GameRoomState の blockArr が初期化されたら block（破壊）を描画
@@ -77,6 +74,14 @@ export default class Game extends Phaser.Scene {
       drawWalls(this, mapTiles);
       // draw blocks
       drawBlocks(this, state.gameMap.blockArr);
+      // draw items
+      state.items.forEach((item) => {
+        this.add.item(
+          Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * item.x,
+          Constants.TILE_HEIGHT / 2 + Constants.TILE_HEIGHT * item.y,
+          item.itemType
+        );
+      });
     });
   }
 
@@ -293,39 +298,6 @@ export default class Game extends Phaser.Scene {
       this.room.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, p);
       p.placeBomb(this.matter);
     }
-  }
-
-  private addItems() {
-    this.add.item(
-      64 * Phaser.Math.Between(1, 13) + 32,
-      64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
-      Constants.ITEM_TYPE.BOMB_STRENGTH
-    );
-    this.add.item(
-      64 * Phaser.Math.Between(1, 13) + 32,
-      64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
-      Constants.ITEM_TYPE.BOMB_STRENGTH
-    );
-    this.add.item(
-      64 * Phaser.Math.Between(1, 13) + 32,
-      64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
-      Constants.ITEM_TYPE.BOMB_STRENGTH
-    );
-
-    const bombPossessionUpCount = 10;
-    for (let i = 0; i < bombPossessionUpCount; i++) {
-      this.add.item(
-        64 * Phaser.Math.Between(1, 13) + 32,
-        64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
-        Constants.ITEM_TYPE.BOMB_POSSESSION_UP
-      );
-    }
-
-    // this.add.item(
-    //   64 * Phaser.Math.Between(1, 13) + 32,
-    //   64 * Phaser.Math.Between(1, 11) + Constants.HEADER_HEIGHT + 32,
-    //   ItemTypes.PLAYER_SPEED
-    // );
   }
 
   public getCurrentPlayer(): MyPlayer {
