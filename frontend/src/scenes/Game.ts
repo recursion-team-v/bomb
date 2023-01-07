@@ -65,6 +65,14 @@ export default class Game extends Phaser.Scene {
       drawWalls(this, mapTiles);
       // draw blocks
       drawBlocks(this, state.gameMap.blockArr);
+      // draw items
+      state.items.forEach((item) => {
+        this.add.item(
+          Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * item.x,
+          Constants.TILE_HEIGHT / 2 + Constants.TILE_HEIGHT * item.y,
+          item.itemType
+        );
+      });
     });
   }
 

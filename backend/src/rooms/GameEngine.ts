@@ -6,6 +6,7 @@ import BombService from '../game_engine/services/bombService';
 import MapService from '../game_engine/services/mapService';
 import PlayerService from '../game_engine/services/playerService';
 import GameRoomState from './schema/GameRoomState';
+import ItemServece from '../game_engine/services/itemServece';
 
 export default class GameEngine {
   world: Matter.World;
@@ -21,9 +22,11 @@ export default class GameEngine {
   // 衝突判定時に、衝突した bodyId から bombId を取得し bomb を取得するために利用
   bombIdByBodyId = new Map<number, string>(); // bodyId: bombId
 
+  itemBodies = new Map<string, Matter.Body>();
   bombService: BombService;
   playerService: PlayerService;
   mapService: MapService;
+  itemService: ItemServece;
 
   constructor(state: GameRoomState) {
     this.engine = Matter.Engine.create();
@@ -34,6 +37,7 @@ export default class GameEngine {
     this.bombService = new BombService(this);
     this.playerService = new PlayerService(this);
     this.mapService = new MapService(this);
+    this.itemService = new ItemServece(this);
 
     this.init();
   }
