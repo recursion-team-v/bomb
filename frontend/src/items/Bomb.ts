@@ -94,7 +94,6 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       dynamicY = -Constants.TILE_HEIGHT;
     }
 
-    console.log(power);
     if (power > 1) {
       for (let i = 1; i < power; i++) {
         this.addBlastSprite(
@@ -150,7 +149,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
     // 現在のユーザの爆弾の位置から上下左右の範囲を計算
     const m = new Map<Constants.DIRECTION_TYPE, number>();
-    console.log(m);
+
     m.set(
       Constants.DIRECTION.UP,
       calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.UP)
