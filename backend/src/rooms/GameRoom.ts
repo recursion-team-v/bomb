@@ -62,6 +62,13 @@ export default class GameRoom extends Room<GameRoomState> {
         // 爆弾の処理
         this.bombProcess();
 
+        // ゲーム終了判定 TODO: ロビーができて、ちゃんとゲーム開始判定ができたら有効化する
+        // if (
+        //   this.state.gameState.isPlaying() &&
+        //   this.state.gameState.isRemainPlayerZeroOrOne(this.state.players)
+        // )
+        //   this.state.gameState.setFinished();
+
         Matter.Engine.update(this.engine.engine, deltaTime);
       }
     });
