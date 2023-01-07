@@ -47,106 +47,82 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     return { x: bx, y: by };
   }
 
-  explode() {
-    const addExplodeSprite = (
-      bx: number,
-      by: number,
-      playKey: string,
-      angle: number = 0,
-      rectVertical: boolean = false,
-      rectHorizontal: boolean = false,
-      scale: number = 1
-    ) => {
-      const rx = rectVertical
-        ? Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO
-        : Constants.DEFAULT_TIP_SIZE;
-      const ry = rectHorizontal
-        ? Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO
-        : Constants.DEFAULT_TIP_SIZE;
+  private addBlastSprite(
+    bx: number,
+    by: number,
+    playKey: string,
+    angle: number = 0,
+    rectVertical: boolean = false,
+    rectHorizontal: boolean = false,
+    scale: number = 1
+  ) {
+    const rx = rectVertical
+      ? Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO
+      : Constants.DEFAULT_TIP_SIZE;
+    const ry = rectHorizontal
+      ? Constants.DEFAULT_TIP_SIZE * Constants.BOMB_COLLISION_RATIO
+      : Constants.DEFAULT_TIP_SIZE;
 
-      this.stableScene.add
-        .blast(bx, by, playKey, this.bombStrength, rx, ry)
-        .setScale(scale, scale)
-        .setAngle(angle)
-        .play(playKey)
-        .setSensor(true);
-    };
+    this.stableScene.add
+      .blast(bx, by, playKey, this.bombStrength, rx, ry)
+      .setScale(scale, scale)
+      .setAngle(angle)
+      .play(playKey)
+      .setSensor(true);
+  }
 
-    addExplodeSprite(this.stableX, this.stableY, 'bomb_center_blast', 0, true, true, 1.2);
+  private addDirectionBlast(direction: 'left' | 'right' | 'up' | 'down') {
+    const power = this.bombStrength;
+    let angle = 0;
+    let dynamicX = 0;
+    let dynamicY = 0;
 
-    if (this.bombStrength > 1) {
-      for (let i = 1; i < this.bombStrength; i++) {
-        addExplodeSprite(
-          this.stableX + Constants.TILE_WIDTH * i,
-          this.stableY,
-          'bomb_horizontal_blast'
-        );
-        addExplodeSprite(
-          this.stableX,
-          this.stableY + Constants.TILE_WIDTH * i,
+    if (direction === 'right') {
+      angle = 0;
+      dynamicX = Constants.TILE_WIDTH;
+    } else if (direction === 'down') {
+      angle = 90;
+      dynamicY = Constants.TILE_HEIGHT;
+    } else if (direction === 'left') {
+      angle = 180;
+      dynamicX = -Constants.TILE_WIDTH;
+    } else if (direction === 'up') {
+      angle = 270;
+      dynamicY = -Constants.TILE_HEIGHT;
+    }
+
+    if (power > 1) {
+      for (let i = 1; i < power; i++) {
+        this.addBlastSprite(
+          this.stableX + dynamicX * i,
+          this.stableY + dynamicY * i,
           'bomb_horizontal_blast',
-          90,
-          false,
-          true
-        );
-        addExplodeSprite(
-          this.stableX - Constants.TILE_WIDTH * i,
-          this.stableY,
-          'bomb_horizontal_blast',
-          180,
-          false,
-          true
-        );
-        addExplodeSprite(
-          this.stableX,
-          this.stableY - Constants.TILE_WIDTH * i,
-          'bomb_horizontal_blast',
-          270,
+          angle,
           false,
           true
         );
       }
     }
 
-    // 右
-    addExplodeSprite(
-      this.stableX + Constants.TILE_WIDTH * this.bombStrength,
-      this.stableY,
+    this.addBlastSprite(
+      this.stableX + dynamicX * this.bombStrength,
+      this.stableY + dynamicY * this.bombStrength,
       'bomb_horizontal_end_blast',
-      0,
+      angle,
       false,
       true
     );
+  }
 
-    // 下
-    addExplodeSprite(
-      this.stableX,
-      this.stableY + Constants.TILE_WIDTH * this.bombStrength,
-      'bomb_horizontal_end_blast',
-      90,
-      false,
-      true
-    );
+  explode() {
+    // center
+    this.addBlastSprite(this.stableX, this.stableY, 'bomb_center_blast', 0, true, true, 1.2);
 
-    // 左
-    addExplodeSprite(
-      this.stableX - Constants.TILE_WIDTH * this.bombStrength,
-      this.stableY,
-      'bomb_horizontal_end_blast',
-      180,
-      false,
-      true
-    );
-
-    // 上
-    addExplodeSprite(
-      this.stableX,
-      this.stableY - Constants.TILE_WIDTH * this.bombStrength,
-      'bomb_horizontal_end_blast',
-      270,
-      false,
-      true
-    );
+    // center 以外
+    this.addDirectionBlast('up');
+    this.addDirectionBlast('down');
+    this.addDirectionBlast('right');
+    this.addDirectionBlast('left');
   }
 
   updateCollision() {
