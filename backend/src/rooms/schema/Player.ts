@@ -86,7 +86,7 @@ export default class Player extends Schema {
   }
 
   // HPを回復します
-  recoverHp(recover: number) {
+  healed(recover: number) {
     this.hp + recover > Constants.MAX_PLAYER_HP
       ? (this.hp = Constants.MAX_PLAYER_HP)
       : (this.hp += recover);
