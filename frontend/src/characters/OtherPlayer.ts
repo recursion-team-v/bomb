@@ -1,4 +1,5 @@
 import Player from './Player';
+import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 
 export default class OtherPlayer extends Player {
   private serverX: number;
@@ -23,10 +24,14 @@ export default class OtherPlayer extends Player {
     this.setPlayerColor(randomColor);
   }
 
-  handleServerChange(x: number, y: number, frameKey: number) {
-    this.serverX = x;
-    this.serverY = y;
-    this.frameKey = frameKey;
+  handleServerChange(serverPlayer: ServerPlayer) {
+    if (this.isDead()) return false;
+    this.serverX = serverPlayer.x;
+    this.serverY = serverPlayer.y;
+    this.frameKey = serverPlayer.frameKey;
+    this.setHP(serverPlayer.hp);
+
+    if (this.isDead()) this.died();
   }
 
   update() {
@@ -35,8 +40,6 @@ export default class OtherPlayer extends Player {
     this.x = Math.ceil(Phaser.Math.Linear(this.x, this.serverX, 0.35)); // 動きがちょっと滑らか過ぎるから 0.2 -> 0.35
     this.y = Math.ceil(Phaser.Math.Linear(this.y, this.serverY, 0.35));
     this.setFrame(this.frameKey);
-
-    if (this.isDead()) this.died();
   }
 }
 
