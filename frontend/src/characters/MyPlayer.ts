@@ -81,11 +81,11 @@ export default class MyPlayer extends Player {
     let forceY = 0;
 
     if (Math.abs(this.x - player.x) > Constants.PLAYER_TOLERANCE_DISTANCE) {
-      forceX = (this.x - player.x) * -1;
+      forceX = player.x - this.x;
     }
 
     if (Math.abs(this.y - player.y) > Constants.PLAYER_TOLERANCE_DISTANCE) {
-      forceY = (this.y - player.y) * -1;
+      forceY = player.y - this.y;
     }
 
     if (forceX === 0 && forceY === 0) return;
