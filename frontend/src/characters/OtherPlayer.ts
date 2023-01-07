@@ -31,7 +31,12 @@ export default class OtherPlayer extends Player {
     this.frameKey = serverPlayer.frameKey;
     this.setHP(serverPlayer.hp);
 
-    if (this.isDead()) this.died();
+    if (this.isDead()) {
+      this.died();
+      setTimeout(() => {
+        this.setVisible(false); // 見えなくする
+      }, 2500);
+    }
   }
 
   update() {
