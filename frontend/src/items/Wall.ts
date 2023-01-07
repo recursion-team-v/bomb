@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-
+import { getDepth } from './util';
 export class InnerWall extends Phaser.Physics.Matter.Sprite {
   constructor(world: Phaser.Physics.Matter.World, x: number, y: number, frame: number) {
     super(world, x, y, Constants.OBJECT_LABEL.WALL, frame);
@@ -26,6 +26,7 @@ export class OuterWall extends Phaser.Physics.Matter.Sprite {
 
     const body = this.body as MatterJS.BodyType;
     body.label = Constants.OBJECT_LABEL.WALL;
+    this.setDepth(getDepth(body.label));
   }
 }
 

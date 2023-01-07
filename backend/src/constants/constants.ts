@@ -201,6 +201,19 @@ export const OBJECT_COLLISION_TO_BLAST = {
 export type OBJECT_COLLISIONS_TO_BLAST =
   typeof OBJECT_COLLISION_TO_BLAST[keyof typeof OBJECT_COLLISION_TO_BLAST];
 
+// 数字の大きいものが上にくる
+export const OBJECT_DEPTH = {
+  NONE: 0,
+  [OBJECT_LABEL.BLAST]: -1,
+  [OBJECT_LABEL.ITEM]: 1, // ブロックの下にある
+  [OBJECT_LABEL.BLOCK]: 2, // ブロックをすり抜けられるアイテムがある
+  [OBJECT_LABEL.BOMB]: 3, // 特殊なアイテムで壁の上を爆弾が滑ることがある
+  [OBJECT_LABEL.PLAYER]: 10,
+  [OBJECT_LABEL.WALL]: 99,
+} as const;
+
+export type OBJECT_DEPTH_TYPE = typeof OBJECT_DEPTH[keyof typeof OBJECT_DEPTH];
+
 /*
 モバイル用の操作アイコンの定義
 */

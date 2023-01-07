@@ -5,7 +5,7 @@ import BombInterface from '../../../backend/src/interfaces/bomb';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import { getDimensionalMap, getHighestPriorityFromBodies } from '../services/Map';
 import { calcBlastRangeFromDirection } from '../../../backend/src/game_engine/services/blastService';
-
+import { getDepth } from './util';
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly bombStrength: number;
   private readonly player: PlayerInterface;
@@ -31,6 +31,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     const body = this.body as MatterJS.BodyType;
     body.label = Constants.OBJECT_LABEL.BOMB;
 
+    this.setDepth(getDepth(body.label));
     this.sessionId = sessionId;
     this.player = player;
     this.bombStrength = bombStrength;
@@ -180,6 +181,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
     const body = this.body as MatterJS.BodyType;
     body.label = Constants.OBJECT_LABEL.BOMB;
+    this.setDepth(getDepth(body.label));
   }
 
   // 引数の MatterJS.BodyType が爆弾の当たり判定と重なっているかどうかを返す
