@@ -5,6 +5,7 @@ import collisionHandler from '../game_engine/collision_handler/collision_handler
 import Bomb from '../items/Bomb';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
+  private hp: number;
   private speed: number;
   private bombStrength: number;
   private settableBombCount: number; // 今設置できるボムの個数
@@ -22,6 +23,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   ) {
     super(world, x, y, texture, frame, options);
 
+    this.hp = Constants.INITIAL_PLAYER_HP;
     this.sessionId = sessionId;
     this.speed = Constants.INITIAL_PLAYER_SPEED;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
@@ -47,6 +49,12 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
         ? collisionHandler(data.bodyA, data.bodyB)
         : collisionHandler(data.bodyB, data.bodyA);
     });
+  }
+
+  // ダメージを受けてHPを減らします
+  damaged(damage: number) {
+    this.hp - damage < 0 ? (this.hp = 0) : (this.hp -= damage);
+    console.log(this.hp);
   }
 
   // ボムを設置できるかをチェックする

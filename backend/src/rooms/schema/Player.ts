@@ -60,7 +60,7 @@ export default class Player extends Schema {
   }
 
   // ダメージを受けてHPを減らします
-  damage(damage: number) {
+  damaged(damage: number) {
     this.hp - damage < 0 ? (this.hp = 0) : (this.hp -= damage);
   }
 

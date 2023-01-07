@@ -80,6 +80,9 @@ export const INITIAL_PLAYER_POSITION = [
 ボムの定義
 */
 
+// 爆弾がプレイヤーに与えるダメージ
+export const BOMB_DAMAGE = 1;
+
 // 爆弾の爆発までの時間(ms)
 export const BOMB_EXPLOSION_TIME = 2330;
 
