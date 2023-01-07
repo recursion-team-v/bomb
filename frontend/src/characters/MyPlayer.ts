@@ -31,6 +31,8 @@ export default class MyPlayer extends Player {
 
   // player.onChange のコールバック
   handleServerChange(player: ServerPlayer) {
+    if (this.isDead()) return;
+
     this.updateRemoteRef(player);
     this.forceMovePlayerPosition(player);
     this.setHP(player.hp);

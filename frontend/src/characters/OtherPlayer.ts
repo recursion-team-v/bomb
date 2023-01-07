@@ -30,10 +30,13 @@ export default class OtherPlayer extends Player {
   }
 
   update() {
+    if (this.isDead()) return false;
     // 線形補完(TODO: 調整)
     this.x = Math.ceil(Phaser.Math.Linear(this.x, this.serverX, 0.35)); // 動きがちょっと滑らか過ぎるから 0.2 -> 0.35
     this.y = Math.ceil(Phaser.Math.Linear(this.y, this.serverY, 0.35));
     this.setFrame(this.frameKey);
+
+    if (this.isDead()) this.died();
   }
 }
 
