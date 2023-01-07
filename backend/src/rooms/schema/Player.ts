@@ -45,6 +45,10 @@ export default class Player extends Schema {
   @type('number')
   maxBombCount: number;
 
+  // 最後に攻撃を受けた時間
+  @type('number')
+  lastDamagedAt: number;
+
   inputQueue: any[] = [];
 
   constructor(sessionId: string, idx: number) {
@@ -57,11 +61,27 @@ export default class Player extends Schema {
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.settableBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
+    this.lastDamagedAt = 0;
   }
 
   // ダメージを受けてHPを減らします
   damaged(damage: number) {
+    // 一定時間無敵の場合は被弾しない
+    if (this.isInvincible()) return;
+
     this.hp - damage < 0 ? (this.hp = 0) : (this.hp -= damage);
+
+    this.updateLastDamagedAt();
+  }
+
+  // プレイヤーが無敵かどうかを返します
+  isInvincible(): boolean {
+    return this.lastDamagedAt + Constants.PLAYER_INVINCIBLE_TIME > Date.now();
+  }
+
+  // 最後にダメージを受けた時間を更新します
+  updateLastDamagedAt() {
+    this.lastDamagedAt = Date.now();
   }
 
   // HPを回復します

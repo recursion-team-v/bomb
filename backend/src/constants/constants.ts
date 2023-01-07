@@ -66,6 +66,9 @@ export const INITIAL_BOMB_STRENGTH = 1;
 // プレイヤーの初期移動速度
 export const INITIAL_PLAYER_SPEED = 4;
 
+// プレイヤーが被弾時に一定時間無敵になる時間(ms)
+export const PLAYER_INVINCIBLE_TIME = 3000;
+
 // プレイヤーの初期位置
 // TODO: サイズから計算する
 export const INITIAL_PLAYER_POSITION = [
