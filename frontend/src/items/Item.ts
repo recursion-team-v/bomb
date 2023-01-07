@@ -21,7 +21,7 @@ export default class Item extends Phaser.Physics.Matter.Sprite {
     const body = this.body as MatterJS.BodyType;
     body.label = Constants.OBJECT_LABEL.ITEM;
 
-    this.setDepth(getDepth(body.label));
+    this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
     this.setScale(0.45);
     this.itemType = itemType;
 

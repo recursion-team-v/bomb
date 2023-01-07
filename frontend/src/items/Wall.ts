@@ -26,7 +26,7 @@ export class OuterWall extends Phaser.Physics.Matter.Sprite {
 
     const body = this.body as MatterJS.BodyType;
     body.label = Constants.OBJECT_LABEL.WALL;
-    this.setDepth(getDepth(body.label));
+    this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
   }
 }
 

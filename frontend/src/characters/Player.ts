@@ -42,7 +42,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     const body = this.body as MatterJS.BodyType;
     body.label = Constants.OBJECT_LABEL.PLAYER;
 
-    this.setDepth(getDepth(body.label));
+    this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
       const currBody = this.body as MatterJS.BodyType;
       data.bodyA.id === currBody.id

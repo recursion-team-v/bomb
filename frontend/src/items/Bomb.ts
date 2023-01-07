@@ -31,7 +31,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     const body = this.body as MatterJS.BodyType;
     body.label = Constants.OBJECT_LABEL.BOMB;
 
-    this.setDepth(getDepth(body.label));
+    this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
     this.sessionId = sessionId;
     this.player = player;
     this.bombStrength = bombStrength;
@@ -181,7 +181,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
     const body = this.body as MatterJS.BodyType;
     body.label = Constants.OBJECT_LABEL.BOMB;
-    this.setDepth(getDepth(body.label));
+    this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
   }
 
   // 引数の MatterJS.BodyType が爆弾の当たり判定と重なっているかどうかを返す
