@@ -3,6 +3,8 @@ import Phaser from 'phaser';
 import * as Constants from '../../../backend/src/constants/constants';
 import BombInterface from '../../../backend/src/interfaces/bomb';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
+import { getDimensionalMap, getHighestPriorityFromBodies } from '../services/Map';
+import { calcBlastRangeFromDirection } from '../../../backend/src/game_engine/services/blastService';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly bombStrength: number;
@@ -71,26 +73,27 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       .setSensor(true);
   }
 
-  private addDirectionBlast(direction: 'left' | 'right' | 'up' | 'down') {
-    const power = this.bombStrength;
+  private addDirectionBlast(direction: Constants.DIRECTION_TYPE, power: number) {
+    if (power === 0) return;
     let angle = 0;
     let dynamicX = 0;
     let dynamicY = 0;
 
-    if (direction === 'right') {
+    if (direction === Constants.DIRECTION.RIGHT) {
       angle = 0;
       dynamicX = Constants.TILE_WIDTH;
-    } else if (direction === 'down') {
+    } else if (direction === Constants.DIRECTION.DOWN) {
       angle = 90;
       dynamicY = Constants.TILE_HEIGHT;
-    } else if (direction === 'left') {
+    } else if (direction === Constants.DIRECTION.LEFT) {
       angle = 180;
       dynamicX = -Constants.TILE_WIDTH;
-    } else if (direction === 'up') {
+    } else if (direction === Constants.DIRECTION.UP) {
       angle = 270;
       dynamicY = -Constants.TILE_HEIGHT;
     }
 
+    console.log(power);
     if (power > 1) {
       for (let i = 1; i < power; i++) {
         this.addBlastSprite(
@@ -105,8 +108,8 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     }
 
     this.addBlastSprite(
-      this.stableX + dynamicX * this.bombStrength,
-      this.stableY + dynamicY * this.bombStrength,
+      this.stableX + dynamicX * power,
+      this.stableY + dynamicY * power,
       'bomb_horizontal_end_blast',
       angle,
       false,
@@ -118,11 +121,52 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     // center
     this.addBlastSprite(this.stableX, this.stableY, 'bomb_center_blast', 0, true, true, 1.2);
 
+    const br = this.calcBlastRange();
     // center 以外
-    this.addDirectionBlast('up');
-    this.addDirectionBlast('down');
-    this.addDirectionBlast('right');
-    this.addDirectionBlast('left');
+    this.addDirectionBlast(Constants.DIRECTION.UP, br.get(Constants.DIRECTION.UP) ?? 1);
+    this.addDirectionBlast(Constants.DIRECTION.DOWN, br.get(Constants.DIRECTION.DOWN) ?? 1);
+    this.addDirectionBlast(Constants.DIRECTION.RIGHT, br.get(Constants.DIRECTION.RIGHT) ?? 1);
+    this.addDirectionBlast(Constants.DIRECTION.LEFT, br.get(Constants.DIRECTION.LEFT) ?? 1);
+  }
+
+  // 爆風の範囲を計算する
+  private calcBlastRange(): Map<Constants.DIRECTION_TYPE, number> {
+    const map = getDimensionalMap(
+      // TODO: サーバから受け取ったマップの X/ Y のタイル数を使う
+      Constants.TILE_ROWS,
+      Constants.TILE_COLS,
+      this.scene,
+      getHighestPriorityFromBodies
+    );
+
+    // 現在のユーザの爆弾の強さを取得
+    const power = this.bombStrength;
+
+    // 現在のユーザの爆弾の位置を取得
+    const x = (this.x - Constants.TILE_WIDTH / 2) / Constants.TILE_WIDTH;
+    const y =
+      (this.y - Constants.TILE_HEIGHT / 2 - Constants.HEADER_HEIGHT) / Constants.TILE_HEIGHT;
+
+    // 現在のユーザの爆弾の位置から上下左右の範囲を計算
+    const m = new Map<Constants.DIRECTION_TYPE, number>();
+    console.log(m);
+    m.set(
+      Constants.DIRECTION.UP,
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.UP)
+    );
+    m.set(
+      Constants.DIRECTION.DOWN,
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.DOWN)
+    );
+    m.set(
+      Constants.DIRECTION.LEFT,
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.LEFT)
+    );
+    m.set(
+      Constants.DIRECTION.RIGHT,
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.RIGHT)
+    );
+    return m;
   }
 
   updateCollision() {

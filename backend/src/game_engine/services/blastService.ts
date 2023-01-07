@@ -17,13 +17,13 @@ export default class BlastService {
 
   // 爆風を matter に追加する
   add() {
-    const br: Map<string, number> = this.calcBlastRange();
+    const br: Map<Constants.DIRECTION_TYPE, number> = this.calcBlastRange();
     const bodies = [
       this.centerBlast(),
-      ...this.upperBlast(br.get('upper') ?? 1),
-      ...this.lowerBlast(br.get('lower') ?? 1),
-      ...this.leftBlast(br.get('left') ?? 1),
-      ...this.rightBlast(br.get('right') ?? 1),
+      ...this.upperBlast(br.get(Constants.DIRECTION.UP) ?? 1),
+      ...this.lowerBlast(br.get(Constants.DIRECTION.DOWN) ?? 1),
+      ...this.leftBlast(br.get(Constants.DIRECTION.LEFT) ?? 1),
+      ...this.rightBlast(br.get(Constants.DIRECTION.RIGHT) ?? 1),
     ];
 
     Matter.Composite.add(this.gameEngine.world, bodies);
@@ -103,7 +103,7 @@ export default class BlastService {
   }
 
   // 爆風の範囲を計算する
-  private calcBlastRange(): Map<string, number> {
+  private calcBlastRange(): Map<Constants.DIRECTION_TYPE, number> {
     // 現在の map を取得
     const map = this.gameEngine.getDimensionalMap(this.gameEngine.getHighestPriorityFromBodies);
 
@@ -116,33 +116,24 @@ export default class BlastService {
       (this.bomb.y - Constants.TILE_HEIGHT / 2 - Constants.HEADER_HEIGHT) / Constants.TILE_HEIGHT;
 
     // 現在のユーザの爆弾の位置から上下左右の範囲を計算
-    const m = new Map<string, number>();
-    m.set('upper', this.calcBlastRangeFromDirection(map, x, y, power, 'upper'));
-    m.set('lower', this.calcBlastRangeFromDirection(map, x, y, power, 'lower'));
-    m.set('left', this.calcBlastRangeFromDirection(map, x, y, power, 'left'));
-    m.set('right', this.calcBlastRangeFromDirection(map, x, y, power, 'right'));
+    const m = new Map<Constants.DIRECTION_TYPE, number>();
+    m.set(
+      Constants.DIRECTION.UP,
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.UP)
+    );
+    m.set(
+      Constants.DIRECTION.DOWN,
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.DOWN)
+    );
+    m.set(
+      Constants.DIRECTION.LEFT,
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.LEFT)
+    );
+    m.set(
+      Constants.DIRECTION.RIGHT,
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.RIGHT)
+    );
     return m;
-  }
-
-  private calcBlastRangeFromDirection(
-    map: number[][],
-    x: number,
-    y: number,
-    power: number,
-    direction: 'upper' | 'lower' | 'left' | 'right'
-  ): number {
-    // 現在のユーザの爆弾の位置から上下左右の範囲を計算
-    let size = 0;
-
-    for (let i = 1; i <= power; i++) {
-      if (direction === 'upper' && map[y - i][x] !== 0) break;
-      if (direction === 'lower' && map[y + i][x] !== 0) break;
-      if (direction === 'left' && map[y][x - i] !== 0) break;
-      if (direction === 'right' && map[y][x + i] !== 0) break;
-      size++;
-    }
-
-    return size;
   }
 
   // 現在のユーザの爆弾の強さを取得する
@@ -154,4 +145,32 @@ export default class BlastService {
       return player.getBombStrength();
     }
   }
+}
+
+export function calcBlastRangeFromDirection(
+  map: number[][],
+  x: number,
+  y: number,
+  power: number,
+  direction: Constants.DIRECTION_TYPE
+): number {
+  // 現在のユーザの爆弾の位置から上下左右の範囲を計算
+  let size = 0;
+
+  for (let i = 1; i <= power; i++) {
+    let checkTile = 0;
+    if (direction === Constants.DIRECTION.UP) checkTile = map[y - i][x];
+    if (direction === Constants.DIRECTION.DOWN) checkTile = map[y + i][x];
+    if (direction === Constants.DIRECTION.LEFT) checkTile = map[y][x - i];
+    if (direction === Constants.DIRECTION.RIGHT) checkTile = map[y][x + i];
+
+    if (checkTile === 0) size++;
+    if (checkTile === 1) {
+      size++;
+      break;
+    }
+    if (checkTile === 2) break;
+  }
+
+  return size;
 }

@@ -3,7 +3,7 @@ import Phaser from 'phaser';
 import * as Constants from '../../../backend/src/constants/constants';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import Bomb from '../items/Bomb';
-
+import { getDimensionalMap, getHighestPriorityFromBodies } from '../services/Map';
 export default class Player extends Phaser.Physics.Matter.Sprite {
   private speed: number;
   private bombStrength: number;
@@ -67,6 +67,13 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   // ボムを置く
   placeBomb(mp: Phaser.Physics.Matter.MatterPhysics) {
+    // TODO: サーバから受け取ったマップの X/ Y のタイル数を使う
+    getDimensionalMap(
+      Constants.TILE_ROWS,
+      Constants.TILE_COLS,
+      this.scene,
+      getHighestPriorityFromBodies
+    );
     if (!this.canSetBomb(mp)) return;
 
     const { x, y } = Bomb.getSettablePosition(this.x, this.y);

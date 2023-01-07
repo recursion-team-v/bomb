@@ -41,6 +41,15 @@ export const GAME_STATE = {
 
 export type GAME_STATE_TYPE = typeof GAME_STATE[keyof typeof GAME_STATE];
 
+export const DIRECTION = {
+  UP: 1,
+  DOWN: 2,
+  RIGHT: 3,
+  LEFT: 4,
+} as const;
+
+export type DIRECTION_TYPE = typeof DIRECTION[keyof typeof DIRECTION];
+
 // ルームの最大人数
 export const MAX_PLAYER = 4;
 
@@ -177,7 +186,8 @@ export type OBJECT_LABELS = typeof OBJECT_LABEL[keyof typeof OBJECT_LABEL];
 
 // 各オブジェクトと爆風の衝突判定
 // 0: 爆風の邪魔をしないオブジェクト(床、プレイヤーなど)
-// 1: 爆風の邪魔をするオブジェクト(壁、箱など)
+// 1: 爆風の邪魔をするが、自身は削除されるオブジェクト(箱、アイテムなど)
+// 2: 爆風の邪魔をするオブジェクト(壁、箱など)
 export const OBJECT_COLLISION_TO_BLAST = {
   NONE: 0,
   [OBJECT_LABEL.BOMB]: 1,
@@ -185,7 +195,7 @@ export const OBJECT_COLLISION_TO_BLAST = {
   [OBJECT_LABEL.BLOCK]: 1,
   [OBJECT_LABEL.ITEM]: 1,
   [OBJECT_LABEL.PLAYER]: 0,
-  [OBJECT_LABEL.WALL]: 1,
+  [OBJECT_LABEL.WALL]: 2,
 } as const;
 
 export type OBJECT_COLLISIONS_TO_BLAST =
