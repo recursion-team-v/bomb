@@ -77,7 +77,8 @@ export const BOMB_EXPLOSION_TIME = 2330;
 export const BOMB_DETONATION_DELAY = 50;
 
 // 爆風の衝突判定の割合
-export const BLAST_COLLISION_RATIO = 0.4;
+export const BLAST_COLLISION_RATIO_X = 0.4;
+export const BLAST_COLLISION_RATIO_Y = 0.7;
 
 // 爆風が維持される時間(ms)
 // この時間だけ当たり判定が残る
