@@ -46,7 +46,10 @@ export default class BombService {
     this.blastService?.add();
 
     // 設置者のボム数を増やす
-    bomb.owner.recoverSettableBombCount();
+    const player = this.gameEngine.getPlayer(bomb.sessionId);
+    if (player !== undefined) {
+      player.recoverSettableBombCount();
+    }
 
     // ボムを削除する
     this.deleteBomb(bomb);
