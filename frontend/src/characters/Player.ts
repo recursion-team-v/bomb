@@ -51,14 +51,24 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     });
   }
 
-  // ダメージを受けてHPを減らします
-  damaged(damage: number) {
-    this.hp - damage < 0 ? (this.hp = 0) : (this.hp -= damage);
-    console.log(this.hp);
+  // HP をセットします
+  setHP(hp: number) {
+    // サーバで計算するので、ここではHPを上書きするだけ
+    this.hp = hp;
   }
+
+  // 生きているかを返します
+  isDead(): boolean {
+    return this.hp <= 0;
+  }
+
+  // interface を満たすだけのダミーメソッド
+  damaged(damage: number) {}
 
   // ボムを設置できるかをチェックする
   canSetBomb(mp: Phaser.Physics.Matter.MatterPhysics): boolean {
+    if (this.isDead()) return false;
+
     // 同じ場所にボムを置けないようにする
     const { x, y } = Bomb.getSettablePosition(this.x, this.y);
 
@@ -134,8 +144,9 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.settableBombCount--;
   }
 
-  gameOver() {
-    // this.destroy();
+  // 死亡
+  died() {
+    this.stop();
   }
 
   isEqualSessionId(sessionId: string): boolean {

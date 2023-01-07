@@ -24,7 +24,7 @@ export default class GameRoom extends Room<GameRoomState> {
       if (player === undefined) return;
 
       // 既に死んでいたら無視
-      if (!player.isAlive()) return;
+      if (player.isDead()) return;
 
       player.inputQueue.push(data);
     });
@@ -111,7 +111,7 @@ export default class GameRoom extends Room<GameRoomState> {
     if (player === undefined) return;
 
     // 既に死んでいたら無視
-    if (!player.isAlive()) return;
+    if (player.isDead()) return;
 
     const bomb = this.engine.playerService.placeBomb(player); // ボムを設置する  TODO:
     if (bomb !== null) this.state.getBombQueue().enqueue(bomb); // ボムキューに詰める

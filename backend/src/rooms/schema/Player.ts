@@ -72,6 +72,7 @@ export default class Player extends Schema {
     this.hp - damage < 0 ? (this.hp = 0) : (this.hp -= damage);
 
     this.updateLastDamagedAt();
+    console.log(this.hp);
   }
 
   // プレイヤーが無敵かどうかを返します
@@ -92,8 +93,8 @@ export default class Player extends Schema {
   }
 
   // プレイヤーが死んでいるかどうかを返します
-  isAlive(): boolean {
-    return this.hp > 0;
+  isDead(): boolean {
+    return this.hp <= 0;
   }
 
   // 爆弾の破壊力を取得する

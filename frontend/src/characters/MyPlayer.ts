@@ -31,11 +31,21 @@ export default class MyPlayer extends Player {
 
   // player.onChange のコールバック
   handleServerChange(player: ServerPlayer) {
-    this.remoteRef.setPosition(player.x, player.y);
+    this.updateRemoteRef(player);
     this.forceMovePlayerPosition(player);
+    this.setHP(player.hp);
+    if (this.isDead()) this.died();
+  }
+
+  // サーバのプレイヤーの位置を反映させる
+  private updateRemoteRef(player: ServerPlayer) {
+    if (this.isDead()) return;
+    this.remoteRef.setPosition(player.x, player.y);
   }
 
   update(cursorKeys: NavKeys, network: Network) {
+    if (this.isDead()) return false;
+
     // send input to the server
     this.inputPayload.left = cursorKeys.left.isDown || cursorKeys.A.isDown;
     this.inputPayload.right = cursorKeys.right.isDown || cursorKeys.D.isDown;
