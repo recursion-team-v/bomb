@@ -7,6 +7,7 @@ import MapService from '../game_engine/services/mapService';
 import PlayerService from '../game_engine/services/playerService';
 import GameRoomState from './schema/GameRoomState';
 import ItemService from '../game_engine/services/ItemService';
+import Player from './schema/Player';
 
 export default class GameEngine {
   world: Matter.World;
@@ -75,5 +76,9 @@ export default class GameEngine {
     Matter.Events.on(this.engine, 'collisionActive', (event) => {
       event.pairs.forEach((pair) => collisionHandler(this, pair.bodyA, pair.bodyB));
     });
+  }
+
+  getPlayer(sessionId: string): Player | undefined {
+    return this.state.players.get(sessionId);
   }
 }
