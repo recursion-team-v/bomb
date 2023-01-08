@@ -45,7 +45,7 @@ export class Bomb extends Schema {
     this.bombStrength = strength;
   }
 
-  isExploded(): boolean {
+  isExplodedTime(): boolean {
     return this.explodedAt <= Date.now();
   }
 

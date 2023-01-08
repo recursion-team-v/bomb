@@ -19,6 +19,7 @@ import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
+import { PlayerInterface } from '../items/Bomb';
 import initializeKeys from '../utils/key';
 import Network from '../services/Network';
 import GameHeader from './GameHeader';
@@ -170,11 +171,14 @@ export default class Game extends Phaser.Scene {
 
     const sessionId = serverBomb.sessionId;
 
-    // 自分のボムは表示しない
-    if (this.myPlayer.isEqualSessionId(sessionId)) return;
-
-    const otherPlayer = this.otherPlayers.get(sessionId);
-    if (otherPlayer === undefined) return;
+    let player: PlayerInterface;
+    if (this.myPlayer.isEqualSessionId(sessionId)) {
+      player = this.myPlayer;
+    } else {
+      const otherPlayer = this.otherPlayers.get(sessionId);
+      if (otherPlayer === undefined) return;
+      player = otherPlayer;
+    }
 
     this.add.bomb(
       sessionId,
@@ -182,7 +186,7 @@ export default class Game extends Phaser.Scene {
       serverBomb.y,
       serverBomb.bombStrength,
       serverBomb.explodedAt,
-      otherPlayer
+      player
     );
   }
 
@@ -229,5 +233,9 @@ export default class Game extends Phaser.Scene {
 
   public setServerTime(value: number) {
     this.serverTime = value;
+  }
+
+  public getNetwork(): Network {
+    return this.network;
   }
 }

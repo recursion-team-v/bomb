@@ -9,6 +9,7 @@ import { phaserGlobalGameObject } from '../PhaserGame';
 import Game from '../scenes/Game';
 import { getDimensionalMap, getHighestPriorityFromBodies } from '../services/Map';
 import { getDepth } from './util';
+import { getGameScene } from '../utils/globalGame';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly bombStrength: number;
@@ -21,6 +22,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
   private readonly sessionId: string; // サーバが一意にセットするセッションID(誰の爆弾か)
   private readonly explodedAt: number; // サーバで管理している爆発する時間
+  private isExploded: boolean; // 爆発したかどうか
 
   constructor(
     sessionId: string,
@@ -44,6 +46,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.explodedAt = explodedAt;
     this.stableX = x;
     this.stableY = y;
+    this.isExploded = false;
     this.stableScene = this.scene;
   }
 
@@ -136,6 +139,11 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.addDirectionBlast(Constants.DIRECTION.LEFT, br.get(Constants.DIRECTION.LEFT) ?? 1);
   }
 
+  // 既に爆発する時間かどうか
+  isExplodedTime(): boolean {
+    return this.getRemainTime() <= 0;
+  }
+
   // 爆風の範囲を計算する
   private calcBlastRange(): Map<Constants.DIRECTION_TYPE, number> {
     // 自分自身から scene を取得すると、爆弾が爆発した後に scene が取得できなくなりエラーになるので window オブジェクトから取得する
@@ -200,6 +208,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   // ボムが爆発した後の処理
   afterExplosion() {
     this.destroy();
+    this.isExploded = true;
 
     // 自分の爆弾の時のみ爆弾の数を回復する
     if (this.player.isEqualSessionId(this.sessionId)) this.player.recoverSettableBombCount();
@@ -217,6 +226,17 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       },
     });
   }
+
+  // 爆発するまでの時間を返す
+  getRemainTime(): number {
+    if (this.explodedAt === null || this.explodedAt === 0) return 0;
+    const game = getGameScene();
+    return this.explodedAt - game.getServerTime() <= 0 ? 0 : this.explodedAt - game.getServerTime();
+  }
+
+  public getIsExploded(): boolean {
+    return this.isExploded;
+  }
 }
 
 Phaser.GameObjects.GameObjectFactory.register(
@@ -227,28 +247,48 @@ Phaser.GameObjects.GameObjectFactory.register(
     x: number,
     y: number,
     bombStrength = Constants.INITIAL_BOMB_STRENGTH,
+    explodedAt: number,
     player: PlayerInterface
   ) {
-    const sprite = new Bomb(sessionId, this.scene.matter.world, x, y, 'bomb', bombStrength, player);
+    const sprite = new Bomb(
+      sessionId,
+      this.scene.matter.world,
+      x,
+      y,
+      'bomb',
+      bombStrength,
+      explodedAt,
+      player
+    );
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);
 
     sprite.setStatic(true);
     sprite.setSensor(true);
+
+    // 爆弾のアニメーションを設定
+    // 爆弾のアニメーションは、爆発するまでの時間に応じて速度を変える
     sprite.play(
       {
         key: Config.BOMB_ANIMATION_KEY,
         // 秒間に表示する画像の枚数
-        frameRate: Config.BOMB_SPRITE_FRAME_COUNT,
+        frameRate: Config.BOMB_SPRITE_FRAME_COUNT / (sprite.getRemainTime() / 1000),
       },
       false
     );
 
-    setTimeout(() => {
-      sprite.explode();
-      sprite.afterExplosion();
-    }, Constants.BOMB_EXPLOSION_TIME);
+    // サーバからもらった爆発時間になったら爆発するため、定期的に確認する
+    const timer = setInterval(() => {
+      if (sprite.isExplodedTime()) {
+        // 誘爆などの理由により既に爆発している場合は何もしない
+        if (!sprite.getIsExploded()) {
+          sprite.explode();
+          sprite.afterExplosion();
+        }
+        clearInterval(timer);
+      }
+    }, 100);
 
     return sprite;
   }
@@ -324,6 +364,5 @@ export interface PlayerInterface {
   recoverSettableBombCount: () => void;
   consumeSettableBombCount: () => void;
   canSetBomb: (mp: Phaser.Physics.Matter.MatterPhysics) => boolean;
-  placeBomb: (mp: Phaser.Physics.Matter.MatterPhysics) => void;
   isEqualSessionId: (sessionId: string) => boolean;
 }

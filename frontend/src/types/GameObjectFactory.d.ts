@@ -32,6 +32,7 @@ declare global {
         x: number,
         y: number,
         bombStrength: number,
+        explodedAt: number,
         player: PlayerInterface
       ) => Bomb;
       blast: (

@@ -5,7 +5,7 @@ import Player from './Player';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import { NavKeys } from '../types/keyboard';
 import Network from '../services/Network';
-
+import { getGameScene } from '../utils/globalGame';
 export default class MyPlayer extends Player {
   private readonly remoteRef: Phaser.GameObjects.Rectangle;
 
@@ -91,9 +91,20 @@ export default class MyPlayer extends Player {
     // bomb 設置
     const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(cursorKeys.space);
     if (isSpaceJustDown) {
-      network.sendPlayerBomb(this);
       this.placeBomb(this.scene.matter);
     }
+  }
+
+  // ボムを置く
+  placeBomb(mp: Phaser.Physics.Matter.MatterPhysics) {
+    if (!this.canSetBomb(mp)) return;
+
+    // サーバにボムを置いたことを通知
+    const game = getGameScene();
+    game.getNetwork().sendPlayerBomb(this);
+
+    // ボムを置ける数を減らす
+    this.consumeSettableBombCount();
   }
 
   private forceMovePlayerPosition(player: ServerPlayer) {

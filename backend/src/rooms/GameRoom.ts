@@ -139,7 +139,7 @@ export default class GameRoom extends Room<GameRoomState> {
       const bomb = this.state.getBombQueue().read();
 
       // ボムが爆発していない場合は処理を終了する
-      if (bomb === undefined || !bomb.isExploded()) break;
+      if (bomb === undefined || !bomb.isExplodedTime()) break;
 
       // ボムを爆発して、削除する
       this.state.getBombQueue().dequeue();
