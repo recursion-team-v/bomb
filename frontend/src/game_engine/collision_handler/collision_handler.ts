@@ -26,7 +26,7 @@ export default function collisionHandler(bodyA: MatterJS.BodyType, bodyB: Matter
   if (aType === Constants.OBJECT_LABEL.PLAYER && bType === Constants.OBJECT_LABEL.ITEM) {
     const player = bodyA.gameObject as MyPlayer;
     const item = bodyB.gameObject as Item;
-    // playerToItem(player, item);
+    playerToItem(player, item);
     item.removeItem()
   }
   // A = PLAYER, B = BLAST
