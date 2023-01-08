@@ -9,3 +9,9 @@ export const SCENE_NAME_PRELOADER = 'preloader';
 export const SCENE_NAME_GAME = 'game';
 export const SCENE_NAME_GAME_HEADER = 'gameHeader';
 export const SCENE_NAME_GAME_RESULT = 'gameResult';
+
+/*
+サウンド関連
+*/
+
+export const SOUND_VOLUME = 0.2;
