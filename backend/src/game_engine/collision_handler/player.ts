@@ -22,7 +22,3 @@ export function playerToItem(player: PlayerInterface, item: ItemInterface) {
 
   item.removeItem();
 }
-
-export function playerToBlast(player: PlayerInterface) {
-  console.log('player hit blast');
-}

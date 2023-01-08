@@ -3,8 +3,10 @@ import Phaser from 'phaser';
 import * as Constants from '../../../backend/src/constants/constants';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import Bomb from '../items/Bomb';
+import phaserJuice from '../lib/phaserJuice';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
+  private hp: number;
   private speed: number;
   private bombStrength: number;
   private settableBombCount: number; // 今設置できるボムの個数
@@ -22,6 +24,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   ) {
     super(world, x, y, texture, frame, options);
 
+    this.hp = Constants.INITIAL_PLAYER_HP;
     this.sessionId = sessionId;
     this.speed = Constants.INITIAL_PLAYER_SPEED;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
@@ -49,8 +52,38 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     });
   }
 
+  // HP をセットします
+  setHP(hp: number) {
+    // サーバで計算するので、ここではHPを上書きするだけ
+    if (this.hp === hp) return;
+
+    if (this.hp > hp) {
+      this.damaged(this.hp - hp);
+    } else {
+      this.healed(hp - this.hp);
+    }
+  }
+
+  // 生きているかを返します
+  isDead(): boolean {
+    return this.hp <= 0;
+  }
+
+  // interface を満たすだけのダミーメソッド
+  damaged(damage: number) {
+    this.hp -= damage;
+    this.animationShakeScreen();
+    this.animationFlash(Constants.PLAYER_INVINCIBLE_TIME);
+  }
+
+  healed(healedHp: number) {
+    this.hp += healedHp;
+  }
+
   // ボムを設置できるかをチェックする
   canSetBomb(mp: Phaser.Physics.Matter.MatterPhysics): boolean {
+    if (this.isDead()) return false;
+
     // 同じ場所にボムを置けないようにする
     const { x, y } = Bomb.getSettablePosition(this.x, this.y);
 
@@ -126,11 +159,51 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.settableBombCount--;
   }
 
-  gameOver() {
-    // this.destroy();
+  // 死亡
+  died() {
+    this.stop();
+    this.setToSleep(); // これをしないと移動中だとローテーション中に移動してしまう
+    this.setVelocity(0, 0);
+    this.setSensor(true);
+    this.animationRotate();
   }
 
   isEqualSessionId(sessionId: string): boolean {
     return this.sessionId === sessionId;
+  }
+
+  private animationFlash(duration: number) {
+    // eslint-disable-next-line new-cap
+    const juice = new phaserJuice(this.scene);
+
+    // 一定時間無敵の演出
+    const timer = setInterval(() => {
+      juice.flash(this);
+      if (this.isDead()) {
+        clearInterval(timer);
+      }
+    }, 100);
+
+    setTimeout(() => {
+      clearInterval(timer);
+    }, duration);
+  }
+
+  private animationRotate() {
+    // eslint-disable-next-line new-cap
+    const juice = new phaserJuice(this.scene);
+    const rotateConfig = {
+      angle: 450,
+      duration: 500,
+      ease: 'Circular.easeInOut',
+      delay: 1000,
+      paused: false,
+    };
+
+    juice.rotate(this, rotateConfig);
+  }
+
+  private animationShakeScreen(duration: number = 300) {
+    this.scene.cameras.main.shake(duration, 0.01);
   }
 }

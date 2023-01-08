@@ -129,7 +129,7 @@ export default class Game extends Phaser.Scene {
     this.otherPlayers.set(sessionId, otherPlayer);
 
     player.onChange = () => {
-      otherPlayer.handleServerChange(player.x, player.y, player.frameKey);
+      otherPlayer.handleServerChange(player);
     };
   }
 

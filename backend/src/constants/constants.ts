@@ -44,6 +44,16 @@ export type GAME_STATE_TYPE = typeof GAME_STATE[keyof typeof GAME_STATE];
 // ルームの最大人数
 export const MAX_PLAYER = 4;
 
+/*
+プレイヤーの状態の定義
+*/
+
+// プレイヤーの初期HP
+export const INITIAL_PLAYER_HP = 1;
+
+// プレイヤーの最大HP
+export const MAX_PLAYER_HP = 3;
+
 // 初期に設置できる爆弾の数
 export const INITIAL_SETTABLE_BOMB_COUNT = 1;
 
@@ -55,6 +65,9 @@ export const INITIAL_BOMB_STRENGTH = 1;
 
 // プレイヤーの初期移動速度
 export const INITIAL_PLAYER_SPEED = 4;
+
+// プレイヤーが被弾時に一定時間無敵になる時間(ms)
+export const PLAYER_INVINCIBLE_TIME = 3000;
 
 // プレイヤーの初期位置
 // TODO: サイズから計算する
@@ -69,6 +82,9 @@ export const INITIAL_PLAYER_POSITION = [
 /*
 ボムの定義
 */
+
+// 爆弾がプレイヤーに与えるダメージ
+export const BOMB_DAMAGE = 1;
 
 // 爆弾の爆発までの時間(ms)
 export const BOMB_EXPLOSION_TIME = 2330;
