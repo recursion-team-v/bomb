@@ -23,6 +23,9 @@ export default class GameRoom extends Room<GameRoomState> {
       const player = this.state.getPlayer(client.sessionId);
       if (player === undefined) return;
 
+      // 既に死んでいたら無視
+      if (player.isDead()) return;
+
       player.inputQueue.push(data);
     });
 
@@ -58,6 +61,13 @@ export default class GameRoom extends Room<GameRoomState> {
 
         // 爆弾の処理
         this.bombProcess();
+
+        // ゲーム終了判定 TODO: ロビーができて、ちゃんとゲーム開始判定ができたら有効化する
+        // if (
+        //   this.state.gameState.isPlaying() &&
+        //   this.state.gameState.isRemainPlayerZeroOrOne(this.state.players)
+        // )
+        //   this.state.gameState.setFinished();
 
         Matter.Engine.update(this.engine.engine, deltaTime);
       }
@@ -106,6 +116,9 @@ export default class GameRoom extends Room<GameRoomState> {
   private addBombEvent(sessionId: string) {
     const player = this.state.getPlayer(sessionId);
     if (player === undefined) return;
+
+    // 既に死んでいたら無視
+    if (player.isDead()) return;
 
     const bomb = this.engine.playerService.placeBomb(player); // ボムを設置する  TODO:
     if (bomb !== null) this.state.getBombQueue().enqueue(bomb); // ボムキューに詰める
