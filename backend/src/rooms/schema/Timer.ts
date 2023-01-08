@@ -15,6 +15,10 @@ export default class Timer extends Schema {
   @type('number')
   private remainTime!: number;
 
+  // 現在時刻
+  @type('number')
+  private now!: number;
+
   // 制限時間をセットする
   set(epochtime: number) {
     this.startedAt = epochtime;
@@ -22,11 +26,17 @@ export default class Timer extends Schema {
     // 終了時間は開始時間から制限時間を足したもの
     // js ではミリ秒単位で計算するので、1000倍している
     this.finishedAt = epochtime + Constants.TIME_LIMIT_SEC * 1000;
+
+    this.now = Date.now();
+  }
+
+  updateNow() {
+    this.now = Date.now();
   }
 
   // 残り時間をセットする
   setRemainTime() {
-    this.remainTime = this.isInTime() ? this.finishedAt - Date.now() : 0;
+    this.remainTime = this.isInTime() ? this.finishedAt - this.now : 0;
   }
 
   getRemainTime() {
@@ -35,6 +45,6 @@ export default class Timer extends Schema {
 
   // 制限時間内かどうかを返す
   isInTime(): boolean {
-    return Date.now() < this.finishedAt;
+    return this.now < this.finishedAt;
   }
 }

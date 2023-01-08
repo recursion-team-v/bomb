@@ -20,6 +20,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly stableScene: Phaser.Scene; // 爆弾が消えてもシーンを保持するための変数
 
   private readonly sessionId: string; // サーバが一意にセットするセッションID(誰の爆弾か)
+  private readonly explodedAt: number; // サーバで管理している爆発する時間
 
   constructor(
     sessionId: string,
@@ -28,6 +29,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     y: number,
     texture: string,
     bombStrength: number,
+    explodedAt: number,
     player: PlayerInterface
   ) {
     super(world, x, y, texture);
@@ -39,6 +41,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.sessionId = sessionId;
     this.player = player;
     this.bombStrength = bombStrength;
+    this.explodedAt = explodedAt;
     this.stableX = x;
     this.stableY = y;
     this.stableScene = this.scene;

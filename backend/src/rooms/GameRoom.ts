@@ -39,7 +39,11 @@ export default class GameRoom extends Room<GameRoomState> {
     this.setSimulationInterval((deltaTime) => {
       elapsedTime += deltaTime;
 
+      this.state.timer.updateNow();
+
       while (elapsedTime >= Constants.FRAME_RATE) {
+        this.state.timer.updateNow();
+
         // 時間切れになったらゲーム終了
         if (!this.state.timer.isInTime() && this.state.gameState.isPlaying()) {
           try {
