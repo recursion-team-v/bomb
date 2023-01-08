@@ -72,8 +72,8 @@ export default class MapService {
     return Matter.Bodies.rectangle(
       tileWidth / 2 + tileWidth * x,
       Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
-      tileWidth,
-      tileHeight,
+      tileWidth * 0.9,
+      tileHeight * 0.9,
       {
         isStatic: true,
         label: Constants.OBJECT_LABEL.BLOCK,
