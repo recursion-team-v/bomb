@@ -6,6 +6,7 @@ import BombInterface from '../../../backend/src/interfaces/bomb';
 import * as Config from '../config/config';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import { phaserGlobalGameObject } from '../PhaserGame';
+import Game from '../scenes/Game';
 import { getDimensionalMap, getHighestPriorityFromBodies } from '../services/Map';
 import { getDepth } from './util';
 
@@ -134,12 +135,13 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
   // 爆風の範囲を計算する
   private calcBlastRange(): Map<Constants.DIRECTION_TYPE, number> {
+    // 自分自身から scene を取得すると、爆弾が爆発した後に scene が取得できなくなりエラーになるので window オブジェクトから取得する
+    const scene = phaserGlobalGameObject().scene.getScene(Config.SCENE_NAME_GAME);
     const map = getDimensionalMap(
       // TODO: サーバから受け取ったマップの X/ Y のタイル数を使う
-      Constants.TILE_ROWS,
-      Constants.TILE_COLS,
-      // 自分自身から scene を取得すると、爆弾が爆発した後に scene が取得できなくなりエラーになるので window オブジェクトから取得する
-      phaserGlobalGameObject().scene.getScene(Config.SCENE_NAME_GAME),
+      (scene as Game).getRows(),
+      (scene as Game).getCols(),
+      scene,
       getHighestPriorityFromBodies
     );
 
