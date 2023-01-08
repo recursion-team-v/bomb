@@ -54,25 +54,33 @@ export default class MyPlayer extends Player {
     this.inputPayload.up = cursorKeys.up.isDown || cursorKeys.W.isDown;
     this.inputPayload.down = cursorKeys.down.isDown || cursorKeys.S.isDown;
 
+    const isInput =
+      (this.inputPayload.left ||
+        this.inputPayload.right ||
+        this.inputPayload.up ||
+        this.inputPayload.down) &&
+      !document.hidden;
+
     let vx = 0; // velocity x
     let vy = 0; // velocity y
 
-    const velocity = this.getSpeed();
-    if (this.inputPayload.left) {
-      vx -= velocity;
-    } else if (this.inputPayload.right) {
-      vx += velocity;
-    }
+    if (isInput) {
+      const velocity = this.getSpeed();
+      if (this.inputPayload.left) {
+        vx -= velocity;
+      } else if (this.inputPayload.right) {
+        vx += velocity;
+      }
 
-    if (this.inputPayload.up) {
-      vy -= velocity;
-    } else if (this.inputPayload.down) {
-      vy += velocity;
+      if (this.inputPayload.up) {
+        vy -= velocity;
+      } else if (this.inputPayload.down) {
+        vy += velocity;
+      }
     }
 
     this.setVelocity(vx, vy);
-
-    network.sendPlayerMove(this);
+    network.sendPlayerMove(this, isInput);
 
     if (vx > 0) this.play('player_right', true);
     else if (vx < 0) this.play('player_left', true);
