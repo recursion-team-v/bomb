@@ -52,7 +52,12 @@ const config: Phaser.Types.Core.GameConfig = {
 
 const phaserGame = new Phaser.Game(config);
 
-(window as any).game = phaserGame;
+interface WindowInterface {
+  game: Phaser.Game;
+}
+
+declare const window: WindowInterface;
+window.game = phaserGame;
 export function phaserGlobalGameObject(): Phaser.Game {
   return window.game;
 }
