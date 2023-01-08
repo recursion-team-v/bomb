@@ -1,11 +1,14 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-import BombInterface from '../../../backend/src/interfaces/bomb';
-import collisionHandler from '../game_engine/collision_handler/collision_handler';
-import { getDimensionalMap, getHighestPriorityFromBodies } from '../services/Map';
 import { calcBlastRangeFromDirection } from '../../../backend/src/game_engine/services/blastService';
+import BombInterface from '../../../backend/src/interfaces/bomb';
+import * as Config from '../config/config';
+import collisionHandler from '../game_engine/collision_handler/collision_handler';
+import { phaserGlobalGameObject } from '../PhaserGame';
+import { getDimensionalMap, getHighestPriorityFromBodies } from '../services/Map';
 import { getDepth } from './util';
+
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly bombStrength: number;
   private readonly player: PlayerInterface;
@@ -135,7 +138,8 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       // TODO: サーバから受け取ったマップの X/ Y のタイル数を使う
       Constants.TILE_ROWS,
       Constants.TILE_COLS,
-      this.scene,
+      // 自分自身から scene を取得すると、爆弾が爆発した後に scene が取得できなくなりエラーになるので window オブジェクトから取得する
+      phaserGlobalGameObject().scene.getScene(Config.SCENE_NAME_GAME),
       getHighestPriorityFromBodies
     );
 
@@ -143,9 +147,9 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     const power = this.bombStrength;
 
     // 現在のユーザの爆弾の位置を取得
-    const x = (this.x - Constants.TILE_WIDTH / 2) / Constants.TILE_WIDTH;
+    const x = (this.stableX - Constants.TILE_WIDTH / 2) / Constants.TILE_WIDTH;
     const y =
-      (this.y - Constants.TILE_HEIGHT / 2 - Constants.HEADER_HEIGHT) / Constants.TILE_HEIGHT;
+      (this.stableY - Constants.TILE_HEIGHT / 2 - Constants.HEADER_HEIGHT) / Constants.TILE_HEIGHT;
 
     // 現在のユーザの爆弾の位置から上下左右の範囲を計算
     const m = new Map<Constants.DIRECTION_TYPE, number>();
