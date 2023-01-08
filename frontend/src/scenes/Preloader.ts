@@ -71,6 +71,8 @@ export default class Preloader extends Phaser.Scene {
       this.load.image(Constants.JOYSTICK_STICK_KEY, 'assets/joystick-red.png');
     }
 
+    this.load.audio('bombExplode', ['assets/se/bomb.mp3']);
+
     this.load.on('complete', () => {
       // add player animations
       createPlayerAnims(this.anims);
