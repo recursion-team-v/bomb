@@ -2,7 +2,6 @@ import { Schema, type } from '@colyseus/schema';
 import { v4 as uuidv4 } from 'uuid';
 import * as Constants from '../../constants/constants';
 
-
 export default class Item extends Schema {
   @type('string')
   id: string;
@@ -26,8 +25,7 @@ export default class Item extends Schema {
     this.itemType = itemType;
   }
 
-  removeItem() {
-  }
+  removeItem() {}
 
   getType() {
     return this.itemType;

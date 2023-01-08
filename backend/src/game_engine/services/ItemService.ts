@@ -18,27 +18,29 @@ export default class ItemService {
     let bombPossessionUpCnt = 0;
     let bombStrengthCnt = 0;
     let playerSpeedCnt = 0;
-    for (let x = 1; x < cols-2; x+=2) {
-      for (let y = 1; y < rows-2; y+=2) {
+    for (let x = 1; x < cols - 2; x += 2) {
+      for (let y = 1; y < rows - 2; y += 2) {
         const index = Math.floor(Math.random() * 4);
-        const ix = Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * x
-        const iy= Constants.HEADER_HEIGHT + Constants.TILE_HEIGHT / 2 + Constants.TILE_HEIGHT * y
+        const ix = Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * x;
+        const iy = Constants.HEADER_HEIGHT + Constants.TILE_HEIGHT / 2 + Constants.TILE_HEIGHT * y;
 
         if (index === 1 && Constants.ITEM_PLACE_COUNT.BOMB_POSSESSION_UP > bombPossessionUpCnt) {
           items.push(
             this.addItem(
-              this.gameEngine.state.createItem(ix,iy, Constants.ITEM_TYPE.BOMB_POSSESSION_UP)
+              this.gameEngine.state.createItem(ix, iy, Constants.ITEM_TYPE.BOMB_POSSESSION_UP)
             )
           );
           bombPossessionUpCnt++;
         } else if (index === 2 && Constants.ITEM_PLACE_COUNT.BOMB_STRENGTH > bombStrengthCnt) {
           items.push(
-            this.addItem(this.gameEngine.state.createItem(ix,iy, Constants.ITEM_TYPE.BOMB_STRENGTH))
+            this.addItem(
+              this.gameEngine.state.createItem(ix, iy, Constants.ITEM_TYPE.BOMB_STRENGTH)
+            )
           );
           bombStrengthCnt++;
         } else if (index === 3 && ITEM_PLACE_COUNT.PLAYER_SPEED > playerSpeedCnt) {
           items.push(
-            this.addItem(this.gameEngine.state.createItem(ix,iy, Constants.ITEM_TYPE.PLAYER_SPEED))
+            this.addItem(this.gameEngine.state.createItem(ix, iy, Constants.ITEM_TYPE.PLAYER_SPEED))
           );
           playerSpeedCnt++;
         }
@@ -70,6 +72,6 @@ export default class ItemService {
     if (itemBody === undefined) return;
     Matter.Composite.remove(this.gameEngine.world, itemBody);
     this.gameEngine.itemBodies.delete(item.id);
-    this.gameEngine.itemIdByBodyId.delete(itemBody.id)
+    this.gameEngine.itemIdByBodyId.delete(itemBody.id);
   }
 }

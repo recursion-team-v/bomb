@@ -72,11 +72,7 @@ export default class Game extends Phaser.Scene {
       drawBlocks(this, state.gameMap.blockArr);
       // draw items
       state.items.forEach((item) => {
-        this.add.item(
-          item.x,
-          item.y,
-          item.itemType
-        );
+        this.add.item(item.x, item.y, item.itemType);
       });
     });
   }
