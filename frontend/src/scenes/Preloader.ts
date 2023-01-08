@@ -72,6 +72,7 @@ export default class Preloader extends Phaser.Scene {
     }
 
     this.load.audio('bombExplode', ['assets/se/bomb.mp3']);
+    this.load.audio('stage_1', ['assets/bgm/stage_1.mp3']);
 
     this.load.on('complete', () => {
       // add player animations
@@ -83,7 +84,7 @@ export default class Preloader extends Phaser.Scene {
 
   init() {
     this.network = new Network();
-    // 自分がルームに参加できたら prelaod 完了
+    // 自分がルームに参加できたら preload 完了
     this.network.onMyPlayerJoinedRoom(() => (this.preloadComplete = true));
   }
 
