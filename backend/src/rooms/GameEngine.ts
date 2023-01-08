@@ -21,6 +21,7 @@ export default class GameEngine {
   bombBodies = new Map<string, Matter.Body>();
   // 衝突判定時に、衝突した bodyId から bombId を取得し bomb を取得するために利用
   bombIdByBodyId = new Map<number, string>(); // bodyId: bombId
+  itemIdByBodyId = new Map<number, string>(); 
 
   itemBodies = new Map<string, Matter.Body>();
   bombService: BombService;
@@ -44,12 +45,13 @@ export default class GameEngine {
 
   init() {
     // create map
-    this.mapService.createMapWalls(this.state.gameMap.rows, this.state.gameMap.cols);
-    this.mapService.createMapBlocks(
-      this.state.gameMap.rows,
-      this.state.gameMap.cols,
-      this.state.gameMap.blockArr
-    );
+    // this.mapService.createMapWalls(this.state.gameMap.rows, this.state.gameMap.cols);
+    // this.mapService.createMapBlocks(
+    //   this.state.gameMap.rows,
+    //   this.state.gameMap.cols,
+    //   this.state.gameMap.blockArr
+    // );
+    this.itemService.createRandomItems(this.state.gameMap.rows, this.state.gameMap.cols);
     this.initUpdateEvents();
     this.initCollision();
   }

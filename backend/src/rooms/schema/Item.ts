@@ -1,6 +1,7 @@
 import { Schema, type } from '@colyseus/schema';
 import { v4 as uuidv4 } from 'uuid';
-import { ITEM_TYPES } from '../../constants/constants';
+import * as Constants from '../../constants/constants';
+
 
 export default class Item extends Schema {
   @type('string')
@@ -15,13 +16,20 @@ export default class Item extends Schema {
 
   // アイテムのタイプ
   @type('string')
-  itemType: string;
+  itemType: Constants.ITEM_TYPES;
 
-  constructor(x: number, y: number, itemType: ITEM_TYPES) {
+  constructor(x: number, y: number, itemType: Constants.ITEM_TYPES) {
     super();
     this.id = uuidv4();
     this.x = x;
     this.y = y;
     this.itemType = itemType;
+  }
+
+  removeItem() {
+  }
+
+  getType() {
+    return this.itemType;
   }
 }

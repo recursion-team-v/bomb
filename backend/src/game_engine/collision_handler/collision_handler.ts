@@ -3,6 +3,7 @@ import Matter from 'matter-js';
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
 import blastToBomb from './blast';
+import { playerToItem } from './player';
 
 export default function collisionHandler(
   engine: GameEngine,
@@ -24,19 +25,21 @@ export default function collisionHandler(
   const isBlast = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.BLAST);
   const isItem = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.ITEM);
   const isPlayer = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.PLAYER);
-
+  // console.log(labelA,labelB,isItem)
   // // PLAYER & ITEM
   if (isPlayer && isItem) {
-    // TODO:
     console.log('player hit item');
-    // const playerBody = labelA === Constants.OBJECT_LABEL.PLAYER ? bodyA : bodyB;
-    // const itemBody = labelA === Constants.OBJECT_LABEL.ITEM ? bodyA : bodyB;
-    // const sessionId = engine.sessionIdByBodyId.get(playerBody.id);
-    // if (sessionId === undefined) return;
-    // const player = engine.state.players.get(sessionId);
-    // if (player === undefined) return;
-    // const item = // 同上
-    // playerToItem(player, item);
+    const playerBody = labelA === Constants.OBJECT_LABEL.PLAYER ? bodyA : bodyB;
+    const itemBody = labelA === Constants.OBJECT_LABEL.ITEM ? bodyA : bodyB;
+    const sessionId = engine.sessionIdByBodyId.get(playerBody.id);
+    const itemId = engine.itemIdByBodyId.get(itemBody.id);
+    if (sessionId === undefined || itemId === undefined) return;
+    const player = engine.state.players.get(sessionId);
+    if (player === undefined) return;
+    const item = engine.state.items.get(itemId);
+    if (item === undefined) return;
+    playerToItem(player, item);
+    engine.itemService.removeItem(item);
   }
 
   // PLAYER & BLAST

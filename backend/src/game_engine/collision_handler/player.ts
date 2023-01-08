@@ -17,10 +17,7 @@ export function playerToItem(player: PlayerInterface, item: ItemInterface) {
       break;
 
     default:
-      return;
   }
-
-  item.removeItem();
 }
 
 export function playerToBlast(player: PlayerInterface) {
