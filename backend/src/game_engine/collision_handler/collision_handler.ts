@@ -2,8 +2,8 @@ import Matter from 'matter-js';
 
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
-import blastToBomb from './blast';
 import { playerToItem } from './player';
+import { blastToBomb, blastToPlayer } from './blast';
 
 export default function collisionHandler(
   engine: GameEngine,
@@ -43,8 +43,15 @@ export default function collisionHandler(
 
   // PLAYER & BLAST
   else if (isPlayer && isBlast) {
+    const playerBody = labelA === Constants.OBJECT_LABEL.PLAYER ? bodyA : bodyB;
+    const sessionId = engine.sessionIdByBodyId.get(playerBody.id);
+    if (sessionId === undefined) return;
+
+    const player = engine.state.getPlayer(sessionId);
+    if (player === undefined) return;
+
     // TODO: 爆風に当たると30hitぐらいしちゃうので、回復アイテムを入れるならヒット後は数秒無敵にした方がいい
-    console.log('player hit blast');
+    blastToPlayer(player);
   }
 
   // BLAST & BOMB

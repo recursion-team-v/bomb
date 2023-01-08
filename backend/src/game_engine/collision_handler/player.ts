@@ -26,7 +26,3 @@ export function playerToItem(player: PlayerInterface, item: ItemInterface, engin
     engine?.itemService.removeItem(item as Item);
   }
 }
-
-export function playerToBlast(player: PlayerInterface) {
-  console.log('player hit blast');
-}

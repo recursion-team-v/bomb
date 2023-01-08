@@ -30,7 +30,10 @@ export default class Game extends Phaser.Scene {
   private readonly otherPlayers: Map<string, OtherPlayer> = new Map();
   private myPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
   cursorKeys!: NavKeys;
-
+  // eslint-disable-next-line @typescript-eslint/prefer-readonly
+  private cols!: number; // サーバから受け取ったマップの列数
+  // eslint-disable-next-line @typescript-eslint/prefer-readonly
+  private rows!: number; // サーバから受け取ったマップの行数
   private elapsedTime: number = 0; // 経過時間
   private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
 
@@ -59,6 +62,8 @@ export default class Game extends Phaser.Scene {
     this.room.onStateChange.once((state) => {
       // GameRoomState の blockArr が初期化されたら block（破壊）を描画
       const mapTiles = state.gameMap.mapTiles;
+      this.rows = state.gameMap.rows;
+      this.cols = state.gameMap.cols;
       // draw ground
       drawGround(this, mapTiles.GROUND_IDX);
       // draw walls
@@ -129,7 +134,7 @@ export default class Game extends Phaser.Scene {
     this.otherPlayers.set(sessionId, otherPlayer);
 
     player.onChange = () => {
-      otherPlayer.handleServerChange(player.x, player.y, player.frameKey);
+      otherPlayer.handleServerChange(player);
     };
   }
 
@@ -199,5 +204,13 @@ export default class Game extends Phaser.Scene {
 
   public getCurrentPlayer(): MyPlayer {
     return this.myPlayer;
+  }
+
+  public getCols(): number {
+    return this.cols;
+  }
+
+  public getRows(): number {
+    return this.rows;
   }
 }

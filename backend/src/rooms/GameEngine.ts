@@ -8,6 +8,7 @@ import PlayerService from '../game_engine/services/playerService';
 import GameRoomState from './schema/GameRoomState';
 import ItemService from '../game_engine/services/ItemService';
 import Player from './schema/Player';
+import * as Constants from '../constants/constants';
 
 export default class GameEngine {
   world: Matter.World;
@@ -85,5 +86,39 @@ export default class GameEngine {
 
   getPlayer(sessionId: string): Player | undefined {
     return this.state.players.get(sessionId);
+  }
+
+  // matter world 上の body から、二次元配列のマップを作成します
+  // この時 fn で指定した関数を実行し、その結果をマップに反映します
+  getDimensionalMap(fn: (bodies: Matter.Body[]) => number): number[][] {
+    const dimensionalMap: number[][] = [];
+
+    for (let y = 0; y < this.state.gameMap.rows; y++) {
+      dimensionalMap[y] = [];
+      for (let x = 0; x < this.state.gameMap.cols; x++) {
+        const bodies = Matter.Query.point(this.world.bodies, {
+          x: Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * x,
+          y: Constants.HEADER_HEIGHT + Constants.TILE_HEIGHT / 2 + Constants.TILE_HEIGHT * y,
+        });
+        dimensionalMap[y][x] = fn(bodies);
+      }
+    }
+
+    return dimensionalMap;
+  }
+
+  // matter bodies から label を確認し、最も優先度の高い判定を返す
+  getHighestPriorityFromBodies(bodies: Matter.Body[]): number {
+    let highestPriority = Constants.OBJECT_COLLISION_TO_BLAST.NONE as number;
+    if (bodies.length === 0) return highestPriority;
+
+    const hash = { ...Constants.OBJECT_COLLISION_TO_BLAST };
+
+    bodies.forEach((body) => {
+      const label = body.label as Constants.OBJECT_LABELS;
+      highestPriority = Math.max(highestPriority, hash[label]);
+    });
+
+    return highestPriority;
   }
 }

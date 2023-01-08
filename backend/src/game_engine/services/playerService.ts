@@ -50,18 +50,21 @@ export default class PlayerService {
 
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     while ((data = player.inputQueue.shift())) {
-      let newVx = data.x - player.x;
-      let newVy = data.y - player.y;
+      const { player: playerData, isInput } = data;
 
-      if (Math.abs(newVx) > velocity) newVx = velocity * Math.sign(newVx);
-      if (Math.abs(newVy) > velocity) newVy = velocity * Math.sign(newVy);
+      if (isInput === false) {
+        Matter.Body.setVelocity(playerBody, { x: 0, y: 0 });
+      } else {
+        let newVx = playerData.x - player.x;
+        let newVy = playerData.y - player.y;
 
-      newVx = Math.floor(newVx);
-      newVy = Math.floor(newVy);
+        if (Math.abs(newVx) > velocity) newVx = velocity * Math.sign(newVx);
+        if (Math.abs(newVy) > velocity) newVy = velocity * Math.sign(newVy);
 
-      Matter.Body.setVelocity(playerBody, { x: newVx, y: newVy });
+        Matter.Body.setVelocity(playerBody, { x: newVx, y: newVy });
+      }
 
-      playerState.frameKey = data.frameKey;
+      playerState.frameKey = playerData.frameKey;
     }
   }
 

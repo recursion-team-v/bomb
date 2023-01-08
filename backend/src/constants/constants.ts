@@ -41,8 +41,27 @@ export const GAME_STATE = {
 
 export type GAME_STATE_TYPE = typeof GAME_STATE[keyof typeof GAME_STATE];
 
+export const DIRECTION = {
+  UP: 1,
+  DOWN: 2,
+  RIGHT: 3,
+  LEFT: 4,
+} as const;
+
+export type DIRECTION_TYPE = typeof DIRECTION[keyof typeof DIRECTION];
+
 // ルームの最大人数
 export const MAX_PLAYER = 4;
+
+/*
+プレイヤーの状態の定義
+*/
+
+// プレイヤーの初期HP
+export const INITIAL_PLAYER_HP = 1;
+
+// プレイヤーの最大HP
+export const MAX_PLAYER_HP = 3;
 
 // 初期に設置できる爆弾の数
 export const INITIAL_SETTABLE_BOMB_COUNT = 1;
@@ -55,6 +74,9 @@ export const INITIAL_BOMB_STRENGTH = 1;
 
 // プレイヤーの初期移動速度
 export const INITIAL_PLAYER_SPEED = 4;
+
+// プレイヤーが被弾時に一定時間無敵になる時間(ms)
+export const PLAYER_INVINCIBLE_TIME = 3000;
 
 // プレイヤーの初期位置
 // TODO: サイズから計算する
@@ -70,14 +92,18 @@ export const INITIAL_PLAYER_POSITION = [
 ボムの定義
 */
 
+// 爆弾がプレイヤーに与えるダメージ
+export const BOMB_DAMAGE = 1;
+
 // 爆弾の爆発までの時間(ms)
 export const BOMB_EXPLOSION_TIME = 2330;
 
-// 爆弾の衝突判定の割合
-export const BOMB_COLLISION_RATIO = 0.4;
-
 // 爆弾が誘爆する時の遅延時間(ms)
 export const BOMB_DETONATION_DELAY = 50;
+
+// 爆風の衝突判定の割合
+export const BLAST_COLLISION_RATIO_X = 0.4;
+export const BLAST_COLLISION_RATIO_Y = 0.7;
 
 // 爆風が維持される時間(ms)
 // この時間だけ当たり判定が残る
@@ -174,6 +200,36 @@ export const OBJECT_LABEL = {
 } as const;
 
 export type OBJECT_LABELS = typeof OBJECT_LABEL[keyof typeof OBJECT_LABEL];
+
+// 各オブジェクトと爆風の衝突判定
+// 0: 爆風の邪魔をしないオブジェクト(床、プレイヤーなど)
+// 1: 爆風の邪魔をするが、自身は削除されるオブジェクト(箱、アイテムなど)
+// 2: 爆風の邪魔をするオブジェクト(壁、箱など)
+export const OBJECT_COLLISION_TO_BLAST = {
+  NONE: 0,
+  [OBJECT_LABEL.BOMB]: 1,
+  [OBJECT_LABEL.BLAST]: 0,
+  [OBJECT_LABEL.BLOCK]: 1,
+  [OBJECT_LABEL.ITEM]: 1,
+  [OBJECT_LABEL.PLAYER]: 0,
+  [OBJECT_LABEL.WALL]: 2,
+} as const;
+
+export type OBJECT_COLLISIONS_TO_BLAST =
+  typeof OBJECT_COLLISION_TO_BLAST[keyof typeof OBJECT_COLLISION_TO_BLAST];
+
+// 数字の大きいものが上にくる
+export const OBJECT_DEPTH = {
+  NONE: 0,
+  [OBJECT_LABEL.BLAST]: -1,
+  [OBJECT_LABEL.ITEM]: 1, // ブロックの下にある
+  [OBJECT_LABEL.BLOCK]: 2, // ブロックをすり抜けられるアイテムがある
+  [OBJECT_LABEL.BOMB]: 3, // 特殊なアイテムで壁の上を爆弾が滑ることがある
+  [OBJECT_LABEL.PLAYER]: 10,
+  [OBJECT_LABEL.WALL]: 99,
+} as const;
+
+export type OBJECT_DEPTH_TYPE = typeof OBJECT_DEPTH[keyof typeof OBJECT_DEPTH];
 
 /*
 モバイル用の操作アイコンの定義
