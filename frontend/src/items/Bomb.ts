@@ -233,13 +233,19 @@ Phaser.GameObjects.GameObjectFactory.register(
 
     sprite.setStatic(true);
     sprite.setSensor(true);
-    sprite.play('bomb_count', false);
+    sprite.play(
+      {
+        key: Config.BOMB_ANIMATION_KEY,
+        // 秒間に表示する画像の枚数
+        frameRate: Config.BOMB_SPRITE_FRAME_COUNT,
+      },
+      false
+    );
 
-    // bomb_count アニメーションが終わったら explode
-    sprite.once('animationcomplete', () => {
+    setTimeout(() => {
       sprite.explode();
       sprite.afterExplosion();
-    });
+    }, Constants.BOMB_EXPLOSION_TIME);
 
     return sprite;
   }
