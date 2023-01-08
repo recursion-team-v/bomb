@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
+import { getDepth } from './util';
 
 export default class Item extends Phaser.Physics.Matter.Sprite {
   public readonly itemType: Constants.ITEM_TYPES;
@@ -20,6 +21,7 @@ export default class Item extends Phaser.Physics.Matter.Sprite {
     const body = this.body as MatterJS.BodyType;
     body.label = Constants.OBJECT_LABEL.ITEM;
 
+    this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
     this.setScale(0.45);
     this.itemType = itemType;
 

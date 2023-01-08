@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 import * as Constants from '../../../backend/src/constants/constants';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import Bomb from '../items/Bomb';
+import { getDepth } from '../items/util';
 import phaserJuice from '../lib/phaserJuice';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
@@ -44,6 +45,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     const body = this.body as MatterJS.BodyType;
     body.label = Constants.OBJECT_LABEL.PLAYER;
 
+    this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
       const currBody = this.body as MatterJS.BodyType;
       data.bodyA.id === currBody.id
