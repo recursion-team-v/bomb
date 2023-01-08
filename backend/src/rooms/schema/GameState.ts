@@ -1,7 +1,7 @@
-import { Schema, type } from '@colyseus/schema';
+import { MapSchema, Schema, type } from '@colyseus/schema';
 
 import * as Constants from '../../constants/constants';
-
+import Player from './Player';
 export default class GameState extends Schema {
   @type('number')
   private gameState: Constants.GAME_STATE_TYPE;
@@ -35,5 +35,17 @@ export default class GameState extends Schema {
 
   isFinished() {
     return this.gameState === Constants.GAME_STATE.FINISHED;
+  }
+
+  // 残りのプレイヤーが0人 or 1人かどうかを返す
+  isRemainPlayerZeroOrOne(players: MapSchema<Player, string>) {
+    let count = players.size;
+
+    for (const player of players.values()) {
+      if (player.isDead()) {
+        count--;
+      }
+    }
+    return count <= 1;
   }
 }
