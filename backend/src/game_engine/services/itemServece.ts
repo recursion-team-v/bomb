@@ -18,8 +18,8 @@ export default class ItemServece {
     let bombPossessionUpCnt = 0;
     let bombStrengthCnt = 0;
     let playerSpeedCnt = 0;
-    for (let x = 2; x < cols; x += 2) {
-      for (let y = 2; y < rows-2; y += 2) {
+    for (let x = 1; x < cols-2; x+=2) {
+      for (let y = 1; y < rows-2; y+=2) {
         const index = Math.floor(Math.random() * 4);
         const ix = Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * x
         const iy= Constants.HEADER_HEIGHT + Constants.TILE_HEIGHT / 2 + Constants.TILE_HEIGHT * y
