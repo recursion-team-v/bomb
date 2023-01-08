@@ -110,6 +110,11 @@ export default class BlastService {
 
   // 現在のユーザの爆弾の強さを取得する
   private getPlayerBombStrength(): number {
-    return this.bomb.owner.getBombStrength();
+    const player = this.gameEngine.getPlayer(this.bomb.sessionId);
+    if (player === undefined) {
+      return Constants.INITIAL_BOMB_STRENGTH;
+    } else {
+      return player.getBombStrength();
+    }
   }
 }

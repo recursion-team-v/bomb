@@ -6,7 +6,7 @@ import Item from '../../rooms/schema/Item';
 import { ITEM_PLACE_COUNT } from './../../constants/constants';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
-export default class ItemServece {
+export default class ItemService {
   private readonly gameEngine: GameEngine;
 
   constructor(gameEngine: GameEngine) {

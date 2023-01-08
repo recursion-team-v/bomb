@@ -1,4 +1,5 @@
 import MyPlayer from '../characters/MyPlayer';
+import OtherPlayer from '../characters/OtherPlayer';
 import { Block } from '../items/Block';
 import Bomb, { Blast, PlayerInterface } from '../items/Bomb';
 import Item from '../items/Item';
@@ -18,6 +19,14 @@ declare global {
         frame?: string | number,
         options?: Phaser.Types.Physics.Matter.MatterBodyConfig
       ) => MyPlayer;
+      otherPlayer: (
+        sessionId: string,
+        x: number,
+        y: number,
+        texture: string,
+        frame?: string | number,
+        options?: Phaser.Types.Physics.Matter.MatterBodyConfig
+      ) => OtherPlayer;
       bomb: (
         sessionId: string,
         x: number,

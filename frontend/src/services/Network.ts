@@ -5,6 +5,7 @@ import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import { gameEvents, Event } from '../events/GameEvents';
+import MyPlayer from '../characters/MyPlayer';
 
 export default class Network {
   private readonly client: Client;
@@ -30,7 +31,7 @@ export default class Network {
     this.room = await this.client.joinOrCreate(Constants.GAME_ROOM_KEY);
     // ゲーム開始の通知
     // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
-    this.room.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS);
+    this.sendGameProgress();
     this.initialize();
   }
 
@@ -74,7 +75,7 @@ export default class Network {
     gameEvents.on(Event.PLAYER_JOINED_ROOM, callback, context);
   }
 
-  // プレイヤーがルームを退出した時
+  // 他のプレイヤーがルームを退出した時
   onPlayerLeftRoom(callback: (player: ServerPlayer, sessionId: string) => void, context?: any) {
     gameEvents.on(Event.PLAYER_LEFT_ROOM, callback, context);
   }
@@ -92,5 +93,20 @@ export default class Network {
   // gameState が更新された時
   onGameStateUpdated(callback: (data: any) => Promise<void>, context?: any) {
     gameEvents.on(Event.GAME_STATE_UPDATED, callback, context);
+  }
+
+  // 自分のプレイヤー動作を送る
+  sendPlayerMove(player: MyPlayer) {
+    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, player);
+  }
+
+  // 自分の爆弾を送る
+  sendPlayerBomb(player: MyPlayer) {
+    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, player);
+  }
+
+  // 自分のゲーム状態を送る
+  sendGameProgress() {
+    this.room?.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS);
   }
 }
