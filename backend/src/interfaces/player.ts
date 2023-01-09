@@ -4,6 +4,6 @@ export default interface PlayerInterface {
   getSpeed: () => number;
   setBombStrength: (bombStrength: number) => void;
   setSpeed: (speed: number) => void;
-  increaseMaxBombCount: () => void;
+  increaseMaxBombCount: (count: number) => void;
   damaged: (damage: number) => void;
 }

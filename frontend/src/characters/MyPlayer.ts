@@ -33,6 +33,7 @@ export default class MyPlayer extends Player {
   handleServerChange(player: ServerPlayer) {
     if (this.isDead()) return;
 
+    this.updateStatus(player);
     this.updateRemoteRef(player);
     this.forceMovePlayerPosition(player);
     this.setHP(player.hp);
@@ -43,6 +44,13 @@ export default class MyPlayer extends Player {
   private updateRemoteRef(player: ServerPlayer) {
     if (this.isDead()) return;
     this.remoteRef.setPosition(player.x, player.y);
+  }
+
+  // サーバのプレイヤーの状態(アイテムの取得結果)を反映させる
+  private updateStatus(player: ServerPlayer) {
+    this.setSpeed(player.speed);
+    this.setBombStrength(player.bombStrength);
+    this.setMaxBombCount(player.maxBombCount);
   }
 
   update(cursorKeys: NavKeys, network: Network) {

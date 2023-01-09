@@ -365,7 +365,7 @@ Phaser.GameObjects.GameObjectFactory.register(
 
 export interface PlayerInterface {
   setBombStrength: (bombStrength: number) => void;
-  increaseMaxBombCount: () => void;
+  setMaxBombCount: (maxBombCount: number) => void;
   recoverSettableBombCount: () => void;
   consumeSettableBombCount: () => void;
   canSetBomb: (mp: Phaser.Physics.Matter.MatterPhysics) => boolean;
