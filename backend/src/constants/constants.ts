@@ -6,6 +6,7 @@ export const BLACK = 0x000000;
 export const WHITE = 0xffffff;
 export const GRAY = 0x808080;
 export const BLUE = 0x0000ff;
+export const RED: number = 0xff0000;
 
 export const FPS = 60; // 1 秒間のフレーム数
 export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
@@ -58,19 +59,19 @@ export const MAX_PLAYER = 4;
 */
 
 // プレイヤーの初期HP
-export const INITIAL_PLAYER_HP = 1;
+export const INITIAL_PLAYER_HP = 100;
 
 // プレイヤーの最大HP
 export const MAX_PLAYER_HP = 3;
 
 // 初期に設置できる爆弾の数
-export const INITIAL_SETTABLE_BOMB_COUNT = 1;
+export const INITIAL_SETTABLE_BOMB_COUNT = 111;
 
 // 最大に設置できる爆弾の数
-export const MAX_SETTABLE_BOMB_COUNT = 8;
+export const MAX_SETTABLE_BOMB_COUNT = 81;
 
 // 初期の爆弾の破壊力
-export const INITIAL_BOMB_STRENGTH = 1;
+export const INITIAL_BOMB_STRENGTH = 10;
 
 // プレイヤーの初期移動速度
 export const INITIAL_PLAYER_SPEED = 4;
@@ -156,7 +157,7 @@ export const TILE_ROWS = 13; // タイルの行数
 export const TILE_COLS = 15; // タイルの列数
 export const TILE_WIDTH = DEFAULT_TIP_SIZE; // タイルの横幅
 export const TILE_HEIGHT = DEFAULT_TIP_SIZE; // タイルの縦幅
-export const MAX_BLOCKS = 100;
+export const MAX_BLOCKS = 10;
 
 // マップのタイルシートの idx
 export const TILE_GROUND = {
