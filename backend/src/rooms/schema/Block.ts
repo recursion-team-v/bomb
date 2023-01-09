@@ -11,7 +11,7 @@ export default class Block extends Schema {
   @type('number')
   y: number;
 
-  // アイテムのタイプ
+  // ブロック破壊時に生成されるアイテムのタイプ
   @type('string')
   itemType?: Constants.ITEM_TYPES;
 
