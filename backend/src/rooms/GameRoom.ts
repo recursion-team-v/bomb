@@ -39,7 +39,11 @@ export default class GameRoom extends Room<GameRoomState> {
     this.setSimulationInterval((deltaTime) => {
       elapsedTime += deltaTime;
 
+      this.state.timer.updateNow();
+
       while (elapsedTime >= Constants.FRAME_RATE) {
+        this.state.timer.updateNow();
+
         // 時間切れになったらゲーム終了
         if (!this.state.timer.isInTime() && this.state.gameState.isPlaying()) {
           try {
@@ -135,7 +139,7 @@ export default class GameRoom extends Room<GameRoomState> {
       const bomb = this.state.getBombQueue().read();
 
       // ボムが爆発していない場合は処理を終了する
-      if (bomb === undefined || !bomb.isExploded()) break;
+      if (bomb === undefined || !bomb.isExplodedTime()) break;
 
       // ボムを爆発して、削除する
       this.state.getBombQueue().dequeue();
