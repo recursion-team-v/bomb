@@ -84,11 +84,6 @@ export default class Game extends Phaser.Scene {
       drawGround(this, mapTiles.GROUND_IDX); // draw ground
       drawWalls(this, mapTiles); // draw walls
       this.currBlocks = drawBlocks(this, state.blocks); // draw blocks
-
-      // draw items
-      state.items.forEach((item) => {
-        this.add.item(item.x, item.y, item.itemType);
-      });
     });
   }
 
@@ -201,8 +196,9 @@ export default class Game extends Phaser.Scene {
     );
   }
 
+  // 破壊されたブロックにアイテムタイプがあればアイテムを追加する。
   private handleBlocksRemoved(data: any) {
-    const { id } = data;
+    const { id, x, y, itemType } = data;
     const blockBody = this.currBlocks?.get(id);
     if (blockBody === undefined) return;
     this.currBlocks?.delete(id);
@@ -217,6 +213,9 @@ export default class Game extends Phaser.Scene {
     setTimeout(() => {
       clearInterval(timer);
       blockBody.destroy();
+      if (itemType !== undefined) {
+        this.add.item(x, y, itemType);
+      }
     }, 500);
   }
 

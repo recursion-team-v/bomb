@@ -57,9 +57,6 @@ export default class GameEngine {
       this.state.gameMap.blockArr
     );
 
-    // createItem
-    this.itemService.createRandomItems(this.state.gameMap.rows, this.state.gameMap.cols);
-
     this.initUpdateEvents();
     this.initCollision();
   }
