@@ -129,7 +129,6 @@ export default class MapService {
     this.gameEngine.blockBodies.delete(block.id);
     this.gameEngine.state.blocks.delete(block.id);
     if (block.itemType !== undefined) {
-      console.log(block.itemType)
       const item = new Item(block.x, block.y, block.itemType);
       this.gameEngine.itemService.addItem(item);
     }
