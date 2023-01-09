@@ -57,7 +57,6 @@ export default class ItemService {
       Constants.TILE_HEIGHT,
       {
         label: Constants.OBJECT_LABEL.ITEM,
-        // isStatic: true,
         isSensor: true,
       }
     );
