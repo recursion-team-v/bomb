@@ -12,42 +12,6 @@ export default class ItemService {
     this.gameEngine = gameEngine;
   }
 
-  createRandomItems(rows: number, cols: number) {
-    const items = [];
-    let bombPossessionUpCnt = 0;
-    let bombStrengthCnt = 0;
-    let playerSpeedCnt = 0;
-    for (let x = 1; x < cols - 2; x += 2) {
-      for (let y = 1; y < rows - 2; y += 2) {
-        const index = Math.floor(Math.random() * 4);
-        const ix = Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * x;
-        const iy = Constants.HEADER_HEIGHT + Constants.TILE_HEIGHT / 2 + Constants.TILE_HEIGHT * y;
-
-        if (index === 1 && Constants.ITEM_PLACE_COUNT.BOMB_POSSESSION_UP > bombPossessionUpCnt) {
-          items.push(
-            this.addItem(
-              this.gameEngine.state.createItem(ix, iy, Constants.ITEM_TYPE.BOMB_POSSESSION_UP)
-            )
-          );
-          bombPossessionUpCnt++;
-        } else if (index === 2 && Constants.ITEM_PLACE_COUNT.BOMB_STRENGTH > bombStrengthCnt) {
-          items.push(
-            this.addItem(
-              this.gameEngine.state.createItem(ix, iy, Constants.ITEM_TYPE.BOMB_STRENGTH)
-            )
-          );
-          bombStrengthCnt++;
-        } else if (index === 3 && Constants.ITEM_PLACE_COUNT.PLAYER_SPEED > playerSpeedCnt) {
-          items.push(
-            this.addItem(this.gameEngine.state.createItem(ix, iy, Constants.ITEM_TYPE.PLAYER_SPEED))
-          );
-          playerSpeedCnt++;
-        }
-      }
-    }
-    Matter.Composite.add(this.gameEngine.world, items);
-  }
-
   addItem(item: Item) {
     const itemBody = Matter.Bodies.rectangle(
       item.x,
