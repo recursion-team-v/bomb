@@ -8,8 +8,8 @@ import collisionHandler from '../game_engine/collision_handler/collision_handler
 import { phaserGlobalGameObject } from '../PhaserGame';
 import Game from '../scenes/Game';
 import { getDimensionalMap, getHighestPriorityFromBodies } from '../services/Map';
-import { getDepth } from './util';
 import { getGameScene } from '../utils/globalGame';
+import { getDepth } from './util';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly bombStrength: number;
@@ -364,10 +364,6 @@ Phaser.GameObjects.GameObjectFactory.register(
 );
 
 export interface PlayerInterface {
-  setBombStrength: (bombStrength: number) => void;
-  increaseMaxBombCount: () => void;
   recoverSettableBombCount: () => void;
-  consumeSettableBombCount: () => void;
-  canSetBomb: (mp: Phaser.Physics.Matter.MatterPhysics) => boolean;
   isEqualSessionId: (sessionId: string) => boolean;
 }

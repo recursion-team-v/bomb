@@ -129,10 +129,17 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.tint = color;
   }
 
-  increaseMaxBombCount() {
-    if (this.maxBombCount < Constants.MAX_SETTABLE_BOMB_COUNT) {
-      this.maxBombCount++;
-      this.settableBombCount++;
+  // 最大設置可能なボムの数を設定する
+  setMaxBombCount(maxBombCount: number) {
+    const oldMaxBombCount = this.maxBombCount;
+    if (maxBombCount > Constants.MAX_SETTABLE_BOMB_COUNT) {
+      maxBombCount = Constants.MAX_SETTABLE_BOMB_COUNT;
+    }
+    this.maxBombCount = maxBombCount;
+
+    // ボムの最大数が増えた場合は、設置できるボムの数も増やす
+    if (oldMaxBombCount < this.maxBombCount) {
+      this.recoverSettableBombCount(this.maxBombCount - oldMaxBombCount);
     }
   }
 
@@ -140,14 +147,18 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     return this.settableBombCount;
   }
 
-  // ボムを置ける最大数を増やす
-  recoverSettableBombCount() {
-    this.settableBombCount++;
+  // 今設置できるボムの数を回復する
+  recoverSettableBombCount(count = 1) {
+    if (this.settableBombCount + count > this.maxBombCount) {
+      this.settableBombCount = this.maxBombCount;
+    } else {
+      this.settableBombCount += count;
+    }
   }
 
-  // 現在設置しているボムの数を減らす
-  consumeSettableBombCount() {
-    this.settableBombCount--;
+  // 今設置できるボムの数を減らす
+  consumeSettableBombCount(count = 1) {
+    this.settableBombCount -= count;
   }
 
   // 死亡
