@@ -38,7 +38,7 @@ export default function collisionHandler(
     if (player === undefined) return;
     const item = engine.state.items.get(itemId);
     if (item === undefined) return;
-    playerToItem(player, item,engine);
+    playerToItem(player, item, engine);
   }
 
   // PLAYER & BLAST

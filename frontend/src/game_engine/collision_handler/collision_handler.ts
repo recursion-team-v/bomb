@@ -24,7 +24,6 @@ export default function collisionHandler(bodyA: MatterJS.BodyType, bodyB: Matter
     const player = bodyA.gameObject as MyPlayer;
     const item = bodyB.gameObject as Item;
     playerToItem(player, item);
-
   }
   // A = PLAYER, B = BLAST
   // サーバで判定するので不要
