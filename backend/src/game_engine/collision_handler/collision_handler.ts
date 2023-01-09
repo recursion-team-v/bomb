@@ -71,6 +71,6 @@ export default function collisionHandler(
     const blockId = blockBody.id.toString();
     const block = engine.state.blocks.get(blockId);
     if (block === undefined) return;
-    engine.mapService.destoryBlock(block);
+    engine.mapService.destroyBlock(block);
   }
 }

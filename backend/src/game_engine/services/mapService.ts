@@ -89,7 +89,7 @@ export default class MapService {
     return blockBody;
   }
 
-  destoryBlock(block: Block) {
+  destroyBlock(block: Block) {
     const blockBody = this.gameEngine.blockBodies.get(block.id);
     if (blockBody === undefined) return;
     Matter.Composite.remove(this.gameEngine.world, blockBody);
