@@ -143,7 +143,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     }
   }
 
-  getSettableBombCount() {
+  getSettableBombCount(): number {
     return this.settableBombCount;
   }
 
@@ -172,6 +172,21 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   isEqualSessionId(sessionId: string): boolean {
     return this.sessionId === sessionId;
+  }
+
+  // ボム増加アイテムを取得した数
+  getItemCountOfBombCount(): number {
+    return this.maxBombCount - Constants.INITIAL_SETTABLE_BOMB_COUNT;
+  }
+
+  // 爆弾の破壊力アイテムを取得した数
+  getItemCountOfBombStrength(): number {
+    return this.bombStrength - Constants.INITIAL_BOMB_STRENGTH;
+  }
+
+  // 速さアイテムを取得した数
+  getItemCountOfSpeed(): number {
+    return this.speed - Constants.INITIAL_PLAYER_SPEED;
   }
 
   private animationFlash(duration: number) {

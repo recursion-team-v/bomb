@@ -157,7 +157,7 @@ export default class Game extends Phaser.Scene {
     const header = this.scene.get(Config.SCENE_NAME_GAME_HEADER) as GameHeader;
     data.forEach((v: any) => {
       if (v.field === 'now') this.setServerTime(v.value);
-      if (v.field === 'remainTime') header.updateTimerText(v.value);
+      if (v.field === 'remainTime') header.updateTextTimer(v.value);
     });
   }
 
