@@ -3,7 +3,6 @@ import Matter from 'matter-js';
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
 import Item from '../../rooms/schema/Item';
-import { ITEM_PLACE_COUNT } from './../../constants/constants';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class ItemService {
@@ -38,7 +37,7 @@ export default class ItemService {
             )
           );
           bombStrengthCnt++;
-        } else if (index === 3 && ITEM_PLACE_COUNT.PLAYER_SPEED > playerSpeedCnt) {
+        } else if (index === 3 && Constants.ITEM_PLACE_COUNT.PLAYER_SPEED > playerSpeedCnt) {
           items.push(
             this.addItem(this.gameEngine.state.createItem(ix, iy, Constants.ITEM_TYPE.PLAYER_SPEED))
           );
