@@ -55,6 +55,17 @@ export default class PlayerService {
 
       if (isInput === false) {
         Matter.Body.setVelocity(playerBody, { x: 0, y: 0 });
+
+        // velocity を 0 にするだけだとちょっとずれるので、位置を補正する
+        // この時、ローカルとサーバーの位置が大きい場合は、サーバーの位置に補正する
+        if (
+          Math.abs(playerData.x - player.x) > Constants.PLAYER_TOLERANCE_DISTANCE ||
+          Math.abs(playerData.y - player.y) > Constants.PLAYER_TOLERANCE_DISTANCE
+        ) {
+          Matter.Body.setPosition(playerBody, { x: player.x, y: player.y });
+        } else {
+          Matter.Body.setPosition(playerBody, { x: playerData.x, y: playerData.y });
+        }
       } else {
         let newVx = playerData.x - player.x;
         let newVy = playerData.y - player.y;
