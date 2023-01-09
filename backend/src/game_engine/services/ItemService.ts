@@ -26,6 +26,7 @@ export default class ItemService {
 
     this.gameEngine.itemBodies.set(item.id, itemBody);
     this.gameEngine.itemIdByBodyId.set(itemBody.id, item.id);
+    Matter.Composite.add(this.gameEngine.world, itemBody);
     return itemBody;
   }
 
