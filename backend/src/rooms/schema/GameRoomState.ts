@@ -9,6 +9,7 @@ import Timer from './Timer';
 import Player from './Player';
 import Map from './Map';
 import Item from './Item';
+import Block from './Block';
 
 export default class GameRoomState extends Schema {
   @type(GameState)
@@ -20,6 +21,8 @@ export default class GameRoomState extends Schema {
   @type({ map: Player }) players = new MapSchema<Player>();
   @type({ map: Bomb }) bombs = new MapSchema<Bomb>();
   @type({ map: Item }) items = new MapSchema<Item>();
+  @type({ map: Block }) blocks = new MapSchema<Block>();
+
   private readonly bombQueue: GameQueue<Bomb> = new GameQueue<Bomb>();
 
   @type(Map) gameMap = new Map();

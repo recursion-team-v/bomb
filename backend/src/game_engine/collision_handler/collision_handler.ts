@@ -25,6 +25,7 @@ export default function collisionHandler(
   const isBlast = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.BLAST);
   const isItem = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.ITEM);
   const isPlayer = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.PLAYER);
+  const isBlock = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.BLOCK);
 
   // // PLAYER & ITEM
   if (isPlayer && isItem) {
@@ -64,5 +65,14 @@ export default function collisionHandler(
     if (bomb === undefined) return;
 
     blastToBomb(bomb);
+  }
+
+  // BLAST & BLOCK
+  else if (isBlast && isBlock) {
+    const blockBody = labelA === Constants.OBJECT_LABEL.BLOCK ? bodyA : bodyB;
+    const blockId = blockBody.id.toString();
+    const block = engine.state.blocks.get(blockId);
+    if (block === undefined) return;
+    engine.mapService.destroyBlock(block);
   }
 }

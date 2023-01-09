@@ -63,6 +63,10 @@ export default class Network {
     this.room.state.gameState.onChange = (data: any) => {
       gameEvents.emit(Event.GAME_STATE_UPDATED, data);
     };
+
+    this.room.state.blocks.onRemove = (data: any) => {
+      gameEvents.emit(Event.BLOCKS_REMOVED, data);
+    };
   }
 
   // 自分がルームに参加した時
@@ -93,6 +97,11 @@ export default class Network {
   // gameState が更新された時
   onGameStateUpdated(callback: (data: any) => Promise<void>, context?: any) {
     gameEvents.on(Event.GAME_STATE_UPDATED, callback, context);
+  }
+
+  // blocks が消去（破壊）された時
+  onBlocksRemoved(callback: (data: any) => void, context?: any) {
+    gameEvents.on(Event.BLOCKS_REMOVED, callback, context);
   }
 
   // 自分のプレイヤー動作を送る
