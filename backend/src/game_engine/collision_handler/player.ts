@@ -20,9 +20,5 @@ export function playerToItem(player: PlayerInterface, item: ItemInterface, engin
 
     default:
   }
-  if (engine === undefined) {
-    item.removeItem();
-  } else {
-    engine?.itemService.removeItem(item as Item);
-  }
+  engine?.itemService.removeItem(item as Item);
 }

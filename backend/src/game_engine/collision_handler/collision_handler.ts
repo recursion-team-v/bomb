@@ -29,7 +29,6 @@ export default function collisionHandler(
 
   // // PLAYER & ITEM
   if (isPlayer && isItem) {
-    console.log('player hit item');
     const playerBody = labelA === Constants.OBJECT_LABEL.PLAYER ? bodyA : bodyB;
     const itemBody = labelA === Constants.OBJECT_LABEL.ITEM ? bodyA : bodyB;
     const sessionId = engine.sessionIdByBodyId.get(playerBody.id);

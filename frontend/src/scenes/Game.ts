@@ -42,11 +42,12 @@ export default class Game extends Phaser.Scene {
   private elapsedTime: number = 0; // 経過時間
   private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
   private currBlocks?: Map<string, Block>; // 現在存在しているブロック
-  private currItems?: Map<string, Item>; // 現在存在しているアイテム
+  private readonly currItems: Map<string, Item>; // 現在存在しているアイテム
   private bgm?: Phaser.Sound.BaseSound;
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
+    this.currItems = new Map();
   }
 
   init() {
@@ -210,16 +211,16 @@ export default class Game extends Phaser.Scene {
   private handleItemAdded(serverItem: ServerItem) {
     if (serverItem === undefined) return;
     const item = this.add.item(serverItem.x, serverItem.y, serverItem.itemType);
-    this.currItems = this.currItems?.set(serverItem.id, item);
+    this.currItems.set(serverItem.id, item);
   }
 
   // アイテムが破壊・習得されたらアイテムを削除する
   private handleItemRemoved(data: any) {
     const { id } = data;
-    const itemBody = this.currItems?.get(id);
+    const itemBody = this.currItems.get(id);
     if (itemBody === undefined) return;
-    this.currItems?.delete(id);
-    itemBody.destroy();
+    this.currItems.delete(id);
+    itemBody.removeItem();
   }
 
   // ボム設置後、プレイヤーの挙動によってボムの衝突判定を更新する
