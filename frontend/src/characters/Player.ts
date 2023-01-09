@@ -5,6 +5,7 @@ import collisionHandler from '../game_engine/collision_handler/collision_handler
 import Bomb from '../items/Bomb';
 import { getDepth } from '../items/util';
 import phaserJuice from '../lib/phaserJuice';
+import * as Config from '../config/config';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
   private hp: number;
@@ -13,6 +14,8 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   private settableBombCount: number; // 今設置できるボムの個数
   private maxBombCount: number; // 設置できるボムの最大個数
   private readonly sessionId: string; // サーバが一意にセットするセッションID
+  private readonly hit_se;
+  private readonly dead_se;
 
   constructor(
     sessionId: string,
@@ -52,6 +55,12 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
         ? collisionHandler(data.bodyA, data.bodyB)
         : collisionHandler(data.bodyB, data.bodyA);
     });
+    this.hit_se = this.scene.sound.add('hitPlayer', {
+      volume: Config.SOUND_VOLUME,
+    });
+    this.dead_se = this.scene.sound.add('gameOver', {
+      volume: Config.SOUND_VOLUME*1.5,
+    });
   }
 
   // HP をセットします
@@ -73,6 +82,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   // interface を満たすだけのダミーメソッド
   damaged(damage: number) {
+    this.hit_se.play();
     this.hp -= damage;
     this.animationShakeScreen();
     this.animationFlash(Constants.PLAYER_INVINCIBLE_TIME);
@@ -152,6 +162,13 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   // 死亡
   died() {
+    this.scene.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        this.dead_se.play();
+      },
+    });
+
     this.stop();
     this.setToSleep(); // これをしないと移動中だとローテーション中に移動してしまう
     this.setVelocity(0, 0);

@@ -49,7 +49,7 @@ export default class Game extends Phaser.Scene {
   init() {
     // initialize key inputs
     this.cursorKeys = initializeKeys(this);
-    this.bgm = this.sound.add('stage_1', {
+    this.bgm = this.sound.add('stage_2', {
       volume: Config.SOUND_VOLUME,
     });
 
