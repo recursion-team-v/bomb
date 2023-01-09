@@ -23,6 +23,7 @@ export default class GameEngine {
   bombBodies = new Map<string, Matter.Body>();
   // 衝突判定時に、衝突した bodyId から bombId を取得し bomb を取得するために利用
   bombIdByBodyId = new Map<number, string>(); // bodyId: bombId
+  itemIdByBodyId = new Map<number, string>();
 
   itemBodies = new Map<string, Matter.Body>();
 
@@ -55,6 +56,10 @@ export default class GameEngine {
       this.state.gameMap.cols,
       this.state.gameMap.blockArr
     );
+
+    // createItem
+    this.itemService.createRandomItems(this.state.gameMap.rows, this.state.gameMap.cols);
+
     this.initUpdateEvents();
     this.initCollision();
   }
