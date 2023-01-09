@@ -119,6 +119,7 @@ export const TIME_LIMIT_SEC = 181; // (+1秒するといい感じに表示され
 アイテムの定義
 */
 export const ITEM_TYPE = {
+  NONE: 'NONE', // アイテムなし
   BOMB_STRENGTH: 'BOMB_STRENGTH', // ボムの威力アップ
   BOMB_POSSESSION_UP: 'BOMB_POSSESSION_UP', // ボムの所持数アップ
   PLAYER_SPEED: 'PLAYER_SPEED', // プレイヤーの移動速度アップ
@@ -131,6 +132,7 @@ export type ITEM_TYPES = typeof ITEM_TYPE[keyof typeof ITEM_TYPE];
 */
 
 export const ITEM_PLACE_COUNT = {
+  [ITEM_TYPE.NONE]: 0,
   [ITEM_TYPE.BOMB_POSSESSION_UP]: 8,
   [ITEM_TYPE.BOMB_STRENGTH]: 10,
   [ITEM_TYPE.PLAYER_SPEED]: 5,
