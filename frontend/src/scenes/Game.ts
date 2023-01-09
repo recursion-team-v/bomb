@@ -42,9 +42,12 @@ export default class Game extends Phaser.Scene {
   private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
   private currBlocks?: Map<string, Block>; // 現在存在しているブロック
   private bgm?: Phaser.Sound.BaseSound;
+  private readonly juice: phaserJuice;
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
+    // eslint-disable-next-line new-cap
+    this.juice = new phaserJuice(this);
   }
 
   init() {
@@ -204,8 +207,7 @@ export default class Game extends Phaser.Scene {
     if (blockBody === undefined) return;
     this.currBlocks?.delete(id);
 
-    // eslint-disable-next-line new-cap
-    const juice = new phaserJuice(blockBody.scene);
+    const juice = this.juice;
 
     // ブロック破壊のアニメーション
     const timer = setInterval(() => {
@@ -265,5 +267,9 @@ export default class Game extends Phaser.Scene {
 
   public getNetwork(): Network {
     return this.network;
+  }
+
+  public getJuice(): phaserJuice {
+    return this.juice;
   }
 }
