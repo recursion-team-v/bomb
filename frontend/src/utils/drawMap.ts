@@ -68,20 +68,6 @@ const generateGroundArray = (rows: number, cols: number, groundIdx: number) => {
   return arr;
 };
 
-// const convertTo2D = (data: number[]) => {
-//   const arr = Array(rows)
-//     .fill(-1)
-//     .map(() => Array(cols).fill(-1));
-
-//   for (let y = 0; y < rows; y++) {
-//     for (let x = 0; x < cols; x++) {
-//       arr[y][x] = data[x + cols * y];
-//     }
-//   }
-
-//   return arr;
-// };
-
 const addInnerWall = (scene: Phaser.Scene, x: number, y: number, frame: number) => {
   scene.add.innerWall(
     tileWidth / 2 + tileWidth * x,
