@@ -100,17 +100,6 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     return this.getSettableBombCount() > 0;
   }
 
-  // ボムを置く
-  placeBomb(mp: Phaser.Physics.Matter.MatterPhysics) {
-    if (!this.canSetBomb(mp)) return;
-
-    const { x, y } = Bomb.getSettablePosition(this.x, this.y);
-    this.scene.add.bomb(this.getSessionId(), x, y, this.getBombStrength(), this);
-
-    // ボムを置ける数を減らす
-    this.consumeSettableBombCount();
-  }
-
   getSessionId() {
     return this.sessionId;
   }

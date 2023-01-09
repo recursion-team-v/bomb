@@ -19,6 +19,7 @@ import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
+import { PlayerInterface } from '../items/Bomb';
 import initializeKeys from '../utils/key';
 import Network from '../services/Network';
 import GameHeader from './GameHeader';
@@ -35,9 +36,11 @@ export default class Game extends Phaser.Scene {
   private cols!: number; // サーバから受け取ったマップの列数
   // eslint-disable-next-line @typescript-eslint/prefer-readonly
   private rows!: number; // サーバから受け取ったマップの行数
+  private serverTime: number = 0; // サーバの時間
   private elapsedTime: number = 0; // 経過時間
   private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
   private currBlocks?: Map<string, Block>; // 現在存在しているブロック
+  private bgm?: Phaser.Sound.BaseSound;
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
@@ -46,6 +49,13 @@ export default class Game extends Phaser.Scene {
   init() {
     // initialize key inputs
     this.cursorKeys = initializeKeys(this);
+    this.bgm = this.sound.add('stage_1', {
+      volume: Config.SOUND_VOLUME,
+    });
+
+    this.bgm.play({
+      loop: true,
+    });
   }
 
   create(data: { network: Network }) {
@@ -147,9 +157,10 @@ export default class Game extends Phaser.Scene {
   }
 
   private handleTimerUpdated(data: any) {
-    const sc = this.scene.get(Config.SCENE_NAME_GAME_HEADER) as GameHeader;
+    const header = this.scene.get(Config.SCENE_NAME_GAME_HEADER) as GameHeader;
     data.forEach((v: any) => {
-      if (v.field === 'remainTime') sc.updateTimerText(v.value);
+      if (v.field === 'now') this.setServerTime(v.value);
+      if (v.field === 'remainTime') header.updateTimerText(v.value);
     });
   }
 
@@ -158,6 +169,7 @@ export default class Game extends Phaser.Scene {
 
     if (state === Constants.GAME_STATE.FINISHED && this.room !== undefined) {
       await this.room.leave();
+      this.bgm?.stop();
       this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
       this.scene.stop(Config.SCENE_NAME_GAME);
       this.scene.start(Config.SCENE_NAME_GAME_RESULT);
@@ -170,13 +182,23 @@ export default class Game extends Phaser.Scene {
 
     const sessionId = serverBomb.sessionId;
 
-    // 自分のボムは表示しない
-    if (this.myPlayer.isEqualSessionId(sessionId)) return;
+    let player: PlayerInterface;
+    if (this.myPlayer.isEqualSessionId(sessionId)) {
+      player = this.myPlayer;
+    } else {
+      const otherPlayer = this.otherPlayers.get(sessionId);
+      if (otherPlayer === undefined) return;
+      player = otherPlayer;
+    }
 
-    const otherPlayer = this.otherPlayers.get(sessionId);
-    if (otherPlayer === undefined) return;
-
-    this.add.bomb(sessionId, serverBomb.x, serverBomb.y, serverBomb.bombStrength, otherPlayer);
+    this.add.bomb(
+      sessionId,
+      serverBomb.x,
+      serverBomb.y,
+      serverBomb.bombStrength,
+      serverBomb.explodedAt,
+      player
+    );
   }
 
   private handleBlocksRemoved(data: any) {
@@ -222,5 +244,17 @@ export default class Game extends Phaser.Scene {
 
   public getRows(): number {
     return this.rows;
+  }
+
+  public getServerTime(): number {
+    return this.serverTime;
+  }
+
+  public setServerTime(value: number) {
+    this.serverTime = value;
+  }
+
+  public getNetwork(): Network {
+    return this.network;
   }
 }
