@@ -25,7 +25,7 @@ export default function collisionHandler(
   const isBlast = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.BLAST);
   const isItem = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.ITEM);
   const isPlayer = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.PLAYER);
-  
+
   // // PLAYER & ITEM
   if (isPlayer && isItem) {
     console.log('player hit item');
