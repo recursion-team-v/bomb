@@ -1,5 +1,5 @@
-import Player from './Player';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
+import Player from './Player';
 
 export default class OtherPlayer extends Player {
   private serverX: number;
@@ -30,6 +30,8 @@ export default class OtherPlayer extends Player {
     this.serverY = serverPlayer.y;
     this.frameKey = serverPlayer.frameKey;
     this.setHP(serverPlayer.hp);
+    this.setSpeed(serverPlayer.speed);
+    this.setBombStrength(serverPlayer.bombStrength);
 
     if (this.isDead()) {
       this.died();
