@@ -38,7 +38,7 @@ export default class Game extends Phaser.Scene {
   private serverTime: number = 0; // サーバの時間
   private elapsedTime: number = 0; // 経過時間
   private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
-
+  private bgm?: Phaser.Sound.BaseSound;
   constructor() {
     super(Config.SCENE_NAME_GAME);
   }
@@ -46,6 +46,13 @@ export default class Game extends Phaser.Scene {
   init() {
     // initialize key inputs
     this.cursorKeys = initializeKeys(this);
+    this.bgm = this.sound.add('stage_1', {
+      volume: Config.SOUND_VOLUME,
+    });
+
+    this.bgm.play({
+      loop: true,
+    });
   }
 
   create(data: { network: Network }) {
@@ -159,6 +166,7 @@ export default class Game extends Phaser.Scene {
 
     if (state === Constants.GAME_STATE.FINISHED && this.room !== undefined) {
       await this.room.leave();
+      this.bgm?.stop();
       this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
       this.scene.stop(Config.SCENE_NAME_GAME);
       this.scene.start(Config.SCENE_NAME_GAME_RESULT);

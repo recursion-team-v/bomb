@@ -23,6 +23,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly sessionId: string; // サーバが一意にセットするセッションID(誰の爆弾か)
   private readonly explodedAt: number; // サーバで管理している爆発する時間
   private isExploded: boolean; // 爆発したかどうか
+  private readonly se;
 
   constructor(
     sessionId: string,
@@ -48,6 +49,9 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.stableY = y;
     this.isExploded = false;
     this.stableScene = this.scene;
+    this.se = this.scene.sound.add('bombExplode', {
+      volume: Config.SOUND_VOLUME,
+    });
   }
 
   // 指定の座標から設置可能な座標を返します
@@ -128,6 +132,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   }
 
   explode() {
+    this.se.play();
     // center
     this.addBlastSprite(this.stableX, this.stableY, 'bomb_center_blast', 0, true, true, 1.2);
 
