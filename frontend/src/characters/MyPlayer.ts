@@ -91,16 +91,18 @@ export default class MyPlayer extends Player {
     // bomb 設置
     const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(cursorKeys.space);
     if (isSpaceJustDown) {
-      this.placeBomb(this.scene.matter);
+      this.placeBomb();
     }
   }
 
   // ボムを置く
-  placeBomb(mp: Phaser.Physics.Matter.MatterPhysics) {
+  placeBomb() {
+    const game = getGameScene();
+    const mp = game.matter;
+
     if (!this.canSetBomb(mp)) return;
 
     // サーバにボムを置いたことを通知
-    const game = getGameScene();
     game.getNetwork().sendPlayerBomb(this);
 
     // ボムを置ける数を減らす

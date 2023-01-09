@@ -38,7 +38,7 @@ export default function initializeKeys(game: Game): NavKeys {
 
     // 爆弾を設置する
     button.on('click', () => {
-      game.getCurrentPlayer().placeBomb(game.matter);
+      game.getCurrentPlayer().placeBomb();
     });
 
     keys = {
