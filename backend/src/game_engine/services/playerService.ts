@@ -29,6 +29,7 @@ export default class PlayerService {
         frictionStatic: 0,
         frictionAir: 0,
         restitution: 0,
+        inertia: Infinity,
       }
     );
 
