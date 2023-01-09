@@ -25,6 +25,7 @@ import Network from '../services/Network';
 import GameHeader from './GameHeader';
 import OtherPlayer from '../characters/OtherPlayer';
 import { Block } from '../items/Block';
+import phaserJuice from '../lib/phaserJuice';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
@@ -202,7 +203,19 @@ export default class Game extends Phaser.Scene {
     const blockBody = this.currBlocks?.get(id);
     if (blockBody === undefined) return;
     this.currBlocks?.delete(id);
-    blockBody.destroy();
+
+    // eslint-disable-next-line new-cap
+    const juice = new phaserJuice(blockBody.scene);
+
+    // ブロック破壊のアニメーション
+    const timer = setInterval(() => {
+      juice.flash(blockBody, 30, Constants.RED.toString());
+    }, 30);
+
+    setTimeout(() => {
+      clearInterval(timer);
+      blockBody.destroy();
+    }, 500);
   }
 
   // ボム設置後、プレイヤーの挙動によってボムの衝突判定を更新する
