@@ -13,7 +13,6 @@ export default function collisionHandler(bodyA: MatterJS.BodyType, bodyB: Matter
 
   if (bodyA.gameObject == null || bodyB.gameObject == null) return;
 
-
   // getData ではなく body.label
   const aType = bodyA.label as Constants.OBJECT_LABELS;
   const bType = bodyB.label as Constants.OBJECT_LABELS;

@@ -15,11 +15,11 @@ export default class Block extends Schema {
   @type('string')
   itemType?: Constants.ITEM_TYPES;
 
-  constructor(id: string, x: number, y: number,itemType?:Constants.ITEM_TYPES) {
+  constructor(id: string, x: number, y: number, itemType?: Constants.ITEM_TYPES) {
     super();
     this.id = id;
     this.x = x;
     this.y = y;
-    this.itemType = itemType
+    this.itemType = itemType;
   }
 }

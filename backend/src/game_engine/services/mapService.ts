@@ -66,9 +66,7 @@ export default class MapService {
             );
             playerSpeedCnt--;
           } else {
-            blocks.push(
-              this.createBlock(x, y, tileWidth, tileHeight)
-             )
+            blocks.push(this.createBlock(x, y, tileWidth, tileHeight));
           }
         }
       }
