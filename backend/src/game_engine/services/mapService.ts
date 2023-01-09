@@ -3,6 +3,7 @@ import Matter from 'matter-js';
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
 import Block from '../../rooms/schema/Block';
+import Item from '../../rooms/schema/Item';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class MapService {
@@ -38,17 +39,35 @@ export default class MapService {
   }
 
   createMapBlocks(rows: number, cols: number, blockArr: number[]) {
-    const tileWidth = Constants.TILE_WIDTH;
-    const tileHeight = Constants.TILE_HEIGHT;
+    // ブロックが存在する index を取得
+    const blockIndices: number[] = [];
+    blockArr.forEach((v, idx) => v === Constants.TILE_BLOCK_IDX && blockIndices.push(idx));
 
-    const blocks = [];
-    for (let y = 1; y < rows - 1; y++) {
-      for (let x = 1; x < cols - 1; x++) {
-        if (blockArr[x + y * cols] === Constants.TILE_BLOCK_IDX) {
-          blocks.push(this.createBlock(x, y, tileWidth, tileHeight));
-        }
-      }
+    // 配置するアイテムのリストを作成
+    const items: Constants.ITEM_TYPES[] = [];
+    Object.keys(Constants.ITEM_PLACE_COUNT).forEach((v) => {
+      const key = v as Constants.ITEM_TYPES;
+      items.push(...Array(Constants.ITEM_PLACE_COUNT[key]).fill(key));
+    });
+
+    // アイテムリストがブロック数と同じになるように調整
+    const diff = blockIndices.length - items.length;
+    if (diff > 0) {
+      items.push(...Array(diff).fill(Constants.ITEM_TYPE.NONE));
     }
+
+    // アイテムのリストをシャッフル
+    const shuffledItems = items.sort(() => Math.random() - 0.5);
+
+    // ブロックを作成
+    const blocks: Matter.Body[] = [];
+    blockIndices.forEach((v, i) => {
+      const x = v % cols;
+      const y = Math.floor(v / cols);
+      blocks.push(
+        this.createBlock(x, y, Constants.TILE_WIDTH, Constants.TILE_HEIGHT, shuffledItems[i])
+      );
+    });
 
     Matter.Composite.add(this.gameEngine.world, blocks);
   }
@@ -69,7 +88,13 @@ export default class MapService {
     );
   }
 
-  private createBlock(x: number, y: number, tileWidth: number, tileHeight: number) {
+  private createBlock(
+    x: number,
+    y: number,
+    tileWidth: number,
+    tileHeight: number,
+    itemType?: Constants.ITEM_TYPES
+  ) {
     const blockBody = Matter.Bodies.rectangle(
       tileWidth / 2 + tileWidth * x,
       Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
@@ -81,8 +106,14 @@ export default class MapService {
       }
     );
 
-    const block = new Block(blockBody.id.toString(), blockBody.position.x, blockBody.position.y);
+    if (itemType === Constants.ITEM_TYPE.NONE) itemType = undefined;
 
+    const block = new Block(
+      blockBody.id.toString(),
+      blockBody.position.x,
+      blockBody.position.y,
+      itemType
+    );
     this.gameEngine.blockBodies.set(block.id, blockBody);
     this.gameEngine.state.blocks.set(block.id, block);
 
@@ -95,5 +126,9 @@ export default class MapService {
     Matter.Composite.remove(this.gameEngine.world, blockBody);
     this.gameEngine.blockBodies.delete(block.id);
     this.gameEngine.state.blocks.delete(block.id);
+    if (block.itemType !== undefined) {
+      const item = new Item(block.x, block.y, block.itemType);
+      this.gameEngine.itemService.addItem(item);
+    }
   }
 }
