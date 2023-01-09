@@ -47,7 +47,7 @@ export const drawWalls = (scene: Phaser.Scene, mapTiles: MapTiles) => {
 export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
   const currBlocks = new Map<string, BlockBody>();
   blocks.forEach((block) => {
-    currBlocks.set(block.id, addBlock(scene, block.x, block.y, Constants.TILE_BLOCK_IDX));
+    currBlocks.set(block.id, scene.add.block(block.x, block.y, Constants.TILE_BLOCK_IDX));
   });
   return currBlocks;
 };
@@ -82,9 +82,4 @@ const addOuterWall = (scene: Phaser.Scene, x: number, y: number, frame: number) 
     Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
     frame
   );
-};
-
-const addBlock = (scene: Phaser.Scene, x: number, y: number, frame: number) => {
-  const block = scene.add.block(x, y, frame);
-  return block;
 };
