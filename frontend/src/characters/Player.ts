@@ -59,7 +59,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
       volume: Config.SOUND_VOLUME,
     });
     this.dead_se = this.scene.sound.add('gameOver', {
-      volume: Config.SOUND_VOLUME*1.5,
+      volume: Config.SOUND_VOLUME * 1.5,
     });
   }
 
