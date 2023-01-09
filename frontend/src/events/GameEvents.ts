@@ -8,4 +8,6 @@ export enum Event {
   GAME_STATE_UPDATED = 'game-state-updated',
   BOMB_ADDED = 'bomb-added',
   BLOCKS_REMOVED = 'blocks-removed',
+  ITEM_ADDED = 'item-added',
+  ITEM_REMOVED = 'item-removed',
 }

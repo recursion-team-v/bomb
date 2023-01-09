@@ -36,5 +36,6 @@ export default class ItemService {
     Matter.Composite.remove(this.gameEngine.world, itemBody);
     this.gameEngine.itemBodies.delete(item.id);
     this.gameEngine.itemIdByBodyId.delete(itemBody.id);
+    this.gameEngine.state.items.delete(item.id);
   }
 }
