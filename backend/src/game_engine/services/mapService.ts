@@ -2,6 +2,7 @@ import Matter from 'matter-js';
 
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
+import Block from '../../rooms/schema/Block';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class MapService {
@@ -69,7 +70,7 @@ export default class MapService {
   }
 
   private createBlock(x: number, y: number, tileWidth: number, tileHeight: number) {
-    return Matter.Bodies.rectangle(
+    const blockBody = Matter.Bodies.rectangle(
       tileWidth / 2 + tileWidth * x,
       Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
       tileWidth * 0.9,
@@ -79,5 +80,20 @@ export default class MapService {
         label: Constants.OBJECT_LABEL.BLOCK,
       }
     );
+
+    const block = new Block(blockBody.id.toString(), blockBody.position.x, blockBody.position.y);
+
+    this.gameEngine.blockBodies.set(block.id, blockBody);
+    this.gameEngine.state.blocks.set(block.id, block);
+
+    return blockBody;
+  }
+
+  destoryBlock(block: Block) {
+    const blockBody = this.gameEngine.blockBodies.get(block.id);
+    if (blockBody === undefined) return;
+    Matter.Composite.remove(this.gameEngine.world, blockBody);
+    this.gameEngine.blockBodies.delete(block.id);
+    this.gameEngine.state.blocks.delete(block.id);
   }
 }

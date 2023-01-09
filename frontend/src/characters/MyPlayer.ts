@@ -109,7 +109,6 @@ export default class MyPlayer extends Player {
     }
 
     if (forceX === 0 && forceY === 0) return;
-    console.log('force move');
     this.setVelocity(forceX, forceY);
   }
 }

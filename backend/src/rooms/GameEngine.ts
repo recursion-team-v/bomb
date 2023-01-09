@@ -25,6 +25,9 @@ export default class GameEngine {
   bombIdByBodyId = new Map<number, string>(); // bodyId: bombId
 
   itemBodies = new Map<string, Matter.Body>();
+
+  blockBodies = new Map<string, Matter.Body>();
+
   bombService: BombService;
   playerService: PlayerService;
   mapService: MapService;
@@ -67,14 +70,12 @@ export default class GameEngine {
         playerState.y = playerBody.position.y;
         playerState.vx = playerBody.velocity.x;
         playerState.vy = playerBody.velocity.y;
-
-        // console.log(playerState.x, playerState.y);
       }
     });
   }
 
   initCollision() {
-    Matter.Events.on(this.engine, 'collisionActive', (event) => {
+    Matter.Events.on(this.engine, 'collisionStart', (event) => {
       event.pairs.forEach((pair) => collisionHandler(this, pair.bodyA, pair.bodyB));
     });
   }

@@ -93,7 +93,6 @@ export default class BlastService {
     return Matter.Bodies.rectangle(bx, by, rx, ry, {
       label: Constants.OBJECT_LABEL.BLAST,
       isSensor: true,
-      isStatic: true,
     });
   }
 

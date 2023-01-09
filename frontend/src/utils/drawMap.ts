@@ -1,5 +1,8 @@
 import * as Constants from '../../../backend/src/constants/constants';
 import MapTiles from '../../../backend/src/rooms/schema/MapTiles';
+import { MapSchema } from '@colyseus/schema';
+import Block from '../../../backend/src/rooms/schema/Block';
+import { Block as BlockBody } from '../items/Block';
 
 const rows = Constants.TILE_ROWS;
 const cols = Constants.TILE_COLS;
@@ -41,17 +44,12 @@ export const drawWalls = (scene: Phaser.Scene, mapTiles: MapTiles) => {
   }
 };
 
-export const drawBlocks = (scene: Phaser.Scene, blockArr: number[]) => {
-  const arr = convertTo2D(blockArr);
-  for (let y = 1; y < rows - 1; y++) {
-    for (let x = 1; x < cols - 1; x++) {
-      if (arr[y][x] === Constants.TILE_BLOCK_IDX) {
-        addBlock(scene, x, y, Constants.TILE_BLOCK_IDX);
-      }
-    }
-  }
-
-  return arr;
+export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
+  const currBlocks = new Map<string, BlockBody>();
+  blocks.forEach((block) => {
+    currBlocks.set(block.id, addBlock(scene, block.x, block.y, Constants.TILE_BLOCK_IDX));
+  });
+  return currBlocks;
 };
 
 const generateGroundArray = (rows: number, cols: number, groundIdx: number) => {
@@ -70,19 +68,19 @@ const generateGroundArray = (rows: number, cols: number, groundIdx: number) => {
   return arr;
 };
 
-const convertTo2D = (data: number[]) => {
-  const arr = Array(rows)
-    .fill(-1)
-    .map(() => Array(cols).fill(-1));
+// const convertTo2D = (data: number[]) => {
+//   const arr = Array(rows)
+//     .fill(-1)
+//     .map(() => Array(cols).fill(-1));
 
-  for (let y = 0; y < rows; y++) {
-    for (let x = 0; x < cols; x++) {
-      arr[y][x] = data[x + cols * y];
-    }
-  }
+//   for (let y = 0; y < rows; y++) {
+//     for (let x = 0; x < cols; x++) {
+//       arr[y][x] = data[x + cols * y];
+//     }
+//   }
 
-  return arr;
-};
+//   return arr;
+// };
 
 const addInnerWall = (scene: Phaser.Scene, x: number, y: number, frame: number) => {
   scene.add.innerWall(
@@ -101,9 +99,6 @@ const addOuterWall = (scene: Phaser.Scene, x: number, y: number, frame: number) 
 };
 
 const addBlock = (scene: Phaser.Scene, x: number, y: number, frame: number) => {
-  scene.add.block(
-    tileWidth / 2 + tileWidth * x,
-    Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
-    frame
-  );
+  const block = scene.add.block(x, y, frame);
+  return block;
 };

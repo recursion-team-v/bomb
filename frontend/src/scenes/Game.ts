@@ -23,6 +23,7 @@ import initializeKeys from '../utils/key';
 import Network from '../services/Network';
 import GameHeader from './GameHeader';
 import OtherPlayer from '../characters/OtherPlayer';
+import { Block } from '../items/Block';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
@@ -36,6 +37,7 @@ export default class Game extends Phaser.Scene {
   private rows!: number; // サーバから受け取ったマップの行数
   private elapsedTime: number = 0; // 経過時間
   private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
+  private currBlocks?: Map<string, Block>; // 現在存在しているブロック
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
@@ -64,12 +66,11 @@ export default class Game extends Phaser.Scene {
       const mapTiles = state.gameMap.mapTiles;
       this.rows = state.gameMap.rows;
       this.cols = state.gameMap.cols;
-      // draw ground
-      drawGround(this, mapTiles.GROUND_IDX);
-      // draw walls
-      drawWalls(this, mapTiles);
-      // draw blocks
-      drawBlocks(this, state.gameMap.blockArr);
+
+      drawGround(this, mapTiles.GROUND_IDX); // draw ground
+      drawWalls(this, mapTiles); // draw walls
+      this.currBlocks = drawBlocks(this, state.blocks); // draw blocks
+
       // draw items
       state.items.forEach((item) => {
         this.add.item(
@@ -106,6 +107,7 @@ export default class Game extends Phaser.Scene {
     // TODO: アイテムをとって火力が上がった場合の処理を追加する
     this.network.onBombAdded(this.handleBombAdded, this); // 他のプレイヤーのボム追加イベント
     this.network.onPlayerLeftRoom(this.handlePlayerLeftRoom, this); // プレイヤーの切断イベント
+    this.network.onBlocksRemoved(this.handleBlocksRemoved, this);
   }
 
   private addPlayers() {
@@ -175,6 +177,14 @@ export default class Game extends Phaser.Scene {
     if (otherPlayer === undefined) return;
 
     this.add.bomb(sessionId, serverBomb.x, serverBomb.y, serverBomb.bombStrength, otherPlayer);
+  }
+
+  private handleBlocksRemoved(data: any) {
+    const { id } = data;
+    const blockBody = this.currBlocks?.get(id);
+    if (blockBody === undefined) return;
+    this.currBlocks?.delete(id);
+    blockBody.destroy();
   }
 
   // ボム設置後、プレイヤーの挙動によってボムの衝突判定を更新する
