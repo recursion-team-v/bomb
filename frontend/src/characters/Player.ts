@@ -16,7 +16,6 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   private readonly sessionId: string; // サーバが一意にセットするセッションID
   private readonly hit_se;
 
-
   constructor(
     sessionId: string,
     world: Phaser.Physics.Matter.World,
@@ -58,7 +57,6 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.hit_se = this.scene.sound.add('hitPlayer', {
       volume: Config.SOUND_VOLUME,
     });
-
   }
 
   // HP をセットします
