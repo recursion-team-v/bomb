@@ -13,6 +13,16 @@ export default class PlayerService {
     this.gameEngine = gameEngine;
   }
 
+  deletePlayer(sessionId: string) {
+    const playerBody = this.gameEngine.playerBodies.get(sessionId);
+    if (playerBody === undefined) return;
+
+    Matter.Composite.remove(this.gameEngine.world, playerBody);
+    this.gameEngine.playerBodies.delete(sessionId);
+    this.gameEngine.sessionIdByBodyId.delete(playerBody.id);
+    this.gameEngine.state.players.delete(sessionId);
+  }
+
   addPlayer(sessionId: string) {
     const player = this.gameEngine.state.createPlayer(sessionId);
     const playerBody = Matter.Bodies.rectangle(
