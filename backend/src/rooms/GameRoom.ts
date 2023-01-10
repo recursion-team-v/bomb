@@ -1,10 +1,12 @@
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { Client, Room } from 'colyseus';
 import Matter from 'matter-js';
 
 import * as Constants from '../constants/constants';
 import GameEngine from './GameEngine';
+import { Bomb } from './schema/Bomb';
 import GameRoomState from './schema/GameRoomState';
+import PlacementObjectInterface from '../interfaces/placement_object';
+import GameQueue from '../utils/gameQueue';
 
 export default class GameRoom extends Room<GameRoomState> {
   engine!: GameEngine;
@@ -30,9 +32,16 @@ export default class GameRoom extends Room<GameRoomState> {
     });
 
     // TODO:クライアントからのボム設置入力を受け取ってキューに詰める
-    this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, (client) =>
-      this.addBombEvent(client.sessionId)
-    );
+    this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, (client) => {
+      // キューに詰める
+      const player = this.state.getPlayer(client.sessionId);
+      if (player === undefined) return;
+      if (player.isDead()) return;
+
+      this.state
+        .getBombToCreateQueue()
+        .enqueue(this.state.createBomb(player, player.x, player.y, player.bombStrength));
+    });
 
     // FRAME_RATE ごとに fixedUpdate を呼ぶ
     let elapsedTime: number = 0;
@@ -64,7 +73,12 @@ export default class GameRoom extends Room<GameRoomState> {
         }
 
         // 爆弾の処理
-        this.bombProcess();
+        this.objectCreateHandler(this.state.getBombToCreateQueue(), (bomb) =>
+          this.createBombEvent(bomb)
+        );
+        this.objectRemoveHandler(this.state.getBombToExplodeQueue(), (bomb) =>
+          this.removeBombEvent(bomb)
+        );
 
         // ゲーム終了判定 TODO: ロビーができて、ちゃんとゲーム開始判定ができたら有効化する
         // if (
@@ -117,36 +131,57 @@ export default class GameRoom extends Room<GameRoomState> {
   */
 
   // 爆弾追加のイべント
-  private addBombEvent(sessionId: string) {
-    const player = this.state.getPlayer(sessionId);
-    if (player === undefined) return;
+  private createBombEvent(b: PlacementObjectInterface) {
+    const bomb = b as Bomb;
+    const isPlaced = this.engine.playerService.placeBomb(bomb); // ボムを設置する
+    if (isPlaced) this.state.getBombToExplodeQueue().enqueue(bomb); // 爆破用のボムキューに詰める
+  }
 
-    // 既に死んでいたら無視
-    if (player.isDead()) return;
-
-    const bomb = this.engine.playerService.placeBomb(player); // ボムを設置する  TODO:
-    if (bomb !== null) this.state.getBombQueue().enqueue(bomb); // ボムキューに詰める
+  // 爆弾削除のイべント
+  private removeBombEvent(b: PlacementObjectInterface) {
+    const bomb = b as Bomb;
+    this.state.getBombToExplodeQueue().dequeue();
+    this.engine.bombService.explode(bomb);
+    this.state.deleteBomb(bomb);
   }
 
   /*
   フレームごとの処理関連
   */
 
-  // 爆弾の処理
-  private bombProcess() {
-    // ボムキューに詰められたボムを処理する
-    while (!this.state.getBombQueue().isEmpty()) {
-      const bomb = this.state.getBombQueue().read();
+  // オブジェクトを設置するための処理
+  private objectCreateHandler(
+    queue: GameQueue<PlacementObjectInterface>,
+    callback: (data: PlacementObjectInterface) => void
+  ) {
+    // キューに詰められたオブジェクトを処理する
+    while (!queue.isEmpty()) {
+      const data = queue.read();
 
-      // ボムが爆発していない場合は処理を終了する
-      if (bomb === undefined || !bomb.isExplodedTime()) break;
+      // 設置タイミングになってない場合は処理を終了する
+      if (data === undefined || !data.isCreatedTime()) break;
 
-      // ボムを爆発して、削除する
-      this.state.getBombQueue().dequeue();
-      this.engine.bombService.explode(bomb);
-      this.state.deleteBomb(bomb);
+      // 設置処理を行う
+      callback(data);
+      queue.dequeue();
+    }
+  }
 
-      // TODO: 爆風の処理
+  // オブジェクトを削除するための処理
+  private objectRemoveHandler(
+    queue: GameQueue<PlacementObjectInterface>,
+    callback: (data: PlacementObjectInterface) => void
+  ) {
+    // キューに詰められたオブジェクトを処理する
+    while (!queue.isEmpty()) {
+      const data = queue.read();
+
+      // 設置タイミングになってない場合は処理を終了する
+      if (data === undefined || !data.isRemovedTime()) break;
+
+      // 設置処理を行う
+      callback(data);
+      queue.dequeue();
     }
   }
 }

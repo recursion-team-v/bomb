@@ -21,13 +21,15 @@ import ServerItem from '../../../backend/src/rooms/schema/Item';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
 import Item from '../items/Item';
-import { PlayerInterface } from '../items/Bomb';
 import initializeKeys from '../utils/key';
 import Network from '../services/Network';
 import GameHeader from './GameHeader';
 import OtherPlayer from '../characters/OtherPlayer';
 import { Block } from '../items/Block';
 import phaserJuice from '../lib/phaserJuice';
+import GameQueue from '../../../backend/src/utils/gameQueue';
+import PlacementObjectInterface from '../../../backend/src/interfaces/placement_object';
+import { createBomb } from '../services/Bomb';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
@@ -43,6 +45,7 @@ export default class Game extends Phaser.Scene {
   private elapsedTime: number = 0; // 経過時間
   private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
   private currBlocks?: Map<string, Block>; // 現在存在しているブロック
+  private readonly bombToCreateQueue: GameQueue<ServerBomb> = new GameQueue<ServerBomb>();
   private readonly currItems: Map<string, Item>; // 現在存在しているアイテム
   private bgm?: Phaser.Sound.BaseSound;
   private readonly juice: phaserJuice;
@@ -106,6 +109,9 @@ export default class Game extends Phaser.Scene {
   private fixedTick() {
     this.moveOwnPlayer();
     this.moveOtherPlayers();
+    this.placeObjectFromQueue(this.bombToCreateQueue, (v: PlacementObjectInterface) =>
+      createBomb(v)
+    );
     this.updateBombCollision();
   }
 
@@ -180,26 +186,7 @@ export default class Game extends Phaser.Scene {
   // ボム追加イベント時に、マップにボムを追加
   private handleBombAdded(serverBomb: ServerBomb) {
     if (serverBomb === undefined) return;
-
-    const sessionId = serverBomb.sessionId;
-
-    let player: PlayerInterface;
-    if (this.myPlayer.isEqualSessionId(sessionId)) {
-      player = this.myPlayer;
-    } else {
-      const otherPlayer = this.otherPlayers.get(sessionId);
-      if (otherPlayer === undefined) return;
-      player = otherPlayer;
-    }
-
-    this.add.bomb(
-      sessionId,
-      serverBomb.x,
-      serverBomb.y,
-      serverBomb.bombStrength,
-      serverBomb.explodedAt,
-      player
-    );
+    this.bombToCreateQueue.enqueue(serverBomb);
   }
 
   // 破壊されたブロックにアイテムタイプがあればアイテムを追加する。
@@ -238,6 +225,18 @@ export default class Game extends Phaser.Scene {
     itemBody.removeItem();
   }
 
+  // キューに溜まっているオブジェクトをマップに追加する
+  private placeObjectFromQueue(queue: GameQueue<PlacementObjectInterface>, callback: Function) {
+    if (queue.isEmpty()) return;
+
+    const data = queue.read();
+    if (data === undefined) return;
+    if (data.createdAt >= this.serverTime) {
+      callback(data);
+      queue.dequeue();
+    }
+  }
+
   // ボム設置後、プレイヤーの挙動によってボムの衝突判定を更新する
   private updateBombCollision() {
     this.children.list.forEach((child: Phaser.GameObjects.GameObject) => {
@@ -265,6 +264,10 @@ export default class Game extends Phaser.Scene {
 
   public getCurrentPlayer(): MyPlayer {
     return this.myPlayer;
+  }
+
+  public getOtherPlayers(): Map<string, OtherPlayer> {
+    return this.otherPlayers;
   }
 
   public getCols(): number {

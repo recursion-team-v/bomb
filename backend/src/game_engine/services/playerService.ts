@@ -80,11 +80,13 @@ export default class PlayerService {
     }
   }
 
-  placeBomb(player: Player): Bomb | null {
-    if (!player.canSetBomb()) return null;
-    const bomb = this.gameEngine.state.createBomb(player, player.x, player.y, player.bombStrength);
+  placeBomb(bomb: Bomb): boolean {
+    const player = this.gameEngine.state.getPlayer(bomb.sessionId);
+    if (player === undefined) return false;
+    if (!player.canSetBomb()) return false;
+
     this.gameEngine.bombService.addBomb(bomb);
     player.consumeCurrentSetBombCount();
-    return bomb;
+    return true;
   }
 }

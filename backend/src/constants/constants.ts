@@ -11,6 +11,10 @@ export const RED: number = 0xff0000;
 export const FPS = 60; // 1 秒間のフレーム数
 export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
 
+// オブジェクト生成時の遅延時間
+// クライアントとサーバの同期を取るために、オブジェクト生成時に遅延を入れています。
+export const OBJECT_CREATION_DELAY = 100; // ms
+
 // Dockerfile の中と、デプロイ時にポートを指定しているので、ここの設定は開発時にしか利用されません。
 export const SERVER_LISTEN_PORT = 2567;
 // ゲームルーム参加時に使用するキー
