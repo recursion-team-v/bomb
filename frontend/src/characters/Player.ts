@@ -15,7 +15,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   private maxBombCount: number; // 設置できるボムの最大個数
   private readonly sessionId: string; // サーバが一意にセットするセッションID
   private readonly hit_se;
-  private readonly dead_se;
+
 
   constructor(
     sessionId: string,
@@ -58,9 +58,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.hit_se = this.scene.sound.add('hitPlayer', {
       volume: Config.SOUND_VOLUME,
     });
-    this.dead_se = this.scene.sound.add('gameOver', {
-      volume: Config.SOUND_VOLUME*1.5,
-    });
+
   }
 
   // HP をセットします
@@ -162,13 +160,6 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   // 死亡
   died() {
-    this.scene.time.addEvent({
-      delay: 1000,
-      callback: () => {
-        this.dead_se.play();
-      },
-    });
-
     this.stop();
     this.setToSleep(); // これをしないと移動中だとローテーション中に移動してしまう
     this.setVelocity(0, 0);

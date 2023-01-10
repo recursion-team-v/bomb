@@ -2,12 +2,10 @@ import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import { getDepth } from './util';
-import * as Config from '../config/config';
 
 export default class Item extends Phaser.Physics.Matter.Sprite {
   public readonly itemType: Constants.ITEM_TYPES;
   private readonly tween?: Phaser.Tweens.Tween;
-  private readonly se;
 
   constructor(
     world: Phaser.Physics.Matter.World,
@@ -35,13 +33,10 @@ export default class Item extends Phaser.Physics.Matter.Sprite {
       duration: 700,
       ease: Phaser.Math.Easing.Bounce,
     });
-    this.se = this.scene.sound.add('getItem', {
-      volume: Config.SOUND_VOLUME * 1.5,
-    });
+
   }
 
   removeItem() {
-    this.se.play();
     this.tween?.remove();
     this.destroy();
   }
