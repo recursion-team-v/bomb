@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
+import * as Config from '../config/config';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import Bomb from '../items/Bomb';
 import { getDepth } from '../items/util';
-import * as Config from '../config/config';
 import { getGameScene } from '../utils/globalGame';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
@@ -121,13 +121,17 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   }
 
   // set player speed
-  setSpeed(speed: number) {
+  setSpeed(speed: number): boolean {
+    if (this.speed === speed) return false;
     this.speed = speed;
+    return true;
   }
 
   // set player bomb strength
-  setBombStrength(bombStrength: number) {
+  setBombStrength(bombStrength: number): boolean {
+    if (this.bombStrength === bombStrength) return false;
     this.bombStrength = bombStrength;
+    return true;
   }
 
   // set Player color
@@ -136,7 +140,9 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   }
 
   // 最大設置可能なボムの数を設定する
-  setMaxBombCount(maxBombCount: number) {
+  setMaxBombCount(maxBombCount: number): boolean {
+    if (maxBombCount === this.maxBombCount) return false;
+
     const oldMaxBombCount = this.maxBombCount;
     if (maxBombCount > Constants.MAX_SETTABLE_BOMB_COUNT) {
       maxBombCount = Constants.MAX_SETTABLE_BOMB_COUNT;
@@ -147,6 +153,8 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     if (oldMaxBombCount < this.maxBombCount) {
       this.recoverSettableBombCount(this.maxBombCount - oldMaxBombCount);
     }
+
+    return true;
   }
 
   getSettableBombCount(): number {
