@@ -4,8 +4,8 @@ import * as Constants from '../../../backend/src/constants/constants';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import Bomb from '../items/Bomb';
 import { getDepth } from '../items/util';
-import phaserJuice from '../lib/phaserJuice';
 import * as Config from '../config/config';
+import { getGameScene } from '../utils/globalGame';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
   private hp: number;
@@ -170,8 +170,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   }
 
   private animationFlash(duration: number) {
-    // eslint-disable-next-line new-cap
-    const juice = new phaserJuice(this.scene);
+    const juice = getGameScene().getJuice();
 
     // 一定時間無敵の演出
     const timer = setInterval(() => {
@@ -187,8 +186,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   }
 
   private animationRotate() {
-    // eslint-disable-next-line new-cap
-    const juice = new phaserJuice(this.scene);
+    const juice = getGameScene().getJuice();
     const rotateConfig = {
       angle: 450,
       duration: 500,

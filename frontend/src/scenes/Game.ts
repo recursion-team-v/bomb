@@ -25,6 +25,7 @@ import Network from '../services/Network';
 import GameHeader from './GameHeader';
 import OtherPlayer from '../characters/OtherPlayer';
 import { Block } from '../items/Block';
+import phaserJuice from '../lib/phaserJuice';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
@@ -41,9 +42,12 @@ export default class Game extends Phaser.Scene {
   private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
   private currBlocks?: Map<string, Block>; // 現在存在しているブロック
   private bgm?: Phaser.Sound.BaseSound;
+  private readonly juice: phaserJuice;
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
+    // eslint-disable-next-line new-cap
+    this.juice = new phaserJuice(this);
   }
 
   init() {
@@ -198,10 +202,21 @@ export default class Game extends Phaser.Scene {
     const blockBody = this.currBlocks?.get(id);
     if (blockBody === undefined) return;
     this.currBlocks?.delete(id);
-    blockBody.destroy();
-    if (itemType !== undefined) {
-      this.add.item(x, y, itemType);
-    }
+
+    const juice = this.juice;
+
+    // ブロック破壊のアニメーション
+    const timer = setInterval(() => {
+      juice.flash(blockBody, 30, Constants.RED.toString());
+    }, 30);
+
+    setTimeout(() => {
+      clearInterval(timer);
+      blockBody.destroy();
+      if (itemType !== undefined) {
+        this.add.item(x, y, itemType);
+      }
+    }, 500);
   }
 
   // ボム設置後、プレイヤーの挙動によってボムの衝突判定を更新する
@@ -251,5 +266,9 @@ export default class Game extends Phaser.Scene {
 
   public getNetwork(): Network {
     return this.network;
+  }
+
+  public getJuice(): phaserJuice {
+    return this.juice;
   }
 }
