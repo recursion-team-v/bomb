@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-import * as Config from '../config/config';
-import isMobile from '../utils/mobile';
-import Network from '../services/Network';
-import { createPlayerAnims } from '../anims/PlayerAnims';
 import { createBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims } from '../anims/explodeAnims';
+import { createPlayerAnims } from '../anims/PlayerAnims';
+import * as Config from '../config/config';
+import Network from '../services/Network';
+import isMobile from '../utils/mobile';
 
 export default class Preloader extends Phaser.Scene {
   private preloadComplete = false;
