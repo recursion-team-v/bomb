@@ -3,6 +3,7 @@ import ButtonPlugin from 'phaser3-rex-plugins/plugins/button-plugin.js';
 import VirtualJoystick from 'phaser3-rex-plugins/plugins/virtualjoystick.js';
 
 import * as Constants from '../../backend/src/constants/constants';
+import * as Config from './config/config';
 import Game from './scenes/Game';
 import GameHeader from './scenes/GameHeader';
 import GameResult from './scenes/GameResult';
@@ -51,6 +52,7 @@ const config: Phaser.Types.Core.GameConfig = {
 };
 
 const phaserGame = new Phaser.Game(config);
+phaserGame.sound.mute = !Config.SOUND_DEFAULT_IS_PLAY;
 
 interface WindowInterface {
   game: Phaser.Game;

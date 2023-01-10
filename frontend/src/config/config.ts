@@ -2,6 +2,13 @@
 export const serverUrl = 'wss://bomb-e47mei43gq-an.a.run.app:443';
 
 /*
+asset 用
+*/
+
+export const ASSET_KEY_VOLUME_ON = 'volume_on';
+export const ASSET_KEY_VOLUME_OFF = 'volume_off';
+
+/*
 シーンの名前
 */
 
@@ -23,4 +30,6 @@ export const BOMB_ANIMATION_KEY = 'bomb_count';
 サウンド関連
 */
 
+// TODO 後で true にする
+export const SOUND_DEFAULT_IS_PLAY = false; // サウンドを再生するかどうか
 export const SOUND_VOLUME = 0.2;
