@@ -125,18 +125,27 @@ export default class Player extends Schema {
   }
 
   // ボムを置ける最大数を増やす
-  recoverSettableBombCount() {
-    this.settableBombCount++;
+  recoverSettableBombCount(count = 1) {
+    this.settableBombCount += count;
   }
 
   // 現在設置しているボムの数を減らす
-  consumeCurrentSetBombCount() {
-    this.settableBombCount--;
+  consumeCurrentSetBombCount(count = 1) {
+    this.settableBombCount -= count;
   }
 
   // ボムの最大数を増やす
-  increaseMaxBombCount() {
-    // TODO: not implemented
-    console.log('increaseMaxBombCount');
+  increaseMaxBombCount(count = 1) {
+    const oldMaxBombCount = this.maxBombCount;
+    if (this.maxBombCount + count > Constants.MAX_SETTABLE_BOMB_COUNT) {
+      this.maxBombCount = Constants.MAX_SETTABLE_BOMB_COUNT;
+    } else {
+      this.maxBombCount += count;
+    }
+
+    // ボムの最大数が増えた場合は、今設置できるボムの数も増やす
+    if (oldMaxBombCount < this.maxBombCount) {
+      this.recoverSettableBombCount(this.maxBombCount - oldMaxBombCount);
+    }
   }
 }

@@ -1,11 +1,12 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-import Player from './Player';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
-import { NavKeys } from '../types/keyboard';
 import Network from '../services/Network';
+import { NavKeys } from '../types/keyboard';
 import { getGameScene } from '../utils/globalGame';
+import Player from './Player';
+
 export default class MyPlayer extends Player {
   private readonly remoteRef: Phaser.GameObjects.Rectangle;
 
@@ -36,6 +37,9 @@ export default class MyPlayer extends Player {
     this.updateRemoteRef(player);
     this.forceMovePlayerPosition(player);
     this.setHP(player.hp);
+    this.setSpeed(player.speed);
+    this.setBombStrength(player.bombStrength);
+    this.setMaxBombCount(player.maxBombCount);
     if (this.isDead()) this.died();
   }
 

@@ -17,8 +17,10 @@ import { Room } from 'colyseus.js';
 import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
+import ServerItem from '../../../backend/src/rooms/schema/Item';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
+import Item from '../items/Item';
 import { PlayerInterface } from '../items/Bomb';
 import initializeKeys from '../utils/key';
 import Network from '../services/Network';
@@ -41,11 +43,13 @@ export default class Game extends Phaser.Scene {
   private elapsedTime: number = 0; // 経過時間
   private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
   private currBlocks?: Map<string, Block>; // 現在存在しているブロック
+  private readonly currItems: Map<string, Item>; // 現在存在しているアイテム
   private bgm?: Phaser.Sound.BaseSound;
   private readonly juice: phaserJuice;
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
+    this.currItems = new Map();
     // eslint-disable-next-line new-cap
     this.juice = new phaserJuice(this);
   }
@@ -113,6 +117,8 @@ export default class Game extends Phaser.Scene {
     this.network.onBombAdded(this.handleBombAdded, this); // 他のプレイヤーのボム追加イベント
     this.network.onPlayerLeftRoom(this.handlePlayerLeftRoom, this); // プレイヤーの切断イベント
     this.network.onBlocksRemoved(this.handleBlocksRemoved, this);
+    this.network.onItemAdded(this.handleItemAdded, this);
+    this.network.onItemRemoved(this.handleItemRemoved, this);
   }
 
   private addPlayers() {
@@ -155,7 +161,7 @@ export default class Game extends Phaser.Scene {
     const header = this.scene.get(Config.SCENE_NAME_GAME_HEADER) as GameHeader;
     data.forEach((v: any) => {
       if (v.field === 'now') this.setServerTime(v.value);
-      if (v.field === 'remainTime') header.updateTimerText(v.value);
+      if (v.field === 'remainTime') header.updateTextTimer(v.value);
     });
   }
 
@@ -198,7 +204,7 @@ export default class Game extends Phaser.Scene {
 
   // 破壊されたブロックにアイテムタイプがあればアイテムを追加する。
   private handleBlocksRemoved(data: any) {
-    const { id, x, y, itemType } = data;
+    const { id } = data;
     const blockBody = this.currBlocks?.get(id);
     if (blockBody === undefined) return;
     this.currBlocks?.delete(id);
@@ -213,10 +219,23 @@ export default class Game extends Phaser.Scene {
     setTimeout(() => {
       clearInterval(timer);
       blockBody.destroy();
-      if (itemType !== undefined) {
-        this.add.item(x, y, itemType);
-      }
     }, 500);
+  }
+
+  // アイテム追加イベント時に、マップにアイテムを追加
+  private handleItemAdded(serverItem: ServerItem) {
+    if (serverItem === undefined) return;
+    const item = this.add.item(serverItem.x, serverItem.y, serverItem.itemType);
+    this.currItems.set(serverItem.id, item);
+  }
+
+  // アイテムが破壊・習得されたらアイテムを削除する
+  private handleItemRemoved(data: any) {
+    const { id } = data;
+    const itemBody = this.currItems.get(id);
+    if (itemBody === undefined) return;
+    this.currItems.delete(id);
+    itemBody.removeItem();
   }
 
   // ボム設置後、プレイヤーの挙動によってボムの衝突判定を更新する

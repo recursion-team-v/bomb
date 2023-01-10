@@ -129,6 +129,7 @@ export default class MapService {
     if (block.itemType !== undefined) {
       const item = new Item(block.x, block.y, block.itemType);
       this.gameEngine.itemService.addItem(item);
+      this.gameEngine.state.items.set(item.id, item);
     }
   }
 }

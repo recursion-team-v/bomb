@@ -3,6 +3,7 @@ import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import * as Config from '../config/config';
 import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
+import ServerItem from '../../../backend/src/rooms/schema/Item';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import { gameEvents, Event } from '../events/GameEvents';
 import MyPlayer from '../characters/MyPlayer';
@@ -67,6 +68,14 @@ export default class Network {
     this.room.state.blocks.onRemove = (data: any) => {
       gameEvents.emit(Event.BLOCKS_REMOVED, data);
     };
+
+    this.room.state.items.onAdd = (data: any) => {
+      gameEvents.emit(Event.ITEM_ADDED, data);
+    };
+
+    this.room.state.items.onRemove = (data: any) => {
+      gameEvents.emit(Event.ITEM_REMOVED, data);
+    };
   }
 
   // 自分がルームに参加した時
@@ -102,6 +111,15 @@ export default class Network {
   // blocks が消去（破壊）された時
   onBlocksRemoved(callback: (data: any) => void, context?: any) {
     gameEvents.on(Event.BLOCKS_REMOVED, callback, context);
+  }
+
+  onItemAdded(callback: (item: ServerItem) => void, context?: any) {
+    gameEvents.on(Event.ITEM_ADDED, callback, context);
+  }
+
+  // item が消去（破壊）された時
+  onItemRemoved(callback: (data: any) => void, context?: any) {
+    gameEvents.on(Event.ITEM_REMOVED, callback, context);
   }
 
   // 自分のプレイヤー動作を送る

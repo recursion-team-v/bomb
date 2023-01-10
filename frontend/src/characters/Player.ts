@@ -129,25 +129,36 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.tint = color;
   }
 
-  increaseMaxBombCount() {
-    if (this.maxBombCount < Constants.MAX_SETTABLE_BOMB_COUNT) {
-      this.maxBombCount++;
-      this.settableBombCount++;
+  // 最大設置可能なボムの数を設定する
+  setMaxBombCount(maxBombCount: number) {
+    const oldMaxBombCount = this.maxBombCount;
+    if (maxBombCount > Constants.MAX_SETTABLE_BOMB_COUNT) {
+      maxBombCount = Constants.MAX_SETTABLE_BOMB_COUNT;
+    }
+    this.maxBombCount = maxBombCount;
+
+    // ボムの最大数が増えた場合は、設置できるボムの数も増やす
+    if (oldMaxBombCount < this.maxBombCount) {
+      this.recoverSettableBombCount(this.maxBombCount - oldMaxBombCount);
     }
   }
 
-  getSettableBombCount() {
+  getSettableBombCount(): number {
     return this.settableBombCount;
   }
 
-  // ボムを置ける最大数を増やす
-  recoverSettableBombCount() {
-    this.settableBombCount++;
+  // 今設置できるボムの数を回復する
+  recoverSettableBombCount(count = 1) {
+    if (this.settableBombCount + count > this.maxBombCount) {
+      this.settableBombCount = this.maxBombCount;
+    } else {
+      this.settableBombCount += count;
+    }
   }
 
-  // 現在設置しているボムの数を減らす
-  consumeSettableBombCount() {
-    this.settableBombCount--;
+  // 今設置できるボムの数を減らす
+  consumeSettableBombCount(count = 1) {
+    this.settableBombCount -= count;
   }
 
   // 死亡
@@ -161,6 +172,21 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   isEqualSessionId(sessionId: string): boolean {
     return this.sessionId === sessionId;
+  }
+
+  // ボム増加アイテムを取得した数
+  getItemCountOfBombCount(): number {
+    return this.maxBombCount - Constants.INITIAL_SETTABLE_BOMB_COUNT;
+  }
+
+  // 爆弾の破壊力アイテムを取得した数
+  getItemCountOfBombStrength(): number {
+    return this.bombStrength - Constants.INITIAL_BOMB_STRENGTH;
+  }
+
+  // 速さアイテムを取得した数
+  getItemCountOfSpeed(): number {
+    return this.speed - Constants.INITIAL_PLAYER_SPEED;
   }
 
   private animationFlash(duration: number) {
