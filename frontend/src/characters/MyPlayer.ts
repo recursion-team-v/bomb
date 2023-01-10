@@ -2,10 +2,10 @@ import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
+import * as Config from '../config/config';
 import Network from '../services/Network';
 import { NavKeys } from '../types/keyboard';
 import { getGameScene } from '../utils/globalGame';
-import * as Config from '../config/config';
 import Player from './Player';
 
 export default class MyPlayer extends Player {
@@ -146,15 +146,22 @@ export default class MyPlayer extends Player {
     this.setVelocity(forceX, forceY);
   }
 
-  increaseMaxBombCount() {
-    this.item_get_se.play();
+  setMaxBombCount(maxBombCount: number): boolean {
+    if (super.setMaxBombCount(maxBombCount)) this.playItemGetSe();
+    return true;
   }
 
-  setBombStrength(bombStrength: number) {
-    this.item_get_se.play();
+  setBombStrength(bombStrength: number): boolean {
+    if (super.setBombStrength(bombStrength)) this.playItemGetSe();
+    return true;
   }
 
-  setSpeed(speed: number) {
+  setSpeed(speed: number): boolean {
+    if (super.setSpeed(speed)) this.playItemGetSe();
+    return true;
+  }
+
+  private playItemGetSe() {
     this.item_get_se.play();
   }
 }
