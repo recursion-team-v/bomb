@@ -72,7 +72,11 @@ export default class Preloader extends Phaser.Scene {
     }
 
     this.load.audio('bombExplode', ['assets/se/bomb.mp3']);
+    this.load.audio('getItem', ['assets/se/get_item.mp3']);
+    this.load.audio('gameOver', ['assets/se/game_over.mp3']);
+    this.load.audio('hitPlayer', ['assets/se/hit_player.mp3']);
     this.load.audio('stage_1', ['assets/bgm/stage_1.mp3']);
+    this.load.audio('stage_2', ['assets/bgm/stage_2.mp3']);
 
     this.load.on('complete', () => {
       // add player animations

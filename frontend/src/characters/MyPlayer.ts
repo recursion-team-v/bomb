@@ -5,10 +5,13 @@ import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import Network from '../services/Network';
 import { NavKeys } from '../types/keyboard';
 import { getGameScene } from '../utils/globalGame';
+import * as Config from '../config/config';
 import Player from './Player';
 
 export default class MyPlayer extends Player {
   private readonly remoteRef: Phaser.GameObjects.Rectangle;
+  private readonly dead_se;
+  private readonly item_get_se;
 
   inputPayload = {
     left: false,
@@ -28,6 +31,12 @@ export default class MyPlayer extends Player {
   ) {
     super(sessionId, world, x, y, texture, frame, options);
     this.remoteRef = this.scene.add.rectangle(this.x, this.y, this.width, this.height, 0xfff, 0.3);
+    this.dead_se = this.scene.sound.add('gameOver', {
+      volume: Config.SOUND_VOLUME * 1.5,
+    });
+    this.item_get_se = this.scene.sound.add('getItem', {
+      volume: Config.SOUND_VOLUME * 1.5,
+    });
   }
 
   // player.onChange のコールバック
@@ -37,10 +46,18 @@ export default class MyPlayer extends Player {
     this.updateRemoteRef(player);
     this.forceMovePlayerPosition(player);
     this.setHP(player.hp);
+    if (this.isDead()) {
+      this.died();
+      this.scene.time.addEvent({
+        delay: 1000,
+        callback: () => {
+          this.dead_se.play();
+        },
+      });
+    }
     this.setSpeed(player.speed);
     this.setBombStrength(player.bombStrength);
     this.setMaxBombCount(player.maxBombCount);
-    if (this.isDead()) this.died();
   }
 
   // サーバのプレイヤーの位置を反映させる
@@ -127,6 +144,18 @@ export default class MyPlayer extends Player {
 
     if (forceX === 0 && forceY === 0) return;
     this.setVelocity(forceX, forceY);
+  }
+
+  increaseMaxBombCount() {
+    this.item_get_se.play();
+  }
+
+  setBombStrength(bombStrength: number) {
+    this.item_get_se.play();
+  }
+
+  setSpeed(speed: number) {
+    this.item_get_se.play();
   }
 }
 

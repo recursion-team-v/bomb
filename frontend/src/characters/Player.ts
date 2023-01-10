@@ -4,6 +4,7 @@ import * as Constants from '../../../backend/src/constants/constants';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import Bomb from '../items/Bomb';
 import { getDepth } from '../items/util';
+import * as Config from '../config/config';
 import { getGameScene } from '../utils/globalGame';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
@@ -13,6 +14,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   private settableBombCount: number; // 今設置できるボムの個数
   private maxBombCount: number; // 設置できるボムの最大個数
   private readonly sessionId: string; // サーバが一意にセットするセッションID
+  private readonly hit_se;
 
   constructor(
     sessionId: string,
@@ -52,6 +54,9 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
         ? collisionHandler(data.bodyA, data.bodyB)
         : collisionHandler(data.bodyB, data.bodyA);
     });
+    this.hit_se = this.scene.sound.add('hitPlayer', {
+      volume: Config.SOUND_VOLUME,
+    });
   }
 
   // HP をセットします
@@ -73,6 +78,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   // interface を満たすだけのダミーメソッド
   damaged(damage: number) {
+    this.hit_se.play();
     this.hp -= damage;
     this.animationShakeScreen();
     this.animationFlash(Constants.PLAYER_INVINCIBLE_TIME);
