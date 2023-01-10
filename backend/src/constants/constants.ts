@@ -72,7 +72,7 @@ export const INITIAL_SETTABLE_BOMB_COUNT = 1;
 export const MAX_SETTABLE_BOMB_COUNT = 8;
 
 // 初期の爆弾の破壊力
-export const INITIAL_BOMB_STRENGTH = 1;
+export const INITIAL_BOMB_STRENGTH = 2;
 
 // プレイヤーの初期移動速度
 export const INITIAL_PLAYER_SPEED = 4;
