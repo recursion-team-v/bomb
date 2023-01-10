@@ -5,6 +5,7 @@ import MyPlayer from '../characters/MyPlayer';
 import * as Config from '../config/config';
 import ToString from '../utils/color';
 import { getGameScene } from '../utils/globalGame';
+import { isMute, toggle } from '../utils/sound';
 import convertSecondsToMMSS from '../utils/timer';
 
 export default class GameHeader extends Phaser.Scene {
@@ -17,6 +18,7 @@ export default class GameHeader extends Phaser.Scene {
   private textBombCount!: Phaser.GameObjects.Text;
   private textBombStrength!: Phaser.GameObjects.Text;
   private textSpeed!: Phaser.GameObjects.Text;
+  private iconVolume!: Phaser.GameObjects.Image;
 
   constructor() {
     super(Config.SCENE_NAME_GAME_HEADER);
@@ -45,6 +47,16 @@ export default class GameHeader extends Phaser.Scene {
       this.add.image(450, 10, Constants.ITEM_TYPE.PLAYER_SPEED).setScale(0.5).setOrigin(0, 0),
       this.textSpeed,
     ]);
+
+    this.iconVolume = this.add
+      .image(
+        this.width - 60,
+        10,
+        Config.SOUND_DEFAULT_IS_PLAY ? Config.ASSET_KEY_VOLUME_ON : Config.ASSET_KEY_VOLUME_OFF
+      )
+      .setOrigin(0, 0)
+      .setInteractive()
+      .on('pointerdown', () => this.updateVolumeIcon());
   }
 
   update() {
@@ -64,5 +76,14 @@ export default class GameHeader extends Phaser.Scene {
       .text(x, y, text, { fontSize: `${fontSize}px` })
       .setColor(ToString(Constants.HEADER_TIMER_TEXT_COLOR_CODE))
       .setPadding(10, paddingHeight, 10, paddingHeight);
+  }
+
+  private volumeIcon(): string {
+    return isMute() ? Config.ASSET_KEY_VOLUME_ON : Config.ASSET_KEY_VOLUME_OFF;
+  }
+
+  private updateVolumeIcon() {
+    toggle();
+    this.iconVolume.setTexture(this.volumeIcon());
   }
 }
