@@ -1,10 +1,9 @@
+import VirtualJoystick from 'phaser3-rex-plugins/plugins/virtualjoystick.js';
+
+import * as Constants from '../../../backend/src/constants/constants';
+import Game from '../scenes/Game';
 import { Keyboard, NavKeys } from '../types/keyboard';
 import isMobile from './mobile';
-import * as Constants from '../../../backend/src/constants/constants';
-import VirtualJoystick from 'phaser3-rex-plugins/plugins/virtualjoystick.js';
-import Button from 'phaser3-rex-plugins/plugins/button.js';
-
-import Game from '../scenes/Game';
 
 export default function initializeKeys(game: Game): NavKeys {
   const kb = game.input.keyboard;
@@ -24,22 +23,14 @@ export default function initializeKeys(game: Game): NavKeys {
       dir: '8dir', // 全方向
     });
 
-    const button = new Button(
-      game.add
-        .circle(
-          Constants.BUTTON_X,
-          Constants.BUTTON_Y,
-          Constants.BUTTON_RADIUS,
-          Constants.BUTTON_COLOR_CODE
-        )
-        .setStrokeStyle(20, Constants.BUTTON_STROKE_COLOR_CODE)
-        .setAlpha(0.8)
-    );
+    const container = game.add.container(Constants.BUTTON_X, Constants.BUTTON_Y);
+    const button = game.add.image(0, 0, 'bomb').setScale(2);
+    button.setInteractive();
+    button.on('pointerup', () => game.getCurrentPlayer().placeBomb());
 
-    // 爆弾を設置する
-    button.on('click', () => {
-      game.getCurrentPlayer().placeBomb();
-    });
+    const circle1 = game.add.circle(0, 0, Constants.BUTTON_RADIUS, Constants.GRAY);
+    const circle2 = game.add.circle(0, 0, Constants.BUTTON_RADIUS - 5, Constants.LIGHT_GRAY);
+    container.add([circle1, circle2, button]);
 
     keys = {
       ...keys,
