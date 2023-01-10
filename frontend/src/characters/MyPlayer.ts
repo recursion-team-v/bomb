@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-import Player from './Player';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
-import { NavKeys } from '../types/keyboard';
 import Network from '../services/Network';
+import { NavKeys } from '../types/keyboard';
 import { getGameScene } from '../utils/globalGame';
 import * as Config from '../config/config';
+import Player from './Player';
 
 export default class MyPlayer extends Player {
   private readonly remoteRef: Phaser.GameObjects.Rectangle;
@@ -55,6 +55,9 @@ export default class MyPlayer extends Player {
         },
       });
     }
+    this.setSpeed(player.speed);
+    this.setBombStrength(player.bombStrength);
+    this.setMaxBombCount(player.maxBombCount);
   }
 
   // サーバのプレイヤーの位置を反映させる
@@ -147,7 +150,7 @@ export default class MyPlayer extends Player {
     this.item_get_se.play();
   }
 
-  setBombStrength() {
+  setBombStrength(bombStrength: number) {
     this.item_get_se.play();
   }
 
