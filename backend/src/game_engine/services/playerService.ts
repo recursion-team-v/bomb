@@ -95,8 +95,11 @@ export default class PlayerService {
     if (player === undefined) return false;
     if (!player.canSetBomb()) return false;
 
-    this.gameEngine.bombService.addBomb(bomb);
-    player.consumeCurrentSetBombCount();
-    return true;
+    if (this.gameEngine.bombService.addBomb(bomb)) {
+      player.consumeCurrentSetBombCount();
+      return true;
+    } else {
+      return false;
+    }
   }
 }
