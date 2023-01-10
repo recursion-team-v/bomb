@@ -33,7 +33,6 @@ export default class Item extends Phaser.Physics.Matter.Sprite {
       duration: 700,
       ease: Phaser.Math.Easing.Bounce,
     });
-
   }
 
   removeItem() {
