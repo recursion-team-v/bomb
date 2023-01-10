@@ -27,6 +27,7 @@ import Network from '../services/Network';
 import GameHeader from './GameHeader';
 import OtherPlayer from '../characters/OtherPlayer';
 import { Block } from '../items/Block';
+import phaserJuice from '../lib/phaserJuice';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
@@ -44,10 +45,13 @@ export default class Game extends Phaser.Scene {
   private currBlocks?: Map<string, Block>; // 現在存在しているブロック
   private readonly currItems: Map<string, Item>; // 現在存在しているアイテム
   private bgm?: Phaser.Sound.BaseSound;
+  private readonly juice: phaserJuice;
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
     this.currItems = new Map();
+    // eslint-disable-next-line new-cap
+    this.juice = new phaserJuice(this);
   }
 
   init() {
@@ -204,7 +208,18 @@ export default class Game extends Phaser.Scene {
     const blockBody = this.currBlocks?.get(id);
     if (blockBody === undefined) return;
     this.currBlocks?.delete(id);
-    blockBody.destroy();
+
+    const juice = this.juice;
+
+    // ブロック破壊のアニメーション
+    const timer = setInterval(() => {
+      juice.flash(blockBody, 30, Constants.RED.toString());
+    }, 30);
+
+    setTimeout(() => {
+      clearInterval(timer);
+      blockBody.destroy();
+    }, 500);
   }
 
   // アイテム追加イベント時に、マップにアイテムを追加
@@ -270,5 +285,9 @@ export default class Game extends Phaser.Scene {
 
   public getNetwork(): Network {
     return this.network;
+  }
+
+  public getJuice(): phaserJuice {
+    return this.juice;
   }
 }
