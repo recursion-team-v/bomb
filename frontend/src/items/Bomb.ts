@@ -12,7 +12,6 @@ import { getDepth } from './util';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly id: string;
-  private readonly bombStrength: number;
 
   // 誘爆時は状況によって爆弾が消えてしまい、座標やシーンが取得できなくなるため保存しておく
   private readonly stableX: number; // 爆弾が消えても座標を保持するための変数
@@ -31,7 +30,6 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     x: number,
     y: number,
     texture: string,
-    bombStrength: number,
     removedAt: number
   ) {
     super(world, x, y, texture);
@@ -42,7 +40,6 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.id = id;
     this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
     this.sessionId = sessionId;
-    this.bombStrength = bombStrength;
     this.removedAt = removedAt;
     this.stableX = x;
     this.stableY = y;
@@ -80,7 +77,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       : Constants.DEFAULT_TIP_SIZE * Constants.BLAST_COLLISION_RATIO_Y;
 
     this.stableScene.add
-      .blast(bx, by, playKey, this.bombStrength, rx, ry)
+      .blast(this.sessionId, bx, by, playKey, rx, ry)
       .setScale(scale, scale)
       .setAngle(angle)
       .play(playKey)
@@ -153,16 +150,17 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private calcBlastRange(): Map<Constants.DIRECTION_TYPE, number> {
     // 自分自身から scene を取得すると、爆弾が爆発した後に scene が取得できなくなりエラーになるので window オブジェクトから取得する
     const scene = phaserGlobalGameObject().scene.getScene(Config.SCENE_NAME_GAME);
+    const game = scene as Game;
     const map = getDimensionalMap(
       // TODO: サーバから受け取ったマップの X/ Y のタイル数を使う
-      (scene as Game).getRows(),
-      (scene as Game).getCols(),
+      game.getRows(),
+      game.getCols(),
       scene,
       getHighestPriorityFromBodies
     );
 
     // 現在のユーザの爆弾の強さを取得
-    const power = this.bombStrength;
+    const power = game.getBombStrength(this.sessionId);
 
     // 現在のユーザの爆弾の位置を取得
     const x = (this.stableX - Constants.TILE_WIDTH / 2) / Constants.TILE_WIDTH;
@@ -247,19 +245,9 @@ Phaser.GameObjects.GameObjectFactory.register(
     sessionId: string,
     x: number,
     y: number,
-    bombStrength = Constants.INITIAL_BOMB_STRENGTH,
     removedAt: number
   ) {
-    const sprite = new Bomb(
-      id,
-      sessionId,
-      this.scene.matter.world,
-      x,
-      y,
-      'bomb',
-      bombStrength,
-      removedAt
-    );
+    const sprite = new Bomb(id, sessionId, this.scene.matter.world, x, y, 'bomb', removedAt);
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);
@@ -295,19 +283,18 @@ Phaser.GameObjects.GameObjectFactory.register(
 );
 
 export class Blast extends Phaser.Physics.Matter.Sprite {
-  private readonly bombStrength: number;
-
+  private readonly sessionId: string;
   constructor(
     world: Phaser.Physics.Matter.World,
+    sessionId: string,
     x: number,
     y: number,
     texture: string,
-    bombStrength: number,
     rectangleX: number,
     rectangleY: number
   ) {
     super(world, x, y, texture);
-    this.bombStrength = bombStrength;
+    this.sessionId = sessionId;
     this.setRectangle(rectangleX, rectangleY);
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
       const currBody = this.body as MatterJS.BodyType;
@@ -334,19 +321,19 @@ Phaser.GameObjects.GameObjectFactory.register(
   'blast',
   function (
     this: Phaser.GameObjects.GameObjectFactory,
+    sessionId: string,
     x: number,
     y: number,
     texture: string,
-    bombStrength = 1,
     rectangleX: number,
     rectangleY: number
   ) {
     const sprite = new Blast(
       this.scene.matter.world,
+      sessionId,
       x,
       y,
       texture,
-      bombStrength,
       rectangleX,
       rectangleY
     );

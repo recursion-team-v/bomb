@@ -27,19 +27,12 @@ declare global {
         frame?: string | number,
         options?: Phaser.Types.Physics.Matter.MatterBodyConfig
       ) => OtherPlayer;
-      bomb: (
-        id: string,
+      bomb: (id: string, sessionId: string, x: number, y: number, removedAt: number) => Bomb;
+      blast: (
         sessionId: string,
         x: number,
         y: number,
-        bombStrength: number,
-        removedAt: number
-      ) => Bomb;
-      blast: (
-        x: number,
-        y: number,
         playKey: string,
-        bombStrength: number,
         rectangleX: number,
         rectangleY: number
       ) => Blast;

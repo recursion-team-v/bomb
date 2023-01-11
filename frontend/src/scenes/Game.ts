@@ -338,4 +338,15 @@ export default class Game extends Phaser.Scene {
   public getJuice(): phaserJuice {
     return this.juice;
   }
+
+  // sessionId からプレイヤーのボムの強さを取得する
+  public getBombStrength(sessionId: string): number {
+    if (this.myPlayer.isEqualSessionId(sessionId)) {
+      return this.myPlayer.getBombStrength();
+    }
+
+    const otherPlayer = this.otherPlayers.get(sessionId);
+    if (otherPlayer === undefined) return 0;
+    return otherPlayer.getBombStrength();
+  }
 }
