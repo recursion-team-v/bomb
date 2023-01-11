@@ -3,6 +3,7 @@ import MapTiles from '../../../backend/src/rooms/schema/MapTiles';
 import { MapSchema } from '@colyseus/schema';
 import Block from '../../../backend/src/rooms/schema/Block';
 import { Block as BlockBody } from '../items/Block';
+import { gameEvents, Event } from '../events/GameEvents';
 
 const rows = Constants.TILE_ROWS;
 const cols = Constants.TILE_COLS;
@@ -46,9 +47,11 @@ export const drawWalls = (scene: Phaser.Scene, mapTiles: MapTiles) => {
 
 export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
   const currBlocks = new Map<string, BlockBody>();
+  let eventCount = 0;
+
   blocks.forEach((block) => {
     const random = Math.random();
-    const randomHeight = random * 2000;
+    const randomHeight = random * 5000;
     const shadow = scene.add.rectangle(
       block.x,
       block.y,
@@ -66,13 +69,17 @@ export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
     scene.add.tween({
       targets: currBlocks.get(block.id),
       y: `+=${randomHeight}`,
-      duration: randomHeight + 200,
+      duration: randomHeight,
       repeat: 0,
       onComplete: () => {
         scene.cameras.main.shake(200, 0.001);
         b.setDepth(Constants.OBJECT_DEPTH.BLOCK);
         b.setSensor(false);
         shadow.destroy();
+        eventCount++;
+        if (eventCount === blocks.size) {
+          gameEvents.emit(Event.GAME_PREPARING_COMPLETED);
+        }
       },
     });
   });

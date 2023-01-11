@@ -21,7 +21,7 @@ import ServerItem from '../../../backend/src/rooms/schema/Item';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
 import Item from '../items/Item';
-import initializeKeys from '../utils/key';
+import initializeKeys, { disableKeys, enableKeys } from '../utils/key';
 import Network from '../services/Network';
 import GameHeader from './GameHeader';
 import OtherPlayer from '../characters/OtherPlayer';
@@ -30,6 +30,7 @@ import phaserJuice from '../lib/phaserJuice';
 import GameQueue from '../../../backend/src/utils/gameQueue';
 import PlacementObjectInterface from '../../../backend/src/interfaces/placement_object';
 import { createBomb } from '../services/Bomb';
+import { gameEvents, Event } from '../events/GameEvents';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
@@ -47,8 +48,9 @@ export default class Game extends Phaser.Scene {
   private currBlocks?: Map<string, Block>; // 現在存在しているブロック
   private readonly bombToCreateQueue: GameQueue<ServerBomb> = new GameQueue<ServerBomb>();
   private readonly currItems: Map<string, Item>; // 現在存在しているアイテム
-  private bgm?: Phaser.Sound.BaseSound;
+  private bgm!: Phaser.Sound.BaseSound;
   private readonly juice: phaserJuice;
+  private title!: Phaser.GameObjects.Text;
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
@@ -60,13 +62,24 @@ export default class Game extends Phaser.Scene {
   init() {
     // initialize key inputs
     this.cursorKeys = initializeKeys(this);
+    disableKeys(this.cursorKeys);
+    this.sound.play('battleStart', { volume: Config.SOUND_VOLUME });
     this.bgm = this.sound.add('stage_2', {
       volume: Config.SOUND_VOLUME,
     });
 
-    this.bgm.play({
-      loop: true,
-    });
+    this.title = this.add
+      .text(Constants.WIDTH / 2, Constants.HEIGHT / 2, 'Battle Start!', {
+        fontSize: '50px',
+      })
+      .setColor('#ffffff')
+      .setDepth(Infinity)
+      .setOrigin(0.5, 0.5);
+
+    setInterval(() => {
+      // this.juice.flash(this.title, 100, Constants.RED.toString());
+      this.juice.pulse(this.title);
+    }, 200);
   }
 
   create(data: { network: Network }) {
@@ -91,6 +104,21 @@ export default class Game extends Phaser.Scene {
       drawGround(this, mapTiles.GROUND_IDX); // draw ground
       drawWalls(this, mapTiles); // draw walls
       this.currBlocks = drawBlocks(this, state.blocks); // draw blocks
+    });
+
+    // 演出が終わったらゲームを開始
+    gameEvents.on(Event.GAME_PREPARING_COMPLETED, () => {
+      this.juice.fadeOut(this.title);
+
+      // キー入力を有効化
+      enableKeys(this.cursorKeys);
+
+      // BGM を再生
+      this.bgm.play({
+        loop: true,
+      });
+
+      // TODO: タイマースタート
     });
   }
 
