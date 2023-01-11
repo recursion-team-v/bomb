@@ -72,6 +72,9 @@ export default function collisionHandler(
     const blockId = blockBody.id.toString();
     const block = engine.state.blocks.get(blockId);
     if (block === undefined) return;
-    engine.mapService.destroyBlock(block);
+
+    // クライアントと同期をとって消すため、ここでは削除の時間を決めるだけにする
+    block.removedAt = Date.now() + Constants.OBJECT_REMOVAL_DELAY;
+    engine.state.getBlockToDestroyQueue().enqueue(block);
   }
 }

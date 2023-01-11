@@ -15,6 +15,8 @@ export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
 // オブジェクト生成時の遅延時間
 // クライアントとサーバの同期を取るために、オブジェクト生成時に遅延を入れています。
 export const OBJECT_CREATION_DELAY = 100; // ms
+// オブジェクト削除時の遅延時間
+export const OBJECT_REMOVAL_DELAY = 100; // ms
 
 // Dockerfile の中と、デプロイ時にポートを指定しているので、ここの設定は開発時にしか利用されません。
 export const SERVER_LISTEN_PORT = 2567;

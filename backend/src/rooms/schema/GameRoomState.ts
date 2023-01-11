@@ -27,6 +27,8 @@ export default class GameRoomState extends Schema {
   private readonly bombToCreateQueue: GameQueue<Bomb> = new GameQueue<Bomb>();
   // 爆弾を爆発させるキュー
   private readonly bombToExplodeQueue: GameQueue<Bomb> = new GameQueue<Bomb>();
+  // ブロックを破壊するキュー
+  private readonly blockToDestroyQueue: GameQueue<Block> = new GameQueue<Block>();
 
   @type(Map) gameMap = new Map();
 
@@ -69,6 +71,10 @@ export default class GameRoomState extends Schema {
 
   getBombToExplodeQueue(): GameQueue<Bomb> {
     return this.bombToExplodeQueue;
+  }
+
+  getBlockToDestroyQueue(): GameQueue<Block> {
+    return this.blockToDestroyQueue;
   }
 
   createItem(x: number, y: number, itemType: ITEM_TYPES) {
