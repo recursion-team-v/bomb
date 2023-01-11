@@ -59,7 +59,8 @@ export default class BombService {
       // 設置者のボム数を増やす
       const player = this.gameEngine.getPlayer(bomb.sessionId);
       if (player !== undefined) {
-        player.recoverSettableBombCount();
+        // ボムを設置したプレイヤーの設置中のボム数を減らす
+        player.decreaseSetBombCount();
       }
     }
 

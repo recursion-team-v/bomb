@@ -37,6 +37,7 @@ export default class GameRoom extends Room<GameRoomState> {
       const player = this.state.getPlayer(client.sessionId);
       if (player === undefined) return;
       if (player.isDead()) return;
+      if (!player.canSetBomb()) return;
 
       this.state
         .getBombToCreateQueue()

@@ -13,7 +13,6 @@ import { getDepth } from './util';
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly id: string;
   private readonly bombStrength: number;
-  private readonly player: PlayerInterface;
 
   // 誘爆時は状況によって爆弾が消えてしまい、座標やシーンが取得できなくなるため保存しておく
   private readonly stableX: number; // 爆弾が消えても座標を保持するための変数
@@ -33,8 +32,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     y: number,
     texture: string,
     bombStrength: number,
-    removedAt: number,
-    player: PlayerInterface
+    removedAt: number
   ) {
     super(world, x, y, texture);
 
@@ -44,7 +42,6 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.id = id;
     this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
     this.sessionId = sessionId;
-    this.player = player;
     this.bombStrength = bombStrength;
     this.removedAt = removedAt;
     this.stableX = x;
@@ -217,10 +214,6 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   afterExplosion() {
     this.destroy();
     this.isExploded = true;
-
-    // TODO: フロントでやるのではなく、サーバの状態で更新する
-    // 自分の爆弾の時のみ爆弾の数を回復する
-    if (this.player.isEqualSessionId(this.sessionId)) this.player.recoverSettableBombCount();
   }
 
   // 誘爆時の処理
@@ -255,8 +248,7 @@ Phaser.GameObjects.GameObjectFactory.register(
     x: number,
     y: number,
     bombStrength = Constants.INITIAL_BOMB_STRENGTH,
-    removedAt: number,
-    player: PlayerInterface
+    removedAt: number
   ) {
     const sprite = new Bomb(
       id,
@@ -266,8 +258,7 @@ Phaser.GameObjects.GameObjectFactory.register(
       y,
       'bomb',
       bombStrength,
-      removedAt,
-      player
+      removedAt
     );
 
     this.displayList.add(sprite);
@@ -366,8 +357,3 @@ Phaser.GameObjects.GameObjectFactory.register(
     return sprite;
   }
 );
-
-export interface PlayerInterface {
-  recoverSettableBombCount: () => void;
-  isEqualSessionId: (sessionId: string) => boolean;
-}

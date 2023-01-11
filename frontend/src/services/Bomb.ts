@@ -1,5 +1,4 @@
 import PlacementObjectInterface from '../../../backend/src/interfaces/placement_object';
-import { PlayerInterface } from '../items/Bomb';
 import * as Constants from '../../../backend/src/constants/constants';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import { getGameScene } from '../utils/globalGame';
@@ -20,25 +19,12 @@ export function createBomb(bomb: PlacementObjectInterface) {
     }
   }
 
-  const myPlayer = gc.getCurrentPlayer();
-  const otherPlayer = gc.getOtherPlayers();
-
-  let player: PlayerInterface;
-  if (myPlayer.isEqualSessionId(sessionId)) {
-    player = myPlayer;
-  } else {
-    const op = otherPlayer.get(sessionId);
-    if (op === undefined) return;
-    player = op;
-  }
-
   gc.add.bomb(
     serverBomb.id,
     sessionId,
     serverBomb.x,
     serverBomb.y,
     serverBomb.bombStrength,
-    serverBomb.removedAt,
-    player
+    serverBomb.removedAt
   );
 }

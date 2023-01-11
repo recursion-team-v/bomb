@@ -1,7 +1,7 @@
 import MyPlayer from '../characters/MyPlayer';
 import OtherPlayer from '../characters/OtherPlayer';
 import { Block } from '../items/Block';
-import Bomb, { Blast, PlayerInterface } from '../items/Bomb';
+import Bomb, { Blast } from '../items/Bomb';
 import Item from '../items/Item';
 import { InnerWall, OuterWall } from '../items/Wall';
 
@@ -33,8 +33,7 @@ declare global {
         x: number,
         y: number,
         bombStrength: number,
-        removedAt: number,
-        player: PlayerInterface
+        removedAt: number
       ) => Bomb;
       blast: (
         x: number,
