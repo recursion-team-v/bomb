@@ -28,6 +28,7 @@ declare global {
         options?: Phaser.Types.Physics.Matter.MatterBodyConfig
       ) => OtherPlayer;
       bomb: (
+        id: string,
         sessionId: string,
         x: number,
         y: number,
@@ -36,7 +37,6 @@ declare global {
         player: PlayerInterface
       ) => Bomb;
       blast: (
-        id: string,
         x: number,
         y: number,
         playKey: string,

@@ -72,7 +72,6 @@ export default class Player extends Schema {
     this.hp - damage < 0 ? (this.hp = 0) : (this.hp -= damage);
 
     this.updateLastDamagedAt();
-    console.log(this.hp);
   }
 
   // プレイヤーが無敵かどうかを返します
