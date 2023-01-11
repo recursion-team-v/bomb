@@ -14,6 +14,12 @@ export default class BombService {
 
   // ボムを matter に追加する
   addBomb(bomb: Bomb): boolean {
+    // 既にボムがある場所には設置できない
+    if (this.isExistsBombOnPosition(bomb.x, bomb.y)) {
+      this.deleteBomb(bomb);
+      return false;
+    }
+
     const bombBody = Matter.Bodies.rectangle(
       bomb.x,
       bomb.y,
@@ -25,12 +31,6 @@ export default class BombService {
         isStatic: true,
       }
     );
-
-    // 既にボムがある場所には設置できない
-    if (this.isExistsBombOnPosition(bomb.x, bomb.y)) {
-      this.deleteBomb(bomb);
-      return false;
-    }
 
     Matter.Composite.add(this.gameEngine.world, [bombBody]);
     this.gameEngine.bombBodies.set(bomb.id, bombBody);
@@ -49,19 +49,19 @@ export default class BombService {
 
   explode(bomb: Bomb) {
     // 既に爆発している場合は処理を終了する
-    if (!bomb.isExploded()) {
-      bomb.explode();
+    if (bomb.isExploded()) return;
 
-      // 爆風を作成する
-      const blastService = new BlastService(this.gameEngine, bomb);
-      blastService.add();
+    bomb.explode();
 
-      // 設置者のボム数を増やす
-      const player = this.gameEngine.getPlayer(bomb.sessionId);
-      if (player !== undefined) {
-        // ボムを設置したプレイヤーの設置中のボム数を減らす
-        player.decreaseSetBombCount();
-      }
+    // 爆風を作成する
+    const blastService = new BlastService(this.gameEngine, bomb);
+    blastService.add();
+
+    // 設置者のボム数を増やす
+    const player = this.gameEngine.getPlayer(bomb.sessionId);
+    if (player !== undefined) {
+      // ボムを設置したプレイヤーの設置中のボム数を減らす
+      player.decreaseSetBombCount();
     }
 
     // ボムを削除する

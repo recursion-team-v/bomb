@@ -140,7 +140,6 @@ export default class GameRoom extends Room<GameRoomState> {
   // 爆弾削除のイべント
   private removeBombEvent(b: PlacementObjectInterface) {
     const bomb = b as Bomb;
-    this.state.getBombToExplodeQueue().dequeue();
     this.engine.bombService.explode(bomb);
   }
 
