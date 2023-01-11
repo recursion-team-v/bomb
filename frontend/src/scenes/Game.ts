@@ -222,7 +222,18 @@ export default class Game extends Phaser.Scene {
     const itemBody = this.currItems.get(id);
     if (itemBody === undefined) return;
     this.currItems.delete(id);
-    itemBody.removeItem();
+
+    const juice = this.juice;
+
+    // ブロック破壊のアニメーション
+    const timer = setInterval(() => {
+      juice.flash(itemBody, 30, Constants.RED.toString());
+    }, 30);
+
+    setTimeout(() => {
+      clearInterval(timer);
+      itemBody.removeItem();
+    }, 500);
   }
 
   // キューに溜まっているオブジェクトをマップに追加する
