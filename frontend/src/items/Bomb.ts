@@ -1,8 +1,7 @@
-import Phaser, { GameObjects } from 'phaser';
+import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import { calcBlastRangeFromDirection } from '../../../backend/src/game_engine/services/blastService';
-import BombInterface from '../../../backend/src/interfaces/bomb';
 import * as Config from '../config/config';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import { phaserGlobalGameObject } from '../PhaserGame';
@@ -135,6 +134,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   }
 
   explode() {
+    if (this.isExploded) return;
     this.se.play();
     // center
     this.addBlastSprite(this.stableX, this.stableY, 'bomb_center_blast', 0, true, true, 1.2);
