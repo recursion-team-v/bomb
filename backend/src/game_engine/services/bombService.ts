@@ -67,7 +67,9 @@ export default class BombService {
   detonated(bombId: string) {
     const bomb = this.gameEngine.state.bombs.get(bombId);
     if (bomb === undefined) return;
-    this.explode(bomb);
+
+    // 誘爆の場合は爆発までの delay を入れる
+    setTimeout(() => this.explode(bomb), Constants.BOMB_DETONATION_DELAY);
   }
 
   // 指定した位置にボムが存在するかどうかを返す
