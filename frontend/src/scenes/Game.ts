@@ -28,6 +28,7 @@ import GameHeader from './GameHeader';
 import OtherPlayer from '../characters/OtherPlayer';
 import { Block } from '../items/Block';
 import phaserJuice from '../lib/phaserJuice';
+import { clearRoomInfoFromLocalStorage } from '../services/LocalStorage';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
@@ -151,7 +152,7 @@ export default class Game extends Phaser.Scene {
     };
   }
 
-  private handlePlayerLeftRoom(player: ServerPlayer, sessionId: string) {
+  handlePlayerLeftRoom(sessionId: string) {
     const otherPlayer = this.otherPlayers.get(sessionId);
     otherPlayer?.destroy();
     this.otherPlayers.delete(sessionId);
@@ -170,6 +171,7 @@ export default class Game extends Phaser.Scene {
 
     if (state === Constants.GAME_STATE.FINISHED && this.room !== undefined) {
       await this.room.leave();
+      clearRoomInfoFromLocalStorage();
       this.bgm?.stop();
       this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
       this.scene.stop(Config.SCENE_NAME_GAME);

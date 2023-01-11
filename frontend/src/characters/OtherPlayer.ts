@@ -26,6 +26,12 @@ export default class OtherPlayer extends Player {
 
   handleServerChange(serverPlayer: ServerPlayer) {
     if (this.isDead()) return false;
+    // プレイヤーが退出したら、画面から消す
+    if (!serverPlayer.connected) {
+      this.setVisible(false);
+    } else {
+      this.setVisible(true);
+    }
     this.serverX = serverPlayer.x;
     this.serverY = serverPlayer.y;
     this.frameKey = serverPlayer.frameKey;

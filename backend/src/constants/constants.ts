@@ -17,6 +17,9 @@ export const SERVER_LISTEN_PORT = 2567;
 // ゲームルーム参加時に使用するキー
 export const GAME_ROOM_KEY = 'game';
 
+// クライアントが切断後に、再接続を許容する時間
+export const AVAILABLE_RECONNECTION_TIME = 10000; // 10 秒
+
 export const NOTIFICATION_TYPE = {
   // 1 番台はゲーム情報を通知するためのタイプ
   // ゲーム情報を進捗を通知するためのタイプ

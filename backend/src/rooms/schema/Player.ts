@@ -49,6 +49,10 @@ export default class Player extends Schema {
   @type('number')
   lastDamagedAt: number;
 
+  // プレイヤーが接続しているかどうか
+  @type('boolean')
+  connected: boolean;
+
   inputQueue: any[] = [];
 
   constructor(sessionId: string, idx: number) {
@@ -62,6 +66,7 @@ export default class Player extends Schema {
     this.settableBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
     this.lastDamagedAt = 0;
+    this.connected = true;
   }
 
   // ダメージを受けてHPを減らします
@@ -147,5 +152,13 @@ export default class Player extends Schema {
     if (oldMaxBombCount < this.maxBombCount) {
       this.recoverSettableBombCount(this.maxBombCount - oldMaxBombCount);
     }
+  }
+
+  setConnected() {
+    this.connected = true;
+  }
+
+  setDisconnected() {
+    this.connected = false;
   }
 }

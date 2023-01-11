@@ -103,8 +103,21 @@ export default class GameRoom extends Room<GameRoomState> {
     this.engine.playerService.addPlayer(client.sessionId);
   }
 
-  onLeave(client: Client, consented: boolean) {
-    this.engine.playerService.deletePlayer(client.sessionId);
+  async onLeave(client: Client, consented: boolean) {
+    const player = this.state.players.get(client.sessionId);
+    if (player === undefined) return;
+    player.setDisconnected();
+
+    try {
+      if (consented) {
+        throw new Error('consented leave');
+      }
+      await this.allowReconnection(client, Constants.AVAILABLE_RECONNECTION_TIME);
+
+      player.setConnected();
+    } catch (e) {
+      this.engine.playerService.deletePlayer(client.sessionId);
+    }
   }
 
   onDispose() {

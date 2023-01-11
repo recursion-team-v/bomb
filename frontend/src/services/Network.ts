@@ -1,12 +1,18 @@
 import { Client, Room, RoomAvailable } from 'colyseus.js';
-import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
-import * as Config from '../config/config';
+
 import * as Constants from '../../../backend/src/constants/constants';
-import ServerPlayer from '../../../backend/src/rooms/schema/Player';
-import ServerItem from '../../../backend/src/rooms/schema/Item';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
-import { gameEvents, Event } from '../events/GameEvents';
+import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
+import ServerItem from '../../../backend/src/rooms/schema/Item';
+import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import MyPlayer from '../characters/MyPlayer';
+import * as Config from '../config/config';
+import { Event, gameEvents } from '../events/GameEvents';
+import {
+  clearRoomInfoFromLocalStorage,
+  getRoomInfoFromLocalStorage,
+  saveRoomInfoAtLocalStorage,
+} from './LocalStorage';
 
 export default class Network {
   private readonly client: Client;
@@ -29,11 +35,28 @@ export default class Network {
   }
 
   async joinOrCreateRoom() {
-    this.room = await this.client.joinOrCreate(Constants.GAME_ROOM_KEY);
-    // ゲーム開始の通知
-    // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
-    this.sendGameProgress();
+    const { roomId, sessionId } = getRoomInfoFromLocalStorage();
+    if (roomId == null || sessionId == null) {
+      this.room = await this.client.joinOrCreate(Constants.GAME_ROOM_KEY);
+      saveRoomInfoAtLocalStorage(this.room);
+      // ゲーム開始の通知
+      // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
+      this.sendGameProgress();
+    } else {
+      this.reconnect(roomId, sessionId);
+    }
     this.initialize();
+  }
+
+  private reconnect(roomId: string, sessionId: string) {
+    this.client
+      .reconnect(roomId, sessionId)
+      .then((roomInstance) => {
+        this.room = roomInstance as Room<GameRoomState>;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   initialize() {
@@ -89,7 +112,7 @@ export default class Network {
   }
 
   // 他のプレイヤーがルームを退出した時
-  onPlayerLeftRoom(callback: (player: ServerPlayer, sessionId: string) => void, context?: any) {
+  onPlayerLeftRoom(callback: (sessionId: string) => void, context?: any) {
     gameEvents.on(Event.PLAYER_LEFT_ROOM, callback, context);
   }
 
