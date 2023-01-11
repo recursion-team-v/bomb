@@ -99,7 +99,6 @@ export default class PlayerService {
       player.consumeCurrentSetBombCount();
       return true;
     } else {
-      this.gameEngine.state.bombs.delete(bomb.id);
       return false;
     }
   }

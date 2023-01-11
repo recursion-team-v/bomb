@@ -27,7 +27,10 @@ export default class BombService {
     );
 
     // 既にボムがある場所には設置できない
-    if (this.isExistsBombOnPosition(bomb.x, bomb.y)) return false;
+    if (this.isExistsBombOnPosition(bomb.x, bomb.y)) {
+      this.deleteBomb(bomb);
+      return false;
+    }
 
     Matter.Composite.add(this.gameEngine.world, [bombBody]);
     this.gameEngine.bombBodies.set(bomb.id, bombBody);
@@ -37,6 +40,7 @@ export default class BombService {
 
   // ボムを matter から削除する
   private deleteBomb(bomb: Bomb) {
+    this.gameEngine.state.deleteBomb(bomb);
     const bombBody = this.gameEngine.bombBodies.get(bomb.id);
     if (bombBody === undefined) return;
     Matter.Composite.remove(this.gameEngine.world, bombBody);

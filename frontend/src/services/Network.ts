@@ -58,6 +58,10 @@ export default class Network {
       gameEvents.emit(Event.BOMB_ADDED, bomb);
     };
 
+    this.room.state.bombs.onRemove = (bomb: ServerBomb) => {
+      gameEvents.emit(Event.BOMB_REMOVED, bomb);
+    };
+
     this.room.state.blasts.onAdd = (data: any) => {
       gameEvents.emit(Event.BLAST_ADDED, data);
     };
@@ -102,9 +106,13 @@ export default class Network {
     gameEvents.on(Event.PLAYER_LEFT_ROOM, callback, context);
   }
 
-  // 他のプレイヤーがボムを追加した時
+  // プレイヤーがボムを追加した時
   onBombAdded(callback: (bomb: ServerBomb) => void, context?: any) {
     gameEvents.on(Event.BOMB_ADDED, callback, context);
+  }
+
+  onBombRemoved(callback: (bomb: ServerBomb) => void, context?: any) {
+    gameEvents.on(Event.BOMB_REMOVED, callback, context);
   }
 
   // 爆風が追加された時

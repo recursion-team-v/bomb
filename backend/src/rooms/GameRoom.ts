@@ -141,7 +141,6 @@ export default class GameRoom extends Room<GameRoomState> {
     const bomb = b as Bomb;
     this.state.getBombToExplodeQueue().dequeue();
     this.engine.bombService.explode(bomb);
-    this.state.deleteBomb(bomb);
   }
 
   /*
