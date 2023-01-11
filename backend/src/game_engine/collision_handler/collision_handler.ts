@@ -63,7 +63,7 @@ export default function collisionHandler(
     const bomb = engine.state.bombs.get(bombId);
     if (bomb === undefined) return;
 
-    blastToBomb(bomb);
+    blastToBomb(engine.bombService, bomb.id);
   }
 
   // BLAST & BLOCK

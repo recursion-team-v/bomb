@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import Phaser, { GameObjects } from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import { calcBlastRangeFromDirection } from '../../../backend/src/game_engine/services/blastService';
@@ -220,14 +220,12 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   }
 
   // 誘爆時の処理
-  detonated(bomb: BombInterface) {
-    const b = bomb as Bomb;
-    b.scene.time.addEvent({
+  detonated(id: string) {
+    this.scene.time.addEvent({
       delay: Constants.BOMB_DETONATION_DELAY,
       callback: () => {
-        if (b === null) return;
-        b.explode();
-        b.afterExplosion();
+        this.explode();
+        this.afterExplosion();
       },
     });
   }

@@ -58,6 +58,13 @@ export default class BombService {
     this.deleteBomb(bomb);
   }
 
+  // 誘爆の処理
+  detonated(bombId: string) {
+    const bomb = this.gameEngine.state.bombs.get(bombId);
+    if (bomb === undefined) return;
+    this.explode(bomb);
+  }
+
   // 指定した位置にボムが存在するかどうかを返す
   private isExistsBombOnPosition(x: number, y: number): boolean {
     let isExists = false;

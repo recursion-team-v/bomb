@@ -53,11 +53,6 @@ export class Bomb extends Schema {
   isRemovedTime(): boolean {
     return this.removedAt <= Date.now();
   }
-
-  // TODO: not implemented
-  detonated(bomb: BombInterface) {
-    console.log('detonated');
-  }
 }
 
 // TODO: クライアントもこっちを参照するようにする
