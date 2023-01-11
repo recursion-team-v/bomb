@@ -47,8 +47,36 @@ export const drawWalls = (scene: Phaser.Scene, mapTiles: MapTiles) => {
 export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
   const currBlocks = new Map<string, BlockBody>();
   blocks.forEach((block) => {
-    currBlocks.set(block.id, scene.add.block(block.x, block.y, Constants.TILE_BLOCK_IDX));
+    const random = Math.random();
+    const randomHeight = random * 2000;
+    const shadow = scene.add.rectangle(
+      block.x,
+      block.y,
+      Constants.TILE_WIDTH * 0.8,
+      Constants.TILE_HEIGHT * 0.8,
+      Constants.BLACK,
+      random * 0.8
+    );
+
+    const b = scene.add.block(block.x, block.y - randomHeight, Constants.TILE_BLOCK_IDX);
+    currBlocks.set(block.id, b);
+    b.setDepth(Infinity);
+    b.setSensor(true);
+
+    scene.add.tween({
+      targets: currBlocks.get(block.id),
+      y: `+=${randomHeight}`,
+      duration: randomHeight + 200,
+      repeat: 0,
+      onComplete: () => {
+        scene.cameras.main.shake(200, 0.001);
+        b.setDepth(Constants.OBJECT_DEPTH.BLOCK);
+        b.setSensor(false);
+        shadow.destroy();
+      },
+    });
   });
+
   return currBlocks;
 };
 
