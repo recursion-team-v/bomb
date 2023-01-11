@@ -1,15 +1,15 @@
-import { ITEM_TYPES } from './../../constants/constants';
 import { MapSchema, Schema, type } from '@colyseus/schema';
 
 import * as Constants from '../../constants/constants';
 import GameQueue from '../../utils/gameQueue';
+import { ITEM_TYPES } from './../../constants/constants';
+import Block from './Block';
 import { Bomb, getSettablePosition } from './Bomb';
 import GameState from './GameState';
-import Timer from './Timer';
-import Player from './Player';
-import Map from './Map';
 import Item from './Item';
-import Block from './Block';
+import Map from './Map';
+import Player from './Player';
+import Timer from './Timer';
 
 export default class GameRoomState extends Schema {
   @type(GameState)
@@ -23,7 +23,10 @@ export default class GameRoomState extends Schema {
   @type({ map: Item }) items = new MapSchema<Item>();
   @type({ map: Block }) blocks = new MapSchema<Block>();
 
-  private readonly bombQueue: GameQueue<Bomb> = new GameQueue<Bomb>();
+  // 爆弾を作成するキュー
+  private readonly bombToCreateQueue: GameQueue<Bomb> = new GameQueue<Bomb>();
+  // 爆弾を爆発させるキュー
+  private readonly bombToExplodeQueue: GameQueue<Bomb> = new GameQueue<Bomb>();
 
   @type(Map) gameMap = new Map();
 
@@ -60,8 +63,12 @@ export default class GameRoomState extends Schema {
     this.bombs.delete(bomb.id);
   }
 
-  getBombQueue(): GameQueue<Bomb> {
-    return this.bombQueue;
+  getBombToCreateQueue(): GameQueue<Bomb> {
+    return this.bombToCreateQueue;
+  }
+
+  getBombToExplodeQueue(): GameQueue<Bomb> {
+    return this.bombToExplodeQueue;
   }
 
   createItem(x: number, y: number, itemType: ITEM_TYPES) {

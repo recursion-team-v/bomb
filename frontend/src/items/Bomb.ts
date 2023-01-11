@@ -21,7 +21,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly stableScene: Phaser.Scene; // 爆弾が消えてもシーンを保持するための変数
 
   private readonly sessionId: string; // サーバが一意にセットするセッションID(誰の爆弾か)
-  private readonly explodedAt: number; // サーバで管理している爆発する時間
+  private readonly removedAt: number; // サーバで管理している爆発する時間
   private isExploded: boolean; // 爆発したかどうか
   private readonly se;
 
@@ -32,7 +32,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     y: number,
     texture: string,
     bombStrength: number,
-    explodedAt: number,
+    removedAt: number,
     player: PlayerInterface
   ) {
     super(world, x, y, texture);
@@ -44,7 +44,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.sessionId = sessionId;
     this.player = player;
     this.bombStrength = bombStrength;
-    this.explodedAt = explodedAt;
+    this.removedAt = removedAt;
     this.stableX = x;
     this.stableY = y;
     this.isExploded = false;
@@ -145,7 +145,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   }
 
   // 既に爆発する時間かどうか
-  isExplodedTime(): boolean {
+  isRemovedTime(): boolean {
     return this.getRemainTime() <= 0;
   }
 
@@ -234,9 +234,9 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
   // 爆発するまでの時間を返す
   getRemainTime(): number {
-    if (this.explodedAt === null || this.explodedAt === 0) return 0;
+    if (this.removedAt === null || this.removedAt === 0) return 0;
     const game = getGameScene();
-    return this.explodedAt - game.getServerTime() <= 0 ? 0 : this.explodedAt - game.getServerTime();
+    return this.removedAt - game.getServerTime() <= 0 ? 0 : this.removedAt - game.getServerTime();
   }
 
   public getIsExploded(): boolean {
@@ -252,7 +252,7 @@ Phaser.GameObjects.GameObjectFactory.register(
     x: number,
     y: number,
     bombStrength = Constants.INITIAL_BOMB_STRENGTH,
-    explodedAt: number,
+    removedAt: number,
     player: PlayerInterface
   ) {
     const sprite = new Bomb(
@@ -262,7 +262,7 @@ Phaser.GameObjects.GameObjectFactory.register(
       y,
       'bomb',
       bombStrength,
-      explodedAt,
+      removedAt,
       player
     );
 
@@ -285,7 +285,7 @@ Phaser.GameObjects.GameObjectFactory.register(
 
     // サーバからもらった爆発時間になったら爆発するため、定期的に確認する
     const timer = setInterval(() => {
-      if (sprite.isExplodedTime()) {
+      if (sprite.isRemovedTime()) {
         // 誘爆などの理由により既に爆発している場合は何もしない
         if (!sprite.getIsExploded()) {
           sprite.explode();

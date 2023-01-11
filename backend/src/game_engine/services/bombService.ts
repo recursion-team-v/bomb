@@ -13,7 +13,7 @@ export default class BombService {
   }
 
   // ボムを matter に追加する
-  addBomb(bomb: Bomb) {
+  addBomb(bomb: Bomb): boolean {
     const bombBody = Matter.Bodies.rectangle(
       bomb.x,
       bomb.y,
@@ -25,9 +25,14 @@ export default class BombService {
         isStatic: true,
       }
     );
+
+    // 既にボムがある場所には設置できない
+    if (this.isExistsBombOnPosition(bomb.x, bomb.y)) return false;
+
     Matter.Composite.add(this.gameEngine.world, [bombBody]);
     this.gameEngine.bombBodies.set(bomb.id, bombBody);
     this.gameEngine.bombIdByBodyId.set(bombBody.id, bomb.id);
+    return true;
   }
 
   // ボムを matter から削除する
@@ -51,5 +56,16 @@ export default class BombService {
 
     // ボムを削除する
     this.deleteBomb(bomb);
+  }
+
+  // 指定した位置にボムが存在するかどうかを返す
+  private isExistsBombOnPosition(x: number, y: number): boolean {
+    let isExists = false;
+    this.gameEngine.bombBodies.forEach((bombBody) => {
+      if (bombBody.position.x === x && bombBody.position.y === y) {
+        isExists = true;
+      }
+    });
+    return isExists;
   }
 }

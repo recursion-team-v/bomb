@@ -28,7 +28,7 @@ export class Bomb extends Schema {
 
   // ボムが爆発する時間
   @type('number')
-  explodedAt: number;
+  removedAt: number;
 
   constructor(x: number, y: number, bombStrength: number, sessionId: string) {
     super();
@@ -37,16 +37,21 @@ export class Bomb extends Schema {
     this.x = x;
     this.y = y;
     this.bombStrength = bombStrength;
-    this.createdAt = Date.now();
-    this.explodedAt = this.createdAt + Constants.BOMB_EXPLOSION_TIME;
+    // 同期を取るため、オブジェクトの生成を遅らせる
+    this.createdAt = Date.now() + Constants.OBJECT_CREATION_DELAY;
+    this.removedAt = this.createdAt + Constants.BOMB_EXPLOSION_TIME;
   }
 
   updateBombStrength(strength: number) {
     this.bombStrength = strength;
   }
 
-  isExplodedTime(): boolean {
-    return this.explodedAt <= Date.now();
+  isCreatedTime(): boolean {
+    return this.createdAt <= Date.now();
+  }
+
+  isRemovedTime(): boolean {
+    return this.removedAt <= Date.now();
   }
 
   // TODO: not implemented
