@@ -44,14 +44,19 @@ export default class BombService {
   }
 
   explode(bomb: Bomb) {
-    // 爆風を作成する
-    const blastService = new BlastService(this.gameEngine, bomb);
-    blastService.add();
+    // 既に爆発している場合は処理を終了する
+    if (!bomb.isExploded()) {
+      bomb.explode();
 
-    // 設置者のボム数を増やす
-    const player = this.gameEngine.getPlayer(bomb.sessionId);
-    if (player !== undefined) {
-      player.recoverSettableBombCount();
+      // 爆風を作成する
+      const blastService = new BlastService(this.gameEngine, bomb);
+      blastService.add();
+
+      // 設置者のボム数を増やす
+      const player = this.gameEngine.getPlayer(bomb.sessionId);
+      if (player !== undefined) {
+        player.recoverSettableBombCount();
+      }
     }
 
     // ボムを削除する

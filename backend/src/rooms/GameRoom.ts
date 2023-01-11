@@ -175,7 +175,7 @@ export default class GameRoom extends Room<GameRoomState> {
     while (!queue.isEmpty()) {
       const data = queue.read();
 
-      // 設置タイミングになってない場合は処理を終了する
+      // 破壊タイミングになってない場合は処理を終了する
       if (data === undefined || !data.isRemovedTime()) break;
 
       // 設置処理を行う
