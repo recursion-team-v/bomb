@@ -36,6 +36,7 @@ declare global {
         player: PlayerInterface
       ) => Bomb;
       blast: (
+        id: string,
         x: number,
         y: number,
         playKey: string,

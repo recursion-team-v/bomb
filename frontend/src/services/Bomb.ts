@@ -23,6 +23,7 @@ export function createBomb(bomb: PlacementObjectInterface) {
   }
 
   gc.add.bomb(
+    serverBomb.id,
     sessionId,
     serverBomb.x,
     serverBomb.y,

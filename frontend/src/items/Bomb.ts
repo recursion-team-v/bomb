@@ -12,6 +12,7 @@ import { getGameScene } from '../utils/globalGame';
 import { getDepth } from './util';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
+  private readonly id: string;
   private readonly bombStrength: number;
   private readonly player: PlayerInterface;
 
@@ -26,6 +27,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly se;
 
   constructor(
+    id: string,
     sessionId: string,
     world: Phaser.Physics.Matter.World,
     x: number,
@@ -40,6 +42,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     const body = this.body as MatterJS.BodyType;
     body.label = Constants.OBJECT_LABEL.BOMB;
 
+    this.id = id;
     this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
     this.sessionId = sessionId;
     this.player = player;
@@ -142,6 +145,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.addDirectionBlast(Constants.DIRECTION.DOWN, br.get(Constants.DIRECTION.DOWN) ?? 1);
     this.addDirectionBlast(Constants.DIRECTION.RIGHT, br.get(Constants.DIRECTION.RIGHT) ?? 1);
     this.addDirectionBlast(Constants.DIRECTION.LEFT, br.get(Constants.DIRECTION.LEFT) ?? 1);
+    console.log(Date.now(), this.id);
   }
 
   // 既に爆発する時間かどうか
@@ -215,6 +219,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.destroy();
     this.isExploded = true;
 
+    // TODO: フロントでやるのではなく、サーバの状態で更新する
     // 自分の爆弾の時のみ爆弾の数を回復する
     if (this.player.isEqualSessionId(this.sessionId)) this.player.recoverSettableBombCount();
   }
@@ -246,6 +251,7 @@ Phaser.GameObjects.GameObjectFactory.register(
   'bomb',
   function (
     this: Phaser.GameObjects.GameObjectFactory,
+    id: string,
     sessionId: string,
     x: number,
     y: number,
@@ -254,6 +260,7 @@ Phaser.GameObjects.GameObjectFactory.register(
     player: PlayerInterface
   ) {
     const sprite = new Bomb(
+      id,
       sessionId,
       this.scene.matter.world,
       x,
