@@ -7,7 +7,6 @@ import BlastService from './blastService';
 
 export default class BombService {
   private readonly gameEngine: GameEngine;
-  private blastService?: BlastService;
 
   constructor(gameEngine: GameEngine) {
     this.gameEngine = gameEngine;
@@ -29,8 +28,6 @@ export default class BombService {
     Matter.Composite.add(this.gameEngine.world, [bombBody]);
     this.gameEngine.bombBodies.set(bomb.id, bombBody);
     this.gameEngine.bombIdByBodyId.set(bombBody.id, bomb.id);
-
-    this.blastService = new BlastService(this.gameEngine, bomb);
   }
 
   // ボムを matter から削除する
@@ -43,7 +40,8 @@ export default class BombService {
 
   explode(bomb: Bomb) {
     // 爆風を作成する
-    this.blastService?.add();
+    const blastService = new BlastService(this.gameEngine, bomb);
+    blastService.add();
 
     // 設置者のボム数を増やす
     const player = this.gameEngine.getPlayer(bomb.sessionId);
