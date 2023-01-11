@@ -10,4 +10,6 @@ export enum Event {
   BLOCKS_REMOVED = 'blocks-removed',
   ITEM_ADDED = 'item-added',
   ITEM_REMOVED = 'item-removed',
+  BLAST_ADDED = 'blast-added',
+  BLAST_REMOVED = 'blast-removed',
 }

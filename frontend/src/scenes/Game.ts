@@ -18,6 +18,7 @@ import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import ServerItem from '../../../backend/src/rooms/schema/Item';
+import ServerBlast from '../../../backend/src/rooms/schema/Blast';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
 import Item from '../items/Item';
@@ -47,12 +48,14 @@ export default class Game extends Phaser.Scene {
   private currBlocks?: Map<string, Block>; // 現在存在しているブロック
   private readonly bombToCreateQueue: GameQueue<ServerBomb> = new GameQueue<ServerBomb>();
   private readonly currItems: Map<string, Item>; // 現在存在しているアイテム
+  private readonly currBlasts: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているサーバの爆風
   private bgm?: Phaser.Sound.BaseSound;
   private readonly juice: phaserJuice;
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
     this.currItems = new Map();
+    this.currBlasts = new Map();
     // eslint-disable-next-line new-cap
     this.juice = new phaserJuice(this);
   }
@@ -125,6 +128,10 @@ export default class Game extends Phaser.Scene {
     this.network.onBlocksRemoved(this.handleBlocksRemoved, this);
     this.network.onItemAdded(this.handleItemAdded, this);
     this.network.onItemRemoved(this.handleItemRemoved, this);
+    if (Config.DEBUG_IS_SHOW_SERVER_BLAST) {
+      this.network.onBlastAdded(this.handleBlastAdded, this);
+      this.network.onBlastRemoved(this.handleBlastRemoved, this);
+    }
   }
 
   private addPlayers() {
@@ -207,6 +214,24 @@ export default class Game extends Phaser.Scene {
       clearInterval(timer);
       blockBody.destroy();
     }, 500);
+  }
+
+  // サーバの爆風を描画する
+  private handleBlastAdded(serverBlast: ServerBlast) {
+    if (serverBlast === undefined) return;
+    const blast = this.add
+      .circle(serverBlast.x, serverBlast.y, Constants.DEFAULT_TIP_SIZE / 6, Constants.GREEN)
+      .setDepth(Constants.OBJECT_DEPTH.WALL - 1);
+    this.currBlasts.set(serverBlast.id, blast);
+  }
+
+  // サーバの爆風を削除する
+  private handleBlastRemoved(data: any) {
+    const { id } = data;
+    const body = this.currBlasts.get(id);
+    if (body === undefined) return;
+    this.currBlasts.delete(id);
+    body.destroy();
   }
 
   // アイテム追加イベント時に、マップにアイテムを追加

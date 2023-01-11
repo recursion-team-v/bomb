@@ -145,7 +145,6 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.addDirectionBlast(Constants.DIRECTION.DOWN, br.get(Constants.DIRECTION.DOWN) ?? 1);
     this.addDirectionBlast(Constants.DIRECTION.RIGHT, br.get(Constants.DIRECTION.RIGHT) ?? 1);
     this.addDirectionBlast(Constants.DIRECTION.LEFT, br.get(Constants.DIRECTION.LEFT) ?? 1);
-    console.log(Date.now(), this.id);
   }
 
   // 既に爆発する時間かどうか

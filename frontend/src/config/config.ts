@@ -2,6 +2,13 @@
 export const serverUrl = 'wss://bomb-e47mei43gq-an.a.run.app:443';
 
 /*
+debug 用
+*/
+
+// サーバーの爆発を表示するかどうか
+export const DEBUG_IS_SHOW_SERVER_BLAST = true;
+
+/*
 asset 用
 */
 

@@ -4,6 +4,7 @@ import * as Config from '../config/config';
 import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import ServerItem from '../../../backend/src/rooms/schema/Item';
+import ServerBlast from '../../../backend/src/rooms/schema/Blast';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import { gameEvents, Event } from '../events/GameEvents';
 import MyPlayer from '../characters/MyPlayer';
@@ -57,6 +58,14 @@ export default class Network {
       gameEvents.emit(Event.BOMB_ADDED, bomb);
     };
 
+    this.room.state.blasts.onAdd = (data: any) => {
+      gameEvents.emit(Event.BLAST_ADDED, data);
+    };
+
+    this.room.state.blasts.onRemove = (data: any) => {
+      gameEvents.emit(Event.BLAST_REMOVED, data);
+    };
+
     this.room.state.timer.onChange = (data: any) => {
       gameEvents.emit(Event.TIMER_UPDATED, data);
     };
@@ -96,6 +105,16 @@ export default class Network {
   // 他のプレイヤーがボムを追加した時
   onBombAdded(callback: (bomb: ServerBomb) => void, context?: any) {
     gameEvents.on(Event.BOMB_ADDED, callback, context);
+  }
+
+  // 爆風が追加された時
+  onBlastAdded(callback: (blast: ServerBlast) => void, context?: any) {
+    gameEvents.on(Event.BLAST_ADDED, callback, context);
+  }
+
+  // 爆風が消去（破壊）された時
+  onBlastRemoved(callback: (data: any) => void, context?: any) {
+    gameEvents.on(Event.BLAST_REMOVED, callback, context);
   }
 
   // タイマーが更新された時
