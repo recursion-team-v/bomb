@@ -39,6 +39,7 @@ export default class Network {
       server: `${endpoint}/timesync`,
       interval: 1000,
     });
+    this.ts.sync();
   }
 
   now(): number {
