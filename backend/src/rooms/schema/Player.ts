@@ -37,9 +37,9 @@ export default class Player extends Schema {
   @type('number')
   bombStrength: number;
 
-  // 今設置できるボムの個数
+  // 今設置しているボムの個数
   @type('number')
-  settableBombCount: number;
+  currentSetBombCount: number;
 
   // 設置できるボムの最大個数
   @type('number')
@@ -59,7 +59,7 @@ export default class Player extends Schema {
     this.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
     this.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
-    this.settableBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
+    this.currentSetBombCount = 0;
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
     this.lastDamagedAt = 0;
   }
@@ -72,7 +72,6 @@ export default class Player extends Schema {
     this.hp - damage < 0 ? (this.hp = 0) : (this.hp -= damage);
 
     this.updateLastDamagedAt();
-    console.log(this.hp);
   }
 
   // プレイヤーが無敵かどうかを返します
@@ -121,31 +120,26 @@ export default class Player extends Schema {
 
   // ボムを設置できるかをチェックする
   canSetBomb(): boolean {
-    return this.settableBombCount > 0;
+    return this.maxBombCount - this.currentSetBombCount > 0;
   }
 
-  // ボムを置ける最大数を増やす
-  recoverSettableBombCount(count = 1) {
-    this.settableBombCount += count;
+  // 今設置しているボムの個数を増やす
+  increaseSetBombCount() {
+    if (this.canSetBomb()) this.currentSetBombCount++;
   }
 
-  // 現在設置しているボムの数を減らす
-  consumeCurrentSetBombCount(count = 1) {
-    this.settableBombCount -= count;
+  // 今設置しているボムの個数を減らす
+  decreaseSetBombCount() {
+    this.currentSetBombCount--;
+    if (this.currentSetBombCount < 0) this.currentSetBombCount = 0;
   }
 
   // ボムの最大数を増やす
   increaseMaxBombCount(count = 1) {
-    const oldMaxBombCount = this.maxBombCount;
     if (this.maxBombCount + count > Constants.MAX_SETTABLE_BOMB_COUNT) {
       this.maxBombCount = Constants.MAX_SETTABLE_BOMB_COUNT;
     } else {
       this.maxBombCount += count;
-    }
-
-    // ボムの最大数が増えた場合は、今設置できるボムの数も増やす
-    if (oldMaxBombCount < this.maxBombCount) {
-      this.recoverSettableBombCount(this.maxBombCount - oldMaxBombCount);
     }
   }
 }
