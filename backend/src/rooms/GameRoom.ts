@@ -12,9 +12,11 @@ export default class GameRoom extends Room<GameRoomState> {
   engine!: GameEngine;
 
   onCreate(options: any) {
-    this.setState(new GameRoomState());
+    // ルームで使用する時計
+    this.clock.start();
 
-    this.engine = new GameEngine(this.state);
+    this.setState(new GameRoomState());
+    this.engine = new GameEngine(this);
 
     // ゲーム開始をクライアントから受け取る
     this.onMessage(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, () => this.gameStartEvent());
