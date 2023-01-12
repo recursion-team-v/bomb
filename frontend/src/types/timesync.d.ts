@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/method-signature-style */
 declare module 'timesync' {
-  type TimeSync = {
+  interface TimeSync {
     destroy();
     now(): number;
     on(event: 'change', callback: (offset: number) => void);
@@ -10,9 +11,9 @@ declare module 'timesync' {
 
     send(to: string, data: object, timeout: number): Promise<void>;
     receive(from: string, data: object);
-  };
+  }
 
-  type TimeSyncCreateOptions = {
+  interface TimeSyncCreateOptions {
     interval?: number;
     timeout?: number;
     delay?: number;
@@ -20,7 +21,7 @@ declare module 'timesync' {
     peers?: string | string[];
     server?: string;
     now?: () => number;
-  };
+  }
 
   export function create(options: TimeSyncCreateOptions): TimeSync;
 
