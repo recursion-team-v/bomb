@@ -24,7 +24,6 @@ import Bomb from '../items/Bomb';
 import Item from '../items/Item';
 import initializeKeys from '../utils/key';
 import Network from '../services/Network';
-import GameHeader from './GameHeader';
 import OtherPlayer from '../characters/OtherPlayer';
 import { Block } from '../items/Block';
 import phaserJuice from '../lib/phaserJuice';
@@ -122,7 +121,6 @@ export default class Game extends Phaser.Scene {
 
   private initNetworkEvents() {
     this.network.onPlayerJoinedRoom(this.handlePlayerJoinedRoom, this); // 他のプレイヤーの参加イベント
-    this.network.onTimerUpdated(this.handleTimerUpdated, this); // タイマーの変更イベント
     this.network.onGameStateUpdated(this.handleGameStateChanged, this); // gameStateの変更イベント
     // TODO: アイテムをとって火力が上がった場合の処理を追加する
     this.network.onBombAdded(this.handleBombAdded, this); // プレイヤーのボム追加イベント
@@ -171,14 +169,6 @@ export default class Game extends Phaser.Scene {
     const otherPlayer = this.otherPlayers.get(sessionId);
     otherPlayer?.destroy();
     this.otherPlayers.delete(sessionId);
-  }
-
-  private handleTimerUpdated(data: any) {
-    const header = this.scene.get(Config.SCENE_NAME_GAME_HEADER) as GameHeader;
-    data.forEach((v: any) => {
-      if (v.field === 'now') this.setServerTime(v.value);
-      if (v.field === 'remainTime') header.updateTextTimer(v.value);
-    });
   }
 
   private async handleGameStateChanged(data: any) {
