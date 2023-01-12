@@ -12,7 +12,6 @@ export default class MyPlayer extends Player {
   private serverX: number;
   private serverY: number;
   private frameKey: number;
-  private readonly remoteRef: Phaser.GameObjects.Rectangle;
   // frame をサーバに送信するための不可視のプレイヤー
   private readonly dummyPlayer: Player;
   private readonly dead_se;
@@ -38,8 +37,6 @@ export default class MyPlayer extends Player {
     this.serverX = x;
     this.serverY = y;
     this.frameKey = 14;
-    // TODO: 不要
-    this.remoteRef = this.scene.add.rectangle(this.x, this.y, this.width, this.height, 0xfff, 0.3);
     this.dummyPlayer = this.scene.add.player(sessionId, this.x, this.y, 'player', 14);
     this.dummyPlayer.setVisible(false).setSensor(true);
     this.dead_se = this.scene.sound.add('gameOver', {
@@ -57,7 +54,6 @@ export default class MyPlayer extends Player {
     this.serverY = player.y;
     this.frameKey = player.frameKey;
 
-    this.updateRemoteRef(player);
     this.forceMovePlayerPosition(player);
     this.setHP(player.hp);
     if (this.isDead()) {
@@ -72,12 +68,6 @@ export default class MyPlayer extends Player {
     this.setSpeed(player.speed);
     this.setBombStrength(player.bombStrength);
     this.setMaxBombCount(player.maxBombCount);
-  }
-
-  // サーバのプレイヤーの位置を反映させる
-  private updateRemoteRef(player: ServerPlayer) {
-    if (this.isDead()) return;
-    this.remoteRef.setPosition(player.x, player.y);
   }
 
   update(cursorKeys: NavKeys, network: Network) {
