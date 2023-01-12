@@ -36,7 +36,7 @@ export default class BlastService {
     this.bodies = bodies;
 
     // 爆風の有効時間を過ぎたら削除する
-    setTimeout(() => {
+    this.gameEngine.room.clock.setTimeout(() => {
       this.delete();
     }, Constants.BLAST_AVAILABLE_TIME);
   }

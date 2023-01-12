@@ -74,7 +74,10 @@ export default class BombService {
     if (bomb === undefined) return;
 
     // 誘爆の場合は爆発までの delay を入れる
-    setTimeout(() => this.explode(bomb), Constants.BOMB_DETONATION_DELAY);
+    this.gameEngine.room.clock.setTimeout(
+      () => this.explode(bomb),
+      Constants.BOMB_DETONATION_DELAY
+    );
   }
 
   // 指定した位置にボムが存在するかどうかを返す
