@@ -57,13 +57,13 @@ export default function collisionHandler(
   // BLAST & BOMB
   else if (isBlast && isBomb) {
     const bombBody = labelA === Constants.OBJECT_LABEL.BOMB ? bodyA : bodyB;
-    const bombId = engine.sessionIdByBodyId.get(bombBody.id);
+    const bombId = engine.bombIdByBodyId.get(bombBody.id);
     if (bombId === undefined) return;
 
     const bomb = engine.state.bombs.get(bombId);
     if (bomb === undefined) return;
 
-    blastToBomb(bomb);
+    blastToBomb(engine.bombService, bomb.id);
   }
 
   // BLAST & BLOCK

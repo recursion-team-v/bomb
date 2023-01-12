@@ -19,6 +19,6 @@ export default function collisionHandler(bodyA: MatterJS.BodyType, bodyB: Matter
 
   // A = BLAST, B = BOMB
   if (aType === Constants.OBJECT_LABEL.BLAST && bType === Constants.OBJECT_LABEL.BOMB) {
-    blastToBomb(bodyB.gameObject as Bomb);
+    blastToBomb(bodyB.gameObject as Bomb, bodyB.gameObject.id);
   }
 }

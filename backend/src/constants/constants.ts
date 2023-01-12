@@ -8,6 +8,7 @@ export const GRAY = 0x808080;
 export const LIGHT_GRAY = 0xc6c5d6;
 export const BLUE = 0x0000ff;
 export const RED: number = 0xff0000;
+export const GREEN: number = 0x00ff00;
 
 export const FPS = 60; // 1 秒間のフレーム数
 export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
