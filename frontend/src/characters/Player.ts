@@ -206,3 +206,24 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.scene.cameras.main.shake(duration, 0.01);
   }
 }
+
+Phaser.GameObjects.GameObjectFactory.register(
+  'player',
+  function (
+    this: Phaser.GameObjects.GameObjectFactory,
+    sessionId: string,
+    x: number,
+    y: number,
+    texture: string,
+    frame?: string | number,
+    options?: Phaser.Types.Physics.Matter.MatterBodyConfig
+  ) {
+    const sprite = new Player(sessionId, this.scene.matter.world, x, y, texture, frame, options);
+
+    // 使う用途がダミーなので、ここではコメントアウト
+    // this.displayList.add(sprite);
+    this.updateList.add(sprite);
+
+    return sprite;
+  }
+);
