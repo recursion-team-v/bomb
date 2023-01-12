@@ -2,7 +2,6 @@ import { Schema, type } from '@colyseus/schema';
 import { v4 as uuidv4 } from 'uuid';
 
 import * as Constants from '../../constants/constants';
-import BombInterface from '../../interfaces/bomb';
 
 export class Bomb extends Schema {
   // 位置
@@ -22,6 +21,10 @@ export class Bomb extends Schema {
   @type('number')
   bombStrength: number;
 
+  // ボムが爆発したかどうか
+  @type('boolean')
+  explodedState: boolean;
+
   // ボムが設置された時間
   @type('number')
   createdAt: number;
@@ -37,6 +40,7 @@ export class Bomb extends Schema {
     this.x = x;
     this.y = y;
     this.bombStrength = bombStrength;
+    this.explodedState = false;
     // 同期を取るため、オブジェクトの生成を遅らせる
     this.createdAt = Date.now() + Constants.OBJECT_CREATION_DELAY;
     this.removedAt = this.createdAt + Constants.BOMB_EXPLOSION_TIME;
@@ -54,9 +58,14 @@ export class Bomb extends Schema {
     return this.removedAt <= Date.now();
   }
 
-  // TODO: not implemented
-  detonated(bomb: BombInterface) {
-    console.log('detonated');
+  // ボムが爆発したかどうか
+  isExploded(): boolean {
+    return this.explodedState;
+  }
+
+  // ボムを爆発させる(フラグの更新のみ)
+  explode() {
+    this.explodedState = true;
   }
 }
 

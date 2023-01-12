@@ -119,15 +119,11 @@ export default class MyPlayer extends Player {
   // ボムを置く
   placeBomb() {
     const game = getGameScene();
-    const mp = game.matter;
 
-    if (!this.canSetBomb(mp)) return;
+    if (!this.canSetBomb()) return;
 
     // サーバにボムを置いたことを通知
     game.getNetwork().sendPlayerBomb(this);
-
-    // ボムを置ける数を減らす
-    this.consumeSettableBombCount();
   }
 
   private forceMovePlayerPosition(player: ServerPlayer) {

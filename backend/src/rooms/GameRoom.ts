@@ -37,6 +37,7 @@ export default class GameRoom extends Room<GameRoomState> {
       const player = this.state.getPlayer(client.sessionId);
       if (player === undefined) return;
       if (player.isDead()) return;
+      if (!player.canSetBomb()) return;
 
       this.state
         .getBombToCreateQueue()
@@ -139,9 +140,7 @@ export default class GameRoom extends Room<GameRoomState> {
   // 爆弾削除のイべント
   private removeBombEvent(b: PlacementObjectInterface) {
     const bomb = b as Bomb;
-    this.state.getBombToExplodeQueue().dequeue();
     this.engine.bombService.explode(bomb);
-    this.state.deleteBomb(bomb);
   }
 
   /*
@@ -175,7 +174,7 @@ export default class GameRoom extends Room<GameRoomState> {
     while (!queue.isEmpty()) {
       const data = queue.read();
 
-      // 設置タイミングになってない場合は処理を終了する
+      // 破壊タイミングになってない場合は処理を終了する
       if (data === undefined || !data.isRemovedTime()) break;
 
       // 設置処理を行う

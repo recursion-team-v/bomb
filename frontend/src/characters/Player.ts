@@ -11,7 +11,6 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   private hp: number;
   private speed: number;
   private bombStrength: number;
-  private settableBombCount: number; // 今設置できるボムの個数
   private maxBombCount: number; // 設置できるボムの最大個数
   private readonly sessionId: string; // サーバが一意にセットするセッションID
   private readonly hit_se;
@@ -31,7 +30,6 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.sessionId = sessionId;
     this.speed = Constants.INITIAL_PLAYER_SPEED;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
-    this.settableBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
 
     this.setRectangle(Constants.PLAYER_WIDTH, Constants.PLAYER_HEIGHT, {
@@ -89,13 +87,14 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   }
 
   // ボムを設置できるかをチェックする
-  canSetBomb(mp: Phaser.Physics.Matter.MatterPhysics): boolean {
+  canSetBomb(): boolean {
     if (this.isDead()) return false;
 
     // 同じ場所にボムを置けないようにする
     const { x, y } = Bomb.getSettablePosition(this.x, this.y);
 
-    const bodies = mp.intersectPoint(x, y);
+    const game = getGameScene();
+    const bodies = game.matter.intersectPoint(x, y);
     for (let i = 0; i < bodies.length; i++) {
       const bodyType = bodies[i] as MatterJS.BodyType;
       if (bodyType.label === Constants.OBJECT_LABEL.BOMB) {
@@ -103,7 +102,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
       }
     }
 
-    return this.getSettableBombCount() > 0;
+    return true;
   }
 
   getSessionId() {
@@ -134,45 +133,16 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     return true;
   }
 
-  // set Player color
-  setPlayerColor(color: number) {
-    this.tint = color;
-  }
-
   // 最大設置可能なボムの数を設定する
   setMaxBombCount(maxBombCount: number): boolean {
     if (maxBombCount === this.maxBombCount) return false;
-
-    const oldMaxBombCount = this.maxBombCount;
-    if (maxBombCount > Constants.MAX_SETTABLE_BOMB_COUNT) {
-      maxBombCount = Constants.MAX_SETTABLE_BOMB_COUNT;
-    }
     this.maxBombCount = maxBombCount;
-
-    // ボムの最大数が増えた場合は、設置できるボムの数も増やす
-    if (oldMaxBombCount < this.maxBombCount) {
-      this.recoverSettableBombCount(this.maxBombCount - oldMaxBombCount);
-    }
-
     return true;
   }
 
-  getSettableBombCount(): number {
-    return this.settableBombCount;
-  }
-
-  // 今設置できるボムの数を回復する
-  recoverSettableBombCount(count = 1) {
-    if (this.settableBombCount + count > this.maxBombCount) {
-      this.settableBombCount = this.maxBombCount;
-    } else {
-      this.settableBombCount += count;
-    }
-  }
-
-  // 今設置できるボムの数を減らす
-  consumeSettableBombCount(count = 1) {
-    this.settableBombCount -= count;
+  // set Player color
+  setPlayerColor(color: number) {
+    this.tint = color;
   }
 
   // 死亡
