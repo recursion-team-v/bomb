@@ -267,7 +267,7 @@ export default class Game extends Phaser.Scene {
 
     const data = queue.read();
     if (data === undefined) return;
-    if (data.createdAt >= this.network.now()) {
+    if (data.createdAt <= this.network.now()) {
       callback(data);
       queue.dequeue();
     }
