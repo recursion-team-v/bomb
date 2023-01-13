@@ -38,6 +38,10 @@ export default function collisionHandler(
     if (player === undefined) return;
     const item = engine.state.items.get(itemId);
     if (item === undefined) return;
+
+    // クライアントと同期をとって消すため、ここでは削除の時間を決めるだけにする
+    item.removedAt = Date.now() + Constants.OBJECT_REMOVAL_DELAY;
+
     playerToItem(player, item, engine);
   }
 
@@ -90,6 +94,8 @@ export default function collisionHandler(
     // アイテムが無敵状態の場合は消さない
     if (item.isInvincible()) return;
 
-    engine.itemService.removeItem(item);
+    // クライアントと同期をとって消すため、ここでは削除の時間を決めるだけにする
+    item.removedAt = Date.now() + Constants.OBJECT_REMOVAL_DELAY;
+    engine.state.getItemToDestroyQueue().enqueue(item);
   }
 }

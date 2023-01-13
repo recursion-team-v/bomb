@@ -87,7 +87,7 @@ export default class Network {
       gameEvents.emit(Event.ITEM_ADDED, data);
     };
 
-    this.room.state.items.onRemove = (data: any) => {
+    this.room.state.items.onRemove = (data: ServerItem) => {
       gameEvents.emit(Event.ITEM_REMOVED, data);
     };
   }
@@ -146,7 +146,7 @@ export default class Network {
   }
 
   // item が消去（破壊）された時
-  onItemRemoved(callback: (data: any) => void, context?: any) {
+  onItemRemoved(callback: (data: ServerItem) => void, context?: any) {
     gameEvents.on(Event.ITEM_REMOVED, callback, context);
   }
 

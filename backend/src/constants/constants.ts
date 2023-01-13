@@ -73,7 +73,7 @@ export const INITIAL_PLAYER_HP = 1;
 export const MAX_PLAYER_HP = 3;
 
 // 初期に設置できる爆弾の数
-export const INITIAL_SETTABLE_BOMB_COUNT = 1;
+export const INITIAL_SETTABLE_BOMB_COUNT = 3;
 
 // 最大に設置できる爆弾の数
 export const MAX_SETTABLE_BOMB_COUNT = 8;
