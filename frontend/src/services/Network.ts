@@ -54,8 +54,8 @@ export default class Network {
 
     // ゲーム開始の通知
     // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
-    this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
     this.initialize();
+    this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
 
     // ゲーム開始情報の受信イベント
     // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
