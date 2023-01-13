@@ -4,6 +4,7 @@ import Matter from 'matter-js';
 import * as Constants from '../constants/constants';
 import GameEngine from './GameEngine';
 import { Bomb } from './schema/Bomb';
+import Block from './schema/Block';
 import GameRoomState from './schema/GameRoomState';
 import PlacementObjectInterface from '../interfaces/placement_object';
 import GameQueue from '../utils/gameQueue';
@@ -83,6 +84,11 @@ export default class GameRoom extends Room<GameRoomState> {
           this.removeBombEvent(bomb)
         );
 
+        // ブロックの処理
+        this.objectRemoveHandler(this.state.getBlockToDestroyQueue(), (block) =>
+          this.removeBlockEvent(block)
+        );
+
         // ゲーム終了判定 TODO: ロビーができて、ちゃんとゲーム開始判定ができたら有効化する
         // if (
         //   this.state.gameState.isPlaying() &&
@@ -149,6 +155,13 @@ export default class GameRoom extends Room<GameRoomState> {
   private removeBombEvent(b: PlacementObjectInterface) {
     const bomb = b as Bomb;
     this.engine.bombService.explode(bomb);
+  }
+
+  // 爆弾削除のイべント
+  private removeBlockEvent(b: PlacementObjectInterface) {
+    const block = b as Block;
+    this.state.getBombToExplodeQueue().dequeue();
+    this.engine.mapService.destroyBlock(block);
   }
 
   /*

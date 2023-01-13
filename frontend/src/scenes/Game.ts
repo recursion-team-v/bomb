@@ -18,6 +18,7 @@ import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import ServerItem from '../../../backend/src/rooms/schema/Item';
+import ServerBlock from '../../../backend/src/rooms/schema/Block';
 import ServerBlast from '../../../backend/src/rooms/schema/Blast';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
@@ -30,6 +31,7 @@ import phaserJuice from '../lib/phaserJuice';
 import GameQueue from '../../../backend/src/utils/gameQueue';
 import PlacementObjectInterface from '../../../backend/src/interfaces/placement_object';
 import { createBomb } from '../services/Bomb';
+import { removeBlock } from '../services/Block';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
@@ -46,6 +48,7 @@ export default class Game extends Phaser.Scene {
   private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
   private currBlocks?: Map<string, Block>; // 現在存在しているブロック
   private readonly bombToCreateQueue: GameQueue<ServerBomb> = new GameQueue<ServerBomb>();
+  private readonly blockToRemoveQueue: GameQueue<ServerBlock> = new GameQueue<ServerBlock>();
   private readonly currItems: Map<string, Item>; // 現在存在しているアイテム
   private readonly currBombs: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているボム
   private readonly currBlasts: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているサーバの爆風
@@ -116,6 +119,7 @@ export default class Game extends Phaser.Scene {
     this.placeObjectFromQueue(this.bombToCreateQueue, (v: PlacementObjectInterface) =>
       createBomb(v)
     );
+    this.removeObjectFromQueue(this.blockToRemoveQueue, (v: ServerBlock) => removeBlock(v));
     this.updateBombCollision();
   }
 
@@ -206,24 +210,11 @@ export default class Game extends Phaser.Scene {
     }
   }
 
-  // 破壊されたブロックにアイテムタイプがあればアイテムを追加する。
-  private handleBlocksRemoved(data: any) {
-    const { id } = data;
-    const blockBody = this.currBlocks?.get(id);
+  // 破壊予定のブロックをキューに入れる
+  private handleBlocksRemoved(serverBlock: ServerBlock) {
+    const blockBody = this.currBlocks?.get(serverBlock.id);
     if (blockBody === undefined) return;
-    this.currBlocks?.delete(id);
-
-    const juice = this.juice;
-
-    // ブロック破壊のアニメーション
-    const timer = setInterval(() => {
-      juice.flash(blockBody, 30, Constants.RED.toString());
-    }, 30);
-
-    setTimeout(() => {
-      clearInterval(timer);
-      blockBody.destroy();
-    }, 500);
+    this.blockToRemoveQueue.enqueue(serverBlock);
   }
 
   // サーバの爆風を描画する
@@ -278,6 +269,18 @@ export default class Game extends Phaser.Scene {
     const data = queue.read();
     if (data === undefined) return;
     if (data.createdAt >= this.serverTime) {
+      callback(data);
+      queue.dequeue();
+    }
+  }
+
+  // キューに溜まっているオブジェクトをマップから削除する
+  private removeObjectFromQueue(queue: GameQueue<PlacementObjectInterface>, callback: Function) {
+    if (queue.isEmpty()) return;
+
+    const data = queue.read();
+    if (data === undefined) return;
+    if (data.removedAt <= this.serverTime) {
       callback(data);
       queue.dequeue();
     }
@@ -338,6 +341,10 @@ export default class Game extends Phaser.Scene {
 
   public getJuice(): phaserJuice {
     return this.juice;
+  }
+
+  public getCurrBlocks(): Map<string, Block> | undefined {
+    return this.currBlocks;
   }
 
   // sessionId からプレイヤーのボムの強さを取得する
