@@ -109,6 +109,12 @@ export default class GameRoom extends Room<GameRoomState> {
     try {
       this.state.gameState.setPlaying();
       this.state.setTimer();
+
+      // ゲームの開始と終了時間を送信
+      this.broadcast(Constants.NOTIFICATION_TYPE.GAME_START_INFO, {
+        startedAt: this.state.timer.startedAt,
+        finishedAt: this.state.timer.finishedAt,
+      });
     } catch (e) {
       console.error(e);
     }

@@ -216,20 +216,18 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
   // 誘爆時の処理
   detonated(id: string) {
-    this.scene.time.addEvent({
-      delay: Constants.BOMB_DETONATION_DELAY,
-      callback: () => {
-        this.explode();
-        this.afterExplosion();
-      },
-    });
+    // addEvent より setTimeout の方が遅延がマシだったので setTimeout を使う
+    setTimeout(() => {
+      this.explode();
+      this.afterExplosion();
+    }, Constants.BOMB_DETONATION_DELAY);
   }
 
   // 爆発するまでの時間を返す
   getRemainTime(): number {
     if (this.removedAt === null || this.removedAt === 0) return 0;
-    const game = getGameScene();
-    return this.removedAt - game.getServerTime() <= 0 ? 0 : this.removedAt - game.getServerTime();
+    const now: number = getGameScene().getNetwork().now();
+    return this.removedAt - now <= 0 ? 0 : this.removedAt - now;
   }
 
   public getIsExploded(): boolean {
@@ -276,7 +274,7 @@ Phaser.GameObjects.GameObjectFactory.register(
         }
         clearInterval(timer);
       }
-    }, 100);
+    }, 10); // サーバとの遅延を減らすため、10msごとに確認
 
     return sprite;
   }
