@@ -32,6 +32,9 @@ export const NOTIFICATION_TYPE = {
   // プレイヤー情報を通知するためのタイプ
   PLAYER_INFO: 2,
 
+  // ゲームの開始に関する情報を通知するためのタイプ
+  GAME_START_INFO: 10,
+
   // 1000 番台はインゲーム内で使用するタイプ
   // プレイヤーの移動を通知するためのタイプ
   PLAYER_MOVE: 1000,

@@ -102,6 +102,8 @@ export default class Preloader extends Phaser.Scene {
     this.scene.start(Config.SCENE_NAME_GAME, {
       network: this.network,
     });
-    this.scene.start(Config.SCENE_NAME_GAME_HEADER);
+    this.scene.start(Config.SCENE_NAME_GAME_HEADER, {
+      network: this.network,
+    });
   }
 }

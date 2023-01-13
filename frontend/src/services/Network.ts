@@ -9,9 +9,11 @@ import ServerBlast from '../../../backend/src/rooms/schema/Blast';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import { gameEvents, Event } from '../events/GameEvents';
 import MyPlayer from '../characters/MyPlayer';
+import TimeSync, { create as TimeCreate } from 'timesync';
 
 export default class Network {
   private readonly client: Client;
+  private ts!: TimeSync;
   public room?: Room<GameRoomState>;
 
   allRooms: RoomAvailable[] = [];
@@ -20,22 +22,42 @@ export default class Network {
   constructor() {
     const protocol = window.location.protocol.replace('http', 'ws');
 
+    let endpoint = '';
     if (import.meta.env.PROD) {
-      const endpoint = Config.serverUrl;
+      endpoint = Config.serverUrl;
       this.client = new Client(endpoint);
     } else {
-      const endpoint = `${protocol}//${window.location.hostname}:${Constants.SERVER_LISTEN_PORT}`;
+      endpoint = `${protocol}//${window.location.hostname}:${Constants.SERVER_LISTEN_PORT}`;
       this.client = new Client(endpoint);
     }
+    this.syncClock(endpoint);
     this.joinOrCreateRoom().catch((err) => console.log(err));
+  }
+
+  syncClock(endpoint: string) {
+    endpoint = endpoint.replace('ws', 'http');
+    this.ts = TimeCreate({
+      server: `${endpoint}/timesync`,
+      interval: 1000,
+    });
+    this.ts.sync();
+  }
+
+  now(): number {
+    return this.ts.now();
   }
 
   async joinOrCreateRoom() {
     this.room = await this.client.joinOrCreate(Constants.GAME_ROOM_KEY);
+
     // ゲーム開始の通知
     // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
-    this.sendGameProgress();
     this.initialize();
+
+    // ゲーム開始情報の受信イベント
+    // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
+    this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
+    this.sendGameProgress(Constants.GAME_STATE.PLAYING);
   }
 
   initialize() {
@@ -71,10 +93,6 @@ export default class Network {
       gameEvents.emit(Event.BLAST_REMOVED, data);
     };
 
-    this.room.state.timer.onChange = (data: any) => {
-      gameEvents.emit(Event.TIMER_UPDATED, data);
-    };
-
     this.room.state.gameState.onChange = (data: any) => {
       gameEvents.emit(Event.GAME_STATE_UPDATED, data);
     };
@@ -90,6 +108,10 @@ export default class Network {
     this.room.state.items.onRemove = (data: any) => {
       gameEvents.emit(Event.ITEM_REMOVED, data);
     };
+
+    this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (data) => {
+      gameEvents.emit(Event.GAME_START_INFO_RECEIVED, data);
+    });
   }
 
   // 自分がルームに参加した時
@@ -126,11 +148,6 @@ export default class Network {
     gameEvents.on(Event.BLAST_REMOVED, callback, context);
   }
 
-  // タイマーが更新された時
-  onTimerUpdated(callback: (data: any) => void, context?: any) {
-    gameEvents.on(Event.TIMER_UPDATED, callback, context);
-  }
-
   // gameState が更新された時
   onGameStateUpdated(callback: (data: any) => Promise<void>, context?: any) {
     gameEvents.on(Event.GAME_STATE_UPDATED, callback, context);
@@ -150,6 +167,11 @@ export default class Network {
     gameEvents.on(Event.ITEM_REMOVED, callback, context);
   }
 
+  // ゲーム開始に関する情報を受け取った時
+  receiveGameStartInfo(callback: (data: any) => void, context?: any) {
+    gameEvents.on(Event.GAME_START_INFO_RECEIVED, callback, context);
+  }
+
   // 自分のプレイヤー動作を送る
   sendPlayerMove(player: MyPlayer, isInput: boolean) {
     this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, { player, isInput });
@@ -161,7 +183,26 @@ export default class Network {
   }
 
   // 自分のゲーム状態を送る
-  sendGameProgress() {
-    this.room?.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS);
+  sendGameProgress(state: Constants.GAME_STATE_TYPE) {
+    this.room?.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, state);
+  }
+
+  // FIXME:
+  // 本来はここにおくべきではなく、ロビー画面でゲーム開始ボタンを押した時にやればいいのだが
+  // まだロビーがないのでここにおく
+  private gameStartedAt!: number; // ゲームの開始時間
+  private gameFinishedAt!: number; // ゲームの終了時間
+
+  private handleGameStartInfoReceived(data: any) {
+    this.gameStartedAt = data.startedAt;
+    this.gameFinishedAt = data.finishedAt;
+  }
+
+  public getGameStartedAt(): number {
+    return this.gameStartedAt;
+  }
+
+  public getGameFinishedAt(): number {
+    return this.gameFinishedAt;
   }
 }
