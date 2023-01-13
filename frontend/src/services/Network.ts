@@ -4,6 +4,7 @@ import * as Config from '../config/config';
 import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import ServerItem from '../../../backend/src/rooms/schema/Item';
+import ServerBlock from '../../../backend/src/rooms/schema/Block';
 import ServerBlast from '../../../backend/src/rooms/schema/Blast';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import { gameEvents, Event } from '../events/GameEvents';
@@ -79,7 +80,7 @@ export default class Network {
       gameEvents.emit(Event.GAME_STATE_UPDATED, data);
     };
 
-    this.room.state.blocks.onRemove = (data: any) => {
+    this.room.state.blocks.onRemove = (data: ServerBlock) => {
       gameEvents.emit(Event.BLOCKS_REMOVED, data);
     };
 
@@ -137,7 +138,7 @@ export default class Network {
   }
 
   // blocks が消去（破壊）された時
-  onBlocksRemoved(callback: (data: any) => void, context?: any) {
+  onBlocksRemoved(callback: (data: ServerBlock) => void, context?: any) {
     gameEvents.on(Event.BLOCKS_REMOVED, callback, context);
   }
 
