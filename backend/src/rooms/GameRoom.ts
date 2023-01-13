@@ -21,7 +21,15 @@ export default class GameRoom extends Room<GameRoomState> {
     this.engine = new GameEngine(this);
 
     // ゲーム開始をクライアントから受け取る
-    this.onMessage(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, () => this.gameStartEvent());
+    this.onMessage(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, (client, data) => {
+      this.gameStartEvent();
+    });
+
+    // ゲーム開始の情報をクライアントに送る
+    // FIXME: ロビーが入ったら変わるはずなので一時凌ぎ
+    this.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (client, data) => {
+      client.send(Constants.NOTIFICATION_TYPE.GAME_START_INFO, this.state.timer);
+    });
 
     // クライアントからの移動入力を受け取ってキューに詰める
     this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, (client, data: any) => {
@@ -115,12 +123,6 @@ export default class GameRoom extends Room<GameRoomState> {
     try {
       this.state.gameState.setPlaying();
       this.state.setTimer();
-
-      // ゲームの開始と終了時間を送信
-      this.broadcast(Constants.NOTIFICATION_TYPE.GAME_START_INFO, {
-        startedAt: this.state.timer.startedAt,
-        finishedAt: this.state.timer.finishedAt,
-      });
     } catch (e) {
       console.error(e);
     }

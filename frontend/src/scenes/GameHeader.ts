@@ -67,6 +67,9 @@ export default class GameHeader extends Phaser.Scene {
   }
 
   update() {
+    if (this.network.getGameFinishedAt() === undefined) {
+      this.network.sendRequestGameStartInfo();
+    }
     this.updateTextTimer(this.network.getGameFinishedAt() - this.network.now());
     this.textBombCount.setText(`×${this.player.getItemCountOfBombCount()}`);
     this.textBombStrength.setText(`×${this.player.getItemCountOfBombStrength()}`);
