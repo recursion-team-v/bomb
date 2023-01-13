@@ -32,6 +32,7 @@ import GameQueue from '../../../backend/src/utils/gameQueue';
 import PlacementObjectInterface from '../../../backend/src/interfaces/placement_object';
 import { createBomb } from '../services/Bomb';
 import { removeBlock } from '../services/Block';
+import { dropWalls } from '../services/Map';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
@@ -53,6 +54,7 @@ export default class Game extends Phaser.Scene {
   private readonly currBlasts: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているサーバの爆風
   private bgm?: Phaser.Sound.BaseSound;
   private readonly juice: phaserJuice;
+  private IsFinishedDropWallsEvent: boolean = false;
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
@@ -103,12 +105,22 @@ export default class Game extends Phaser.Scene {
   update(time: number, delta: number) {
     if (this.myPlayer === undefined) return;
 
+    this.timeEventHandler();
+
     // 前回の処理からの経過時間を算出し、1フレームの経過時間を超えていたら処理を実行する
     // https://learn.colyseus.io/phaser/4-fixed-tickrate.html
     this.elapsedTime += delta;
     while (this.elapsedTime >= this.fixedTimeStep) {
       this.elapsedTime -= this.fixedTimeStep;
       this.fixedTick();
+    }
+  }
+
+  private timeEventHandler() {
+    // 壁落下イベント
+    if (this.network.remainTime() <= Constants.INGAME_EVENT_DROP_WALLS_TIME) {
+      if (!this.IsFinishedDropWallsEvent) dropWalls();
+      this.IsFinishedDropWallsEvent = true;
     }
   }
 

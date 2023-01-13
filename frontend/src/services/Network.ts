@@ -212,4 +212,8 @@ export default class Network {
   public getGameFinishedAt(): number {
     return this.gameFinishedAt;
   }
+
+  public remainTime(): number {
+    return this.gameFinishedAt - this.now();
+  }
 }

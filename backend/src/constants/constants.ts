@@ -53,6 +53,11 @@ export const GAME_STATE = {
 
 export type GAME_STATE_TYPE = typeof GAME_STATE[keyof typeof GAME_STATE];
 
+// インゲーム内で発生する、壁が落下するイベントが発生する時間(ms)
+// 残り時間がこの時間になったら、イベントが発生する
+export const INGAME_EVENT_DROP_WALLS_TIME = 170000; // 60 秒
+// export const INGAME_EVENT_DROP_WALLS_TIME = 30000; // 30 秒
+
 export const DIRECTION = {
   UP: 1,
   DOWN: 2,
