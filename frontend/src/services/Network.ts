@@ -9,6 +9,7 @@ import ServerBlast from '../../../backend/src/rooms/schema/Blast';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import { gameEvents, Event } from '../events/GameEvents';
 import MyPlayer from '../characters/MyPlayer';
+import Player from '../characters/Player';
 import TimeSync, { create as TimeCreate } from 'timesync';
 
 export default class Network {
@@ -173,8 +174,8 @@ export default class Network {
   }
 
   // 自分のプレイヤー動作を送る
-  sendPlayerMove(player: MyPlayer, isInput: boolean) {
-    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, { player, isInput });
+  sendPlayerMove(player: Player, inputPayload: any, isInput: boolean) {
+    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, { player, inputPayload, isInput });
   }
 
   // 自分の爆弾を送る

@@ -57,33 +57,23 @@ export default class PlayerService {
     if (playerBody === undefined || playerState === undefined) return;
 
     let data: any;
-    const velocity = player.speed;
 
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     while ((data = player.inputQueue.shift())) {
-      const { player: playerData, isInput } = data;
+      const { player: playerData, inputPayload, isInput } = data;
 
       if (isInput === false) {
         Matter.Body.setVelocity(playerBody, { x: 0, y: 0 });
-
-        // velocity を 0 にするだけだとちょっとずれるので、位置を補正する
-        // この時、ローカルとサーバーの位置が大きい場合は、サーバーの位置に補正する
-        if (
-          Math.abs(playerData.x - player.x) > Constants.PLAYER_TOLERANCE_DISTANCE ||
-          Math.abs(playerData.y - player.y) > Constants.PLAYER_TOLERANCE_DISTANCE
-        ) {
-          Matter.Body.setPosition(playerBody, { x: player.x, y: player.y });
-        } else {
-          Matter.Body.setPosition(playerBody, { x: playerData.x, y: playerData.y });
-        }
+        Matter.Body.setPosition(playerBody, { x: player.x, y: player.y });
       } else {
-        let newVx = playerData.x - player.x;
-        let newVy = playerData.y - player.y;
-
-        if (Math.abs(newVx) > velocity) newVx = velocity * Math.sign(newVx);
-        if (Math.abs(newVy) > velocity) newVy = velocity * Math.sign(newVy);
-
-        Matter.Body.setVelocity(playerBody, { x: newVx, y: newVy });
+        const velocity = player.speed;
+        let vx = 0;
+        let vy = 0;
+        if (inputPayload.left === true) vx -= velocity;
+        if (inputPayload.right === true) vx += velocity;
+        if (inputPayload.up === true) vy -= velocity;
+        if (inputPayload.down === true) vy += velocity;
+        Matter.Body.setVelocity(playerBody, { x: vx, y: vy });
       }
 
       playerState.frameKey = playerData.frameKey;

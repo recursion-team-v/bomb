@@ -76,6 +76,9 @@ export default class GameRoom extends Room<GameRoomState> {
           this.engine.playerService.updatePlayer(player);
         }
 
+        // 爆弾の衝突判定の更新（プレイヤーが降りた場合は判定を変える)
+        this.engine.bombService.updateBombCollision();
+
         // 爆弾の処理
         this.objectCreateHandler(this.state.getBombToCreateQueue(), (bomb) =>
           this.createBombEvent(bomb)

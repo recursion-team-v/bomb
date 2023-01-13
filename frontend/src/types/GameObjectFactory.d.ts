@@ -1,3 +1,4 @@
+import Player from '../characters/Player';
 import MyPlayer from '../characters/MyPlayer';
 import OtherPlayer from '../characters/OtherPlayer';
 import { Block } from '../items/Block';
@@ -11,6 +12,14 @@ export {};
 declare global {
   namespace Phaser.GameObjects {
     interface GameObjectFactory {
+      player: (
+        sessionId: string,
+        x: number,
+        y: number,
+        texture: string,
+        frame?: string | number,
+        options?: Phaser.Types.Physics.Matter.MatterBodyConfig
+      ) => Player;
       myPlayer: (
         sessionId: string,
         x: number,
