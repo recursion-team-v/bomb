@@ -27,7 +27,7 @@ export default function collisionHandler(
   const isPlayer = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.PLAYER);
   const isBlock = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.BLOCK);
 
-  // // PLAYER & ITEM
+  // PLAYER & ITEM
   if (isPlayer && isItem) {
     const playerBody = labelA === Constants.OBJECT_LABEL.PLAYER ? bodyA : bodyB;
     const itemBody = labelA === Constants.OBJECT_LABEL.ITEM ? bodyA : bodyB;
@@ -73,5 +73,20 @@ export default function collisionHandler(
     const block = engine.state.blocks.get(blockId);
     if (block === undefined) return;
     engine.mapService.destroyBlock(block);
+  }
+
+  // BLAST & ITEM
+  else if (isBlast && isItem) {
+    const itemBody = labelA === Constants.OBJECT_LABEL.ITEM ? bodyA : bodyB;
+    const itemId = engine.itemIdByBodyId.get(itemBody.id);
+    if (itemId === undefined) return;
+
+    const item = engine.state.items.get(itemId);
+    if (item === undefined) return;
+
+    // アイテムが無敵状態の場合は消さない
+    if (item.isInvincible()) return;
+
+    engine.itemService.removeItem(item);
   }
 }
