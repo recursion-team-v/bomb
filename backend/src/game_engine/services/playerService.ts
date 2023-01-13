@@ -96,7 +96,8 @@ export default class PlayerService {
     if (!player.canSetBomb()) return false;
 
     if (this.gameEngine.bombService.addBomb(bomb)) {
-      player.consumeCurrentSetBombCount();
+      // 爆弾を設置できたら、設置している爆弾の数を増やす
+      player.increaseSetBombCount();
       return true;
     } else {
       return false;

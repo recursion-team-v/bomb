@@ -27,7 +27,7 @@ export default function collisionHandler(
   const isPlayer = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.PLAYER);
   const isBlock = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.BLOCK);
 
-  // // PLAYER & ITEM
+  // PLAYER & ITEM
   if (isPlayer && isItem) {
     const playerBody = labelA === Constants.OBJECT_LABEL.PLAYER ? bodyA : bodyB;
     const itemBody = labelA === Constants.OBJECT_LABEL.ITEM ? bodyA : bodyB;
@@ -57,13 +57,13 @@ export default function collisionHandler(
   // BLAST & BOMB
   else if (isBlast && isBomb) {
     const bombBody = labelA === Constants.OBJECT_LABEL.BOMB ? bodyA : bodyB;
-    const bombId = engine.sessionIdByBodyId.get(bombBody.id);
+    const bombId = engine.bombIdByBodyId.get(bombBody.id);
     if (bombId === undefined) return;
 
     const bomb = engine.state.bombs.get(bombId);
     if (bomb === undefined) return;
 
-    blastToBomb(bomb);
+    blastToBomb(engine.bombService, bomb.id);
   }
 
   // BLAST & BLOCK
@@ -76,5 +76,20 @@ export default function collisionHandler(
     // クライアントと同期をとって消すため、ここでは削除の時間を決めるだけにする
     block.removedAt = Date.now() + Constants.OBJECT_REMOVAL_DELAY;
     engine.state.getBlockToDestroyQueue().enqueue(block);
+  }
+
+  // BLAST & ITEM
+  else if (isBlast && isItem) {
+    const itemBody = labelA === Constants.OBJECT_LABEL.ITEM ? bodyA : bodyB;
+    const itemId = engine.itemIdByBodyId.get(itemBody.id);
+    if (itemId === undefined) return;
+
+    const item = engine.state.items.get(itemId);
+    if (item === undefined) return;
+
+    // アイテムが無敵状態の場合は消さない
+    if (item.isInvincible()) return;
+
+    engine.itemService.removeItem(item);
   }
 }

@@ -3,6 +3,7 @@ import Matter from 'matter-js';
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
 import { Bomb, getSettablePosition } from '../../rooms/schema/Bomb';
+import Blast from '../../rooms/schema/Blast';
 
 export default class BlastService {
   private readonly gameEngine: GameEngine;
@@ -26,11 +27,16 @@ export default class BlastService {
       ...this.rightBlast(br.get(Constants.DIRECTION.RIGHT) ?? 1),
     ];
 
+    bodies.forEach((body) => {
+      const blast = new Blast(body.id.toString(), body.position.x, body.position.y);
+      this.gameEngine.state.blasts.set(body.id.toString(), blast);
+    });
+
     Matter.Composite.add(this.gameEngine.world, bodies);
     this.bodies = bodies;
 
     // 爆風の有効時間を過ぎたら削除する
-    setTimeout(() => {
+    this.gameEngine.room.clock.setTimeout(() => {
       this.delete();
     }, Constants.BLAST_AVAILABLE_TIME);
   }
@@ -98,7 +104,10 @@ export default class BlastService {
 
   // 爆風を matter から削除する
   private delete() {
-    this.bodies?.forEach((body) => Matter.Composite.remove(this.gameEngine.world, body));
+    this.bodies?.forEach((body) => {
+      this.gameEngine.state.blasts.delete(body.id.toString());
+      Matter.Composite.remove(this.gameEngine.world, body);
+    });
   }
 
   // 爆風の範囲を計算する

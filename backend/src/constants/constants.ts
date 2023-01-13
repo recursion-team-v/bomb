@@ -8,6 +8,7 @@ export const GRAY = 0x808080;
 export const LIGHT_GRAY = 0xc6c5d6;
 export const BLUE = 0x0000ff;
 export const RED: number = 0xff0000;
+export const GREEN: number = 0x00ff00;
 
 export const FPS = 60; // 1 秒間のフレーム数
 export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
@@ -126,6 +127,11 @@ export const TIME_LIMIT_SEC = 181; // (+1秒するといい感じに表示され
 /*
 アイテムの定義
 */
+
+// アイテムが一致時間破壊されない時間
+// ブロックを破壊した時にアイテムが出現するのだが、爆風が残ってるとアイテムが破壊されてしまうので一定時間無敵にする
+export const ITEM_INVINCIBLE_TIME = 3000; // ms
+
 export const ITEM_TYPE = {
   NONE: 'NONE', // アイテムなし
   BOMB_STRENGTH: 'BOMB_STRENGTH', // ボムの威力アップ

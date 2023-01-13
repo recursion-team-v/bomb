@@ -1,7 +1,7 @@
 import MyPlayer from '../characters/MyPlayer';
 import OtherPlayer from '../characters/OtherPlayer';
 import { Block } from '../items/Block';
-import Bomb, { Blast, PlayerInterface } from '../items/Bomb';
+import Bomb, { Blast } from '../items/Bomb';
 import Item from '../items/Item';
 import { InnerWall, OuterWall } from '../items/Wall';
 
@@ -27,19 +27,12 @@ declare global {
         frame?: string | number,
         options?: Phaser.Types.Physics.Matter.MatterBodyConfig
       ) => OtherPlayer;
-      bomb: (
+      bomb: (id: string, sessionId: string, x: number, y: number, removedAt: number) => Bomb;
+      blast: (
         sessionId: string,
         x: number,
         y: number,
-        bombStrength: number,
-        removedAt: number,
-        player: PlayerInterface
-      ) => Bomb;
-      blast: (
-        x: number,
-        y: number,
         playKey: string,
-        bombStrength: number,
         rectangleX: number,
         rectangleY: number
       ) => Blast;
