@@ -23,5 +23,5 @@ export function removeBlock(block: ServerBlock) {
   setTimeout(() => {
     clearInterval(timer);
     blockBody.destroy();
-  }, 500);
+  }, 200);
 }
