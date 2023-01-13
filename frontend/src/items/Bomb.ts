@@ -21,6 +21,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly sessionId: string; // サーバが一意にセットするセッションID(誰の爆弾か)
   private readonly removedAt: number; // サーバで管理している爆発する時間
   private isExploded: boolean; // 爆発したかどうか
+  private readonly blastPointSprites: Phaser.GameObjects.Star[] = [];
   private readonly se;
 
   constructor(
@@ -48,6 +49,8 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.se = this.scene.sound.add('bombExplode', {
       volume: Config.SOUND_VOLUME,
     });
+
+    if (Config.IS_SHOW_BLAST_POINT) this.displayBlastPoint();
   }
 
   // 指定の座標から設置可能な座標を返します
@@ -127,8 +130,40 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     );
   }
 
+  // 爆発範囲を爆発前に描画する
+  private displayBlastPoint() {
+    if (this.isExploded) return;
+
+    const game = getGameScene();
+    const addBlastPoint = (x: number, y: number) => game.add.star(x, y, 3, 32, 32, 0xff0000, 0.8);
+
+    this.blastPointSprites.push(addBlastPoint(this.stableX, this.stableY));
+
+    const br = this.calcBlastRange();
+
+    br.forEach((power: number, key: number) => {
+      let dynamicX = 0;
+      let dynamicY = 0;
+      if (power === 0) return;
+      if (key === Constants.DIRECTION.RIGHT) dynamicX = Constants.TILE_WIDTH;
+      if (key === Constants.DIRECTION.DOWN) dynamicY = Constants.TILE_HEIGHT;
+      if (key === Constants.DIRECTION.LEFT) dynamicX = -Constants.TILE_WIDTH;
+      if (key === Constants.DIRECTION.UP) dynamicY = -Constants.TILE_HEIGHT;
+
+      for (let i = 1; i <= power; i++) {
+        this.blastPointSprites.push(
+          addBlastPoint(this.stableX + dynamicX * i, this.stableY + dynamicY * i)
+        );
+      }
+    });
+  }
+
   explode() {
     if (this.isExploded) return;
+    this.blastPointSprites.forEach((sprite) => {
+      sprite.destroy();
+    });
+
     this.se.play();
     // center
     this.addBlastSprite(this.stableX, this.stableY, 'bomb_center_blast', 0, true, true, 1.2);
