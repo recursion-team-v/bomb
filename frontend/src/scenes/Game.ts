@@ -43,7 +43,6 @@ export default class Game extends Phaser.Scene {
   private cols!: number; // サーバから受け取ったマップの列数
   // eslint-disable-next-line @typescript-eslint/prefer-readonly
   private rows!: number; // サーバから受け取ったマップの行数
-  private serverTime: number = 0; // サーバの時間
   private elapsedTime: number = 0; // 経過時間
   private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
   private currBlocks?: Map<string, Block>; // 現在存在しているブロック
@@ -268,7 +267,7 @@ export default class Game extends Phaser.Scene {
 
     const data = queue.read();
     if (data === undefined) return;
-    if (data.createdAt >= this.serverTime) {
+    if (data.createdAt >= this.network.now()) {
       callback(data);
       queue.dequeue();
     }
@@ -280,7 +279,7 @@ export default class Game extends Phaser.Scene {
 
     const data = queue.read();
     if (data === undefined) return;
-    if (data.removedAt <= this.serverTime) {
+    if (data.removedAt <= this.network.now()) {
       callback(data);
       queue.dequeue();
     }
@@ -325,14 +324,6 @@ export default class Game extends Phaser.Scene {
 
   public getRows(): number {
     return this.rows;
-  }
-
-  public getServerTime(): number {
-    return this.serverTime;
-  }
-
-  public setServerTime(value: number) {
-    this.serverTime = value;
   }
 
   public getNetwork(): Network {
