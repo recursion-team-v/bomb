@@ -6,6 +6,7 @@ import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import ServerItem from '../../../backend/src/rooms/schema/Item';
 import ServerBlock from '../../../backend/src/rooms/schema/Block';
 import ServerBlast from '../../../backend/src/rooms/schema/Blast';
+import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import { gameEvents, Event } from '../events/GameEvents';
 import MyPlayer from '../characters/MyPlayer';
@@ -53,11 +54,11 @@ export default class Network {
 
     // ゲーム開始の通知
     // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
+    this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
     this.initialize();
 
     // ゲーム開始情報の受信イベント
     // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
-    this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
     this.sendGameProgress(Constants.GAME_STATE.PLAYING);
   }
 
@@ -110,7 +111,7 @@ export default class Network {
       gameEvents.emit(Event.ITEM_REMOVED, data);
     };
 
-    this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (data) => {
+    this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (data: ServerTimer) => {
       gameEvents.emit(Event.GAME_START_INFO_RECEIVED, data);
     });
   }
@@ -188,13 +189,18 @@ export default class Network {
     this.room?.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, state);
   }
 
+  // ゲーム開始情報の取得リクエストを送る
+  sendRequestGameStartInfo() {
+    this.room?.send(Constants.NOTIFICATION_TYPE.GAME_START_INFO);
+  }
+
   // FIXME:
   // 本来はここにおくべきではなく、ロビー画面でゲーム開始ボタンを押した時にやればいいのだが
   // まだロビーがないのでここにおく
   private gameStartedAt!: number; // ゲームの開始時間
   private gameFinishedAt!: number; // ゲームの終了時間
 
-  private handleGameStartInfoReceived(data: any) {
+  private handleGameStartInfoReceived(data: ServerTimer) {
     this.gameStartedAt = data.startedAt;
     this.gameFinishedAt = data.finishedAt;
   }
