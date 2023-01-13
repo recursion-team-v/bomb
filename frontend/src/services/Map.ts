@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import * as Constants from '../../../backend/src/constants/constants';
 import { getGameScene } from '../utils/globalGame';
+import { spiralOrder, getWallArr } from '../../../backend/src/utils/map';
 
 // matter world 上の body から、二次元配列のマップを作成します
 // この時 fn で指定した関数を実行し、その結果をマップに反映します
@@ -56,22 +57,25 @@ export function dropWalls() {
   // その部分を螺旋状に並べ替える
   const spiralOrderWall = spiralOrder(walls);
 
+  const height = 1000;
+  const frame = 13;
   // 並べ替えた部分を順番に落とす
   for (let i = 0; i < spiralOrderWall.length; i++) {
     const x = spiralOrderWall[i] % (Constants.TILE_COLS - 2);
     const y = Math.floor(spiralOrderWall[i] / (Constants.TILE_COLS - 2));
-    const wall = game.add.outerWall(
+    const wall = game.add.dropWall(
       Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * (x + 1),
-      Constants.HEADER_HEIGHT + Constants.TILE_HEIGHT / 2 + Constants.TILE_HEIGHT * (y + 1) - 1000,
-      13
+      Constants.HEADER_HEIGHT +
+        Constants.TILE_HEIGHT / 2 +
+        Constants.TILE_HEIGHT * (y + 1) -
+        height,
+      frame
     );
-    wall.setDepth(Infinity);
-    wall.setSensor(true);
 
     tweenTimeline.add({
       targets: wall,
-      y: `+=1000`,
-      duration: 200,
+      y: `+=${height}`,
+      duration: Constants.DROP_WALL_DURATION,
       repeat: 0,
       onStart: () => {
         game.add
@@ -83,7 +87,7 @@ export function dropWalls() {
             Constants.BLACK,
             0.3
           )
-          .setDepth(20);
+          .setDepth(Constants.OBJECT_DEPTH.DROP_WALL_SHADOW);
       },
       onComplete: () => {
         wall.setSensor(false);
@@ -91,42 +95,4 @@ export function dropWalls() {
     });
   }
   tweenTimeline.play();
-}
-
-function getWallArr(): number[][] {
-  const walls: number[][] = [];
-  for (let y = 0; y < Constants.TILE_ROWS - 2; y++) {
-    for (let x = 0; x < Constants.TILE_COLS - 2; x++) {
-      if (walls[y] === undefined) walls[y] = [];
-      walls[y].push(x + (Constants.TILE_COLS - 2) * y);
-    }
-  }
-  return walls;
-}
-
-function spiralOrder(matrix: number[][]) {
-  const result: number[] = [];
-  while (matrix.length !== 0) {
-    // console.log(matrix);
-    const t1 = matrix.shift();
-    // console.log(t1);
-    if (t1 !== undefined) result.push(...t1);
-    if (matrix.length === 0) break;
-
-    for (let i = 0; i < matrix.length; i++) {
-      const t2 = matrix[i].pop();
-      if (t2 !== undefined) result.push(t2);
-    }
-
-    if (matrix.length === 0) break;
-    const t3 = matrix.pop();
-    if (t3 !== undefined) result.push(...t3.reverse());
-
-    if (matrix.length === 0) break;
-    for (let i = matrix.length - 1; i >= 0; i--) {
-      const t4 = matrix[i].shift();
-      if (t4 !== undefined) result.push(t4);
-    }
-  }
-  return result;
 }

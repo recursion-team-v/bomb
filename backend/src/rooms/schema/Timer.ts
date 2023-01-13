@@ -11,10 +11,6 @@ export default class Timer extends Schema {
   @type('number')
   finishedAt!: number;
 
-  // 残り時間
-  @type('number')
-  private remainTime!: number;
-
   // 現在時刻
   @type('number')
   private now!: number;
@@ -34,13 +30,8 @@ export default class Timer extends Schema {
     this.now = Date.now();
   }
 
-  // 残り時間をセットする
-  setRemainTime() {
-    this.remainTime = this.isInTime() ? this.finishedAt - this.now : 0;
-  }
-
   getRemainTime() {
-    return this.remainTime;
+    return this.isInTime() ? this.finishedAt - this.now : 0;
   }
 
   // 制限時間内かどうかを返す
