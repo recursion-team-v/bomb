@@ -171,7 +171,6 @@ export default class GameRoom extends Room<GameRoomState> {
   // ブロック削除のイべント
   private removeBlockEvent(b: PlacementObjectInterface) {
     const block = b as Block;
-    this.state.getBombToExplodeQueue().dequeue();
     this.engine.mapService.destroyBlock(block);
   }
 
