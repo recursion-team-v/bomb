@@ -15,6 +15,10 @@ export default class GameQueue<T> {
   }
 
   isEmpty(): boolean {
-    return this.queue.length === 0;
+    return this.size() === 0;
+  }
+
+  size(): number {
+    return this.queue.length;
   }
 }
