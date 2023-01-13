@@ -214,7 +214,6 @@ export default class GameRoom extends Room<GameRoomState> {
     // 壁落下イベント
     if (this.state.timer.getRemainTime() <= Constants.INGAME_EVENT_DROP_WALLS_TIME) {
       if (!this.IsFinishedDropWallsEvent) {
-        console.log(this.state.timer.getRemainTime(), Constants.INGAME_EVENT_DROP_WALLS_TIME);
         dropWalls(this.engine);
       }
       this.IsFinishedDropWallsEvent = true;

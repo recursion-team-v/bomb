@@ -55,8 +55,7 @@ export type GAME_STATE_TYPE = typeof GAME_STATE[keyof typeof GAME_STATE];
 
 // インゲーム内で発生する、壁が落下するイベントが発生する時間(ms)
 // 残り時間がこの時間になったら、イベントが発生する
-export const INGAME_EVENT_DROP_WALLS_TIME = 170000; // 60 秒
-// export const INGAME_EVENT_DROP_WALLS_TIME = 30000; // 30 秒
+export const INGAME_EVENT_DROP_WALLS_TIME = 30000; // 30 秒
 
 export const DIRECTION = {
   UP: 1,
@@ -218,6 +217,8 @@ export const OBJECT_LABEL = {
   BOMB: 'BOMB',
   BLAST: 'BLAST',
   BLOCK: 'BLOCK',
+  DROP_WALL: 'DROP_WALL', // 落下してくる壁
+  DROP_WALL_SHADOW: 'DROP_WALL_SHADOW', // 落下してくる壁の影
   ITEM: 'ITEM',
   PLAYER: 'PLAYER',
   WALL: 'WALL',
@@ -237,6 +238,8 @@ export const OBJECT_COLLISION_TO_BLAST = {
   [OBJECT_LABEL.ITEM]: 1,
   [OBJECT_LABEL.PLAYER]: 0,
   [OBJECT_LABEL.WALL]: 2,
+  [OBJECT_LABEL.DROP_WALL_SHADOW]: 0,
+  [OBJECT_LABEL.DROP_WALL]: 2,
 } as const;
 
 export type OBJECT_COLLISIONS_TO_BLAST =
@@ -251,6 +254,8 @@ export const OBJECT_DEPTH = {
   [OBJECT_LABEL.BOMB]: 3, // 特殊なアイテムで壁の上を爆弾が滑ることがある
   [OBJECT_LABEL.PLAYER]: 10,
   [OBJECT_LABEL.WALL]: 99,
+  [OBJECT_LABEL.DROP_WALL_SHADOW]: 100,
+  [OBJECT_LABEL.DROP_WALL]: 101,
 } as const;
 
 export type OBJECT_DEPTH_TYPE = typeof OBJECT_DEPTH[keyof typeof OBJECT_DEPTH];
@@ -269,3 +274,9 @@ export const BUTTON_Y = JOYSTICK_Y; // ボタンの y 座標
 export const BUTTON_RADIUS = 100; // ボタンの半径
 export const BUTTON_COLOR_CODE = BLUE; // ボタンの色
 export const BUTTON_STROKE_COLOR_CODE = GRAY; // ボタンの枠線の色
+
+/*
+壁落下の関する定義
+*/
+
+export const DROP_WALL_DURATION = 200; // 壁が落下するまでの時間

@@ -78,7 +78,7 @@ export function dropWalls() {
       duration: Constants.DROP_WALL_DURATION,
       repeat: 0,
       onStart: () => {
-        game.add
+        const shadow = game.add
           .ellipse(
             Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * (x + 1),
             Constants.HEADER_HEIGHT + Constants.TILE_HEIGHT / 2 + Constants.TILE_HEIGHT * (y + 1),
@@ -88,6 +88,11 @@ export function dropWalls() {
             0.3
           )
           .setDepth(Constants.OBJECT_DEPTH.DROP_WALL_SHADOW);
+
+        // 処理落ちするので不要な shadow を消す
+        setTimeout(() => {
+          shadow.destroy();
+        }, Constants.DROP_WALL_DURATION);
       },
       onComplete: () => {
         wall.setSensor(false);
