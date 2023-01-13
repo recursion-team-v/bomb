@@ -77,6 +77,9 @@ export default class GameRoom extends Room<GameRoomState> {
           this.engine.playerService.updatePlayer(player);
         }
 
+        // 爆弾の衝突判定の更新（プレイヤーが降りた場合は判定を変える)
+        this.engine.bombService.updateBombCollision();
+
         // 爆弾の処理
         this.objectCreateHandler(this.state.getBombToCreateQueue(), (bomb) =>
           this.createBombEvent(bomb)
@@ -112,6 +115,12 @@ export default class GameRoom extends Room<GameRoomState> {
     try {
       this.state.gameState.setPlaying();
       this.state.setTimer();
+
+      // ゲームの開始と終了時間を送信
+      this.broadcast(Constants.NOTIFICATION_TYPE.GAME_START_INFO, {
+        startedAt: this.state.timer.startedAt,
+        finishedAt: this.state.timer.finishedAt,
+      });
     } catch (e) {
       console.error(e);
     }

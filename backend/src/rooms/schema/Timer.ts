@@ -5,11 +5,11 @@ import * as Constants from '../../constants/constants';
 export default class Timer extends Schema {
   // 開始時間
   @type('number')
-  private startedAt!: number;
+  startedAt!: number;
 
   // 終了時間
   @type('number')
-  private finishedAt!: number;
+  finishedAt!: number;
 
   // 残り時間
   @type('number')
