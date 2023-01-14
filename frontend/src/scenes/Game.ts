@@ -185,8 +185,8 @@ export default class Game extends Phaser.Scene {
 
   private handlePlayerLeftRoom(player: ServerPlayer, sessionId: string) {
     const otherPlayer = this.otherPlayers.get(sessionId);
-    otherPlayer?.destroy();
-    this.otherPlayers.delete(sessionId);
+    // 死んだ時にタブを閉じられると、player が undefined になってエラーになるので、見えなくするだけにする
+    otherPlayer?.setVisible(false);
   }
 
   private async handleGameStateChanged(data: any) {
