@@ -17,7 +17,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly stableX: number; // 爆弾が消えても座標を保持するための変数
   private readonly stableY: number; // 爆弾が消えても座標を保持するための変数
   private readonly stableScene: Phaser.Scene; // 爆弾が消えてもシーンを保持するための変数
-
+  private readonly bombStrength: number; // 爆発の強さ
   private readonly sessionId: string; // サーバが一意にセットするセッションID(誰の爆弾か)
   private readonly removedAt: number; // サーバで管理している爆発する時間
   private isExploded: boolean; // 爆発したかどうか
@@ -30,6 +30,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     world: Phaser.Physics.Matter.World,
     x: number,
     y: number,
+    bombStrength: number,
     texture: string,
     removedAt: number
   ) {
@@ -44,6 +45,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.removedAt = removedAt;
     this.stableX = x;
     this.stableY = y;
+    this.bombStrength = bombStrength;
     this.isExploded = false;
     this.stableScene = this.scene;
     this.se = this.scene.sound.add('bombExplode', {
@@ -195,7 +197,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     );
 
     // 現在のユーザの爆弾の強さを取得
-    const power = game.getBombStrength(this.sessionId);
+    const power = this.bombStrength;
 
     // 現在のユーザの爆弾の位置を取得
     const x = (this.stableX - Constants.TILE_WIDTH / 2) / Constants.TILE_WIDTH;
@@ -278,9 +280,19 @@ Phaser.GameObjects.GameObjectFactory.register(
     sessionId: string,
     x: number,
     y: number,
+    bombStrength: number,
     removedAt: number
   ) {
-    const sprite = new Bomb(id, sessionId, this.scene.matter.world, x, y, 'bomb', removedAt);
+    const sprite = new Bomb(
+      id,
+      sessionId,
+      this.scene.matter.world,
+      x,
+      y,
+      bombStrength,
+      'bomb',
+      removedAt
+    );
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);
