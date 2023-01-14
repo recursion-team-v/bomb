@@ -8,10 +8,12 @@ import Block from './schema/Block';
 import GameRoomState from './schema/GameRoomState';
 import PlacementObjectInterface from '../interfaces/placement_object';
 import GameQueue from '../utils/gameQueue';
+import dropWalls from '../game_engine/services/dropWallService';
 import Item from './schema/Item';
 
 export default class GameRoom extends Room<GameRoomState> {
   engine!: GameEngine;
+  private IsFinishedDropWallsEvent: boolean = false;
 
   onCreate(options: any) {
     // ルームで使用する時計
@@ -62,6 +64,7 @@ export default class GameRoom extends Room<GameRoomState> {
       elapsedTime += deltaTime;
 
       this.state.timer.updateNow();
+      this.timeEventHandler();
 
       while (elapsedTime >= Constants.FRAME_RATE) {
         this.state.timer.updateNow();
@@ -75,9 +78,6 @@ export default class GameRoom extends Room<GameRoomState> {
           }
           return;
         }
-
-        // 残り時間の更新
-        this.state.timer.setRemainTime();
 
         elapsedTime -= Constants.FRAME_RATE;
 
@@ -217,6 +217,18 @@ export default class GameRoom extends Room<GameRoomState> {
       // 設置処理を行う
       callback(data);
       queue.dequeue();
+    }
+  }
+
+  private timeEventHandler() {
+    if (!this.state.gameState.isPlaying()) return;
+
+    // 壁落下イベント
+    if (this.state.timer.getRemainTime() <= Constants.INGAME_EVENT_DROP_WALLS_TIME) {
+      if (!this.IsFinishedDropWallsEvent) {
+        dropWalls(this.engine);
+      }
+      this.IsFinishedDropWallsEvent = true;
     }
   }
 }

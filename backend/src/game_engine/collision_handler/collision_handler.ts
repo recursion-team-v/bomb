@@ -26,6 +26,7 @@ export default function collisionHandler(
   const isItem = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.ITEM);
   const isPlayer = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.PLAYER);
   const isBlock = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.BLOCK);
+  const isDropWall = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.DROP_WALL);
 
   // PLAYER & ITEM
   if (isPlayer && isItem) {
@@ -56,6 +57,19 @@ export default function collisionHandler(
 
     // TODO: 爆風に当たると30hitぐらいしちゃうので、回復アイテムを入れるならヒット後は数秒無敵にした方がいい
     blastToPlayer(player);
+  }
+
+  // PLAYER & DROP_WALL
+  else if (isPlayer && isDropWall) {
+    const playerBody = labelA === Constants.OBJECT_LABEL.PLAYER ? bodyA : bodyB;
+    const sessionId = engine.sessionIdByBodyId.get(playerBody.id);
+    if (sessionId === undefined) return;
+
+    const player = engine.state.getPlayer(sessionId);
+    if (player === undefined) return;
+
+    // プレイヤーのHPを0にする
+    player.damaged(player.hp);
   }
 
   // BLAST & BOMB

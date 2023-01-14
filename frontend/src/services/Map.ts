@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import * as Constants from '../../../backend/src/constants/constants';
+import { getGameScene } from '../utils/globalGame';
+import { spiralOrder, getWallArr } from '../../../backend/src/utils/map';
 
 // matter world 上の body から、二次元配列のマップを作成します
 // この時 fn で指定した関数を実行し、その結果をマップに反映します
@@ -43,4 +45,59 @@ export function getHighestPriorityFromBodies(
   });
 
   return highestPriority;
+}
+
+export function dropWalls() {
+  const game = getGameScene();
+  const tweenTimeline = game.tweens.createTimeline();
+
+  // 現在のマップのうち壁の内側の部分を取得
+  const walls = getWallArr();
+
+  // その部分を螺旋状に並べ替える
+  const spiralOrderWall = spiralOrder(walls);
+
+  const height = 1000;
+  const frame = 13;
+  // 並べ替えた部分を順番に落とす
+  for (let i = 0; i < spiralOrderWall.length; i++) {
+    const x = spiralOrderWall[i] % (Constants.TILE_COLS - 2);
+    const y = Math.floor(spiralOrderWall[i] / (Constants.TILE_COLS - 2));
+    const wall = game.add.dropWall(
+      Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * (x + 1),
+      Constants.HEADER_HEIGHT +
+        Constants.TILE_HEIGHT / 2 +
+        Constants.TILE_HEIGHT * (y + 1) -
+        height,
+      frame
+    );
+
+    tweenTimeline.add({
+      targets: wall,
+      y: `+=${height}`,
+      duration: Constants.DROP_WALL_DURATION,
+      repeat: 0,
+      onStart: () => {
+        const shadow = game.add
+          .ellipse(
+            Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * (x + 1),
+            Constants.HEADER_HEIGHT + Constants.TILE_HEIGHT / 2 + Constants.TILE_HEIGHT * (y + 1),
+            Constants.TILE_WIDTH * 0.8,
+            Constants.TILE_HEIGHT * 0.4,
+            Constants.BLACK,
+            0.3
+          )
+          .setDepth(Constants.OBJECT_DEPTH.DROP_WALL_SHADOW);
+
+        // 処理落ちするので不要な shadow を消す
+        setTimeout(() => {
+          shadow.destroy();
+        }, Constants.DROP_WALL_DURATION);
+      },
+      onComplete: () => {
+        wall.setSensor(false);
+      },
+    });
+  }
+  tweenTimeline.play();
 }
