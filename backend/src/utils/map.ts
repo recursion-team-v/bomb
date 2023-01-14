@@ -4,9 +4,7 @@ import * as Constants from '../constants/constants';
 export function spiralOrder(matrix: number[][]): number[] {
   const result: number[] = [];
   while (matrix.length !== 0) {
-    // console.log(matrix);
     const t1 = matrix.shift();
-    // console.log(t1);
     if (t1 !== undefined) result.push(...t1);
     if (matrix.length === 0) break;
 
