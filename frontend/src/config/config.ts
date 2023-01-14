@@ -2,6 +2,12 @@
 export const serverUrl = 'wss://bomb-e47mei43gq-an.a.run.app:443';
 
 /*
+ゲームの設定
+*/
+
+export const IS_SHOW_BLAST_POINT = true; // 爆風の範囲を事前に表示するかどうか
+
+/*
 debug 用
 */
 
