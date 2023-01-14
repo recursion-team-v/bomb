@@ -1,3 +1,6 @@
+// debug
+export const IS_DEBUG = !import.meta.env.PROD;
+
 // 接続先のサーバーのURL
 export const serverUrl = 'wss://bomb-e47mei43gq-an.a.run.app:443';
 
@@ -12,9 +15,9 @@ debug 用
 */
 
 // サーバーの爆発を表示するかどうか
-export const DEBUG_IS_SHOW_SERVER_BLAST = true;
+export const DEBUG_IS_SHOW_SERVER_BLAST = IS_DEBUG;
 // サーバーの爆弾を表示するかどうか
-export const DEBUG_IS_SHOW_SERVER_BOMB = true;
+export const DEBUG_IS_SHOW_SERVER_BOMB = IS_DEBUG;
 
 /*
 asset 用
