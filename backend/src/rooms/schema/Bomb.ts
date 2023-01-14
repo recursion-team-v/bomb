@@ -46,10 +46,6 @@ export class Bomb extends Schema {
     this.removedAt = this.createdAt + Constants.BOMB_EXPLOSION_TIME;
   }
 
-  updateBombStrength(strength: number) {
-    this.bombStrength = strength;
-  }
-
   isCreatedTime(): boolean {
     return this.createdAt <= Date.now();
   }
