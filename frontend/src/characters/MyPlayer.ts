@@ -11,9 +11,6 @@ import Player from './Player';
 export default class MyPlayer extends Player {
   private serverX: number;
   private serverY: number;
-  private frameKey: number;
-  // frame をサーバに送信するための不可視のプレイヤー
-  private readonly dummyPlayer: Player;
   private readonly dead_se;
   private readonly item_get_se;
 
@@ -36,9 +33,6 @@ export default class MyPlayer extends Player {
     super(sessionId, world, x, y, texture, frame, options);
     this.serverX = x;
     this.serverY = y;
-    this.frameKey = 14;
-    this.dummyPlayer = this.scene.add.player(sessionId, this.x, this.y, 'player', 14);
-    this.dummyPlayer.setVisible(false).setSensor(true);
     this.dead_se = this.scene.sound.add('gameOver', {
       volume: Config.SOUND_VOLUME * 1.5,
     });
@@ -52,7 +46,6 @@ export default class MyPlayer extends Player {
     if (this.isDead()) return;
     this.serverX = player.x;
     this.serverY = player.y;
-    this.frameKey = player.frameKey;
 
     this.forceMovePlayerPosition(player);
     this.setHP(player.hp);
@@ -75,7 +68,6 @@ export default class MyPlayer extends Player {
 
     // サーバの位置に合わせて移動
     this.setVelocity(this.serverX - this.x, this.serverY - this.y);
-    this.setFrame(this.frameKey);
 
     // キーボードの入力をサーバに送信
     this.inputPayload.left = cursorKeys.left.isDown || cursorKeys.A.isDown;
@@ -102,16 +94,16 @@ export default class MyPlayer extends Player {
       if (this.inputPayload.down) vy += velocity;
     }
 
-    if (vx > 0) this.dummyPlayer.play('player_right', true);
-    else if (vx < 0) this.dummyPlayer.play('player_left', true);
-    else if (vy > 0) this.dummyPlayer.play('player_down', true);
-    else if (vy < 0) this.dummyPlayer.play('player_up', true);
-    else this.dummyPlayer.stop();
+    if (vx > 0) this.play('player_right', true);
+    else if (vx < 0) this.play('player_left', true);
+    else if (vy > 0) this.play('player_down', true);
+    else if (vy < 0) this.play('player_up', true);
+    else this.stop();
 
     // 自分自身の移動はサーバに管理してもらう都合上送れないが
     // アニメーションはフロントで管理するため、dummy Player を先に移動させて frame を送る。
     // this.dummyPlayer.setVelocity(vx, vy);
-    network.sendPlayerMove(this.dummyPlayer, this.inputPayload, isInput);
+    network.sendPlayerMove(this, this.inputPayload, isInput);
 
     // bomb 設置
     const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(cursorKeys.space);
