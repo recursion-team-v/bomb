@@ -8,12 +8,14 @@ import { getDepth } from '../items/util';
 import { getGameScene } from '../utils/globalGame';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
+  readonly name: string;
   private hp: number;
   private speed: number;
   private bombStrength: number;
   private maxBombCount: number; // 設置できるボムの最大個数
   private readonly sessionId: string; // サーバが一意にセットするセッションID
   private readonly hit_se;
+  nameLabel!: Phaser.GameObjects.Container;
 
   constructor(
     sessionId: string,
@@ -22,10 +24,11 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     y: number,
     texture: string,
     frame?: string | number,
+    name?: string,
     options?: Phaser.Types.Physics.Matter.MatterBodyConfig
   ) {
     super(world, x, y, texture, frame, options);
-
+    this.name = name === undefined ? Constants.DEFAULT_PLAYER_NAME : name;
     this.hp = Constants.INITIAL_PLAYER_HP;
     this.sessionId = sessionId;
     this.speed = Constants.INITIAL_PLAYER_SPEED;
@@ -55,6 +58,23 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.hit_se = this.scene.sound.add('hitPlayer', {
       volume: Config.SOUND_VOLUME,
     });
+  }
+
+  addNameLabel(triangleColor: number) {
+    const game = getGameScene();
+    const label = game.add.rectangle(0, -35, 15 * this.name.length, 30, Constants.BLACK, 0.3);
+    const nameText = game.add.text(0, 0, this.name, {
+      fontSize: '20px',
+      color: '#ffffff',
+    });
+    const triangle = game.add.triangle(0, 0, -5, -5, 15, -5, 5, 5, triangleColor);
+
+    Phaser.Display.Align.In.Center(nameText, label);
+    Phaser.Display.Align.To.BottomCenter(triangle, label, 5, 8);
+
+    this.nameLabel = game.add
+      .container(this.x, this.y, [label, nameText, triangle])
+      .setDepth(Infinity);
   }
 
   // HP をセットします
@@ -216,9 +236,19 @@ Phaser.GameObjects.GameObjectFactory.register(
     y: number,
     texture: string,
     frame?: string | number,
+    name?: string,
     options?: Phaser.Types.Physics.Matter.MatterBodyConfig
   ) {
-    const sprite = new Player(sessionId, this.scene.matter.world, x, y, texture, frame, options);
+    const sprite = new Player(
+      sessionId,
+      this.scene.matter.world,
+      x,
+      y,
+      texture,
+      frame,
+      name,
+      options
+    );
 
     // 使う用途がダミーなので、ここではコメントアウト
     // this.displayList.add(sprite);

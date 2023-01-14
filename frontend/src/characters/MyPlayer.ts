@@ -28,9 +28,10 @@ export default class MyPlayer extends Player {
     y: number,
     texture: string,
     frame?: string | number,
+    name?: string,
     options?: Phaser.Types.Physics.Matter.MatterBodyConfig
   ) {
-    super(sessionId, world, x, y, texture, frame, options);
+    super(sessionId, world, x, y, texture, frame, name, options);
     this.serverX = x;
     this.serverY = y;
     this.dead_se = this.scene.sound.add('gameOver', {
@@ -39,6 +40,7 @@ export default class MyPlayer extends Player {
     this.item_get_se = this.scene.sound.add('getItem', {
       volume: Config.SOUND_VOLUME * 1.5,
     });
+    this.addNameLabel(Constants.BLUE);
   }
 
   // player.onChange のコールバック
@@ -68,6 +70,7 @@ export default class MyPlayer extends Player {
 
     // サーバの位置に合わせて移動
     this.setVelocity(this.serverX - this.x, this.serverY - this.y);
+    this.nameLabel.setPosition(this.x, this.y - 30);
 
     // キーボードの入力をサーバに送信
     this.inputPayload.left = cursorKeys.left.isDown || cursorKeys.A.isDown;
@@ -166,9 +169,19 @@ Phaser.GameObjects.GameObjectFactory.register(
     y: number,
     texture: string,
     frame?: string | number,
+    name?: string,
     options?: Phaser.Types.Physics.Matter.MatterBodyConfig
   ) {
-    const sprite = new MyPlayer(sessionId, this.scene.matter.world, x, y, texture, frame, options);
+    const sprite = new MyPlayer(
+      sessionId,
+      this.scene.matter.world,
+      x,
+      y,
+      texture,
+      frame,
+      name,
+      options
+    );
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);
