@@ -73,6 +73,9 @@ export const MAX_PLAYER = 4;
 プレイヤーの状態の定義
 */
 
+// デフォルトのプレイヤーの名前
+export const DEFAULT_PLAYER_NAME = 'noname';
+
 // プレイヤーの初期HP
 export const INITIAL_PLAYER_HP = 1;
 

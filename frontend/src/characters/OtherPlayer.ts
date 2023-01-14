@@ -1,5 +1,6 @@
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import Player from './Player';
+import * as Constants from '../../../backend/src/constants/constants';
 
 export default class OtherPlayer extends Player {
   private serverX: number;
@@ -13,15 +14,17 @@ export default class OtherPlayer extends Player {
     y: number,
     texture: string,
     frame?: string | number,
+    name?: string,
     options?: Phaser.Types.Physics.Matter.MatterBodyConfig
   ) {
-    super(sessionId, world, x, y, texture, frame, options);
+    super(sessionId, world, x, y, texture, frame, name, options);
     this.serverX = x;
     this.serverY = y;
     this.frameKey = 14;
     this.setSensor(true); // プレイヤー同士はぶつからないようにする
     const randomColor = Math.floor(Math.random() * 16777215);
     this.setPlayerColor(randomColor);
+    this.addNameLabel(Constants.RED);
   }
 
   handleServerChange(serverPlayer: ServerPlayer) {
@@ -47,6 +50,7 @@ export default class OtherPlayer extends Player {
     this.x = Math.ceil(Phaser.Math.Linear(this.x, this.serverX, 0.35)); // 動きがちょっと滑らか過ぎるから 0.2 -> 0.35
     this.y = Math.ceil(Phaser.Math.Linear(this.y, this.serverY, 0.35));
     this.setFrame(this.frameKey);
+    this.nameLabel.setPosition(this.x, this.y - 30);
   }
 }
 
@@ -59,6 +63,7 @@ Phaser.GameObjects.GameObjectFactory.register(
     y: number,
     texture: string,
     frame?: string | number,
+    name?: string,
     options?: Phaser.Types.Physics.Matter.MatterBodyConfig
   ) {
     const sprite = new OtherPlayer(
@@ -68,6 +73,7 @@ Phaser.GameObjects.GameObjectFactory.register(
       y,
       texture,
       frame,
+      name,
       options
     );
 
