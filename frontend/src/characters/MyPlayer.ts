@@ -149,6 +149,11 @@ export default class MyPlayer extends Player {
     this.setVelocity(forceX, forceY);
   }
 
+  setHP(hp: number): boolean {
+    if (super.setHP(hp)) this.playItemGetSe();
+    return true;
+  }
+
   setMaxBombCount(maxBombCount: number): boolean {
     if (super.setMaxBombCount(maxBombCount)) this.playItemGetSe();
     return true;
