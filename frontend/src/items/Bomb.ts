@@ -137,7 +137,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     if (this.isExploded) return;
 
     const game = getGameScene();
-    const addBlastPoint = (x: number, y: number) => game.add.star(x, y, 3, 32, 32, 0xff0000, 0.8);
+    const addBlastPoint = (x: number, y: number) => game.add.star(x, y, 3, 24, 24, 0xff4c00, 0.8);
 
     this.blastPointSprites.push(addBlastPoint(this.stableX, this.stableY));
 
