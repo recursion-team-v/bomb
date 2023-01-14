@@ -19,5 +19,12 @@ export function createBomb(bomb: PlacementObjectInterface) {
     }
   }
 
-  gc.add.bomb(serverBomb.id, sessionId, serverBomb.x, serverBomb.y, serverBomb.removedAt);
+  gc.add.bomb(
+    serverBomb.id,
+    sessionId,
+    serverBomb.x,
+    serverBomb.y,
+    serverBomb.bombStrength,
+    serverBomb.removedAt
+  );
 }
