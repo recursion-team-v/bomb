@@ -9,6 +9,7 @@ import GameRoomState from './schema/GameRoomState';
 import PlacementObjectInterface from '../interfaces/placement_object';
 import GameQueue from '../utils/gameQueue';
 import dropWalls from '../game_engine/services/dropWallService';
+import Item from './schema/Item';
 
 export default class GameRoom extends Room<GameRoomState> {
   engine!: GameEngine;
@@ -100,6 +101,11 @@ export default class GameRoom extends Room<GameRoomState> {
           this.removeBlockEvent(block)
         );
 
+        // アイテムの処理
+        this.objectRemoveHandler(this.state.getItemToDestroyQueue(), (item) =>
+          this.removeItemEvent(item)
+        );
+
         // ゲーム終了判定 TODO: ロビーができて、ちゃんとゲーム開始判定ができたら有効化する
         // if (
         //   this.state.gameState.isPlaying() &&
@@ -166,6 +172,12 @@ export default class GameRoom extends Room<GameRoomState> {
   private removeBlockEvent(b: PlacementObjectInterface) {
     const block = b as Block;
     this.engine.mapService.destroyBlock(block);
+  }
+
+  // アイテム削除のイべント
+  private removeItemEvent(b: PlacementObjectInterface) {
+    const item = b as Item;
+    this.engine.itemService.removeItem(item);
   }
 
   /*

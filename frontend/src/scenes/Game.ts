@@ -33,6 +33,7 @@ import PlacementObjectInterface from '../../../backend/src/interfaces/placement_
 import { createBomb } from '../services/Bomb';
 import { removeBlock } from '../services/Block';
 import { dropWalls } from '../services/Map';
+import { removeItem } from '../services/Item';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
@@ -49,6 +50,7 @@ export default class Game extends Phaser.Scene {
   private currBlocks?: Map<string, Block>; // 現在存在しているブロック
   private readonly bombToCreateQueue: GameQueue<ServerBomb> = new GameQueue<ServerBomb>();
   private readonly blockToRemoveQueue: GameQueue<ServerBlock> = new GameQueue<ServerBlock>();
+  private readonly itemToRemoveQueue: GameQueue<ServerItem> = new GameQueue<ServerItem>();
   private readonly currItems: Map<string, Item>; // 現在存在しているアイテム
   private readonly currBombs: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているボム
   private readonly currBlasts: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているサーバの爆風
@@ -131,6 +133,7 @@ export default class Game extends Phaser.Scene {
       createBomb(v)
     );
     this.removeObjectFromQueue(this.blockToRemoveQueue, (v: ServerBlock) => removeBlock(v));
+    this.removeObjectFromQueue(this.itemToRemoveQueue, (v: ServerItem) => removeItem(v));
     this.updateBombCollision();
   }
 
@@ -253,24 +256,11 @@ export default class Game extends Phaser.Scene {
     this.currItems.set(serverItem.id, item);
   }
 
-  // アイテムが破壊・習得されたらアイテムを削除する
-  private handleItemRemoved(data: any) {
-    const { id } = data;
-    const itemBody = this.currItems.get(id);
+  // 破壊予定のアイテムをキューに入れる
+  private handleItemRemoved(serverItem: ServerItem) {
+    const itemBody = this.currItems?.get(serverItem.id);
     if (itemBody === undefined) return;
-    this.currItems.delete(id);
-
-    const juice = this.juice;
-
-    // ブロック破壊のアニメーション
-    const timer = setInterval(() => {
-      juice.flash(itemBody, 30, Constants.RED.toString());
-    }, 30);
-
-    setTimeout(() => {
-      clearInterval(timer);
-      itemBody.removeItem();
-    }, 500);
+    this.itemToRemoveQueue.enqueue(serverItem);
   }
 
   // キューに溜まっているオブジェクトをマップに追加する
@@ -348,6 +338,10 @@ export default class Game extends Phaser.Scene {
 
   public getCurrBlocks(): Map<string, Block> | undefined {
     return this.currBlocks;
+  }
+
+  public getCurrItems(): Map<string, Item> | undefined {
+    return this.currItems;
   }
 
   // sessionId からプレイヤーのボムの強さを取得する

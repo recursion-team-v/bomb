@@ -1,8 +1,6 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
-
 import * as Constants from '../../constants/constants';
 import GameQueue from '../../utils/gameQueue';
-import { ITEM_TYPES } from './../../constants/constants';
 import Block from './Block';
 import { Bomb, getSettablePosition } from './Bomb';
 import GameState from './GameState';
@@ -31,6 +29,8 @@ export default class GameRoomState extends Schema {
   private readonly bombToExplodeQueue: GameQueue<Bomb> = new GameQueue<Bomb>();
   // ブロックを破壊するキュー
   private readonly blockToDestroyQueue: GameQueue<Block> = new GameQueue<Block>();
+  // アイテムを破壊するキュー
+  private readonly itemToDestroyQueue: GameQueue<Item> = new GameQueue<Item>();
 
   @type(Map) gameMap = new Map();
 
@@ -79,7 +79,11 @@ export default class GameRoomState extends Schema {
     return this.blockToDestroyQueue;
   }
 
-  createItem(x: number, y: number, itemType: ITEM_TYPES) {
+  getItemToDestroyQueue(): GameQueue<Item> {
+    return this.itemToDestroyQueue;
+  }
+
+  createItem(x: number, y: number, itemType: Constants.ITEM_TYPES) {
     const item = new Item(x, y, itemType);
     this.items.set(item.id, item);
     return item;
