@@ -26,7 +26,7 @@ export default class Network {
 
     let endpoint = '';
     if (import.meta.env.PROD) {
-      endpoint = Config.serverUrl;
+      endpoint = Config.SERVER_URL;
       this.client = new Client(endpoint);
     } else {
       endpoint = `${protocol}//${window.location.hostname}:${Constants.SERVER_LISTEN_PORT}`;
