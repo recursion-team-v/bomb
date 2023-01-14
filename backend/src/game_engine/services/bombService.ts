@@ -74,7 +74,10 @@ export default class BombService {
     if (bomb === undefined) return;
 
     // 誘爆の場合は爆発までの delay を入れる
-    setTimeout(() => this.explode(bomb), Constants.BOMB_DETONATION_DELAY);
+    this.gameEngine.room.clock.setTimeout(
+      () => this.explode(bomb),
+      Constants.BOMB_DETONATION_DELAY
+    );
   }
 
   // 指定した位置にボムが存在するかどうかを返す
@@ -86,5 +89,39 @@ export default class BombService {
       }
     });
     return isExists;
+  }
+
+  // 現在のボムのリストを返す
+  private listBombs(): Matter.Body[] {
+    return Array.from(this.gameEngine.bombBodies.values());
+  }
+
+  // 爆弾の衝突判定を更新する
+  updateBombCollision() {
+    this.setSensorFalseIfNoBodyOverlapped();
+  }
+
+  // 全ての爆弾に対して、爆弾に他のオブジェクトが重なっていない場合は衝突判定を有効にする
+  private setSensorFalseIfNoBodyOverlapped() {
+    this.listBombs().forEach((bombBody) => {
+      // すでに当たり判定があるなら何もしない
+      if (!bombBody.isSensor) return;
+
+      const bombId = this.gameEngine.bombIdByBodyId.get(bombBody.id);
+      if (bombId === undefined) return;
+      const bomb = this.gameEngine.state.bombs.get(bombId);
+      if (bomb === undefined) return;
+
+      // ボムが爆発している場合は処理を終了する
+      if (bomb.isExploded()) return;
+
+      // ボムに重なっているオブジェクトの取得
+      const bodies = Matter.Query.point(this.gameEngine.world.bodies, {
+        x: bombBody.position.x,
+        y: bombBody.position.y,
+      });
+
+      if (bodies.length <= 1) Matter.Body.set(bombBody, 'isSensor', false);
+    });
   }
 }

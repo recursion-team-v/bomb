@@ -5,15 +5,11 @@ import * as Constants from '../../constants/constants';
 export default class Timer extends Schema {
   // 開始時間
   @type('number')
-  private startedAt!: number;
+  startedAt!: number;
 
   // 終了時間
   @type('number')
-  private finishedAt!: number;
-
-  // 残り時間
-  @type('number')
-  private remainTime!: number;
+  finishedAt!: number;
 
   // 現在時刻
   @type('number')
@@ -34,13 +30,8 @@ export default class Timer extends Schema {
     this.now = Date.now();
   }
 
-  // 残り時間をセットする
-  setRemainTime() {
-    this.remainTime = this.isInTime() ? this.finishedAt - this.now : 0;
-  }
-
   getRemainTime() {
-    return this.remainTime;
+    return this.isInTime() ? this.finishedAt - this.now : 0;
   }
 
   // 制限時間内かどうかを返す

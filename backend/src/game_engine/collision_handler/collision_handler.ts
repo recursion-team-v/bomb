@@ -26,8 +26,9 @@ export default function collisionHandler(
   const isItem = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.ITEM);
   const isPlayer = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.PLAYER);
   const isBlock = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.BLOCK);
+  const isDropWall = isSpecificLabel(labelA, labelB, Constants.OBJECT_LABEL.DROP_WALL);
 
-  // // PLAYER & ITEM
+  // PLAYER & ITEM
   if (isPlayer && isItem) {
     const playerBody = labelA === Constants.OBJECT_LABEL.PLAYER ? bodyA : bodyB;
     const itemBody = labelA === Constants.OBJECT_LABEL.ITEM ? bodyA : bodyB;
@@ -38,6 +39,10 @@ export default function collisionHandler(
     if (player === undefined) return;
     const item = engine.state.items.get(itemId);
     if (item === undefined) return;
+
+    // クライアントと同期をとって消すため、ここでは削除の時間を決めるだけにする
+    item.removedAt = Date.now() + Constants.OBJECT_REMOVAL_DELAY;
+
     playerToItem(player, item, engine);
   }
 
@@ -52,6 +57,19 @@ export default function collisionHandler(
 
     // TODO: 爆風に当たると30hitぐらいしちゃうので、回復アイテムを入れるならヒット後は数秒無敵にした方がいい
     blastToPlayer(player);
+  }
+
+  // PLAYER & DROP_WALL
+  else if (isPlayer && isDropWall) {
+    const playerBody = labelA === Constants.OBJECT_LABEL.PLAYER ? bodyA : bodyB;
+    const sessionId = engine.sessionIdByBodyId.get(playerBody.id);
+    if (sessionId === undefined) return;
+
+    const player = engine.state.getPlayer(sessionId);
+    if (player === undefined) return;
+
+    // プレイヤーのHPを0にする
+    player.damaged(player.hp);
   }
 
   // BLAST & BOMB
@@ -72,6 +90,26 @@ export default function collisionHandler(
     const blockId = blockBody.id.toString();
     const block = engine.state.blocks.get(blockId);
     if (block === undefined) return;
-    engine.mapService.destroyBlock(block);
+
+    // クライアントと同期をとって消すため、ここでは削除の時間を決めるだけにする
+    block.removedAt = Date.now() + Constants.OBJECT_REMOVAL_DELAY;
+    engine.state.getBlockToDestroyQueue().enqueue(block);
+  }
+
+  // BLAST & ITEM
+  else if (isBlast && isItem) {
+    const itemBody = labelA === Constants.OBJECT_LABEL.ITEM ? bodyA : bodyB;
+    const itemId = engine.itemIdByBodyId.get(itemBody.id);
+    if (itemId === undefined) return;
+
+    const item = engine.state.items.get(itemId);
+    if (item === undefined) return;
+
+    // アイテムが無敵状態の場合は消さない
+    if (item.isInvincible()) return;
+
+    // クライアントと同期をとって消すため、ここでは削除の時間を決めるだけにする
+    item.removedAt = Date.now() + Constants.OBJECT_REMOVAL_DELAY;
+    engine.state.getItemToDestroyQueue().enqueue(item);
   }
 }

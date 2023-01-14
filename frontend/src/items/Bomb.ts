@@ -17,10 +17,11 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly stableX: number; // 爆弾が消えても座標を保持するための変数
   private readonly stableY: number; // 爆弾が消えても座標を保持するための変数
   private readonly stableScene: Phaser.Scene; // 爆弾が消えてもシーンを保持するための変数
-
+  private readonly bombStrength: number; // 爆発の強さ
   private readonly sessionId: string; // サーバが一意にセットするセッションID(誰の爆弾か)
   private readonly removedAt: number; // サーバで管理している爆発する時間
   private isExploded: boolean; // 爆発したかどうか
+  private readonly blastPointSprites: Phaser.GameObjects.Star[] = [];
   private readonly se;
 
   constructor(
@@ -29,6 +30,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     world: Phaser.Physics.Matter.World,
     x: number,
     y: number,
+    bombStrength: number,
     texture: string,
     removedAt: number
   ) {
@@ -43,11 +45,14 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.removedAt = removedAt;
     this.stableX = x;
     this.stableY = y;
+    this.bombStrength = bombStrength;
     this.isExploded = false;
     this.stableScene = this.scene;
     this.se = this.scene.sound.add('bombExplode', {
       volume: Config.SOUND_VOLUME,
     });
+
+    if (Config.IS_SHOW_BLAST_POINT) this.displayBlastPoint();
   }
 
   // 指定の座標から設置可能な座標を返します
@@ -127,8 +132,40 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     );
   }
 
+  // 爆発範囲を爆発前に描画する
+  private displayBlastPoint() {
+    if (this.isExploded) return;
+
+    const game = getGameScene();
+    const addBlastPoint = (x: number, y: number) => game.add.star(x, y, 3, 24, 24, 0xff4c00, 0.8);
+
+    this.blastPointSprites.push(addBlastPoint(this.stableX, this.stableY));
+
+    const br = this.calcBlastRange();
+
+    br.forEach((power: number, key: number) => {
+      let dynamicX = 0;
+      let dynamicY = 0;
+      if (power === 0) return;
+      if (key === Constants.DIRECTION.RIGHT) dynamicX = Constants.TILE_WIDTH;
+      if (key === Constants.DIRECTION.DOWN) dynamicY = Constants.TILE_HEIGHT;
+      if (key === Constants.DIRECTION.LEFT) dynamicX = -Constants.TILE_WIDTH;
+      if (key === Constants.DIRECTION.UP) dynamicY = -Constants.TILE_HEIGHT;
+
+      for (let i = 1; i <= power; i++) {
+        this.blastPointSprites.push(
+          addBlastPoint(this.stableX + dynamicX * i, this.stableY + dynamicY * i)
+        );
+      }
+    });
+  }
+
   explode() {
     if (this.isExploded) return;
+    this.blastPointSprites.forEach((sprite) => {
+      sprite.destroy();
+    });
+
     this.se.play();
     // center
     this.addBlastSprite(this.stableX, this.stableY, 'bomb_center_blast', 0, true, true, 1.2);
@@ -160,7 +197,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     );
 
     // 現在のユーザの爆弾の強さを取得
-    const power = game.getBombStrength(this.sessionId);
+    const power = this.bombStrength;
 
     // 現在のユーザの爆弾の位置を取得
     const x = (this.stableX - Constants.TILE_WIDTH / 2) / Constants.TILE_WIDTH;
@@ -216,20 +253,18 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
   // 誘爆時の処理
   detonated(id: string) {
-    this.scene.time.addEvent({
-      delay: Constants.BOMB_DETONATION_DELAY,
-      callback: () => {
-        this.explode();
-        this.afterExplosion();
-      },
-    });
+    // addEvent より setTimeout の方が遅延がマシだったので setTimeout を使う
+    setTimeout(() => {
+      this.explode();
+      this.afterExplosion();
+    }, Constants.BOMB_DETONATION_DELAY);
   }
 
   // 爆発するまでの時間を返す
   getRemainTime(): number {
     if (this.removedAt === null || this.removedAt === 0) return 0;
-    const game = getGameScene();
-    return this.removedAt - game.getServerTime() <= 0 ? 0 : this.removedAt - game.getServerTime();
+    const now: number = getGameScene().getNetwork().now();
+    return this.removedAt - now <= 0 ? 0 : this.removedAt - now;
   }
 
   public getIsExploded(): boolean {
@@ -245,9 +280,19 @@ Phaser.GameObjects.GameObjectFactory.register(
     sessionId: string,
     x: number,
     y: number,
+    bombStrength: number,
     removedAt: number
   ) {
-    const sprite = new Bomb(id, sessionId, this.scene.matter.world, x, y, 'bomb', removedAt);
+    const sprite = new Bomb(
+      id,
+      sessionId,
+      this.scene.matter.world,
+      x,
+      y,
+      bombStrength,
+      'bomb',
+      removedAt
+    );
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);
@@ -276,7 +321,7 @@ Phaser.GameObjects.GameObjectFactory.register(
         }
         clearInterval(timer);
       }
-    }, 100);
+    }, 10); // サーバとの遅延を減らすため、10msごとに確認
 
     return sprite;
   }

@@ -4,13 +4,18 @@ import * as Config from '../config/config';
 import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import ServerItem from '../../../backend/src/rooms/schema/Item';
+import ServerBlock from '../../../backend/src/rooms/schema/Block';
 import ServerBlast from '../../../backend/src/rooms/schema/Blast';
+import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import { gameEvents, Event } from '../events/GameEvents';
 import MyPlayer from '../characters/MyPlayer';
+import Player from '../characters/Player';
+import TimeSync, { create as TimeCreate } from 'timesync';
 
 export default class Network {
   private readonly client: Client;
+  private ts!: TimeSync;
   public room?: Room<GameRoomState>;
 
   allRooms: RoomAvailable[] = [];
@@ -19,22 +24,42 @@ export default class Network {
   constructor() {
     const protocol = window.location.protocol.replace('http', 'ws');
 
+    let endpoint = '';
     if (import.meta.env.PROD) {
-      const endpoint = Config.serverUrl;
+      endpoint = Config.SERVER_URL;
       this.client = new Client(endpoint);
     } else {
-      const endpoint = `${protocol}//${window.location.hostname}:${Constants.SERVER_LISTEN_PORT}`;
+      endpoint = `${protocol}//${window.location.hostname}:${Constants.SERVER_LISTEN_PORT}`;
       this.client = new Client(endpoint);
     }
+    this.syncClock(endpoint);
     this.joinOrCreateRoom().catch((err) => console.log(err));
+  }
+
+  syncClock(endpoint: string) {
+    endpoint = endpoint.replace('ws', 'http');
+    this.ts = TimeCreate({
+      server: `${endpoint}/timesync`,
+      interval: 1000,
+    });
+    this.ts.sync();
+  }
+
+  now(): number {
+    return this.ts.now();
   }
 
   async joinOrCreateRoom() {
     this.room = await this.client.joinOrCreate(Constants.GAME_ROOM_KEY);
+
     // ゲーム開始の通知
     // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
-    this.sendGameProgress();
     this.initialize();
+    this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
+
+    // ゲーム開始情報の受信イベント
+    // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
+    this.sendGameProgress(Constants.GAME_STATE.PLAYING);
   }
 
   initialize() {
@@ -70,15 +95,11 @@ export default class Network {
       gameEvents.emit(Event.BLAST_REMOVED, data);
     };
 
-    this.room.state.timer.onChange = (data: any) => {
-      gameEvents.emit(Event.TIMER_UPDATED, data);
-    };
-
     this.room.state.gameState.onChange = (data: any) => {
       gameEvents.emit(Event.GAME_STATE_UPDATED, data);
     };
 
-    this.room.state.blocks.onRemove = (data: any) => {
+    this.room.state.blocks.onRemove = (data: ServerBlock) => {
       gameEvents.emit(Event.BLOCKS_REMOVED, data);
     };
 
@@ -86,9 +107,13 @@ export default class Network {
       gameEvents.emit(Event.ITEM_ADDED, data);
     };
 
-    this.room.state.items.onRemove = (data: any) => {
+    this.room.state.items.onRemove = (data: ServerItem) => {
       gameEvents.emit(Event.ITEM_REMOVED, data);
     };
+
+    this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (data: ServerTimer) => {
+      gameEvents.emit(Event.GAME_START_INFO_RECEIVED, data);
+    });
   }
 
   // 自分がルームに参加した時
@@ -125,18 +150,13 @@ export default class Network {
     gameEvents.on(Event.BLAST_REMOVED, callback, context);
   }
 
-  // タイマーが更新された時
-  onTimerUpdated(callback: (data: any) => void, context?: any) {
-    gameEvents.on(Event.TIMER_UPDATED, callback, context);
-  }
-
   // gameState が更新された時
   onGameStateUpdated(callback: (data: any) => Promise<void>, context?: any) {
     gameEvents.on(Event.GAME_STATE_UPDATED, callback, context);
   }
 
   // blocks が消去（破壊）された時
-  onBlocksRemoved(callback: (data: any) => void, context?: any) {
+  onBlocksRemoved(callback: (data: ServerBlock) => void, context?: any) {
     gameEvents.on(Event.BLOCKS_REMOVED, callback, context);
   }
 
@@ -145,13 +165,18 @@ export default class Network {
   }
 
   // item が消去（破壊）された時
-  onItemRemoved(callback: (data: any) => void, context?: any) {
+  onItemRemoved(callback: (data: ServerItem) => void, context?: any) {
     gameEvents.on(Event.ITEM_REMOVED, callback, context);
   }
 
+  // ゲーム開始に関する情報を受け取った時
+  receiveGameStartInfo(callback: (data: any) => void, context?: any) {
+    gameEvents.on(Event.GAME_START_INFO_RECEIVED, callback, context);
+  }
+
   // 自分のプレイヤー動作を送る
-  sendPlayerMove(player: MyPlayer, isInput: boolean) {
-    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, { player, isInput });
+  sendPlayerMove(player: Player, inputPayload: any, isInput: boolean) {
+    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, { player, inputPayload, isInput });
   }
 
   // 自分の爆弾を送る
@@ -160,7 +185,35 @@ export default class Network {
   }
 
   // 自分のゲーム状態を送る
-  sendGameProgress() {
-    this.room?.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS);
+  sendGameProgress(state: Constants.GAME_STATE_TYPE) {
+    this.room?.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, state);
+  }
+
+  // ゲーム開始情報の取得リクエストを送る
+  sendRequestGameStartInfo() {
+    this.room?.send(Constants.NOTIFICATION_TYPE.GAME_START_INFO);
+  }
+
+  // FIXME:
+  // 本来はここにおくべきではなく、ロビー画面でゲーム開始ボタンを押した時にやればいいのだが
+  // まだロビーがないのでここにおく
+  private gameStartedAt!: number; // ゲームの開始時間
+  private gameFinishedAt!: number; // ゲームの終了時間
+
+  private handleGameStartInfoReceived(data: ServerTimer) {
+    this.gameStartedAt = data.startedAt;
+    this.gameFinishedAt = data.finishedAt;
+  }
+
+  public getGameStartedAt(): number {
+    return this.gameStartedAt;
+  }
+
+  public getGameFinishedAt(): number {
+    return this.gameFinishedAt;
+  }
+
+  public remainTime(): number {
+    return this.gameFinishedAt - this.now();
   }
 }

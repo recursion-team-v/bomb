@@ -10,6 +10,9 @@ export default class Player extends Schema {
   @type('number')
   idx: number;
 
+  @type('string')
+  name: string;
+
   // プレイヤーの位置
   @type('number')
   x: number;
@@ -51,10 +54,11 @@ export default class Player extends Schema {
 
   inputQueue: any[] = [];
 
-  constructor(sessionId: string, idx: number) {
+  constructor(sessionId: string, idx: number, name: string = Constants.DEFAULT_PLAYER_NAME) {
     super();
     this.sessionId = sessionId;
     this.idx = idx;
+    this.name = name;
     this.hp = Constants.INITIAL_PLAYER_HP;
     this.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
     this.y = Constants.INITIAL_PLAYER_POSITION[idx].y;

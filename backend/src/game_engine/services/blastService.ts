@@ -36,7 +36,7 @@ export default class BlastService {
     this.bodies = bodies;
 
     // 爆風の有効時間を過ぎたら削除する
-    setTimeout(() => {
+    this.gameEngine.room.clock.setTimeout(() => {
       this.delete();
     }, Constants.BLAST_AVAILABLE_TIME);
   }
@@ -115,8 +115,8 @@ export default class BlastService {
     // 現在の map を取得
     const map = this.gameEngine.getDimensionalMap(this.gameEngine.getHighestPriorityFromBodies);
 
-    // 現在のユーザの爆弾の強さを取得
-    const power = this.getPlayerBombStrength();
+    // 現在の爆弾の強さを取得
+    const power = this.bomb.bombStrength;
 
     // 現在のユーザの爆弾の位置を取得
     const x = (this.bomb.x - Constants.TILE_WIDTH / 2) / Constants.TILE_WIDTH;
@@ -142,16 +142,6 @@ export default class BlastService {
       calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.RIGHT)
     );
     return m;
-  }
-
-  // 現在のユーザの爆弾の強さを取得する
-  private getPlayerBombStrength(): number {
-    const player = this.gameEngine.getPlayer(this.bomb.sessionId);
-    if (player === undefined) {
-      return Constants.INITIAL_BOMB_STRENGTH;
-    } else {
-      return player.getBombStrength();
-    }
   }
 }
 

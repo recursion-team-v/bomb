@@ -16,6 +16,8 @@ export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
 // オブジェクト生成時の遅延時間
 // クライアントとサーバの同期を取るために、オブジェクト生成時に遅延を入れています。
 export const OBJECT_CREATION_DELAY = 100; // ms
+// オブジェクト削除時の遅延時間
+export const OBJECT_REMOVAL_DELAY = 100; // ms
 
 // Dockerfile の中と、デプロイ時にポートを指定しているので、ここの設定は開発時にしか利用されません。
 export const SERVER_LISTEN_PORT = 2567;
@@ -29,6 +31,9 @@ export const NOTIFICATION_TYPE = {
 
   // プレイヤー情報を通知するためのタイプ
   PLAYER_INFO: 2,
+
+  // ゲームの開始に関する情報を通知するためのタイプ
+  GAME_START_INFO: 10,
 
   // 1000 番台はインゲーム内で使用するタイプ
   // プレイヤーの移動を通知するためのタイプ
@@ -48,6 +53,10 @@ export const GAME_STATE = {
 
 export type GAME_STATE_TYPE = typeof GAME_STATE[keyof typeof GAME_STATE];
 
+// インゲーム内で発生する、壁が落下するイベントが発生する時間(ms)
+// 残り時間がこの時間になったら、イベントが発生する
+export const INGAME_EVENT_DROP_WALLS_TIME = 30000; // 30 秒
+
 export const DIRECTION = {
   UP: 1,
   DOWN: 2,
@@ -63,6 +72,9 @@ export const MAX_PLAYER = 4;
 /*
 プレイヤーの状態の定義
 */
+
+// デフォルトのプレイヤーの名前
+export const DEFAULT_PLAYER_NAME = 'noname';
 
 // プレイヤーの初期HP
 export const INITIAL_PLAYER_HP = 1;
@@ -80,7 +92,7 @@ export const MAX_SETTABLE_BOMB_COUNT = 8;
 export const INITIAL_BOMB_STRENGTH = 2;
 
 // プレイヤーの初期移動速度
-export const INITIAL_PLAYER_SPEED = 4;
+export const INITIAL_PLAYER_SPEED = 2;
 
 // プレイヤーが被弾時に一定時間無敵になる時間(ms)
 export const PLAYER_INVINCIBLE_TIME = 3000;
@@ -125,6 +137,11 @@ export const TIME_LIMIT_SEC = 181; // (+1秒するといい感じに表示され
 /*
 アイテムの定義
 */
+
+// アイテムが一致時間破壊されない時間
+// ブロックを破壊した時にアイテムが出現するのだが、爆風が残ってるとアイテムが破壊されてしまうので一定時間無敵にする
+export const ITEM_INVINCIBLE_TIME = 3000; // ms
+
 export const ITEM_TYPE = {
   NONE: 'NONE', // アイテムなし
   BOMB_STRENGTH: 'BOMB_STRENGTH', // ボムの威力アップ
@@ -203,6 +220,8 @@ export const OBJECT_LABEL = {
   BOMB: 'BOMB',
   BLAST: 'BLAST',
   BLOCK: 'BLOCK',
+  DROP_WALL: 'DROP_WALL', // 落下してくる壁
+  DROP_WALL_SHADOW: 'DROP_WALL_SHADOW', // 落下してくる壁の影
   ITEM: 'ITEM',
   PLAYER: 'PLAYER',
   WALL: 'WALL',
@@ -222,6 +241,8 @@ export const OBJECT_COLLISION_TO_BLAST = {
   [OBJECT_LABEL.ITEM]: 1,
   [OBJECT_LABEL.PLAYER]: 0,
   [OBJECT_LABEL.WALL]: 2,
+  [OBJECT_LABEL.DROP_WALL_SHADOW]: 0,
+  [OBJECT_LABEL.DROP_WALL]: 2,
 } as const;
 
 export type OBJECT_COLLISIONS_TO_BLAST =
@@ -236,6 +257,8 @@ export const OBJECT_DEPTH = {
   [OBJECT_LABEL.BOMB]: 3, // 特殊なアイテムで壁の上を爆弾が滑ることがある
   [OBJECT_LABEL.PLAYER]: 10,
   [OBJECT_LABEL.WALL]: 99,
+  [OBJECT_LABEL.DROP_WALL_SHADOW]: 100,
+  [OBJECT_LABEL.DROP_WALL]: 101,
 } as const;
 
 export type OBJECT_DEPTH_TYPE = typeof OBJECT_DEPTH[keyof typeof OBJECT_DEPTH];
@@ -254,3 +277,9 @@ export const BUTTON_Y = JOYSTICK_Y; // ボタンの y 座標
 export const BUTTON_RADIUS = 100; // ボタンの半径
 export const BUTTON_COLOR_CODE = BLUE; // ボタンの色
 export const BUTTON_STROKE_COLOR_CODE = GRAY; // ボタンの枠線の色
+
+/*
+壁落下の関する定義
+*/
+
+export const DROP_WALL_DURATION = 200; // 壁が落下するまでの時間

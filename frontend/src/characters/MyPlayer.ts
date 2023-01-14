@@ -9,7 +9,8 @@ import { getGameScene } from '../utils/globalGame';
 import Player from './Player';
 
 export default class MyPlayer extends Player {
-  private readonly remoteRef: Phaser.GameObjects.Rectangle;
+  private serverX: number;
+  private serverY: number;
   private readonly dead_se;
   private readonly item_get_se;
 
@@ -27,23 +28,27 @@ export default class MyPlayer extends Player {
     y: number,
     texture: string,
     frame?: string | number,
+    name?: string,
     options?: Phaser.Types.Physics.Matter.MatterBodyConfig
   ) {
-    super(sessionId, world, x, y, texture, frame, options);
-    this.remoteRef = this.scene.add.rectangle(this.x, this.y, this.width, this.height, 0xfff, 0.3);
+    super(sessionId, world, x, y, texture, frame, name, options);
+    this.serverX = x;
+    this.serverY = y;
     this.dead_se = this.scene.sound.add('gameOver', {
       volume: Config.SOUND_VOLUME * 1.5,
     });
     this.item_get_se = this.scene.sound.add('getItem', {
       volume: Config.SOUND_VOLUME * 1.5,
     });
+    this.addNameLabel(Constants.BLUE);
   }
 
   // player.onChange のコールバック
   handleServerChange(player: ServerPlayer) {
     if (this.isDead()) return;
+    this.serverX = player.x;
+    this.serverY = player.y;
 
-    this.updateRemoteRef(player);
     this.forceMovePlayerPosition(player);
     this.setHP(player.hp);
     if (this.isDead()) {
@@ -60,16 +65,14 @@ export default class MyPlayer extends Player {
     this.setMaxBombCount(player.maxBombCount);
   }
 
-  // サーバのプレイヤーの位置を反映させる
-  private updateRemoteRef(player: ServerPlayer) {
-    if (this.isDead()) return;
-    this.remoteRef.setPosition(player.x, player.y);
-  }
-
   update(cursorKeys: NavKeys, network: Network) {
     if (this.isDead()) return false;
 
-    // send input to the server
+    // サーバの位置に合わせて移動
+    this.setVelocity(this.serverX - this.x, this.serverY - this.y);
+    this.nameLabel.setPosition(this.x, this.y - 30);
+
+    // キーボードの入力をサーバに送信
     this.inputPayload.left = cursorKeys.left.isDown || cursorKeys.A.isDown;
     this.inputPayload.right = cursorKeys.right.isDown || cursorKeys.D.isDown;
     this.inputPayload.up = cursorKeys.up.isDown || cursorKeys.W.isDown;
@@ -82,32 +85,25 @@ export default class MyPlayer extends Player {
         this.inputPayload.down) &&
       !document.hidden;
 
+    // アニメーションの結果はフロントで管理するため、dummy Player を先に移動させて frame を送る。
     let vx = 0; // velocity x
     let vy = 0; // velocity y
 
     if (isInput) {
       const velocity = this.getSpeed();
-      if (this.inputPayload.left) {
-        vx -= velocity;
-      } else if (this.inputPayload.right) {
-        vx += velocity;
-      }
-
-      if (this.inputPayload.up) {
-        vy -= velocity;
-      } else if (this.inputPayload.down) {
-        vy += velocity;
-      }
+      if (this.inputPayload.left) vx -= velocity;
+      if (this.inputPayload.right) vx += velocity;
+      if (this.inputPayload.up) vy -= velocity;
+      if (this.inputPayload.down) vy += velocity;
     }
-
-    this.setVelocity(vx, vy);
-    network.sendPlayerMove(this, isInput);
 
     if (vx > 0) this.play('player_right', true);
     else if (vx < 0) this.play('player_left', true);
     else if (vy > 0) this.play('player_down', true);
     else if (vy < 0) this.play('player_up', true);
     else this.stop();
+
+    network.sendPlayerMove(this, this.inputPayload, isInput);
 
     // bomb 設置
     const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(cursorKeys.space);
@@ -173,9 +169,19 @@ Phaser.GameObjects.GameObjectFactory.register(
     y: number,
     texture: string,
     frame?: string | number,
+    name?: string,
     options?: Phaser.Types.Physics.Matter.MatterBodyConfig
   ) {
-    const sprite = new MyPlayer(sessionId, this.scene.matter.world, x, y, texture, frame, options);
+    const sprite = new MyPlayer(
+      sessionId,
+      this.scene.matter.world,
+      x,
+      y,
+      texture,
+      frame,
+      name,
+      options
+    );
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);

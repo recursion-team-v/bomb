@@ -4,20 +4,34 @@ import Matter from 'matter-js';
 import * as Constants from '../constants/constants';
 import GameEngine from './GameEngine';
 import { Bomb } from './schema/Bomb';
+import Block from './schema/Block';
 import GameRoomState from './schema/GameRoomState';
 import PlacementObjectInterface from '../interfaces/placement_object';
 import GameQueue from '../utils/gameQueue';
+import dropWalls from '../game_engine/services/dropWallService';
+import Item from './schema/Item';
 
 export default class GameRoom extends Room<GameRoomState> {
   engine!: GameEngine;
+  private IsFinishedDropWallsEvent: boolean = false;
 
   onCreate(options: any) {
-    this.setState(new GameRoomState());
+    // ルームで使用する時計
+    this.clock.start();
 
-    this.engine = new GameEngine(this.state);
+    this.setState(new GameRoomState());
+    this.engine = new GameEngine(this);
 
     // ゲーム開始をクライアントから受け取る
-    this.onMessage(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, () => this.gameStartEvent());
+    this.onMessage(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, (client, data) => {
+      this.gameStartEvent();
+    });
+
+    // ゲーム開始の情報をクライアントに送る
+    // FIXME: ロビーが入ったら変わるはずなので一時凌ぎ
+    this.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (client, data) => {
+      client.send(Constants.NOTIFICATION_TYPE.GAME_START_INFO, this.state.timer);
+    });
 
     // クライアントからの移動入力を受け取ってキューに詰める
     this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, (client, data: any) => {
@@ -50,6 +64,7 @@ export default class GameRoom extends Room<GameRoomState> {
       elapsedTime += deltaTime;
 
       this.state.timer.updateNow();
+      this.timeEventHandler();
 
       while (elapsedTime >= Constants.FRAME_RATE) {
         this.state.timer.updateNow();
@@ -64,14 +79,14 @@ export default class GameRoom extends Room<GameRoomState> {
           return;
         }
 
-        // 残り時間の更新
-        this.state.timer.setRemainTime();
-
         elapsedTime -= Constants.FRAME_RATE;
 
         for (const [, player] of this.state.players) {
           this.engine.playerService.updatePlayer(player);
         }
+
+        // 爆弾の衝突判定の更新（プレイヤーが降りた場合は判定を変える)
+        this.engine.bombService.updateBombCollision();
 
         // 爆弾の処理
         this.objectCreateHandler(this.state.getBombToCreateQueue(), (bomb) =>
@@ -79,6 +94,16 @@ export default class GameRoom extends Room<GameRoomState> {
         );
         this.objectRemoveHandler(this.state.getBombToExplodeQueue(), (bomb) =>
           this.removeBombEvent(bomb)
+        );
+
+        // ブロックの処理
+        this.objectRemoveHandler(this.state.getBlockToDestroyQueue(), (block) =>
+          this.removeBlockEvent(block)
+        );
+
+        // アイテムの処理
+        this.objectRemoveHandler(this.state.getItemToDestroyQueue(), (item) =>
+          this.removeItemEvent(item)
         );
 
         // ゲーム終了判定 TODO: ロビーができて、ちゃんとゲーム開始判定ができたら有効化する
@@ -143,6 +168,18 @@ export default class GameRoom extends Room<GameRoomState> {
     this.engine.bombService.explode(bomb);
   }
 
+  // ブロック削除のイべント
+  private removeBlockEvent(b: PlacementObjectInterface) {
+    const block = b as Block;
+    this.engine.mapService.destroyBlock(block);
+  }
+
+  // アイテム削除のイべント
+  private removeItemEvent(b: PlacementObjectInterface) {
+    const item = b as Item;
+    this.engine.itemService.removeItem(item);
+  }
+
   /*
   フレームごとの処理関連
   */
@@ -180,6 +217,18 @@ export default class GameRoom extends Room<GameRoomState> {
       // 設置処理を行う
       callback(data);
       queue.dequeue();
+    }
+  }
+
+  private timeEventHandler() {
+    if (!this.state.gameState.isPlaying()) return;
+
+    // 壁落下イベント
+    if (this.state.timer.getRemainTime() <= Constants.INGAME_EVENT_DROP_WALLS_TIME) {
+      if (!this.IsFinishedDropWallsEvent) {
+        dropWalls(this.engine);
+      }
+      this.IsFinishedDropWallsEvent = true;
     }
   }
 }

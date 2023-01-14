@@ -104,7 +104,5 @@ export default class Preloader extends Phaser.Scene {
     if (!this.preloadComplete) return;
 
     this.scene.start(Config.SCENE_NAME_TITLE)
-
-
   }
 }

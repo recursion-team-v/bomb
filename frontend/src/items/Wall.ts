@@ -30,6 +30,19 @@ export class OuterWall extends Phaser.Physics.Matter.Sprite {
   }
 }
 
+export class DropWall extends Phaser.Physics.Matter.Sprite {
+  constructor(world: Phaser.Physics.Matter.World, x: number, y: number, frame: number) {
+    super(world, x, y, Constants.OBJECT_LABEL.WALL, frame, {
+      isStatic: true,
+      isSensor: true,
+    });
+
+    const body = this.body as MatterJS.BodyType;
+    body.label = Constants.OBJECT_LABEL.DROP_WALL;
+    this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
+  }
+}
+
 Phaser.GameObjects.GameObjectFactory.register(
   'innerWall',
   function (this: Phaser.GameObjects.GameObjectFactory, x: number, y: number, frame: number) {
@@ -46,6 +59,18 @@ Phaser.GameObjects.GameObjectFactory.register(
   'outerWall',
   function (this: Phaser.GameObjects.GameObjectFactory, x: number, y: number, frame: number) {
     const sprite = new OuterWall(this.scene.matter.world, x, y, frame);
+
+    this.displayList.add(sprite);
+    this.updateList.add(sprite);
+
+    return sprite;
+  }
+);
+
+Phaser.GameObjects.GameObjectFactory.register(
+  'dropWall',
+  function (this: Phaser.GameObjects.GameObjectFactory, x: number, y: number, frame: number) {
+    const sprite = new DropWall(this.scene.matter.world, x, y, frame);
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);
