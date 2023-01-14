@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-import { createBombAnims } from '../anims/BombAnims';
-import { createExplodeAnims } from '../anims/explodeAnims';
+import { createBombAnims, createPenetrationBombAnims } from '../anims/BombAnims';
+import { createExplodeAnims, createPenetrationExplodeAnims } from '../anims/explodeAnims';
 import { createPlayerAnims } from '../anims/PlayerAnims';
 import * as Config from '../config/config';
 import Network from '../services/Network';
@@ -119,7 +119,9 @@ export default class Preloader extends Phaser.Scene {
       // add player animations
       createPlayerAnims(this.anims);
       createBombAnims(this.anims);
+      createPenetrationBombAnims(this.anims);
       createExplodeAnims(this.anims);
+      createPenetrationExplodeAnims(this.anims);
     });
   }
 

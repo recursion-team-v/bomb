@@ -116,6 +116,8 @@ export const BOMB_TYPE = {
   PENETRATION: 2, // ブロックを貫通するボム
 };
 
+export type BOMB_TYPES = typeof BOMB_TYPE[keyof typeof BOMB_TYPE];
+
 // 爆弾がプレイヤーに与えるダメージ
 export const BOMB_DAMAGE = 1;
 
