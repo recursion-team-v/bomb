@@ -21,7 +21,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly sessionId: string; // サーバが一意にセットするセッションID(誰の爆弾か)
   private readonly removedAt: number; // サーバで管理している爆発する時間
   private isExploded: boolean; // 爆発したかどうか
-  private readonly blastPointSprites: Phaser.GameObjects.Star[] = [];
+  private readonly blastPointSprites: Phaser.GameObjects.Image[] = [];
   private readonly se;
 
   constructor(
@@ -137,7 +137,8 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     if (this.isExploded) return;
 
     const game = getGameScene();
-    const addBlastPoint = (x: number, y: number) => game.add.star(x, y, 3, 24, 24, 0xff4c00, 0.8);
+    const addBlastPoint = (x: number, y: number) =>
+      game.add.image(x, y, 'bomb_point').setScale(0.8);
 
     this.blastPointSprites.push(addBlastPoint(this.stableX, this.stableY));
 

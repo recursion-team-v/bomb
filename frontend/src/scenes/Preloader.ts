@@ -46,6 +46,8 @@ export default class Preloader extends Phaser.Scene {
       }
     );
 
+    this.load.image('bomb_point', 'assets/items/bomb/bomb_point.png');
+
     // tile sheet for ground
     this.load.image('tile_grounds', 'assets/tile_grounds.png');
 
