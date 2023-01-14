@@ -100,9 +100,6 @@ export default class MyPlayer extends Player {
     else if (vy < 0) this.play('player_up', true);
     else this.stop();
 
-    // 自分自身の移動はサーバに管理してもらう都合上送れないが
-    // アニメーションはフロントで管理するため、dummy Player を先に移動させて frame を送る。
-    // this.dummyPlayer.setVelocity(vx, vy);
     network.sendPlayerMove(this, this.inputPayload, isInput);
 
     // bomb 設置
