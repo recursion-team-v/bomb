@@ -69,7 +69,7 @@ export default class MyPlayer extends Player {
     if (this.isDead()) return false;
 
     // サーバの位置に合わせて移動
-    this.setVelocity(this.serverX - this.x, this.serverY - this.y);
+    this.setPosition(this.serverX, this.serverY);
     this.nameLabel.setPosition(this.x, this.y - 30);
 
     // キーボードの入力をサーバに送信
