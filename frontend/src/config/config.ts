@@ -1,5 +1,5 @@
 // 接続先のサーバーのURL
-export const serverUrl = 'wss://bomb-e47mei43gq-an.a.run.app:443';
+export const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
 /*
 ゲームの設定
