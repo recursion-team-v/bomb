@@ -7,6 +7,7 @@ export enum Event {
   TIMER_UPDATED = 'timer-updated',
   GAME_START_INFO_RECEIVED = 'game-start-info-received',
   GAME_STATE_UPDATED = 'game-state-updated',
+  GAME_RESULT_RECEIVED = 'game-result-received',
   BOMB_ADDED = 'bomb-added',
   BOMB_REMOVED = 'bomb-removed',
   BLOCKS_REMOVED = 'blocks-removed',

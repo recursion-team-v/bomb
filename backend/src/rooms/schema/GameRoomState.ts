@@ -9,6 +9,8 @@ import Map from './Map';
 import Player from './Player';
 import Timer from './Timer';
 import Blast from './Blast';
+import GameResult from './GameResult';
+import { generateGameResult } from '../GameResultHandler';
 
 export default class GameRoomState extends Schema {
   @type(GameState)
@@ -16,6 +18,9 @@ export default class GameRoomState extends Schema {
 
   @type(Timer)
   readonly timer = new Timer();
+
+  @type(GameResult)
+  gameResult!: GameResult; // ゲーム結果
 
   @type({ map: Player }) players = new MapSchema<Player>();
   @type({ map: Bomb }) bombs = new MapSchema<Bomb>();
@@ -38,12 +43,28 @@ export default class GameRoomState extends Schema {
     return this.players.get(sessionId);
   }
 
+  getPlayers(): Player[] {
+    return Array.from(this.players.values());
+  }
+
   getPlayersCount() {
     return this.players.size;
   }
 
+  getAlivePlayers() {
+    return this.getPlayers().filter((player) => !player.isDead());
+  }
+
   setTimer() {
     this.timer.set(Date.now());
+  }
+
+  setGameResult() {
+    const r = generateGameResult(this);
+    if (r !== undefined) {
+      this.gameResult = r;
+      this.gameState.setFinished();
+    }
   }
 
   createPlayer(sessionId: string): Player {

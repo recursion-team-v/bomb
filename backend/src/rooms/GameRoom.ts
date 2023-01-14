@@ -58,6 +58,9 @@ export default class GameRoom extends Room<GameRoomState> {
         .enqueue(this.state.createBomb(player, player.x, player.y, player.bombStrength));
     });
 
+    // ゲーム結果をチェックする
+    this.clock.setInterval(() => this.state.setGameResult(), Constants.CHECK_GAME_RESULT_INTERVAL);
+
     // FRAME_RATE ごとに fixedUpdate を呼ぶ
     let elapsedTime: number = 0;
     this.setSimulationInterval((deltaTime) => {
@@ -68,16 +71,6 @@ export default class GameRoom extends Room<GameRoomState> {
 
       while (elapsedTime >= Constants.FRAME_RATE) {
         this.state.timer.updateNow();
-
-        // 時間切れになったらゲーム終了
-        if (!this.state.timer.isInTime() && this.state.gameState.isPlaying()) {
-          try {
-            this.state.gameState.setFinished();
-          } catch (e) {
-            console.error(e);
-          }
-          return;
-        }
 
         elapsedTime -= Constants.FRAME_RATE;
 

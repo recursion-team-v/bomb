@@ -52,6 +52,10 @@ export default class Player extends Schema {
   @type('number')
   lastDamagedAt: number;
 
+  // 死んだ時間
+  @type('number')
+  diedAt: number;
+
   inputQueue: any[] = [];
 
   constructor(sessionId: string, idx: number, name: string = Constants.DEFAULT_PLAYER_NAME) {
@@ -66,6 +70,7 @@ export default class Player extends Schema {
     this.currentSetBombCount = 0;
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
     this.lastDamagedAt = 0;
+    this.diedAt = Infinity;
   }
 
   // ダメージを受けてHPを減らします
@@ -74,6 +79,7 @@ export default class Player extends Schema {
     if (this.isInvincible()) return;
 
     this.hp - damage < 0 ? (this.hp = 0) : (this.hp -= damage);
+    if (this.isDead()) this.diedAt = Date.now();
 
     this.updateLastDamagedAt();
   }

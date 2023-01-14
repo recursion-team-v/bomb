@@ -38,4 +38,9 @@ export default class Timer extends Schema {
   isInTime(): boolean {
     return this.now < this.finishedAt;
   }
+
+  // 制限時間を過ぎているかどうかを返す
+  isFinished(): boolean {
+    return this.now >= this.finishedAt;
+  }
 }
