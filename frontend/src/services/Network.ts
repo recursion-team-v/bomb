@@ -114,8 +114,6 @@ export default class Network {
     this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (data: ServerTimer) => {
       gameEvents.emit(Event.GAME_START_INFO_RECEIVED, data);
     });
-
-
   }
 
   // 自分がルームに参加した時

@@ -1,4 +1,3 @@
-
 const GetValue = Phaser.Utils.Objects.GetValue;
 
 export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
@@ -10,7 +9,7 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
   const height = GetValue(config, 'height', undefined);
 
   // Title field object
-  const titleField = scene.add.text(0, 0, title, { fontFamily: '"Press Start 2P", cursive'});
+  const titleField = scene.add.text(0, 0, title, { fontFamily: '"Press Start 2P", cursive' });
 
   // User name field object
   const userNameField = scene.rexUI.add.label({

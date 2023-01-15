@@ -84,7 +84,7 @@ export default class Game extends Phaser.Scene {
     this.network = data.network;
     if (this.network.room == null) return;
     this.room = this.network.room;
-    
+
     // プレイヤーをゲームに追加
     this.addPlayers();
     // Colyseus のイベントを追加

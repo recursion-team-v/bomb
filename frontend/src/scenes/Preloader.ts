@@ -84,7 +84,7 @@ export default class Preloader extends Phaser.Scene {
     this.load.audio('hitPlayer', ['assets/se/hit_player.mp3']);
     this.load.audio('stage_1', ['assets/bgm/stage_1.mp3']);
     this.load.audio('stage_2', ['assets/bgm/stage_2.mp3']);
-    this.load.audio('opening',['assets/bgm/opening.mp3'])
+    this.load.audio('opening', ['assets/bgm/opening.mp3']);
 
     this.load.on('complete', () => {
       // add player animations
@@ -103,6 +103,6 @@ export default class Preloader extends Phaser.Scene {
   update() {
     if (!this.preloadComplete) return;
 
-    this.scene.start(Config.SCENE_NAME_TITLE)
+    this.scene.start(Config.SCENE_NAME_TITLE);
   }
 }
