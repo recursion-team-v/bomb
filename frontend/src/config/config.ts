@@ -50,5 +50,5 @@ export const BOMB_ANIMATION_KEY = 'bomb_count';
 */
 
 // TODO 後で true にする
-export const SOUND_DEFAULT_IS_PLAY = false; // サウンドを再生するかどうか
+export const SOUND_DEFAULT_IS_PLAY = true; // サウンドを再生するかどうか
 export const SOUND_VOLUME = 0.2;

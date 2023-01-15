@@ -4,8 +4,9 @@ import Network from '../services/Network';
 import { createLoginDialog } from '../utils/title';
 
 export default class Title extends Phaser.Scene {
-  private bgm?: Phaser.Sound.BaseSound;
   network?: Network;
+  private bgm?: Phaser.Sound.BaseSound;
+  private se?: Phaser.Sound.BaseSound;
   constructor() {
     super(Config.SCENE_NAME_TITLE);
   }
@@ -14,6 +15,9 @@ export default class Title extends Phaser.Scene {
     this.network = new Network();
 
     this.bgm = this.sound.add('opening', {
+      volume: Config.SOUND_VOLUME,
+    });
+    this.se = this.sound.add('select', {
       volume: Config.SOUND_VOLUME,
     });
 
@@ -31,6 +35,8 @@ export default class Title extends Phaser.Scene {
         network: this.network,
       });
       this.network?.sendPlayerName(userName);
+      this.se?.play();
+      this.bgm?.stop();
     };
 
     this.add
