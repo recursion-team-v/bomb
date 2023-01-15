@@ -23,28 +23,28 @@ export default class Title extends Phaser.Scene {
   }
 
   create() {
-    this.game.canvas.style.backgroundColor = '#ff0000';
-    const playGame = () => {
+    const playGame = (userName: string) => {
       this.scene.start(Config.SCENE_NAME_GAME, {
+        network: this.network
+      });
+      this.scene.start(Config.SCENE_NAME_GAME_HEADER, {
         network: this.network,
       });
-      this.scene.start(Config.SCENE_NAME_GAME_HEADER);
+      this.network?.sendPlayerName(userName);
+
     };
 
-    this.add.image(
-      Number(this.game.config.width) / 2,
-      Number(this.game.config.height) / 2 - 150,
-      'title'
-    ).setScale(1.5);
+    this.add
+      .image(Number(this.game.config.width) / 2, Number(this.game.config.height) / 2 - 150, 'title')
+      .setScale(1.5);
 
     createLoginDialog(this, {
       x: Number(this.game.config.width) / 2,
       y: Number(this.game.config.height) / 2,
       title: 'input user name',
       username: '',
-    }).on('playGame', function (username: string) {
-      playGame();
+    }).on('playGame', function (userName: string) {
+      playGame(userName);
     });
-
   }
 }

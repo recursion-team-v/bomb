@@ -8,7 +8,7 @@ import { getDepth } from '../items/util';
 import { getGameScene } from '../utils/globalGame';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
-  readonly name: string;
+  name: string;
   private hp: number;
   private speed: number;
   private bombStrength: number;
@@ -224,6 +224,10 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   private animationShakeScreen(duration: number = 300) {
     this.scene.cameras.main.shake(duration, 0.01);
+  }
+
+  setPlayerName(userName: string) {
+    this.name = userName;
   }
 }
 

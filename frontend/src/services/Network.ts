@@ -114,6 +114,8 @@ export default class Network {
     this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (data: ServerTimer) => {
       gameEvents.emit(Event.GAME_START_INFO_RECEIVED, data);
     });
+
+
   }
 
   // 自分がルームに参加した時
@@ -182,6 +184,11 @@ export default class Network {
   // 自分の爆弾を送る
   sendPlayerBomb(player: MyPlayer) {
     this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, player);
+  }
+
+  // プレイヤーの名前を送る
+  sendPlayerName(playerName: string) {
+    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_INFO, playerName);
   }
 
   // 自分のゲーム状態を送る

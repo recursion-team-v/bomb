@@ -48,7 +48,6 @@ export default class MyPlayer extends Player {
     if (this.isDead()) return;
     this.serverX = player.x;
     this.serverY = player.y;
-
     this.forceMovePlayerPosition(player);
     this.setHP(player.hp);
     if (this.isDead()) {
@@ -63,6 +62,7 @@ export default class MyPlayer extends Player {
     this.setSpeed(player.speed);
     this.setBombStrength(player.bombStrength);
     this.setMaxBombCount(player.maxBombCount);
+    this.setPlayerName(player.name);
   }
 
   update(cursorKeys: NavKeys, network: Network) {
