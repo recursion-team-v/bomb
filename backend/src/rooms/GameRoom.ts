@@ -142,7 +142,7 @@ export default class GameRoom extends Room<GameRoomState> {
   //   });
   // }
 
-  onJoin(client: Client, options: any, data: any) {
+  onJoin(client: Client, options: any) {
     console.log(client.sessionId, 'joined!');
     // create Player instance and add to matter
     this.engine.playerService.addPlayer(client.sessionId);

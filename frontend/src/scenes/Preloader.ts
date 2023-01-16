@@ -77,6 +77,11 @@ export default class Preloader extends Phaser.Scene {
 
     // title
     this.load.image('title', 'assets/title.png');
+    // usage
+    this.load.spritesheet('keyboard', 'assets/keyboard.png', {
+      frameWidth,
+      frameHeight,
+    });
 
     this.load.audio('bombExplode', ['assets/se/bomb.mp3']);
     this.load.audio('getItem', ['assets/se/get_item.mp3']);
