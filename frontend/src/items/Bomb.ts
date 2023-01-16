@@ -342,6 +342,7 @@ export class Blast extends Phaser.Physics.Matter.Sprite {
     super(world, x, y, texture);
     this.sessionId = sessionId;
     this.setRectangle(rectangleX, rectangleY);
+    this.setDepth(getDepth(Constants.OBJECT_LABEL.BLAST));
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
       const currBody = this.body as MatterJS.BodyType;
       data.bodyA.id === currBody.id
