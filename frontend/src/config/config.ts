@@ -44,6 +44,7 @@ export const BOMB_SPRITE_FRAME_COUNT = 18; // 爆弾の画像の枚数
 
 // 爆弾のアニメーションの key
 export const BOMB_ANIMATION_KEY = 'bomb_count';
+export const PENETRATION_BOMB_ANIMATION_KEY = 'penetration_bomb_count';
 
 /*
 サウンド関連
