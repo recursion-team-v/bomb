@@ -1,6 +1,6 @@
+import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import Player from './Player';
-import * as Constants from '../../../backend/src/constants/constants';
 
 export default class OtherPlayer extends Player {
   private serverX: number;
@@ -41,6 +41,7 @@ export default class OtherPlayer extends Player {
       this.died();
       setTimeout(() => {
         this.setVisible(false); // 見えなくする
+        this.nameLabel.setVisible(false);
       }, 2500);
     }
   }
