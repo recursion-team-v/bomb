@@ -109,12 +109,22 @@ export default class Preloader extends Phaser.Scene {
       this.load.image(Constants.JOYSTICK_STICK_KEY, 'assets/joystick-red.png');
     }
 
+    // title
+    this.load.image('title', 'assets/title.png');
+    // usage
+    this.load.spritesheet('keyboard', 'assets/keyboard.png', {
+      frameWidth,
+      frameHeight,
+    });
+
     this.load.audio('bombExplode', ['assets/se/bomb.mp3']);
     this.load.audio('getItem', ['assets/se/get_item.mp3']);
     this.load.audio('gameOver', ['assets/se/game_over.mp3']);
     this.load.audio('hitPlayer', ['assets/se/hit_player.mp3']);
+    this.load.audio('select', ['assets/se/select.mp3']);
     this.load.audio('stage_1', ['assets/bgm/stage_1.mp3']);
     this.load.audio('stage_2', ['assets/bgm/stage_2.mp3']);
+    this.load.audio('opening', ['assets/bgm/opening.mp3']);
 
     this.load.on('complete', () => {
       // add player animations
@@ -135,10 +145,7 @@ export default class Preloader extends Phaser.Scene {
   update() {
     if (!this.preloadComplete) return;
 
-    this.scene.start(Config.SCENE_NAME_GAME, {
-      network: this.network,
-    });
-    this.scene.start(Config.SCENE_NAME_GAME_HEADER, {
+    this.scene.start(Config.SCENE_NAME_TITLE, {
       network: this.network,
     });
   }

@@ -88,13 +88,13 @@ export default class Game extends Phaser.Scene {
 
     // プレイヤーをゲームに追加
     this.addPlayers();
-
     // Colyseus のイベントを追加
     this.initNetworkEvents();
 
     // TODO: Preloader（Lobby）で読み込んで Game Scene に渡す
     this.room.onStateChange.once((state) => {
       // GameRoomState の blockArr が初期化されたら block（破壊）を描画
+
       const mapTiles = state.gameMap.mapTiles;
       this.rows = state.gameMap.rows;
       this.cols = state.gameMap.cols;
@@ -169,7 +169,6 @@ export default class Game extends Phaser.Scene {
     if (player === undefined) return;
     const myPlayer = this.add.myPlayer(this.network.mySessionId, player.x, player.y, 'player');
     this.myPlayer = myPlayer;
-
     player.onChange = () => {
       this.myPlayer.handleServerChange(player);
     };
