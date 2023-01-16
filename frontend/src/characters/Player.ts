@@ -80,14 +80,17 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   }
 
   // HP をセットします
-  setHP(hp: number) {
+  // HP が増えた場合は true を返します
+  setHP(hp: number): boolean {
     // サーバで計算するので、ここではHPを上書きするだけ
-    if (this.hp === hp) return;
+    if (this.hp === hp) return true;
 
     if (this.hp > hp) {
       this.damaged(this.hp - hp);
+      return false;
     } else {
       this.healed(hp - this.hp);
+      return true;
     }
   }
 
@@ -97,14 +100,14 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   }
 
   // interface を満たすだけのダミーメソッド
-  damaged(damage: number) {
+  private damaged(damage: number) {
     this.hit_se.play();
     this.hp -= damage;
     this.animationShakeScreen();
     this.animationFlash(Constants.PLAYER_INVINCIBLE_TIME);
   }
 
-  healed(healedHp: number) {
+  private healed(healedHp: number) {
     this.hp += healedHp;
   }
 
