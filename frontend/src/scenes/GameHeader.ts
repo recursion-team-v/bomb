@@ -3,11 +3,11 @@ import Phaser from 'phaser';
 import * as Constants from '../../../backend/src/constants/constants';
 import MyPlayer from '../characters/MyPlayer';
 import * as Config from '../config/config';
+import Network from '../services/Network';
 import ToString from '../utils/color';
 import { getGameScene } from '../utils/globalGame';
 import { isMute, toggle } from '../utils/sound';
 import convertSecondsToMMSS from '../utils/timer';
-import Network from '../services/Network';
 
 export default class GameHeader extends Phaser.Scene {
   private readonly width: number;
@@ -21,6 +21,7 @@ export default class GameHeader extends Phaser.Scene {
   private textSpeed!: Phaser.GameObjects.Text;
   private iconVolume!: Phaser.GameObjects.Image;
   private network!: Network;
+  private imgBomb!: Phaser.GameObjects.Image;
 
   constructor() {
     super(Config.SCENE_NAME_GAME_HEADER);
@@ -41,8 +42,12 @@ export default class GameHeader extends Phaser.Scene {
     this.textSpeed = this.createText(500, 0, `×${this.player.getItemCountOfSpeed()}`);
 
     // 特に意味はないが Container でまとめておく
+    this.imgBomb = this.add
+      .image(150, 10, Constants.ITEM_TYPE.BOMB_POSSESSION_UP)
+      .setScale(0.5)
+      .setOrigin(0, 0);
     this.add.container(0, 0, [
-      this.add.image(150, 10, Constants.ITEM_TYPE.BOMB_POSSESSION_UP).setScale(0.5).setOrigin(0, 0),
+      this.imgBomb,
       this.textBombCount,
       this.add.image(300, 10, Constants.ITEM_TYPE.BOMB_STRENGTH).setScale(0.5).setOrigin(0, 0),
       this.textBombStrength,
@@ -71,6 +76,9 @@ export default class GameHeader extends Phaser.Scene {
       this.network.sendRequestGameStartInfo();
     }
     this.updateTextTimer(this.network.getGameFinishedAt() - this.network.now());
+    if (this.player.getBombType() === Constants.BOMB_TYPE.PENETRATION) {
+      this.imgBomb.setTexture(Constants.ITEM_TYPE.PENETRATION_BOMB);
+    }
     this.textBombCount.setText(`×${this.player.getItemCountOfBombCount()}`);
     this.textBombStrength.setText(`×${this.player.getItemCountOfBombStrength()}`);
     this.textSpeed.setText(`×${this.player.getItemCountOfSpeed()}`);
