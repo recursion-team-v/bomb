@@ -52,7 +52,7 @@ export default class Title extends Phaser.Scene {
 
     createUsageDialog(this, {
       x: Number(this.game.config.width) / 2,
-      y: Number(this.game.config.height) / 2+100,
+      y: Number(this.game.config.height) / 2 + 100,
     });
   }
 }
