@@ -5,6 +5,7 @@ import Phaser from 'phaser';
 import '../characters/MyPlayer';
 import '../characters/OtherPlayer';
 import '../items/Bomb';
+import '../items/PenetrationBomb';
 import '../items/Wall';
 import '../items/Block';
 import '../items/Item';
@@ -186,6 +187,7 @@ export default class Game extends Phaser.Scene {
   private handlePlayerLeftRoom(player: ServerPlayer, sessionId: string) {
     const otherPlayer = this.otherPlayers.get(sessionId);
     // 死んだ時にタブを閉じられると、player が undefined になってエラーになるので、見えなくするだけにする
+    otherPlayer?.nameLabel.destroy();
     otherPlayer?.setVisible(false);
   }
 

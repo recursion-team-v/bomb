@@ -53,9 +53,7 @@ export default class GameRoom extends Room<GameRoomState> {
       if (player.isDead()) return;
       if (!player.canSetBomb()) return;
 
-      this.state
-        .getBombToCreateQueue()
-        .enqueue(this.state.createBomb(player, player.x, player.y, player.bombStrength));
+      this.state.getBombToCreateQueue().enqueue(this.state.createBomb(player));
     });
 
     // FRAME_RATE ごとに fixedUpdate を呼ぶ

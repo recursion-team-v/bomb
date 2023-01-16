@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-import { createBombAnims } from '../anims/BombAnims';
-import { createExplodeAnims } from '../anims/explodeAnims';
+import { createBombAnims, createPenetrationBombAnims } from '../anims/BombAnims';
+import { createExplodeAnims, createPenetrationExplodeAnims } from '../anims/explodeAnims';
 import { createPlayerAnims } from '../anims/PlayerAnims';
 import * as Config from '../config/config';
 import Network from '../services/Network';
@@ -27,10 +27,24 @@ export default class Preloader extends Phaser.Scene {
       frameHeight,
     });
 
+    this.load.spritesheet('penetration_bomb', 'assets/items/bomb/penetration_bomb.png', {
+      frameWidth,
+      frameHeight,
+    });
+
     this.load.spritesheet('bomb_center_blast', 'assets/items/bomb/center_blast.png', {
       frameWidth,
       frameHeight,
     });
+
+    this.load.spritesheet(
+      'penetration_bomb_center_blast',
+      'assets/items/bomb/center_blast_penetration.png',
+      {
+        frameWidth,
+        frameHeight,
+      }
+    );
 
     this.load.spritesheet('bomb_horizontal_blast', 'assets/items/bomb/horizontal_blast.png', {
       frameWidth,
@@ -38,8 +52,26 @@ export default class Preloader extends Phaser.Scene {
     });
 
     this.load.spritesheet(
+      'penetration_bomb_horizontal_blast',
+      'assets/items/bomb/horizontal_blast_penetration.png',
+      {
+        frameWidth,
+        frameHeight,
+      }
+    );
+
+    this.load.spritesheet(
       'bomb_horizontal_end_blast',
       'assets/items/bomb/horizontal_end_blast.png',
+      {
+        frameWidth,
+        frameHeight,
+      }
+    );
+
+    this.load.spritesheet(
+      'penetration_bomb_horizontal_end_blast',
+      'assets/items/bomb/horizontal_end_blast_penetration.png',
       {
         frameWidth,
         frameHeight,
@@ -66,6 +98,7 @@ export default class Preloader extends Phaser.Scene {
     this.load.image(Constants.ITEM_TYPE.BOMB_STRENGTH, 'assets/items/item_bomb_strength.png');
     this.load.image(Constants.ITEM_TYPE.PLAYER_SPEED, 'assets/items/item_player_speed.png');
     this.load.image(Constants.ITEM_TYPE.HEART, 'assets/items/item_heart.png');
+    this.load.image(Constants.ITEM_TYPE.PENETRATION_BOMB, 'assets/items/item_penetration_bomb.png');
 
     // icon
     this.load.image(Config.ASSET_KEY_VOLUME_ON, 'assets/icons/volume_on.png');
@@ -87,7 +120,9 @@ export default class Preloader extends Phaser.Scene {
       // add player animations
       createPlayerAnims(this.anims);
       createBombAnims(this.anims);
+      createPenetrationBombAnims(this.anims);
       createExplodeAnims(this.anims);
+      createPenetrationExplodeAnims(this.anims);
     });
   }
 
