@@ -1,5 +1,23 @@
+// debug
+export const IS_DEBUG = !import.meta.env.PROD;
+
 // 接続先のサーバーのURL
-export const serverUrl = 'wss://bomb-e47mei43gq-an.a.run.app:443';
+export const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
+/*
+ゲームの設定
+*/
+
+export const IS_SHOW_BLAST_POINT = true; // 爆風の範囲を事前に表示するかどうか
+
+/*
+debug 用
+*/
+
+// サーバーの爆発を表示するかどうか
+export const DEBUG_IS_SHOW_SERVER_BLAST = IS_DEBUG;
+// サーバーの爆弾を表示するかどうか
+export const DEBUG_IS_SHOW_SERVER_BOMB = IS_DEBUG;
 
 /*
 asset 用
@@ -25,6 +43,7 @@ export const BOMB_SPRITE_FRAME_COUNT = 18; // 爆弾の画像の枚数
 
 // 爆弾のアニメーションの key
 export const BOMB_ANIMATION_KEY = 'bomb_count';
+export const PENETRATION_BOMB_ANIMATION_KEY = 'penetration_bomb_count';
 
 /*
 サウンド関連

@@ -2,7 +2,6 @@ import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import { calcBlastRangeFromDirection } from '../../../backend/src/game_engine/services/blastService';
-import BombInterface from '../../../backend/src/interfaces/bomb';
 import * as Config from '../config/config';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import { phaserGlobalGameObject } from '../PhaserGame';
@@ -12,46 +11,51 @@ import { getGameScene } from '../utils/globalGame';
 import { getDepth } from './util';
 
 export default class Bomb extends Phaser.Physics.Matter.Sprite {
-  private readonly bombStrength: number;
-  private readonly player: PlayerInterface;
+  private readonly id: string;
 
   // 誘爆時は状況によって爆弾が消えてしまい、座標やシーンが取得できなくなるため保存しておく
   private readonly stableX: number; // 爆弾が消えても座標を保持するための変数
   private readonly stableY: number; // 爆弾が消えても座標を保持するための変数
   private readonly stableScene: Phaser.Scene; // 爆弾が消えてもシーンを保持するための変数
-
+  private readonly bombType: Constants.BOMB_TYPES; // ボムの種類
+  private readonly bombStrength: number; // 爆発の強さ
   private readonly sessionId: string; // サーバが一意にセットするセッションID(誰の爆弾か)
   private readonly removedAt: number; // サーバで管理している爆発する時間
   private isExploded: boolean; // 爆発したかどうか
+  private readonly blastPointSprites: Phaser.GameObjects.Star[] = [];
   private readonly se;
 
   constructor(
+    id: string,
     sessionId: string,
     world: Phaser.Physics.Matter.World,
     x: number,
     y: number,
-    texture: string,
+    bombType: Constants.BOMB_TYPES,
     bombStrength: number,
-    removedAt: number,
-    player: PlayerInterface
+    texture: string,
+    removedAt: number
   ) {
     super(world, x, y, texture);
 
     const body = this.body as MatterJS.BodyType;
     body.label = Constants.OBJECT_LABEL.BOMB;
 
+    this.id = id;
     this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
     this.sessionId = sessionId;
-    this.player = player;
-    this.bombStrength = bombStrength;
     this.removedAt = removedAt;
     this.stableX = x;
     this.stableY = y;
+    this.bombType = bombType;
+    this.bombStrength = bombStrength;
     this.isExploded = false;
     this.stableScene = this.scene;
     this.se = this.scene.sound.add('bombExplode', {
       volume: Config.SOUND_VOLUME,
     });
+
+    if (Config.IS_SHOW_BLAST_POINT) this.displayBlastPoint();
   }
 
   // 指定の座標から設置可能な座標を返します
@@ -81,7 +85,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       : Constants.DEFAULT_TIP_SIZE * Constants.BLAST_COLLISION_RATIO_Y;
 
     this.stableScene.add
-      .blast(bx, by, playKey, this.bombStrength, rx, ry)
+      .blast(this.sessionId, bx, by, playKey, rx, ry)
       .setScale(scale, scale)
       .setAngle(angle)
       .play(playKey)
@@ -108,12 +112,13 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       dynamicY = -Constants.TILE_HEIGHT;
     }
 
+    const prefix = this.bombType === Constants.BOMB_TYPE.PENETRATION ? 'penetration_' : '';
     if (power > 1) {
       for (let i = 1; i < power; i++) {
         this.addBlastSprite(
           this.stableX + dynamicX * i,
           this.stableY + dynamicY * i,
-          'bomb_horizontal_blast',
+          `${prefix}bomb_horizontal_blast`,
           angle,
           false,
           true
@@ -124,17 +129,60 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.addBlastSprite(
       this.stableX + dynamicX * power,
       this.stableY + dynamicY * power,
-      'bomb_horizontal_end_blast',
+      `${prefix}bomb_horizontal_end_blast`,
       angle,
       false,
       true
     );
   }
 
+  // 爆発範囲を爆発前に描画する
+  private displayBlastPoint() {
+    if (this.isExploded) return;
+
+    const game = getGameScene();
+    const color = this.bombType === Constants.BOMB_TYPE.PENETRATION ? 0x00ffff : 0xff4c00;
+    const addBlastPoint = (x: number, y: number) => game.add.star(x, y, 3, 24, 24, color, 0.8);
+
+    this.blastPointSprites.push(addBlastPoint(this.stableX, this.stableY));
+
+    const br = this.calcBlastRange();
+
+    br.forEach((power: number, key: number) => {
+      let dynamicX = 0;
+      let dynamicY = 0;
+      if (power === 0) return;
+      if (key === Constants.DIRECTION.RIGHT) dynamicX = Constants.TILE_WIDTH;
+      if (key === Constants.DIRECTION.DOWN) dynamicY = Constants.TILE_HEIGHT;
+      if (key === Constants.DIRECTION.LEFT) dynamicX = -Constants.TILE_WIDTH;
+      if (key === Constants.DIRECTION.UP) dynamicY = -Constants.TILE_HEIGHT;
+
+      for (let i = 1; i <= power; i++) {
+        this.blastPointSprites.push(
+          addBlastPoint(this.stableX + dynamicX * i, this.stableY + dynamicY * i)
+        );
+      }
+    });
+  }
+
   explode() {
+    if (this.isExploded) return;
+    this.blastPointSprites.forEach((sprite) => {
+      sprite.destroy();
+    });
+
     this.se.play();
     // center
-    this.addBlastSprite(this.stableX, this.stableY, 'bomb_center_blast', 0, true, true, 1.2);
+    const prefix = this.bombType === Constants.BOMB_TYPE.PENETRATION ? 'penetration_' : '';
+    this.addBlastSprite(
+      this.stableX,
+      this.stableY,
+      `${prefix}bomb_center_blast`,
+      0,
+      true,
+      true,
+      1.2
+    );
 
     const br = this.calcBlastRange();
     // center 以外
@@ -153,10 +201,11 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private calcBlastRange(): Map<Constants.DIRECTION_TYPE, number> {
     // 自分自身から scene を取得すると、爆弾が爆発した後に scene が取得できなくなりエラーになるので window オブジェクトから取得する
     const scene = phaserGlobalGameObject().scene.getScene(Config.SCENE_NAME_GAME);
+    const game = scene as Game;
     const map = getDimensionalMap(
       // TODO: サーバから受け取ったマップの X/ Y のタイル数を使う
-      (scene as Game).getRows(),
-      (scene as Game).getCols(),
+      game.getRows(),
+      game.getCols(),
       scene,
       getHighestPriorityFromBodies
     );
@@ -174,19 +223,19 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
     m.set(
       Constants.DIRECTION.UP,
-      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.UP)
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.UP, this.bombType)
     );
     m.set(
       Constants.DIRECTION.DOWN,
-      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.DOWN)
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.DOWN, this.bombType)
     );
     m.set(
       Constants.DIRECTION.LEFT,
-      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.LEFT)
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.LEFT, this.bombType)
     );
     m.set(
       Constants.DIRECTION.RIGHT,
-      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.RIGHT)
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.RIGHT, this.bombType)
     );
     return m;
   }
@@ -214,29 +263,22 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   afterExplosion() {
     this.destroy();
     this.isExploded = true;
-
-    // 自分の爆弾の時のみ爆弾の数を回復する
-    if (this.player.isEqualSessionId(this.sessionId)) this.player.recoverSettableBombCount();
   }
 
   // 誘爆時の処理
-  detonated(bomb: BombInterface) {
-    const b = bomb as Bomb;
-    b.scene.time.addEvent({
-      delay: Constants.BOMB_DETONATION_DELAY,
-      callback: () => {
-        if (b === null) return;
-        b.explode();
-        b.afterExplosion();
-      },
-    });
+  detonated(id: string) {
+    // addEvent より setTimeout の方が遅延がマシだったので setTimeout を使う
+    setTimeout(() => {
+      this.explode();
+      this.afterExplosion();
+    }, Constants.BOMB_DETONATION_DELAY);
   }
 
   // 爆発するまでの時間を返す
   getRemainTime(): number {
     if (this.removedAt === null || this.removedAt === 0) return 0;
-    const game = getGameScene();
-    return this.removedAt - game.getServerTime() <= 0 ? 0 : this.removedAt - game.getServerTime();
+    const now: number = getGameScene().getNetwork().now();
+    return this.removedAt - now <= 0 ? 0 : this.removedAt - now;
   }
 
   public getIsExploded(): boolean {
@@ -248,22 +290,24 @@ Phaser.GameObjects.GameObjectFactory.register(
   'bomb',
   function (
     this: Phaser.GameObjects.GameObjectFactory,
+    id: string,
     sessionId: string,
     x: number,
     y: number,
-    bombStrength = Constants.INITIAL_BOMB_STRENGTH,
-    removedAt: number,
-    player: PlayerInterface
+    bombType: Constants.BOMB_TYPES,
+    bombStrength: number,
+    removedAt: number
   ) {
     const sprite = new Bomb(
+      id,
       sessionId,
       this.scene.matter.world,
       x,
       y,
-      'bomb',
+      bombType,
       bombStrength,
-      removedAt,
-      player
+      'bomb',
+      removedAt
     );
 
     this.displayList.add(sprite);
@@ -293,27 +337,27 @@ Phaser.GameObjects.GameObjectFactory.register(
         }
         clearInterval(timer);
       }
-    }, 100);
+    }, 10); // サーバとの遅延を減らすため、10msごとに確認
 
     return sprite;
   }
 );
 
 export class Blast extends Phaser.Physics.Matter.Sprite {
-  private readonly bombStrength: number;
-
+  private readonly sessionId: string;
   constructor(
     world: Phaser.Physics.Matter.World,
+    sessionId: string,
     x: number,
     y: number,
     texture: string,
-    bombStrength: number,
     rectangleX: number,
     rectangleY: number
   ) {
     super(world, x, y, texture);
-    this.bombStrength = bombStrength;
+    this.sessionId = sessionId;
     this.setRectangle(rectangleX, rectangleY);
+    this.setDepth(getDepth(Constants.OBJECT_LABEL.BLAST));
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
       const currBody = this.body as MatterJS.BodyType;
       data.bodyA.id === currBody.id
@@ -339,19 +383,19 @@ Phaser.GameObjects.GameObjectFactory.register(
   'blast',
   function (
     this: Phaser.GameObjects.GameObjectFactory,
+    sessionId: string,
     x: number,
     y: number,
     texture: string,
-    bombStrength = 1,
     rectangleX: number,
     rectangleY: number
   ) {
     const sprite = new Blast(
       this.scene.matter.world,
+      sessionId,
       x,
       y,
       texture,
-      bombStrength,
       rectangleX,
       rectangleY
     );
@@ -362,8 +406,3 @@ Phaser.GameObjects.GameObjectFactory.register(
     return sprite;
   }
 );
-
-export interface PlayerInterface {
-  recoverSettableBombCount: () => void;
-  isEqualSessionId: (sessionId: string) => boolean;
-}

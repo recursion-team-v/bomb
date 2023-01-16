@@ -1,10 +1,12 @@
 import * as Constants from '../../constants/constants';
-import ItemInterface from '../../interfaces/item';
-import PlayerInterface from '../../interfaces/player';
 import GameEngine from '../../rooms/GameEngine';
 import Item from '../../rooms/schema/Item';
+import Player from '../../rooms/schema/Player';
 
-export function playerToItem(player: PlayerInterface, item: ItemInterface, engine?: GameEngine) {
+export function playerToItem(player: Player, item: Item, engine: GameEngine) {
+  // 既に取得済みのアイテムは無視
+  if (item.getObtained()) return;
+
   switch (item.getType()) {
     case Constants.ITEM_TYPE.BOMB_STRENGTH:
       player.setBombStrength(player.getBombStrength() + 1);
@@ -18,7 +20,16 @@ export function playerToItem(player: PlayerInterface, item: ItemInterface, engin
       player.increaseMaxBombCount();
       break;
 
+    case Constants.ITEM_TYPE.PENETRATION_BOMB:
+      player.setBombType(Constants.BOMB_TYPE.PENETRATION);
+      break;
+
     default:
   }
-  engine?.itemService.removeItem(item as Item);
+
+  // アイテムを取得済みにする
+  item.setObtained();
+
+  // アイテムを削除するキューに入れる
+  engine.state.getItemToDestroyQueue().enqueue(item);
 }

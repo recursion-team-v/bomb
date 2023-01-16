@@ -76,8 +76,8 @@ export default class MapService {
     return Matter.Bodies.rectangle(
       tileWidth / 2 + tileWidth * x,
       Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
-      tileWidth * 0.9,
-      tileHeight * 0.9,
+      tileWidth,
+      tileHeight,
       {
         chamfer: {
           radius,
@@ -98,8 +98,8 @@ export default class MapService {
     const blockBody = Matter.Bodies.rectangle(
       tileWidth / 2 + tileWidth * x,
       Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
-      tileWidth * 0.9,
-      tileHeight * 0.9,
+      tileWidth,
+      tileHeight,
       {
         isStatic: true,
         label: Constants.OBJECT_LABEL.BLOCK,

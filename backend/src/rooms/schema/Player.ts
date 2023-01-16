@@ -10,6 +10,9 @@ export default class Player extends Schema {
   @type('number')
   idx: number;
 
+  @type('string')
+  name: string;
+
   // プレイヤーの位置
   @type('number')
   x: number;
@@ -33,13 +36,16 @@ export default class Player extends Schema {
   @type('number')
   speed: number = Constants.INITIAL_PLAYER_SPEED;
 
+  @type('number')
+  bombType: Constants.BOMB_TYPES;
+
   // ボムの破壊力
   @type('number')
   bombStrength: number;
 
-  // 今設置できるボムの個数
+  // 今設置しているボムの個数
   @type('number')
-  settableBombCount: number;
+  currentSetBombCount: number;
 
   // 設置できるボムの最大個数
   @type('number')
@@ -51,15 +57,17 @@ export default class Player extends Schema {
 
   inputQueue: any[] = [];
 
-  constructor(sessionId: string, idx: number) {
+  constructor(sessionId: string, idx: number, name: string = Constants.DEFAULT_PLAYER_NAME) {
     super();
     this.sessionId = sessionId;
     this.idx = idx;
+    this.name = name;
     this.hp = Constants.INITIAL_PLAYER_HP;
     this.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
     this.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
+    this.bombType = Constants.BOMB_TYPE.NORMAL;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
-    this.settableBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
+    this.currentSetBombCount = 0;
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
     this.lastDamagedAt = 0;
   }
@@ -72,7 +80,6 @@ export default class Player extends Schema {
     this.hp - damage < 0 ? (this.hp = 0) : (this.hp -= damage);
 
     this.updateLastDamagedAt();
-    console.log(this.hp);
   }
 
   // プレイヤーが無敵かどうかを返します
@@ -95,6 +102,16 @@ export default class Player extends Schema {
   // プレイヤーが死んでいるかどうかを返します
   isDead(): boolean {
     return this.hp <= 0;
+  }
+
+  // 配置するボムの種類を変更する
+  setBombType(t: Constants.BOMB_TYPES) {
+    this.bombType = t;
+  }
+
+  // ボムの種類を取得する
+  getBombType(): Constants.BOMB_TYPES {
+    return this.bombType;
   }
 
   // 爆弾の破壊力を取得する
@@ -121,31 +138,26 @@ export default class Player extends Schema {
 
   // ボムを設置できるかをチェックする
   canSetBomb(): boolean {
-    return this.settableBombCount > 0;
+    return this.maxBombCount - this.currentSetBombCount > 0;
   }
 
-  // ボムを置ける最大数を増やす
-  recoverSettableBombCount(count = 1) {
-    this.settableBombCount += count;
+  // 今設置しているボムの個数を増やす
+  increaseSetBombCount() {
+    if (this.canSetBomb()) this.currentSetBombCount++;
   }
 
-  // 現在設置しているボムの数を減らす
-  consumeCurrentSetBombCount(count = 1) {
-    this.settableBombCount -= count;
+  // 今設置しているボムの個数を減らす
+  decreaseSetBombCount() {
+    this.currentSetBombCount--;
+    if (this.currentSetBombCount < 0) this.currentSetBombCount = 0;
   }
 
   // ボムの最大数を増やす
   increaseMaxBombCount(count = 1) {
-    const oldMaxBombCount = this.maxBombCount;
     if (this.maxBombCount + count > Constants.MAX_SETTABLE_BOMB_COUNT) {
       this.maxBombCount = Constants.MAX_SETTABLE_BOMB_COUNT;
     } else {
       this.maxBombCount += count;
-    }
-
-    // ボムの最大数が増えた場合は、今設置できるボムの数も増やす
-    if (oldMaxBombCount < this.maxBombCount) {
-      this.recoverSettableBombCount(this.maxBombCount - oldMaxBombCount);
     }
   }
 }

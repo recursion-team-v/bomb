@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import Matter from 'matter-js';
-
+import { Room } from 'colyseus';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import BombService from '../game_engine/services/bombService';
 import MapService from '../game_engine/services/mapService';
@@ -12,6 +12,7 @@ import * as Constants from '../constants/constants';
 
 export default class GameEngine {
   world: Matter.World;
+  room: Room<GameRoomState>;
   state: GameRoomState;
   engine: Matter.Engine;
 
@@ -34,9 +35,10 @@ export default class GameEngine {
   mapService: MapService;
   itemService: ItemService;
 
-  constructor(state: GameRoomState) {
+  constructor(room: Room<GameRoomState>) {
     this.engine = Matter.Engine.create();
-    this.state = state;
+    this.room = room;
+    this.state = room.state;
     this.world = this.engine.world;
 
     this.engine.gravity.y = 0;

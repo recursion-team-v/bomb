@@ -7,6 +7,7 @@ import ToString from '../utils/color';
 import { getGameScene } from '../utils/globalGame';
 import { isMute, toggle } from '../utils/sound';
 import convertSecondsToMMSS from '../utils/timer';
+import Network from '../services/Network';
 
 export default class GameHeader extends Phaser.Scene {
   private readonly width: number;
@@ -19,6 +20,7 @@ export default class GameHeader extends Phaser.Scene {
   private textBombStrength!: Phaser.GameObjects.Text;
   private textSpeed!: Phaser.GameObjects.Text;
   private iconVolume!: Phaser.GameObjects.Image;
+  private network!: Network;
 
   constructor() {
     super(Config.SCENE_NAME_GAME_HEADER);
@@ -59,7 +61,16 @@ export default class GameHeader extends Phaser.Scene {
       .on('pointerdown', () => this.updateVolumeIcon());
   }
 
+  create(data: { network: Network }) {
+    if (data.network == null) return;
+    this.network = data.network;
+  }
+
   update() {
+    if (this.network.getGameFinishedAt() === undefined) {
+      this.network.sendRequestGameStartInfo();
+    }
+    this.updateTextTimer(this.network.getGameFinishedAt() - this.network.now());
     this.textBombCount.setText(`×${this.player.getItemCountOfBombCount()}`);
     this.textBombStrength.setText(`×${this.player.getItemCountOfBombStrength()}`);
     this.textSpeed.setText(`×${this.player.getItemCountOfSpeed()}`);
