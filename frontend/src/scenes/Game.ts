@@ -121,7 +121,7 @@ export default class Game extends Phaser.Scene {
 
   private timeEventHandler() {
     // 壁落下イベント
-    if (this.network.remainTime() <= Constants.INGAME_EVENT_DROP_WALLS_TIME) {
+    if (this.network.remainTime() === Constants.INGAME_EVENT_DROP_WALLS_TIME) {
       if (!this.IsFinishedDropWallsEvent) dropWalls();
       this.IsFinishedDropWallsEvent = true;
     }
