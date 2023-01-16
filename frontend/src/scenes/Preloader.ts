@@ -104,6 +104,8 @@ export default class Preloader extends Phaser.Scene {
   update() {
     if (!this.preloadComplete) return;
 
-    this.scene.start(Config.SCENE_NAME_TITLE);
+    this.scene.start(Config.SCENE_NAME_TITLE, {
+      network: this.network,
+    });
   }
 }

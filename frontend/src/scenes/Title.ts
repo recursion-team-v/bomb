@@ -12,8 +12,6 @@ export default class Title extends Phaser.Scene {
   }
 
   init() {
-    this.network = new Network();
-
     this.bgm = this.sound.add('opening', {
       volume: Config.SOUND_VOLUME,
     });
@@ -26,15 +24,15 @@ export default class Title extends Phaser.Scene {
     });
   }
 
-  create() {
+  create(data: { network: Network }) {
     const playGame = (userName: string) => {
       this.scene.start(Config.SCENE_NAME_GAME, {
-        network: this.network,
+        network: data.network,
       });
       this.scene.start(Config.SCENE_NAME_GAME_HEADER, {
-        network: this.network,
+        network: data.network,
       });
-      this.network?.sendPlayerName(userName);
+      data.network?.sendPlayerName(userName);
       this.se?.play();
       this.bgm?.stop();
     };
