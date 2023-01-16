@@ -20,6 +20,10 @@ export function playerToItem(player: Player, item: Item, engine: GameEngine) {
       player.increaseMaxBombCount();
       break;
 
+    case Constants.ITEM_TYPE.HEART:
+      player.healed(1);
+      break;
+
     case Constants.ITEM_TYPE.PENETRATION_BOMB:
       player.setBombType(Constants.BOMB_TYPE.PENETRATION);
       break;
