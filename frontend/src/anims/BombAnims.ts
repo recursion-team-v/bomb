@@ -12,3 +12,13 @@ export const createBombAnims = (anims: Phaser.Animations.AnimationManager) => {
     frameRate: Config.BOMB_SPRITE_FRAME_COUNT / (Constants.BOMB_EXPLOSION_TIME / 1000), // 秒間に表示する画像の枚数
   });
 };
+
+export const createPenetrationBombAnims = (anims: Phaser.Animations.AnimationManager) => {
+  anims.create({
+    key: Config.PENETRATION_BOMB_ANIMATION_KEY,
+    frames: anims.generateFrameNames('penetration_bomb', {
+      end: Config.BOMB_SPRITE_FRAME_COUNT - 1,
+    }),
+    frameRate: Config.BOMB_SPRITE_FRAME_COUNT / (Constants.BOMB_EXPLOSION_TIME / 1000), // 秒間に表示する画像の枚数
+  });
+};

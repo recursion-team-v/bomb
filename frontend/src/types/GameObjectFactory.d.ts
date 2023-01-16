@@ -41,6 +41,16 @@ declare global {
         sessionId: string,
         x: number,
         y: number,
+        bombType: Constants.BOMB_TYPES,
+        bombStrength: number,
+        removedAt: number
+      ) => Bomb;
+      penetrationBomb: (
+        id: string,
+        sessionId: string,
+        x: number,
+        y: number,
+        bombType: Constants.BOMB_TYPES,
         bombStrength: number,
         removedAt: number
       ) => Bomb;
