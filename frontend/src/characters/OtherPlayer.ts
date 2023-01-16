@@ -36,6 +36,7 @@ export default class OtherPlayer extends Player {
     this.setSpeed(serverPlayer.speed);
     this.setBombType(serverPlayer.bombType);
     this.setBombStrength(serverPlayer.bombStrength);
+    this.setPlayerName(serverPlayer.name);
 
     if (this.isDead()) {
       this.died();

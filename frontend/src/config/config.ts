@@ -30,6 +30,7 @@ export const ASSET_KEY_VOLUME_OFF = 'volume_off';
 シーンの名前
 */
 
+export const SCENE_NAME_TITLE = 'title';
 export const SCENE_NAME_PRELOADER = 'preloader';
 export const SCENE_NAME_GAME = 'game';
 export const SCENE_NAME_GAME_HEADER = 'gameHeader';
@@ -50,5 +51,5 @@ export const PENETRATION_BOMB_ANIMATION_KEY = 'penetration_bomb_count';
 */
 
 // TODO 後で true にする
-export const SOUND_DEFAULT_IS_PLAY = false; // サウンドを再生するかどうか
+export const SOUND_DEFAULT_IS_PLAY = true; // サウンドを再生するかどうか
 export const SOUND_VOLUME = 0.2;

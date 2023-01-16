@@ -9,6 +9,8 @@ import GameHeader from './scenes/GameHeader';
 import GameResult from './scenes/GameResult';
 import Preloader from './scenes/Preloader';
 import isMobile from './utils/mobile';
+import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
+import Title from './scenes/Title';
 
 const screenHeight = () => (isMobile() ? Constants.MOBILE_HEIGHT : Constants.HEIGHT);
 
@@ -34,8 +36,15 @@ const config: Phaser.Types.Core.GameConfig = {
     forceSetTimeOut: true,
   },
   autoFocus: true,
-  scene: [Preloader, Game, GameHeader, GameResult],
+  scene: [Preloader, Title, Game, GameHeader, GameResult],
   plugins: {
+    scene: [
+      {
+        key: 'rexUI',
+        plugin: RexUIPlugin,
+        mapping: 'rexUI',
+      },
+    ],
     global: [
       {
         key: 'rexVirtualJoystick',
@@ -48,6 +57,9 @@ const config: Phaser.Types.Core.GameConfig = {
         start: false,
       },
     ],
+  },
+  dom: {
+    createContainer: true,
   },
 };
 
