@@ -1,9 +1,10 @@
-import * as Constants from '../../../backend/src/constants/constants';
-import MapTiles from '../../../backend/src/rooms/schema/MapTiles';
 import { MapSchema } from '@colyseus/schema';
+
+import * as Constants from '../../../backend/src/constants/constants';
 import Block from '../../../backend/src/rooms/schema/Block';
+import MapTiles from '../../../backend/src/rooms/schema/MapTiles';
+import { Event, gameEvents } from '../events/GameEvents';
 import { Block as BlockBody } from '../items/Block';
-import { gameEvents, Event } from '../events/GameEvents';
 
 const rows = Constants.TILE_ROWS;
 const cols = Constants.TILE_COLS;
@@ -52,14 +53,16 @@ export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
   blocks.forEach((block) => {
     const random = Math.random();
     const randomHeight = random * 5000;
-    const shadow = scene.add.rectangle(
-      block.x,
-      block.y,
-      Constants.TILE_WIDTH * 0.8,
-      Constants.TILE_HEIGHT * 0.8,
-      Constants.BLACK,
-      random * 0.8
-    );
+    const shadow = scene.add
+      .rectangle(
+        block.x,
+        block.y,
+        Constants.TILE_WIDTH * 1.0,
+        Constants.TILE_HEIGHT * 1.0,
+        Constants.BLACK,
+        random * 0.8
+      )
+      .setDepth(Constants.OBJECT_DEPTH.DROP_WALL_SHADOW);
 
     const b = scene.add.block(block.x, block.y - randomHeight, Constants.TILE_BLOCK_IDX);
     currBlocks.set(block.id, b);
@@ -71,6 +74,9 @@ export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
       y: `+=${randomHeight}`,
       duration: randomHeight,
       repeat: 0,
+      onUpdate: () => {
+        shadow.setAlpha(shadow.alpha - 0.003);
+      },
       onComplete: () => {
         scene.cameras.main.shake(200, 0.001);
         b.setDepth(Constants.OBJECT_DEPTH.BLOCK);
