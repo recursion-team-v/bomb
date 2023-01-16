@@ -61,6 +61,7 @@ export default class MyPlayer extends Player {
       });
     }
     this.setSpeed(player.speed);
+    this.setBombType(player.bombType);
     this.setBombStrength(player.bombStrength);
     this.setMaxBombCount(player.maxBombCount);
   }
@@ -140,6 +141,11 @@ export default class MyPlayer extends Player {
 
   setMaxBombCount(maxBombCount: number): boolean {
     if (super.setMaxBombCount(maxBombCount)) this.playItemGetSe();
+    return true;
+  }
+
+  setBombType(bombType: Constants.BOMB_TYPES): boolean {
+    if (super.setBombType(bombType)) this.playItemGetSe();
     return true;
   }
 
