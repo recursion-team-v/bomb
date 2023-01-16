@@ -127,19 +127,19 @@ export default class BlastService {
     const m = new Map<Constants.DIRECTION_TYPE, number>();
     m.set(
       Constants.DIRECTION.UP,
-      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.UP)
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.UP, this.bomb.bombType)
     );
     m.set(
       Constants.DIRECTION.DOWN,
-      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.DOWN)
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.DOWN, this.bomb.bombType)
     );
     m.set(
       Constants.DIRECTION.LEFT,
-      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.LEFT)
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.LEFT, this.bomb.bombType)
     );
     m.set(
       Constants.DIRECTION.RIGHT,
-      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.RIGHT)
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.RIGHT, this.bomb.bombType)
     );
     return m;
   }
@@ -150,7 +150,8 @@ export function calcBlastRangeFromDirection(
   x: number,
   y: number,
   power: number,
-  direction: Constants.DIRECTION_TYPE
+  direction: Constants.DIRECTION_TYPE,
+  bombType: Constants.BOMB_TYPES
 ): number {
   // 現在のユーザの爆弾の位置から上下左右の範囲を計算
   let size = 0;
@@ -165,7 +166,9 @@ export function calcBlastRangeFromDirection(
     if (checkTile === 0) size++;
     if (checkTile === 1) {
       size++;
-      break;
+
+      // 貫通爆弾の場合は貫通する
+      if (bombType !== Constants.BOMB_TYPE.PENETRATION) break;
     }
     if (checkTile === 2) break;
   }

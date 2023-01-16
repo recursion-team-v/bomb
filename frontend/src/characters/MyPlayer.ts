@@ -60,6 +60,7 @@ export default class MyPlayer extends Player {
       });
     }
     this.setSpeed(player.speed);
+    this.setBombType(player.bombType);
     this.setBombStrength(player.bombStrength);
     this.setMaxBombCount(player.maxBombCount);
     this.setPlayerName(player.name);
@@ -69,7 +70,7 @@ export default class MyPlayer extends Player {
     if (this.isDead()) return false;
 
     // サーバの位置に合わせて移動
-    this.setVelocity(this.serverX - this.x, this.serverY - this.y);
+    this.setPosition(this.serverX, this.serverY);
     this.nameLabel.setPosition(this.x, this.y - 30);
 
     // キーボードの入力をサーバに送信
@@ -138,8 +139,18 @@ export default class MyPlayer extends Player {
     this.setVelocity(forceX, forceY);
   }
 
+  setHP(hp: number): boolean {
+    if (super.setHP(hp)) this.playItemGetSe();
+    return true;
+  }
+
   setMaxBombCount(maxBombCount: number): boolean {
     if (super.setMaxBombCount(maxBombCount)) this.playItemGetSe();
+    return true;
+  }
+
+  setBombType(bombType: Constants.BOMB_TYPES): boolean {
+    if (super.setBombType(bombType)) this.playItemGetSe();
     return true;
   }
 

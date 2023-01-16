@@ -11,6 +11,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   name: string;
   private hp: number;
   private speed: number;
+  private bombType: Constants.BOMB_TYPES; // ボムの種類
   private bombStrength: number;
   private maxBombCount: number; // 設置できるボムの最大個数
   private readonly sessionId: string; // サーバが一意にセットするセッションID
@@ -33,6 +34,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.hp = Constants.INITIAL_PLAYER_HP;
     this.sessionId = sessionId;
     this.speed = Constants.INITIAL_PLAYER_SPEED;
+    this.bombType = Constants.BOMB_TYPE.NORMAL;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
 
@@ -80,14 +82,17 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   }
 
   // HP をセットします
-  setHP(hp: number) {
+  // HP が増えた場合は true を返します
+  setHP(hp: number): boolean {
     // サーバで計算するので、ここではHPを上書きするだけ
-    if (this.hp === hp) return;
+    if (this.hp === hp) return true;
 
     if (this.hp > hp) {
       this.damaged(this.hp - hp);
+      return false;
     } else {
       this.healed(hp - this.hp);
+      return true;
     }
   }
 
@@ -97,14 +102,14 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   }
 
   // interface を満たすだけのダミーメソッド
-  damaged(damage: number) {
+  private damaged(damage: number) {
     this.hit_se.play();
     this.hp -= damage;
     this.animationShakeScreen();
     this.animationFlash(Constants.PLAYER_INVINCIBLE_TIME);
   }
 
-  healed(healedHp: number) {
+  private healed(healedHp: number) {
     this.hp += healedHp;
   }
 
@@ -129,6 +134,16 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   getSessionId() {
     return this.sessionId;
+  }
+
+  getBombType(): Constants.BOMB_TYPES {
+    return this.bombType;
+  }
+
+  setBombType(bombType: Constants.BOMB_TYPES): boolean {
+    if (this.bombType === bombType) return false;
+    this.bombType = bombType;
+    return true;
   }
 
   // 爆弾の破壊力を取得する

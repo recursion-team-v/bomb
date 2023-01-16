@@ -19,12 +19,27 @@ export function createBomb(bomb: PlacementObjectInterface) {
     }
   }
 
-  gc.add.bomb(
-    serverBomb.id,
-    sessionId,
-    serverBomb.x,
-    serverBomb.y,
-    serverBomb.bombStrength,
-    serverBomb.removedAt
-  );
+  if (serverBomb.bombType === Constants.BOMB_TYPE.NORMAL) {
+    gc.add.bomb(
+      serverBomb.id,
+      sessionId,
+      serverBomb.x,
+      serverBomb.y,
+      serverBomb.bombType,
+      serverBomb.bombStrength,
+      serverBomb.removedAt
+    );
+  }
+
+  if (serverBomb.bombType === Constants.BOMB_TYPE.PENETRATION) {
+    gc.add.penetrationBomb(
+      serverBomb.id,
+      sessionId,
+      serverBomb.x,
+      serverBomb.y,
+      serverBomb.bombType,
+      serverBomb.bombStrength,
+      serverBomb.removedAt
+    );
+  }
 }

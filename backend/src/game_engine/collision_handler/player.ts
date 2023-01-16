@@ -1,9 +1,9 @@
 import * as Constants from '../../constants/constants';
-import PlayerInterface from '../../interfaces/player';
 import GameEngine from '../../rooms/GameEngine';
 import Item from '../../rooms/schema/Item';
+import Player from '../../rooms/schema/Player';
 
-export function playerToItem(player: PlayerInterface, item: Item, engine: GameEngine) {
+export function playerToItem(player: Player, item: Item, engine: GameEngine) {
   // 既に取得済みのアイテムは無視
   if (item.getObtained()) return;
 
@@ -18,6 +18,14 @@ export function playerToItem(player: PlayerInterface, item: Item, engine: GameEn
 
     case Constants.ITEM_TYPE.BOMB_POSSESSION_UP:
       player.increaseMaxBombCount();
+      break;
+
+    case Constants.ITEM_TYPE.HEART:
+      player.healed(1);
+      break;
+
+    case Constants.ITEM_TYPE.PENETRATION_BOMB:
+      player.setBombType(Constants.BOMB_TYPE.PENETRATION);
       break;
 
     default:

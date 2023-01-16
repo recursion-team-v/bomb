@@ -111,6 +111,13 @@ export const INITIAL_PLAYER_POSITION = [
 ボムの定義
 */
 
+export const BOMB_TYPE = {
+  NORMAL: 1,
+  PENETRATION: 2, // ブロックを貫通するボム
+};
+
+export type BOMB_TYPES = typeof BOMB_TYPE[keyof typeof BOMB_TYPE];
+
 // 爆弾がプレイヤーに与えるダメージ
 export const BOMB_DAMAGE = 1;
 
@@ -146,6 +153,8 @@ export const ITEM_TYPE = {
   NONE: 'NONE', // アイテムなし
   BOMB_STRENGTH: 'BOMB_STRENGTH', // ボムの威力アップ
   BOMB_POSSESSION_UP: 'BOMB_POSSESSION_UP', // ボムの所持数アップ
+  HEART: 'HEART', // 残機アップ
+  PENETRATION_BOMB: 'PENETRATION_BOMB', // ブロックを貫通するボム
   PLAYER_SPEED: 'PLAYER_SPEED', // プレイヤーの移動速度アップ
 } as const;
 
@@ -159,6 +168,8 @@ export const ITEM_PLACE_COUNT = {
   [ITEM_TYPE.NONE]: 0,
   [ITEM_TYPE.BOMB_POSSESSION_UP]: 8,
   [ITEM_TYPE.BOMB_STRENGTH]: 10,
+  [ITEM_TYPE.HEART]: 3,
+  [ITEM_TYPE.PENETRATION_BOMB]: 3,
   [ITEM_TYPE.PLAYER_SPEED]: 5,
 };
 
@@ -251,10 +262,10 @@ export type OBJECT_COLLISIONS_TO_BLAST =
 // 数字の大きいものが上にくる
 export const OBJECT_DEPTH = {
   NONE: 0,
-  [OBJECT_LABEL.BLAST]: -1,
   [OBJECT_LABEL.ITEM]: 1, // ブロックの下にある
   [OBJECT_LABEL.BLOCK]: 2, // ブロックをすり抜けられるアイテムがある
-  [OBJECT_LABEL.BOMB]: 3, // 特殊なアイテムで壁の上を爆弾が滑ることがある
+  [OBJECT_LABEL.BLAST]: 3, // ブロックや、アイテムの上にある
+  [OBJECT_LABEL.BOMB]: 4, // 特殊なアイテムで壁の上を爆弾が滑ることがある
   [OBJECT_LABEL.PLAYER]: 10,
   [OBJECT_LABEL.WALL]: 99,
   [OBJECT_LABEL.DROP_WALL_SHADOW]: 100,

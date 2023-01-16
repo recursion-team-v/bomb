@@ -34,6 +34,7 @@ export default class OtherPlayer extends Player {
     this.frameKey = serverPlayer.frameKey;
     this.setHP(serverPlayer.hp);
     this.setSpeed(serverPlayer.speed);
+    this.setBombType(serverPlayer.bombType);
     this.setBombStrength(serverPlayer.bombStrength);
     this.setPlayerName(serverPlayer.name);
 

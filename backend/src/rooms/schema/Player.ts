@@ -36,6 +36,9 @@ export default class Player extends Schema {
   @type('number')
   speed: number = Constants.INITIAL_PLAYER_SPEED;
 
+  @type('number')
+  bombType: Constants.BOMB_TYPES;
+
   // ボムの破壊力
   @type('number')
   bombStrength: number;
@@ -62,6 +65,7 @@ export default class Player extends Schema {
     this.hp = Constants.INITIAL_PLAYER_HP;
     this.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
     this.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
+    this.bombType = Constants.BOMB_TYPE.NORMAL;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.currentSetBombCount = 0;
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
@@ -98,6 +102,16 @@ export default class Player extends Schema {
   // プレイヤーが死んでいるかどうかを返します
   isDead(): boolean {
     return this.hp <= 0;
+  }
+
+  // 配置するボムの種類を変更する
+  setBombType(t: Constants.BOMB_TYPES) {
+    this.bombType = t;
+  }
+
+  // ボムの種類を取得する
+  getBombType(): Constants.BOMB_TYPES {
+    return this.bombType;
   }
 
   // 爆弾の破壊力を取得する
