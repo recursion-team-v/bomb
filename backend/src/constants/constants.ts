@@ -111,6 +111,13 @@ export const INITIAL_PLAYER_POSITION = [
 ボムの定義
 */
 
+export const BOMB_TYPE = {
+  NORMAL: 1,
+  PENETRATION: 2, // ブロックを貫通するボム
+};
+
+export type BOMB_TYPES = typeof BOMB_TYPE[keyof typeof BOMB_TYPE];
+
 // 爆弾がプレイヤーに与えるダメージ
 export const BOMB_DAMAGE = 1;
 
@@ -146,6 +153,7 @@ export const ITEM_TYPE = {
   NONE: 'NONE', // アイテムなし
   BOMB_STRENGTH: 'BOMB_STRENGTH', // ボムの威力アップ
   BOMB_POSSESSION_UP: 'BOMB_POSSESSION_UP', // ボムの所持数アップ
+  PENETRATION_BOMB: 'PENETRATION_BOMB', // ブロックを貫通するボム
   PLAYER_SPEED: 'PLAYER_SPEED', // プレイヤーの移動速度アップ
 } as const;
 
@@ -159,6 +167,7 @@ export const ITEM_PLACE_COUNT = {
   [ITEM_TYPE.NONE]: 0,
   [ITEM_TYPE.BOMB_POSSESSION_UP]: 8,
   [ITEM_TYPE.BOMB_STRENGTH]: 10,
+  [ITEM_TYPE.PENETRATION_BOMB]: 3,
   [ITEM_TYPE.PLAYER_SPEED]: 5,
 };
 
