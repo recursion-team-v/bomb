@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import * as Config from '../config/config';
+import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import Bomb from '../items/Bomb';
 import { getDepth } from '../items/util';
 import { getGameScene } from '../utils/globalGame';
@@ -49,6 +50,12 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     body.label = Constants.OBJECT_LABEL.PLAYER;
 
     this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
+    this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
+      const currBody = this.body as MatterJS.BodyType;
+      data.bodyA.id === currBody.id
+        ? collisionHandler(data.bodyA, data.bodyB)
+        : collisionHandler(data.bodyB, data.bodyA);
+    });
     this.hit_se = this.scene.sound.add('hitPlayer', {
       volume: Config.SOUND_VOLUME,
     });
