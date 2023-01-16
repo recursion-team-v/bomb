@@ -48,6 +48,10 @@ export default class Player extends Schema {
   @type('number')
   maxBombCount: number;
 
+  // 壁抜けができるかどうか
+  @type('boolean')
+  canThroughBlock: boolean;
+
   // 最後に攻撃を受けた時間
   @type('number')
   lastDamagedAt: number;
@@ -65,6 +69,7 @@ export default class Player extends Schema {
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.currentSetBombCount = 0;
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
+    this.canThroughBlock = false;
     this.lastDamagedAt = 0;
   }
 
@@ -145,5 +150,13 @@ export default class Player extends Schema {
     } else {
       this.maxBombCount += count;
     }
+  }
+
+  getCanThroughBlock() {
+    return this.canThroughBlock;
+  }
+
+  setCanThroughBlock() {
+    this.canThroughBlock = true;
   }
 }

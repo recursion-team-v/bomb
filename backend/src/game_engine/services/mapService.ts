@@ -105,6 +105,9 @@ export default class MapService {
         label: Constants.OBJECT_LABEL.BLOCK,
       }
     );
+    blockBody.collisionFilter.category = Constants.COLLISION_CATEGORY.BLOCK;
+    blockBody.collisionFilter.mask =
+      Constants.OBJECT_LABEL_TO_COLLISION_MASK[Constants.OBJECT_LABEL.BLOCK];
 
     if (itemType === Constants.ITEM_TYPE.NONE) itemType = undefined;
 

@@ -8,7 +8,9 @@ export class Block extends Phaser.Physics.Matter.Sprite {
 
     const body = this.body as MatterJS.BodyType;
     body.label = Constants.OBJECT_LABEL.BLOCK;
+
     this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
+    this.setSensor(true); // サーバでのみ衝突判定を行う
   }
 }
 

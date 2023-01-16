@@ -147,6 +147,7 @@ export const ITEM_TYPE = {
   BOMB_STRENGTH: 'BOMB_STRENGTH', // ボムの威力アップ
   BOMB_POSSESSION_UP: 'BOMB_POSSESSION_UP', // ボムの所持数アップ
   PLAYER_SPEED: 'PLAYER_SPEED', // プレイヤーの移動速度アップ
+  THROUGH_BLOCK: 'THROUGH_BLOCK', // ブロックをすり抜ける
 } as const;
 
 export type ITEM_TYPES = typeof ITEM_TYPE[keyof typeof ITEM_TYPE];
@@ -160,15 +161,7 @@ export const ITEM_PLACE_COUNT = {
   [ITEM_TYPE.BOMB_POSSESSION_UP]: 8,
   [ITEM_TYPE.BOMB_STRENGTH]: 10,
   [ITEM_TYPE.PLAYER_SPEED]: 5,
-};
-
-/*
-衝突判定のカテゴリ
-*/
-
-export const COLLISION_CATEGORY = {
-  DEFAULT: 0x0001, // デフォルト
-  PLAYER: 0x0002, // プレイヤー
+  [ITEM_TYPE.THROUGH_BLOCK]: 2,
 };
 
 /*
@@ -262,6 +255,23 @@ export const OBJECT_DEPTH = {
 } as const;
 
 export type OBJECT_DEPTH_TYPE = typeof OBJECT_DEPTH[keyof typeof OBJECT_DEPTH];
+
+/*
+衝突判定のカテゴリ
+*/
+
+// 1bit ごとに衝突判定のカテゴリを定義する
+export const COLLISION_CATEGORY = {
+  DEFAULT: 0b0001, // デフォルト
+  PLAYER: 0b0010, // プレイヤー
+  BLOCK: 0b0100, // ブロック
+};
+
+// 各オブジェクトの衝突判定マスク
+export const OBJECT_LABEL_TO_COLLISION_MASK = {
+  [OBJECT_LABEL.PLAYER]: COLLISION_CATEGORY.DEFAULT | COLLISION_CATEGORY.BLOCK,
+  [OBJECT_LABEL.BLOCK]: COLLISION_CATEGORY.DEFAULT | COLLISION_CATEGORY.PLAYER,
+};
 
 /*
 モバイル用の操作アイコンの定義
