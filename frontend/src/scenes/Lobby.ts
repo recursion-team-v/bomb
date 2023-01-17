@@ -35,37 +35,24 @@ export default class Lobby extends Phaser.Scene {
     });
 
     const buttons = createButtons(this, Constants.WIDTH / 2, Constants.HEIGHT / 5, [
-      createButton(this, 0, 0, 'Create Room!'),
-      createButton(this, 0, 0, 'Join Test Public Room!'),
+      createButton(this, 0, 0, 'Create Room'),
     ]);
 
     buttons.on('button.click', async (button: Label, index: number) => {
       if (this.network.room !== undefined) {
         await this.network.room.leave();
       }
-      switch (index) {
-        case 0:
-          if (this.dialog == null) {
-            this.gridTable?.setVisible(false);
-            await this.network.createAndJoinCustomRoom({
-              name: 'custom room',
-              password: null,
-              autoDispose: true,
-            });
-            this.dialog = createDialog(this, Constants.WIDTH / 2, Constants.HEIGHT / 2, () =>
-              this.network.sendGameState(Constants.GAME_STATE.READY)
-            );
-          }
-          break;
-        case 1:
-          if (this.dialog == null) {
-            this.gridTable?.setVisible(false);
-            await this.network.joinOrCreatePublicRoom();
-            this.dialog = createDialog(this, Constants.WIDTH / 2, Constants.HEIGHT / 2, () =>
-              this.network.sendGameState(Constants.GAME_STATE.READY)
-            );
-          }
-          break;
+
+      if (this.dialog == null) {
+        this.gridTable?.setVisible(false);
+        await this.network.createAndJoinCustomRoom({
+          name: 'custom room',
+          password: null,
+          autoDispose: true,
+        });
+        this.dialog = createDialog(this, Constants.WIDTH / 2, Constants.HEIGHT / 2, () =>
+          this.network.sendGameState(Constants.GAME_STATE.READY)
+        );
       }
     });
 

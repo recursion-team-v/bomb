@@ -85,25 +85,7 @@ export default class Network {
   async joinCustomRoom(roomId: string, password: string | null) {
     this.room = await this.client.joinById(roomId, { password });
     await this.initialize();
-    // this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
-
-    // ゲーム開始情報の受信イベント
-    // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
-    // this.sendGameProgress(Constants.GAME_STATE.PLAYING);
-  }
-
-  async joinOrCreatePublicRoom() {
-    this.room = await this.client.joinOrCreate(Constants.GAME_PUBLIC_ROOM_KEY);
-
-    // ゲーム開始の通知
-    // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
-    await this.initialize();
     this.sendGameState(Constants.GAME_STATE.WAITING);
-    // this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
-
-    // ゲーム開始情報の受信イベント
-    // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
-    // this.sendGameProgress(Constants.GAME_STATE.PLAYING);
   }
 
   async initialize() {

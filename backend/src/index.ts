@@ -21,7 +21,7 @@ const gameServer = new Server({
 // TODO: add authentication
 app.use('/monitor', monitor());
 gameServer.define(Constants.GAME_LOBBY_KEY, LobbyRoom);
-gameServer.define(Constants.GAME_PUBLIC_ROOM_KEY, GameRoom, { name: 'public' });
+// gameServer.define(Constants.GAME_PUBLIC_ROOM_KEY, GameRoom, { name: 'public' });
 gameServer.define(Constants.GAME_CUSTOM_ROOM_KEY, GameRoom).enableRealtimeListing();
 
 // 時刻同期用
@@ -29,7 +29,7 @@ app.options('/timesync', cors());
 app.use('/timesync', cors(), timesyncServer.requestHandler);
 
 // TODO: add latency simulation
-gameServer.simulateLatency(200);
+// gameServer.simulateLatency(200);
 
 // TODO: gracefully shutdown
 gameServer.listen(Constants.SERVER_LISTEN_PORT).catch((err) => {
