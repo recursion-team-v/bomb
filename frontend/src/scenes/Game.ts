@@ -195,6 +195,7 @@ export default class Game extends Phaser.Scene {
 
     if (state === Constants.GAME_STATE.FINISHED && this.room !== undefined) {
       await this.room.leave();
+      this.network.getTs().destroy();
       this.bgm?.stop();
       this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
       this.scene.stop(Config.SCENE_NAME_GAME);

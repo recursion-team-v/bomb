@@ -45,6 +45,10 @@ export default class Network {
     this.ts.sync();
   }
 
+  getTs(): TimeSync {
+    return this.ts;
+  }
+
   now(): number {
     return this.ts.now();
   }
