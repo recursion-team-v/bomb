@@ -6,13 +6,13 @@ export const createUsageDialog = function (scene: Phaser.Scene, config: any) {
 
   // Title field object
   scene.add.text(x, y, 'usage', {
-    fontFamily: '"Press Start 2P", cursive',
+    fontFamily: 'PressStart2P',
   });
 
   scene.rexUI.add
     .badgeLabel({
-      x: x,
-      y: y,
+      x,
+      y,
       width: 80,
       height: 80,
       space: { left: -5, right: -5, top: -5, bottom: -5 },
