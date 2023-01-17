@@ -37,21 +37,21 @@ export default class GameHeader extends Phaser.Scene {
     this.player = getGameScene().getCurrentPlayer();
 
     this.textTimer = this.createText(0, 0, '');
-    this.textBombCount = this.createText(200, 0, `×${this.player.getItemCountOfBombCount()}`);
-    this.textBombStrength = this.createText(350, 0, `×${this.player.getItemCountOfBombStrength()}`);
-    this.textSpeed = this.createText(500, 0, `×${this.player.getItemCountOfSpeed()}`);
+    this.textBombCount = this.createText(250, 0, `×${this.player.getItemCountOfBombCount()}`);
+    this.textBombStrength = this.createText(400, 0, `×${this.player.getItemCountOfBombStrength()}`);
+    this.textSpeed = this.createText(550, 0, `×${this.player.getItemCountOfSpeed()}`);
 
     // 特に意味はないが Container でまとめておく
     this.imgBomb = this.add
-      .image(150, 10, Constants.ITEM_TYPE.BOMB_POSSESSION_UP)
+      .image(200, 10, Constants.ITEM_TYPE.BOMB_POSSESSION_UP)
       .setScale(0.5)
       .setOrigin(0, 0);
     this.add.container(0, 0, [
       this.imgBomb,
       this.textBombCount,
-      this.add.image(300, 10, Constants.ITEM_TYPE.BOMB_STRENGTH).setScale(0.5).setOrigin(0, 0),
+      this.add.image(350, 10, Constants.ITEM_TYPE.BOMB_STRENGTH).setScale(0.5).setOrigin(0, 0),
       this.textBombStrength,
-      this.add.image(450, 10, Constants.ITEM_TYPE.PLAYER_SPEED).setScale(0.5).setOrigin(0, 0),
+      this.add.image(500, 10, Constants.ITEM_TYPE.PLAYER_SPEED).setScale(0.5).setOrigin(0, 0),
       this.textSpeed,
     ]);
 
@@ -81,10 +81,11 @@ export default class GameHeader extends Phaser.Scene {
     this.textTimer.setText(convertSecondsToMMSS(this.remainTime));
   }
 
-  createText(x: number, y: number, text: string, fontSize = 32): Phaser.GameObjects.Text {
+  createText(x: number, y: number, text: string, fontSize = 24): Phaser.GameObjects.Text {
     const paddingHeight = (this.height - fontSize) / 2;
     return this.add
       .text(x, y, text, { fontSize: `${fontSize}px` })
+      .setFontFamily('PressStart2P')
       .setColor(ToString(Constants.HEADER_TIMER_TEXT_COLOR_CODE))
       .setPadding(10, paddingHeight, 10, paddingHeight);
   }
