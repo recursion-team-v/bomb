@@ -11,8 +11,8 @@ export const createUsageDialog = function (scene: Phaser.Scene, config: any) {
 
   scene.rexUI.add
     .badgeLabel({
-      x: x,
-      y: y,
+      x,
+      y,
       width: 80,
       height: 80,
       space: { left: -5, right: -5, top: -5, bottom: -5 },
