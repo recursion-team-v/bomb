@@ -48,6 +48,5 @@ export default class Title extends Phaser.Scene {
     }).on('playGame', function (userName: string) {
       playGame(userName);
     });
-
   }
 }
