@@ -6,7 +6,7 @@ import * as Config from '../config/config';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import { phaserGlobalGameObject } from '../PhaserGame';
 import Game from '../scenes/Game';
-import { getDimensionalMap, getHighestPriorityFromBodies } from '../services/Map';
+import { getDimensionalMap, getHighestBlastCollisionPriorityFromBodies } from '../services/Map';
 import { getGameScene } from '../utils/globalGame';
 import { getDepth } from './util';
 
@@ -207,7 +207,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       game.getRows(),
       game.getCols(),
       scene,
-      getHighestPriorityFromBodies
+      getHighestBlastCollisionPriorityFromBodies
     );
 
     // 現在のユーザの爆弾の強さを取得

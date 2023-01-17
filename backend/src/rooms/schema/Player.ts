@@ -51,6 +51,9 @@ export default class Player extends Schema {
   @type('number')
   maxBombCount: number;
 
+  // 取得したアイテムの種類と個数
+  getItemMap: Map<Constants.ITEM_TYPES, number>;
+
   // 最後に攻撃を受けた時間
   @type('number')
   lastDamagedAt: number;
@@ -69,6 +72,7 @@ export default class Player extends Schema {
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.currentSetBombCount = 0;
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
+    this.getItemMap = new Map<Constants.ITEM_TYPES, number>();
     this.lastDamagedAt = 0;
   }
 
@@ -163,5 +167,25 @@ export default class Player extends Schema {
 
   setPlayerName(playerName: string) {
     this.name = playerName;
+  }
+
+  // アイテムを取得した数を記録する
+  incrementItem(itemType: Constants.ITEM_TYPES) {
+    const count = this.getItemMap.get(itemType);
+
+    if (count === undefined) {
+      this.getItemMap.set(itemType, 1);
+    } else {
+      this.getItemMap.set(itemType, count + 1);
+    }
+  }
+
+  // アイテムを取得合計数を取得する
+  getItemMapTotalCount(): number {
+    let count = 0;
+    this.getItemMap.forEach((value, key) => {
+      count += value;
+    });
+    return count;
   }
 }
