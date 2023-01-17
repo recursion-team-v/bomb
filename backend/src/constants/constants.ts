@@ -92,7 +92,10 @@ export const MAX_SETTABLE_BOMB_COUNT = 8;
 export const INITIAL_BOMB_STRENGTH = 2;
 
 // プレイヤーの初期移動速度
-export const INITIAL_PLAYER_SPEED = 2;
+export const INITIAL_PLAYER_SPEED = 2.5;
+
+// プレイヤーの最大移動速度
+export const MAX_PLAYER_SPEED = 5;
 
 // プレイヤーが被弾時に一定時間無敵になる時間(ms)
 export const PLAYER_INVINCIBLE_TIME = 3000;
