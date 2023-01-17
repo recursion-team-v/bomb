@@ -40,7 +40,7 @@ export default class Network {
     endpoint = endpoint.replace('ws', 'http');
     this.ts = TimeCreate({
       server: `${endpoint}/timesync`,
-      interval: 1000,
+      interval: Config.TIME_SYNC_INTERVAL,
     });
     this.ts.sync();
   }
