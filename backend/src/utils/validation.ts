@@ -17,7 +17,8 @@ export function validateAndFixUserName(name: string): string {
   if (name.length === 0) return Constants.DEFAULT_PLAYER_NAME;
 
   // 8文字以上の場合は6文字に切り詰める
-  if (name.length > 6) return name.slice(0, 6);
+  if (name.length > Constants.MAX_USER_NAME_LENGTH)
+    return name.slice(0, Constants.MAX_USER_NAME_LENGTH);
 
   return name;
 }
