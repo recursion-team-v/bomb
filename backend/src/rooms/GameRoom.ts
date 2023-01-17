@@ -30,15 +30,35 @@ export default class GameRoom extends Room<GameRoomState> {
     this.engine = new GameEngine(this);
 
     // ゲーム開始をクライアントから受け取る
-    this.onMessage(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, (client, data) => {
-      this.gameStartEvent();
-    });
+    this.onMessage(
+      Constants.NOTIFICATION_TYPE.GAME_PROGRESS,
+      (client, gameState: Constants.GAME_STATE_TYPE) => {
+        if (gameState === Constants.GAME_STATE.READY) {
+          if (this.state.gameState.isPlaying()) {
+            // ゲームが既に開始している場合
+            const data = {
+              serverTimer: this.state.timer,
+            };
+            client.send(Constants.NOTIFICATION_TYPE.GAME_START_INFO, data);
+            return;
+          }
 
-    // ゲーム開始の情報をクライアントに送る
-    // FIXME: ロビーが入ったら変わるはずなので一時凌ぎ
-    this.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (client, data) => {
-      client.send(Constants.NOTIFICATION_TYPE.GAME_START_INFO, this.state.timer);
-    });
+          const myPlayer = this.state.getPlayer(client.sessionId);
+          if (myPlayer === undefined) return;
+          myPlayer.setGameState(gameState);
+
+          let isLobbyReady = true;
+          this.state.players.forEach((player) => (isLobbyReady = isLobbyReady && player.isReady()));
+          if (isLobbyReady) {
+            const data = {
+              serverTimer: this.state.timer,
+            };
+            this.startGame();
+            this.broadcast(Constants.NOTIFICATION_TYPE.GAME_START_INFO, data);
+          }
+        }
+      }
+    );
 
     // クライアントからの移動入力を受け取ってキューに詰める
     this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, (client, data: any) => {
@@ -126,12 +146,10 @@ export default class GameRoom extends Room<GameRoomState> {
   }
 
   // ゲーム開始イベント
-  private gameStartEvent() {
-    try {
+  private startGame() {
+    if (!this.state.gameState.isPlaying()) {
       this.state.gameState.setPlaying();
       this.state.setTimer();
-    } catch (e) {
-      console.error(e);
     }
   }
 

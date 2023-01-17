@@ -1,3 +1,5 @@
+import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle';
+import Label from 'phaser3-rex-plugins/templates/ui/label/Label';
 import * as Constants from '../../../backend/src/constants/constants';
 import { IAvailableRoom } from '../scenes/Lobby';
 
@@ -46,7 +48,7 @@ export const createDialog = (scene: Phaser.Scene, x: number, y: number, onClick:
           bottom: 10,
         },
       }),
-      actions: [createButton(scene, 0, 0, 'Start Game!'), createButton(scene, 0, 0, 'exit')],
+      actions: [createButton(scene, 0, 0, 'Ready?'), createButton(scene, 0, 0, 'exit')],
       space: {
         title: 10,
         left: 10,
@@ -59,9 +61,12 @@ export const createDialog = (scene: Phaser.Scene, x: number, y: number, onClick:
     .popUp(100)
     .setDepth(100);
 
-  dialog.on('button.click', function (button: any, _: any, index: number) {
+  dialog.on('button.click', function (button: Label, _: any, index: number) {
     switch (index) {
       case 0:
+        button.setText('waiting...');
+        (button.getElement('background') as RoundRectangle).setFillStyle(0x6b7280);
+        button.layout();
         onClick();
         break;
       case 1:

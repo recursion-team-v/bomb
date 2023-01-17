@@ -6,6 +6,9 @@ export default class Player extends Schema {
   @type('string')
   sessionId: string;
 
+  @type('number')
+  gameState: Constants.GAME_STATE_TYPE = Constants.GAME_STATE.WAITING;
+
   // プレイヤーの番号
   @type('number')
   idx: number;
@@ -141,5 +144,13 @@ export default class Player extends Schema {
     } else {
       this.maxBombCount += count;
     }
+  }
+
+  setGameState(gameState: Constants.GAME_STATE_TYPE) {
+    this.gameState = gameState;
+  }
+
+  isReady() {
+    return this.gameState === Constants.GAME_STATE.READY;
   }
 }

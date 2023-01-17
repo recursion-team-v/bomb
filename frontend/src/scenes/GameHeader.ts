@@ -8,11 +8,13 @@ import { getGameScene } from '../utils/globalGame';
 import { isMute, toggle } from '../utils/sound';
 import convertSecondsToMMSS from '../utils/timer';
 import Network from '../services/Network';
+import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 
 export default class GameHeader extends Phaser.Scene {
   private readonly width: number;
   private readonly height: number;
 
+  private serverTimer?: ServerTimer;
   private textTimer!: Phaser.GameObjects.Text;
   private remainTime: number = 0;
   private player!: MyPlayer;
@@ -61,16 +63,16 @@ export default class GameHeader extends Phaser.Scene {
       .on('pointerdown', () => this.updateVolumeIcon());
   }
 
-  create(data: { network: Network }) {
-    if (data.network == null) return;
+  create(data: { network: Network; serverTimer: ServerTimer }) {
+    const { network, serverTimer } = data;
+    if (network == null) return;
     this.network = data.network;
+    this.serverTimer = serverTimer;
   }
 
   update() {
-    if (this.network.getGameFinishedAt() === undefined) {
-      this.network.sendRequestGameStartInfo();
-    }
-    this.updateTextTimer(this.network.getGameFinishedAt() - this.network.now());
+    if (this.serverTimer === undefined) return;
+    this.updateTextTimer(this.serverTimer.finishedAt - this.network.now());
     this.textBombCount.setText(`×${this.player.getItemCountOfBombCount()}`);
     this.textBombStrength.setText(`×${this.player.getItemCountOfBombStrength()}`);
     this.textSpeed.setText(`×${this.player.getItemCountOfSpeed()}`);

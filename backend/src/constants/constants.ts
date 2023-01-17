@@ -50,8 +50,9 @@ export const NOTIFICATION_TYPE = {
 
 export const GAME_STATE = {
   WAITING: 1, // ゲーム開始前
-  PLAYING: 2, // ゲーム中
-  FINISHED: 3, // ゲーム終了
+  READY: 2,
+  PLAYING: 3, // ゲーム中
+  FINISHED: 4, // ゲーム終了
 } as const;
 
 export type GAME_STATE_TYPE = typeof GAME_STATE[keyof typeof GAME_STATE];

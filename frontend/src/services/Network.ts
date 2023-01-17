@@ -19,6 +19,10 @@ export interface IRoomData {
   autoDispose: boolean;
 }
 
+export interface IGameStartInfo {
+  serverTimer: ServerTimer;
+}
+
 export default class Network {
   private readonly client: Client;
   private ts!: TimeSync;
@@ -41,19 +45,6 @@ export default class Network {
     }
     this.syncClock(endpoint);
     this.joinLobbyRoom().catch((err) => console.log(err));
-  }
-
-  syncClock(endpoint: string) {
-    endpoint = endpoint.replace('ws', 'http');
-    this.ts = TimeCreate({
-      server: `${endpoint}/timesync`,
-      interval: 1000,
-    });
-    this.ts.sync();
-  }
-
-  now(): number {
-    return this.ts.now();
   }
 
   async joinLobbyRoom() {
@@ -88,21 +79,17 @@ export default class Network {
       autoDispose,
     });
     await this.initialize();
-    this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
-
-    // ゲーム開始情報の受信イベント
-    // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
-    this.sendGameProgress(Constants.GAME_STATE.PLAYING);
+    this.sendGameState(Constants.GAME_STATE.WAITING);
   }
 
   async joinCustomRoom(roomId: string, password: string | null) {
     this.room = await this.client.joinById(roomId, { password });
     await this.initialize();
-    this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
+    // this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
 
     // ゲーム開始情報の受信イベント
     // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
-    this.sendGameProgress(Constants.GAME_STATE.PLAYING);
+    // this.sendGameProgress(Constants.GAME_STATE.PLAYING);
   }
 
   async joinOrCreatePublicRoom() {
@@ -111,11 +98,12 @@ export default class Network {
     // ゲーム開始の通知
     // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
     await this.initialize();
-    this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
+    this.sendGameState(Constants.GAME_STATE.WAITING);
+    // this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
 
     // ゲーム開始情報の受信イベント
     // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
-    this.sendGameProgress(Constants.GAME_STATE.PLAYING);
+    // this.sendGameProgress(Constants.GAME_STATE.PLAYING);
   }
 
   async initialize() {
@@ -170,8 +158,8 @@ export default class Network {
       gameEvents.emit(Event.ITEM_REMOVED, data);
     };
 
-    this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (data: ServerTimer) => {
-      gameEvents.emit(Event.GAME_START_INFO_RECEIVED, data);
+    this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (data: IGameStartInfo) => {
+      gameEvents.emit(Event.START_GAME, data);
     });
   }
 
@@ -234,8 +222,8 @@ export default class Network {
   }
 
   // ゲーム開始に関する情報を受け取った時
-  receiveGameStartInfo(callback: (data: any) => void, context?: any) {
-    gameEvents.on(Event.GAME_START_INFO_RECEIVED, callback, context);
+  onStartGame(callback: (data: IGameStartInfo) => void, context?: any) {
+    gameEvents.on(Event.START_GAME, callback, context);
   }
 
   // 自分のプレイヤー動作を送る
@@ -249,35 +237,20 @@ export default class Network {
   }
 
   // 自分のゲーム状態を送る
-  sendGameProgress(state: Constants.GAME_STATE_TYPE) {
+  sendGameState(state: Constants.GAME_STATE_TYPE) {
     this.room?.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, state);
   }
 
-  // ゲーム開始情報の取得リクエストを送る
-  sendRequestGameStartInfo() {
-    this.room?.send(Constants.NOTIFICATION_TYPE.GAME_START_INFO);
+  syncClock(endpoint: string) {
+    endpoint = endpoint.replace('ws', 'http');
+    this.ts = TimeCreate({
+      server: `${endpoint}/timesync`,
+      interval: 1000,
+    });
+    this.ts.sync();
   }
 
-  // FIXME:
-  // 本来はここにおくべきではなく、ロビー画面でゲーム開始ボタンを押した時にやればいいのだが
-  // まだロビーがないのでここにおく
-  private gameStartedAt!: number; // ゲームの開始時間
-  private gameFinishedAt!: number; // ゲームの終了時間
-
-  private handleGameStartInfoReceived(data: ServerTimer) {
-    this.gameStartedAt = data.startedAt;
-    this.gameFinishedAt = data.finishedAt;
-  }
-
-  public getGameStartedAt(): number {
-    return this.gameStartedAt;
-  }
-
-  public getGameFinishedAt(): number {
-    return this.gameFinishedAt;
-  }
-
-  public remainTime(): number {
-    return this.gameFinishedAt - this.now();
+  now(): number {
+    return this.ts.now();
   }
 }

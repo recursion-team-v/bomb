@@ -34,9 +34,11 @@ import { createBomb } from '../services/Bomb';
 import { removeBlock } from '../services/Block';
 import { dropWalls } from '../services/Map';
 import { removeItem } from '../services/Item';
+import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
+  private serverTimer?: ServerTimer;
   private room!: Room<GameRoomState>;
   private readonly otherPlayers: Map<string, OtherPlayer> = new Map();
   private myPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
@@ -79,11 +81,12 @@ export default class Game extends Phaser.Scene {
     });
   }
 
-  create(data: { network: Network }) {
+  create(data: { network: Network; serverTimer: ServerTimer }) {
     if (data.network == null) return;
     this.network = data.network;
     if (this.network.room == null) return;
     this.room = this.network.room;
+    this.serverTimer = data.serverTimer;
 
     // プレイヤーをゲームに追加
     this.addPlayers();
@@ -120,7 +123,11 @@ export default class Game extends Phaser.Scene {
 
   private timeEventHandler() {
     // 壁落下イベント
-    if (this.network.remainTime() <= Constants.INGAME_EVENT_DROP_WALLS_TIME) {
+    if (this.serverTimer === undefined || this.network === undefined) return;
+    if (
+      this.serverTimer.finishedAt - this.network.now() <=
+      Constants.INGAME_EVENT_DROP_WALLS_TIME
+    ) {
       if (!this.IsFinishedDropWallsEvent) dropWalls();
       this.IsFinishedDropWallsEvent = true;
     }

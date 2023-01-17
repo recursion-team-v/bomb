@@ -29,7 +29,7 @@ app.options('/timesync', cors());
 app.use('/timesync', cors(), timesyncServer.requestHandler);
 
 // TODO: add latency simulation
-// gameServer.simulateLatency(200);
+gameServer.simulateLatency(200);
 
 // TODO: gracefully shutdown
 gameServer.listen(Constants.SERVER_LISTEN_PORT).catch((err) => {
