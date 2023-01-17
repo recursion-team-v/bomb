@@ -1,8 +1,7 @@
 export const gameEvents = new Phaser.Events.EventEmitter();
 
 export enum Event {
-  ROOM_ADDED = 'room-added',
-  ROOM_REMOVED = 'room-removed',
+  ROOMS_UPDATED = 'rooms-updated',
   MY_PLAYER_JOINED_ROOM = 'my-player-joined-room',
   PLAYER_JOINED_ROOM = 'player-joined-room',
   PLAYER_LEFT_ROOM = 'player-left-room',

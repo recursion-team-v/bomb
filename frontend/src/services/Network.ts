@@ -61,6 +61,7 @@ export default class Network {
 
     this.lobby.onMessage('rooms', (rooms) => {
       this.allRooms = rooms;
+      gameEvents.emit(Event.ROOMS_UPDATED);
     });
 
     this.lobby.onMessage('+', ([roomId, room]) => {
@@ -70,12 +71,12 @@ export default class Network {
       } else {
         this.allRooms.push(room);
       }
-      gameEvents.emit(Event.ROOM_ADDED);
+      gameEvents.emit(Event.ROOMS_UPDATED);
     });
 
     this.lobby.onMessage('-', (roomId) => {
       this.allRooms = this.allRooms.filter((room) => room.roomId !== roomId);
-      gameEvents.emit(Event.ROOM_REMOVED);
+      gameEvents.emit(Event.ROOMS_UPDATED);
     });
   }
 
@@ -86,20 +87,7 @@ export default class Network {
       password,
       autoDispose,
     });
-    this.initialize();
-  }
-
-  async joinCustomRoom(roomId: string, password: string | null) {
-    this.room = await this.client.joinById(roomId, { password });
-    this.initialize();
-  }
-
-  async joinOrCreatePublicRoom() {
-    this.room = await this.client.joinOrCreate(Constants.GAME_PUBLIC_ROOM_KEY);
-
-    // ゲーム開始の通知
-    // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
-    this.initialize();
+    await this.initialize();
     this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
 
     // ゲーム開始情報の受信イベント
@@ -107,8 +95,34 @@ export default class Network {
     this.sendGameProgress(Constants.GAME_STATE.PLAYING);
   }
 
-  initialize() {
+  async joinCustomRoom(roomId: string, password: string | null) {
+    this.room = await this.client.joinById(roomId, { password });
+    await this.initialize();
+    this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
+
+    // ゲーム開始情報の受信イベント
+    // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
+    this.sendGameProgress(Constants.GAME_STATE.PLAYING);
+  }
+
+  async joinOrCreatePublicRoom() {
+    this.room = await this.client.joinOrCreate(Constants.GAME_PUBLIC_ROOM_KEY);
+
+    // ゲーム開始の通知
+    // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
+    await this.initialize();
+    this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
+
+    // ゲーム開始情報の受信イベント
+    // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
+    this.sendGameProgress(Constants.GAME_STATE.PLAYING);
+  }
+
+  async initialize() {
     if (this.room == null) return;
+    if (this.lobby !== undefined) {
+      await this.lobby.leave();
+    }
 
     this.mySessionId = this.room.sessionId;
 
@@ -162,12 +176,8 @@ export default class Network {
   }
 
   // ロビーのイベント
-  onRoomAdded(callback: () => void, context?: any) {
-    gameEvents.on(Event.ROOM_ADDED, callback, context);
-  }
-
-  onRoomRemoved(callback: () => void, context?: any) {
-    gameEvents.on(Event.ROOM_REMOVED, callback, context);
+  onRoomsUpdated(callback: () => void, context?: any) {
+    gameEvents.on(Event.ROOMS_UPDATED, callback, context);
   }
 
   // 自分がルームに参加した時
