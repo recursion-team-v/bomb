@@ -2,7 +2,6 @@ import * as Config from '../config/config';
 import Network from '../services/Network';
 import { createLoginDialog } from '../utils/title';
 import { validateAndFixUserName } from '../../../backend/src/utils/validation';
-import { createUsageDialog } from '../utils/usage';
 
 export default class Title extends Phaser.Scene {
   network?: Network;
@@ -49,11 +48,6 @@ export default class Title extends Phaser.Scene {
       username: '',
     }).on('playGame', function (userName: string) {
       playGame(validateAndFixUserName(userName));
-    });
-
-    createUsageDialog(this, {
-      x: Number(this.game.config.width) / 2,
-      y: Number(this.game.config.height) / 2 + 100,
     });
   }
 }

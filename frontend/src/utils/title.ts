@@ -11,7 +11,7 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
   const heightValue = GetValue(config, 'height', undefined);
 
   // Title field object
-  const titleField = scene.add.text(0, 0, title, { fontFamily: '"Press Start 2P", cursive' });
+  const titleField = scene.add.text(0, 0, title, { fontFamily: 'PressStart2P' });
 
   // User name field object
   const userNameField = scene.rexUI.add.label({
@@ -20,7 +20,7 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
     text: scene.rexUI.add.canvasInput(xValue, yValue, 300, 36, {
       style: {
         fontSize: 20,
-        fontFamily: '"Press Start 2P", cursive',
+        fontFamily: 'PressStart2P',
         // Solution A
         'cursor.color': 'black',
         'cursor.backgroundColor': 'white',
@@ -43,7 +43,7 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
       orientation: 'x',
       background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10, 0x959595),
       text: scene.add.text(0, 0, 'play game', {
-        fontFamily: '"Press Start 2P", cursive',
+        fontFamily: 'PressStart2P',
       }),
       space: { top: 10, bottom: 10, left: 10, right: 10 },
     })

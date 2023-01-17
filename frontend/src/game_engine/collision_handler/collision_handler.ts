@@ -1,6 +1,7 @@
 import * as Constants from '../../../../backend/src/constants/constants';
 import { blastToBomb } from '../../../../backend/src/game_engine/collision_handler/blast';
 import Bomb from '../../items/Bomb';
+import { getGameScene } from '../../utils/globalGame';
 
 export default function collisionHandler(bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) {
   /**
@@ -20,5 +21,13 @@ export default function collisionHandler(bodyA: MatterJS.BodyType, bodyB: Matter
   // A = BLAST, B = BOMB
   if (aType === Constants.OBJECT_LABEL.BLAST && bType === Constants.OBJECT_LABEL.BOMB) {
     blastToBomb(bodyB.gameObject as Bomb, bodyB.gameObject.id);
+  }
+
+  // A = PLAYER, B = ITEM
+  // アイテム取得時に音を鳴らす
+  if (aType === Constants.OBJECT_LABEL.PLAYER && bType === Constants.OBJECT_LABEL.ITEM) {
+    const game = getGameScene();
+    if (game == null) return;
+    game.getSeItemGet().play();
   }
 }
