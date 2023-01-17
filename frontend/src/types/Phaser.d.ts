@@ -5,6 +5,7 @@ import { Block } from '../items/Block';
 import Bomb, { Blast } from '../items/Bomb';
 import Item from '../items/Item';
 import { InnerWall, OuterWall, DropWall } from '../items/Wall';
+import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
 
 export {};
 
@@ -57,6 +58,12 @@ declare global {
       outerWall: (x: number, y: number, frame: number) => OuterWall;
       dropWall: (x: number, y: number, frame: number) => DropWall;
       block: (x: number, y: number, frame: number) => Block;
+    }
+  }
+
+  namespace Phaser {
+    interface Scene {
+      rexUI: RexUIPlugin;
     }
   }
 }

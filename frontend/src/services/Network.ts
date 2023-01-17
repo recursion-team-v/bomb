@@ -13,10 +13,17 @@ import MyPlayer from '../characters/MyPlayer';
 import Player from '../characters/Player';
 import TimeSync, { create as TimeCreate } from 'timesync';
 
+export interface IRoomData {
+  name: string;
+  password: string | null;
+  autoDispose: boolean;
+}
+
 export default class Network {
   private readonly client: Client;
   private ts!: TimeSync;
   public room?: Room<GameRoomState>;
+  public lobby?: Room;
 
   allRooms: RoomAvailable[] = [];
   mySessionId!: string;
@@ -33,7 +40,7 @@ export default class Network {
       this.client = new Client(endpoint);
     }
     this.syncClock(endpoint);
-    this.joinOrCreateRoom().catch((err) => console.log(err));
+    this.joinLobbyRoom().catch((err) => console.log(err));
   }
 
   syncClock(endpoint: string) {
@@ -49,8 +56,46 @@ export default class Network {
     return this.ts.now();
   }
 
-  async joinOrCreateRoom() {
-    this.room = await this.client.joinOrCreate(Constants.GAME_ROOM_KEY);
+  async joinLobbyRoom() {
+    this.lobby = await this.client.joinOrCreate(Constants.GAME_LOBBY_KEY);
+
+    this.lobby.onMessage('rooms', (rooms) => {
+      this.allRooms = rooms;
+    });
+
+    this.lobby.onMessage('+', ([roomId, room]) => {
+      const roomIndex = this.allRooms.findIndex((room) => room.roomId === roomId);
+      if (roomIndex !== -1) {
+        this.allRooms[roomIndex] = room;
+      } else {
+        this.allRooms.push(room);
+      }
+      gameEvents.emit(Event.ROOM_ADDED);
+    });
+
+    this.lobby.onMessage('-', (roomId) => {
+      this.allRooms = this.allRooms.filter((room) => room.roomId !== roomId);
+      gameEvents.emit(Event.ROOM_REMOVED);
+    });
+  }
+
+  async createAndJoinCustomRoom(roomData: IRoomData) {
+    const { name, password, autoDispose } = roomData;
+    this.room = await this.client.create(Constants.GAME_CUSTOM_ROOM_KEY, {
+      name,
+      password,
+      autoDispose,
+    });
+    this.initialize();
+  }
+
+  async joinCustomRoom(roomId: string, password: string | null) {
+    this.room = await this.client.joinById(roomId, { password });
+    this.initialize();
+  }
+
+  async joinOrCreatePublicRoom() {
+    this.room = await this.client.joinOrCreate(Constants.GAME_PUBLIC_ROOM_KEY);
 
     // ゲーム開始の通知
     // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
@@ -114,6 +159,15 @@ export default class Network {
     this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (data: ServerTimer) => {
       gameEvents.emit(Event.GAME_START_INFO_RECEIVED, data);
     });
+  }
+
+  // ロビーのイベント
+  onRoomAdded(callback: () => void, context?: any) {
+    gameEvents.on(Event.ROOM_ADDED, callback, context);
+  }
+
+  onRoomRemoved(callback: () => void, context?: any) {
+    gameEvents.on(Event.ROOM_REMOVED, callback, context);
   }
 
   // 自分がルームに参加した時

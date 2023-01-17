@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
-import { Server } from 'colyseus';
+import { LobbyRoom, Server } from 'colyseus';
 import { createServer } from 'http';
 import { monitor } from '@colyseus/monitor';
 import express from 'express';
@@ -20,7 +20,9 @@ const gameServer = new Server({
 
 // TODO: add authentication
 app.use('/monitor', monitor());
-gameServer.define(Constants.GAME_ROOM_KEY, GameRoom);
+gameServer.define(Constants.GAME_LOBBY_KEY, LobbyRoom);
+gameServer.define(Constants.GAME_PUBLIC_ROOM_KEY, GameRoom, { name: 'public' });
+gameServer.define(Constants.GAME_CUSTOM_ROOM_KEY, GameRoom).enableRealtimeListing();
 
 // 時刻同期用
 app.options('/timesync', cors());

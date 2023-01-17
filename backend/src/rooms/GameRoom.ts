@@ -13,9 +13,16 @@ import Item from './schema/Item';
 
 export default class GameRoom extends Room<GameRoomState> {
   engine!: GameEngine;
+  private name?: string;
   private IsFinishedDropWallsEvent: boolean = false;
 
-  onCreate(options: any) {
+  async onCreate(options: any) {
+    const { name, autoDispose } = options;
+    this.name = name;
+    this.maxClients = 4;
+    this.autoDispose = autoDispose;
+    await this.setMetadata({ name });
+
     // ルームで使用する時計
     this.clock.start();
 
@@ -138,7 +145,6 @@ export default class GameRoom extends Room<GameRoomState> {
 
   onJoin(client: Client, options: any) {
     console.log(client.sessionId, 'joined!');
-
     // create Player instance and add to matter
     this.engine.playerService.addPlayer(client.sessionId);
   }

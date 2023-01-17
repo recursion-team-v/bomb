@@ -87,22 +87,18 @@ export default class Preloader extends Phaser.Scene {
       createPlayerAnims(this.anims);
       createBombAnims(this.anims);
       createExplodeAnims(this.anims);
+      this.preloadComplete = true;
     });
   }
 
   init() {
     this.network = new Network();
-    // 自分がルームに参加できたら preload 完了
-    this.network.onMyPlayerJoinedRoom(() => (this.preloadComplete = true));
   }
 
   update() {
     if (!this.preloadComplete) return;
 
-    this.scene.start(Config.SCENE_NAME_GAME, {
-      network: this.network,
-    });
-    this.scene.start(Config.SCENE_NAME_GAME_HEADER, {
+    this.scene.start(Config.SCENE_NAME_LOBBY, {
       network: this.network,
     });
   }
