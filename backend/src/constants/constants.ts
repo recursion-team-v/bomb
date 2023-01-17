@@ -91,6 +91,9 @@ export const MAX_SETTABLE_BOMB_COUNT = 8;
 // 初期の爆弾の破壊力
 export const INITIAL_BOMB_STRENGTH = 2;
 
+// 最大の爆弾の破壊力
+export const MAX_BOMB_STRENGTH = 12;
+
 // プレイヤーの初期移動速度
 export const INITIAL_PLAYER_SPEED = 2.5;
 
