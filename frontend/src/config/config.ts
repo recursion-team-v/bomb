@@ -26,6 +26,8 @@ asset 用
 
 export const ASSET_KEY_VOLUME_ON = 'volume_on';
 export const ASSET_KEY_VOLUME_OFF = 'volume_off';
+export const ASSET_KEY_BATTLE_START_UP = 'battle_start_up';
+export const ASSET_KEY_BATTLE_START_DOWN = 'battle_start_down';
 
 /*
 シーンの名前

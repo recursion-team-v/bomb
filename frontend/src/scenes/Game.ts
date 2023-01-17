@@ -55,7 +55,9 @@ export default class Game extends Phaser.Scene {
   private readonly itemToRemoveQueue: GameQueue<ServerItem> = new GameQueue<ServerItem>();
   private readonly currItems: Map<string, Item>; // 現在存在しているアイテム
   private bgm!: Phaser.Sound.BaseSound;
-  private title!: Phaser.GameObjects.Text;
+  private title!: Phaser.GameObjects.Container;
+  private upTitle!: Phaser.GameObjects.Image;
+  private downTitle!: Phaser.GameObjects.Image;
   private readonly currBombs: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているボム
   private readonly currBlasts: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているサーバの爆風
   private seItemGet!: Phaser.Sound.BaseSound;
@@ -84,17 +86,23 @@ export default class Game extends Phaser.Scene {
       volume: Config.SOUND_VOLUME * 1.5,
     });
 
-    this.title = this.add
-      .text(Constants.WIDTH / 2, Constants.HEIGHT / 2, 'Battle Start!', {
-        fontSize: '50px',
-      })
-      .setColor('#ffffff')
-      .setDepth(Infinity)
-      .setOrigin(0.5, 0.5);
-
-    setInterval(() => {
-      this.juice.pulse(this.title);
-    }, 200);
+    this.upTitle = this.add.image(0, Constants.HEIGHT / 2, Config.ASSET_KEY_BATTLE_START_UP);
+    this.downTitle = this.add.image(
+      Constants.WIDTH,
+      Constants.HEIGHT / 2 + 49,
+      Config.ASSET_KEY_BATTLE_START_DOWN
+    );
+    this.tweens.add({
+      targets: this.upTitle,
+      x: Constants.WIDTH / 2,
+      duration: 300,
+    });
+    this.tweens.add({
+      targets: this.downTitle,
+      x: Constants.WIDTH / 2,
+      duration: 300,
+    });
+    this.title = this.add.container(0, 0, [this.upTitle, this.downTitle]).setDepth(Infinity);
   }
 
   create(data: { network: Network }) {
@@ -123,6 +131,19 @@ export default class Game extends Phaser.Scene {
 
     // 演出が終わったらゲームを開始
     gameEvents.on(Event.GAME_PREPARING_COMPLETED, () => {
+      this.tweens.add({
+        targets: this.upTitle,
+        x: -Constants.WIDTH,
+        duration: 300,
+        ease: Phaser.Math.Easing.Quadratic.In,
+      });
+      this.tweens.add({
+        targets: this.downTitle,
+        x: Constants.WIDTH * 2,
+        duration: 300,
+        ease: Phaser.Math.Easing.Quadratic.In,
+      });
+
       this.juice.fadeOut(this.title);
 
       // キー入力を有効化
