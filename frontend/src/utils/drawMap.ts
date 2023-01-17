@@ -52,7 +52,7 @@ export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
 
   blocks.forEach((block) => {
     const random = Math.random();
-    const randomHeight = random * 5000;
+    const randomHeight = random * 4500;
     const shadow = scene.add
       .rectangle(
         block.x,
