@@ -6,7 +6,7 @@ export const createUsageDialog = function (scene: Phaser.Scene, config: any) {
 
   // Title field object
   scene.add.text(x, y, 'usage', {
-    fontFamily: '"Press Start 2P", cursive',
+    fontFamily: 'PressStart2P',
   });
 
   scene.rexUI.add
