@@ -58,7 +58,7 @@ export default class Player extends Schema {
 
   inputQueue: any[] = [];
 
-  constructor(sessionId: string, idx: number, name: string) {
+  constructor(sessionId: string, idx: number, name: string = '') {
     super();
     this.sessionId = sessionId;
     this.idx = idx;

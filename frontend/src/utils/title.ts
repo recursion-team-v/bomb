@@ -29,6 +29,7 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
       padding: 10,
       wrap: {
         vAlign: 'center',
+        hAlign: 'center',
       },
       text: username,
     }),
