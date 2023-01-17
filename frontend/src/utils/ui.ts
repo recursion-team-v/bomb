@@ -31,8 +31,8 @@ export const createDialog = (scene: Phaser.Scene, x: number, y: number, onClick:
     .dialog({
       x,
       y,
-      width: 800,
-      height: 400,
+      width: 700,
+      height: 700,
       background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, 0xcbd5e1),
       title: scene.rexUI.add.label({
         background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, 0x6b7280),
@@ -46,7 +46,7 @@ export const createDialog = (scene: Phaser.Scene, x: number, y: number, onClick:
           bottom: 10,
         },
       }),
-      actions: [createButton(scene, 0, 0, 'Start Game!')],
+      actions: [createButton(scene, 0, 0, 'Start Game!'), createButton(scene, 0, 0, 'exit')],
       space: {
         title: 10,
         left: 10,
@@ -56,10 +56,19 @@ export const createDialog = (scene: Phaser.Scene, x: number, y: number, onClick:
       },
     })
     .layout()
-    .popUp(200);
+    .popUp(100)
+    .setDepth(100);
 
-  dialog.on('button.click', function () {
-    onClick();
+  dialog.on('button.click', function (button: any, _: any, index: number) {
+    switch (index) {
+      case 0:
+        onClick();
+        break;
+      case 1:
+        // TODO: handle close
+        dialog.emit('modal.requestClose');
+        break;
+    }
   });
 
   return dialog;
