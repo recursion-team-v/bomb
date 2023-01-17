@@ -8,7 +8,7 @@ import { getDepth } from '../items/util';
 import { getGameScene } from '../utils/globalGame';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
-  readonly name: string;
+  name: string;
   private hp: number;
   private speed: number;
   private bombType: Constants.BOMB_TYPES; // ボムの種類
@@ -17,6 +17,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   private readonly sessionId: string; // サーバが一意にセットするセッションID
   private readonly hit_se;
   nameLabel!: Phaser.GameObjects.Container;
+  nameText!: Phaser.GameObjects.Text;
 
   constructor(
     sessionId: string,
@@ -65,11 +66,14 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   addNameLabel(triangleColor: number) {
     const game = getGameScene();
     const label = game.add.rectangle(0, -35, 15 * this.name.length, 30, Constants.BLACK, 0.3);
-    const nameText = game.add.text(0, 0, this.name, {
-      fontSize: '20px',
-      color: '#ffffff',
-    });
+    const nameText = game.add
+      .text(0, 0, this.name, {
+        fontSize: '20px',
+        color: '#ffffff',
+      })
+      .setOrigin(0.5);
     const triangle = game.add.triangle(0, 0, -5, -5, 15, -5, 5, 5, triangleColor);
+    this.nameText = nameText;
 
     Phaser.Display.Align.In.Center(nameText, label);
     Phaser.Display.Align.To.BottomCenter(triangle, label, 5, 8);
@@ -239,6 +243,12 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   private animationShakeScreen(duration: number = 300) {
     this.scene.cameras.main.shake(duration, 0.01);
+  }
+
+  setPlayerName(userName: string) {
+    if (this.name === userName) return;
+    this.name = userName;
+    this.nameText.setText(userName);
   }
 }
 

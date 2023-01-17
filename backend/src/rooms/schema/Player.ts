@@ -160,4 +160,8 @@ export default class Player extends Schema {
       this.maxBombCount += count;
     }
   }
+
+  setPlayerName(playerName: string) {
+    this.name = playerName;
+  }
 }

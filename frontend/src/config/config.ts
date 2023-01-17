@@ -30,6 +30,7 @@ export const ASSET_KEY_VOLUME_OFF = 'volume_off';
 シーンの名前
 */
 
+export const SCENE_NAME_TITLE = 'title';
 export const SCENE_NAME_PRELOADER = 'preloader';
 export const SCENE_NAME_GAME = 'game';
 export const SCENE_NAME_GAME_HEADER = 'gameHeader';

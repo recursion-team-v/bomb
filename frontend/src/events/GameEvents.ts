@@ -16,4 +16,5 @@ export enum Event {
   ITEM_REMOVED = 'item-removed',
   BLAST_ADDED = 'blast-added',
   BLAST_REMOVED = 'blast-removed',
+  NAME_CHANGE = 'name-change',
 }
