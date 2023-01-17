@@ -166,6 +166,14 @@ export const ITEM_TYPE = {
 
 export type ITEM_TYPES = typeof ITEM_TYPE[keyof typeof ITEM_TYPE];
 
+// アイテムを取得した際の増加量
+export const ITEM_INCREASE_RATE = {
+  [ITEM_TYPE.BOMB_POSSESSION_UP]: 1,
+  [ITEM_TYPE.BOMB_STRENGTH]: 1,
+  [ITEM_TYPE.HEART]: 1,
+  [ITEM_TYPE.PLAYER_SPEED]: 0.25,
+};
+
 /*
 アイテムの初期配置数
 */
