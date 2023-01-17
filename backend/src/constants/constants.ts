@@ -107,6 +107,9 @@ export const INITIAL_PLAYER_POSITION = [
   { x: 480, y: 476 },
 ];
 
+// プレイヤーの名前の最大文字数
+export const MAX_USER_NAME = 6;
+
 /*
 ボムの定義
 */
