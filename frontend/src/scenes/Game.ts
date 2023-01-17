@@ -58,6 +58,7 @@ export default class Game extends Phaser.Scene {
   private title!: Phaser.GameObjects.Text;
   private readonly currBombs: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているボム
   private readonly currBlasts: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているサーバの爆風
+  private seItemGet!: Phaser.Sound.BaseSound;
   private readonly juice: phaserJuice;
   private IsFinishedDropWallsEvent: boolean = false;
 
@@ -79,6 +80,10 @@ export default class Game extends Phaser.Scene {
       volume: Config.SOUND_VOLUME,
     });
 
+    this.seItemGet = this.sound.add('getItem', {
+      volume: Config.SOUND_VOLUME * 1.5,
+    });
+
     this.title = this.add
       .text(Constants.WIDTH / 2, Constants.HEIGHT / 2, 'Battle Start!', {
         fontSize: '50px',
@@ -88,7 +93,6 @@ export default class Game extends Phaser.Scene {
       .setOrigin(0.5, 0.5);
 
     setInterval(() => {
-      // this.juice.flash(this.title, 100, Constants.RED.toString());
       this.juice.pulse(this.title);
     }, 200);
   }
@@ -383,5 +387,9 @@ export default class Game extends Phaser.Scene {
     const otherPlayer = this.otherPlayers.get(sessionId);
     if (otherPlayer === undefined) return 0;
     return otherPlayer.getBombStrength();
+  }
+
+  public getSeItemGet(): Phaser.Sound.BaseSound {
+    return this.seItemGet;
   }
 }
