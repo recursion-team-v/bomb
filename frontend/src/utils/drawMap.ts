@@ -95,16 +95,18 @@ export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
 
 const generateGroundArray = (rows: number, cols: number, groundIdx: number) => {
   const ground = Constants.TILE_GROUND.DEFAULT_IDX[groundIdx];
-  const spawn = Constants.TILE_GROUND.SPAWN_IDX[groundIdx];
 
   const arr = Array(rows)
     .fill(ground)
     .map(() => Array(cols).fill(ground));
 
-  arr[1][1] = spawn;
-  arr[rows - 2][1] = spawn;
-  arr[1][cols - 2] = spawn;
-  arr[rows - 2][cols - 2] = spawn;
+  // 市松模様にする
+  for (let y = 1; y < rows - 1; y++) {
+    for (let x = 1; x < cols - 1; x++) {
+      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+      if ((y + x) % 2 === 0) arr[y][x] = arr[y][x] + 3; // 暗い画像が + 3 の位置にあるので
+    }
+  }
 
   return arr;
 };
