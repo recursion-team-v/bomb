@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import * as Config from '../config/config';
+import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import Network from '../services/Network';
 import { NavKeys } from '../types/keyboard';
 import { getGameScene } from '../utils/globalGame';
@@ -11,11 +12,7 @@ import Player from './Player';
 export default class MyPlayer extends Player {
   private serverX: number;
   private serverY: number;
-  private frameKey: number;
-  // frame をサーバに送信するための不可視のプレイヤー
-  private readonly dummyPlayer: Player;
   private readonly dead_se;
-  private readonly item_get_se;
 
   inputPayload = {
     left: false,
@@ -31,20 +28,22 @@ export default class MyPlayer extends Player {
     y: number,
     texture: string,
     frame?: string | number,
+    name?: string,
     options?: Phaser.Types.Physics.Matter.MatterBodyConfig
   ) {
-    super(sessionId, world, x, y, texture, frame, options);
+    super(sessionId, world, x, y, texture, frame, name, options);
     this.serverX = x;
     this.serverY = y;
-    this.frameKey = 14;
-    this.dummyPlayer = this.scene.add.player(sessionId, this.x, this.y, 'player', 14);
-    this.dummyPlayer.setVisible(false).setSensor(true);
     this.dead_se = this.scene.sound.add('gameOver', {
       volume: Config.SOUND_VOLUME * 1.5,
     });
-    this.item_get_se = this.scene.sound.add('getItem', {
-      volume: Config.SOUND_VOLUME * 1.5,
+    this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
+      const currBody = this.body as MatterJS.BodyType;
+      data.bodyA.id === currBody.id
+        ? collisionHandler(data.bodyA, data.bodyB)
+        : collisionHandler(data.bodyB, data.bodyA);
     });
+    this.addNameLabel(Constants.BLUE);
   }
 
   // player.onChange のコールバック
@@ -52,8 +51,6 @@ export default class MyPlayer extends Player {
     if (this.isDead()) return;
     this.serverX = player.x;
     this.serverY = player.y;
-    this.frameKey = player.frameKey;
-
     this.forceMovePlayerPosition(player);
     this.setHP(player.hp);
     if (this.isDead()) {
@@ -66,16 +63,18 @@ export default class MyPlayer extends Player {
       });
     }
     this.setSpeed(player.speed);
+    this.setBombType(player.bombType);
     this.setBombStrength(player.bombStrength);
     this.setMaxBombCount(player.maxBombCount);
+    this.setPlayerName(player.name);
   }
 
   update(cursorKeys: NavKeys, network: Network) {
     if (this.isDead()) return false;
 
     // サーバの位置に合わせて移動
-    this.setVelocity(this.serverX - this.x, this.serverY - this.y);
-    this.setFrame(this.frameKey);
+    this.setPosition(this.serverX, this.serverY);
+    this.nameLabel.setPosition(this.x, this.y - 30);
 
     // キーボードの入力をサーバに送信
     this.inputPayload.left = cursorKeys.left.isDown || cursorKeys.A.isDown;
@@ -102,16 +101,13 @@ export default class MyPlayer extends Player {
       if (this.inputPayload.down) vy += velocity;
     }
 
-    if (vx > 0) this.dummyPlayer.play('player_right', true);
-    else if (vx < 0) this.dummyPlayer.play('player_left', true);
-    else if (vy > 0) this.dummyPlayer.play('player_down', true);
-    else if (vy < 0) this.dummyPlayer.play('player_up', true);
-    else this.dummyPlayer.stop();
+    if (vx > 0) this.play('player_right', true);
+    else if (vx < 0) this.play('player_left', true);
+    else if (vy > 0) this.play('player_down', true);
+    else if (vy < 0) this.play('player_up', true);
+    else this.stop();
 
-    // 自分自身の移動はサーバに管理してもらう都合上送れないが
-    // アニメーションはフロントで管理するため、dummy Player を先に移動させて frame を送る。
-    // this.dummyPlayer.setVelocity(vx, vy);
-    network.sendPlayerMove(this.dummyPlayer, this.inputPayload, isInput);
+    network.sendPlayerMove(this, this.inputPayload, isInput);
 
     // bomb 設置
     const isSpaceJustDown = Phaser.Input.Keyboard.JustDown(cursorKeys.space);
@@ -145,25 +141,6 @@ export default class MyPlayer extends Player {
     if (forceX === 0 && forceY === 0) return;
     this.setVelocity(forceX, forceY);
   }
-
-  setMaxBombCount(maxBombCount: number): boolean {
-    if (super.setMaxBombCount(maxBombCount)) this.playItemGetSe();
-    return true;
-  }
-
-  setBombStrength(bombStrength: number): boolean {
-    if (super.setBombStrength(bombStrength)) this.playItemGetSe();
-    return true;
-  }
-
-  setSpeed(speed: number): boolean {
-    if (super.setSpeed(speed)) this.playItemGetSe();
-    return true;
-  }
-
-  private playItemGetSe() {
-    this.item_get_se.play();
-  }
 }
 
 // register myPlayer to GameObjectFactory
@@ -177,9 +154,19 @@ Phaser.GameObjects.GameObjectFactory.register(
     y: number,
     texture: string,
     frame?: string | number,
+    name?: string,
     options?: Phaser.Types.Physics.Matter.MatterBodyConfig
   ) {
-    const sprite = new MyPlayer(sessionId, this.scene.matter.world, x, y, texture, frame, options);
+    const sprite = new MyPlayer(
+      sessionId,
+      this.scene.matter.world,
+      x,
+      y,
+      texture,
+      frame,
+      name,
+      options
+    );
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);

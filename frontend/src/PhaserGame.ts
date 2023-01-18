@@ -11,6 +11,7 @@ import GameHeader from './scenes/GameHeader';
 import GameResult from './scenes/GameResult';
 import Preloader from './scenes/Preloader';
 import isMobile from './utils/mobile';
+import Title from './scenes/Title';
 
 const screenHeight = () => (isMobile() ? Constants.MOBILE_HEIGHT : Constants.HEIGHT);
 
@@ -36,7 +37,7 @@ const config: Phaser.Types.Core.GameConfig = {
     forceSetTimeOut: true,
   },
   autoFocus: true,
-  scene: [Preloader, Lobby, Game, GameHeader, GameResult],
+  scene: [Preloader, Title, Lobby, Game, GameHeader, GameResult],
   plugins: {
     scene: [
       {
@@ -57,6 +58,9 @@ const config: Phaser.Types.Core.GameConfig = {
         start: false,
       },
     ],
+  },
+  dom: {
+    createContainer: true,
   },
 };
 

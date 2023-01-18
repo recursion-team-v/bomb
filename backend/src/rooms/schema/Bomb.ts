@@ -17,6 +17,10 @@ export class Bomb extends Schema {
   @type('number')
   y: number;
 
+  // ボムの種類
+  @type('number')
+  bombType: Constants.BOMB_TYPES;
+
   // ボムの破壊力
   @type('number')
   bombStrength: number;
@@ -33,12 +37,19 @@ export class Bomb extends Schema {
   @type('number')
   removedAt: number;
 
-  constructor(x: number, y: number, bombStrength: number, sessionId: string) {
+  constructor(
+    x: number,
+    y: number,
+    bombType: Constants.BOMB_TYPES,
+    bombStrength: number,
+    sessionId: string
+  ) {
     super();
     this.id = uuidv4();
     this.sessionId = sessionId;
     this.x = x;
     this.y = y;
+    this.bombType = bombType;
     this.bombStrength = bombStrength;
     this.explodedState = false;
     // 同期を取るため、オブジェクトの生成を遅らせる
@@ -62,6 +73,11 @@ export class Bomb extends Schema {
   // ボムを爆発させる(フラグの更新のみ)
   explode() {
     this.explodedState = true;
+  }
+
+  // 貫通系のボムかどうか
+  isPenetrationBomb(): boolean {
+    return this.bombType === Constants.BOMB_TYPE.PENETRATION;
   }
 }
 

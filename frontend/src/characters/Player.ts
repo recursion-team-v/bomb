@@ -2,18 +2,21 @@ import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import * as Config from '../config/config';
-import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import Bomb from '../items/Bomb';
 import { getDepth } from '../items/util';
 import { getGameScene } from '../utils/globalGame';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
+  name: string;
   private hp: number;
   private speed: number;
+  private bombType: Constants.BOMB_TYPES; // ボムの種類
   private bombStrength: number;
   private maxBombCount: number; // 設置できるボムの最大個数
   private readonly sessionId: string; // サーバが一意にセットするセッションID
   private readonly hit_se;
+  nameLabel!: Phaser.GameObjects.Container;
+  nameText!: Phaser.GameObjects.Text;
 
   constructor(
     sessionId: string,
@@ -22,13 +25,15 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     y: number,
     texture: string,
     frame?: string | number,
+    name?: string,
     options?: Phaser.Types.Physics.Matter.MatterBodyConfig
   ) {
     super(world, x, y, texture, frame, options);
-
+    this.name = name === undefined ? Constants.DEFAULT_PLAYER_NAME : name;
     this.hp = Constants.INITIAL_PLAYER_HP;
     this.sessionId = sessionId;
     this.speed = Constants.INITIAL_PLAYER_SPEED;
+    this.bombType = Constants.BOMB_TYPE.NORMAL;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
 
@@ -46,26 +51,43 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     body.label = Constants.OBJECT_LABEL.PLAYER;
 
     this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
-    this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
-      const currBody = this.body as MatterJS.BodyType;
-      data.bodyA.id === currBody.id
-        ? collisionHandler(data.bodyA, data.bodyB)
-        : collisionHandler(data.bodyB, data.bodyA);
-    });
     this.hit_se = this.scene.sound.add('hitPlayer', {
       volume: Config.SOUND_VOLUME,
     });
   }
 
+  addNameLabel(triangleColor: number) {
+    const game = getGameScene();
+    const label = game.add.rectangle(0, -35, 25 * this.name.length, 30, Constants.BLACK, 0.3);
+    const nameText = game.add
+      .text(0, 0, this.name, {
+        fontSize: '20px',
+        color: '#ffffff',
+      })
+      .setOrigin(0.5);
+    const triangle = game.add.triangle(0, 0, -5, -5, 15, -5, 5, 5, triangleColor);
+    this.nameText = nameText;
+
+    Phaser.Display.Align.In.Center(nameText, label);
+    Phaser.Display.Align.To.BottomCenter(triangle, label, 5, 8);
+
+    this.nameLabel = game.add
+      .container(this.x, this.y, [label, nameText, triangle])
+      .setDepth(Infinity);
+  }
+
   // HP をセットします
-  setHP(hp: number) {
+  // HP が増えた場合は true を返します
+  setHP(hp: number): boolean {
     // サーバで計算するので、ここではHPを上書きするだけ
-    if (this.hp === hp) return;
+    if (this.hp === hp) return true;
 
     if (this.hp > hp) {
       this.damaged(this.hp - hp);
+      return false;
     } else {
       this.healed(hp - this.hp);
+      return true;
     }
   }
 
@@ -75,14 +97,14 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   }
 
   // interface を満たすだけのダミーメソッド
-  damaged(damage: number) {
+  private damaged(damage: number) {
     this.hit_se.play();
     this.hp -= damage;
     this.animationShakeScreen();
     this.animationFlash(Constants.PLAYER_INVINCIBLE_TIME);
   }
 
-  healed(healedHp: number) {
+  private healed(healedHp: number) {
     this.hp += healedHp;
   }
 
@@ -107,6 +129,16 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   getSessionId() {
     return this.sessionId;
+  }
+
+  getBombType(): Constants.BOMB_TYPES {
+    return this.bombType;
+  }
+
+  setBombType(bombType: Constants.BOMB_TYPES): boolean {
+    if (this.bombType === bombType) return false;
+    this.bombType = bombType;
+    return true;
   }
 
   // 爆弾の破壊力を取得する
@@ -205,6 +237,12 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   private animationShakeScreen(duration: number = 300) {
     this.scene.cameras.main.shake(duration, 0.01);
   }
+
+  setPlayerName(userName: string) {
+    if (this.name === userName) return;
+    this.name = userName;
+    this.nameText.setText(userName);
+  }
 }
 
 Phaser.GameObjects.GameObjectFactory.register(
@@ -216,9 +254,19 @@ Phaser.GameObjects.GameObjectFactory.register(
     y: number,
     texture: string,
     frame?: string | number,
+    name?: string,
     options?: Phaser.Types.Physics.Matter.MatterBodyConfig
   ) {
-    const sprite = new Player(sessionId, this.scene.matter.world, x, y, texture, frame, options);
+    const sprite = new Player(
+      sessionId,
+      this.scene.matter.world,
+      x,
+      y,
+      texture,
+      frame,
+      name,
+      options
+    );
 
     // 使う用途がダミーなので、ここではコメントアウト
     // this.displayList.add(sprite);

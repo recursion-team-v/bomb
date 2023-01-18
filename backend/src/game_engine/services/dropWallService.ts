@@ -20,9 +20,25 @@ function dropWall(engine: GameEngine, wallIndex: number) {
   const x = wallIndex % (Constants.TILE_COLS - 2);
   const y = Math.floor(wallIndex / (Constants.TILE_COLS - 2));
 
+  const wallX = Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * (x + 1);
+  const wallY =
+    Constants.HEADER_HEIGHT + Constants.TILE_HEIGHT / 2 + Constants.TILE_HEIGHT * (y + 1);
+
   const newWall = Matter.Bodies.rectangle(
-    Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * (x + 1),
-    Constants.HEADER_HEIGHT + Constants.TILE_HEIGHT / 2 + Constants.TILE_HEIGHT * (y + 1),
+    wallX,
+    wallY,
+    Constants.TILE_WIDTH,
+    Constants.TILE_HEIGHT,
+    {
+      label: Constants.OBJECT_LABEL.WALL, // DROP_WALL にすると触れただけで死ぬので、壁として扱う
+      isStatic: true,
+    }
+  );
+
+  // 当たり判定の箇所
+  const collisionDetectionArea = Matter.Bodies.rectangle(
+    wallX,
+    wallY,
     Constants.TILE_WIDTH * 0.1, // 当たり判定の極小化
     Constants.TILE_HEIGHT * 0.1, // 当たり判定の極小化
     {
@@ -31,5 +47,5 @@ function dropWall(engine: GameEngine, wallIndex: number) {
     }
   );
 
-  Matter.Composite.add(engine.world, newWall);
+  Matter.Composite.add(engine.world, [newWall, collisionDetectionArea]);
 }

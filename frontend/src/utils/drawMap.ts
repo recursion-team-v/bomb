@@ -1,7 +1,9 @@
-import * as Constants from '../../../backend/src/constants/constants';
-import MapTiles from '../../../backend/src/rooms/schema/MapTiles';
 import { MapSchema } from '@colyseus/schema';
+
+import * as Constants from '../../../backend/src/constants/constants';
 import Block from '../../../backend/src/rooms/schema/Block';
+import MapTiles from '../../../backend/src/rooms/schema/MapTiles';
+import { Event, gameEvents } from '../events/GameEvents';
 import { Block as BlockBody } from '../items/Block';
 
 const rows = Constants.TILE_ROWS;
@@ -46,9 +48,48 @@ export const drawWalls = (scene: Phaser.Scene, mapTiles: MapTiles) => {
 
 export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
   const currBlocks = new Map<string, BlockBody>();
+  let eventCount = 0;
+
   blocks.forEach((block) => {
-    currBlocks.set(block.id, scene.add.block(block.x, block.y, Constants.TILE_BLOCK_IDX));
+    const random = Math.random();
+    const randomHeight = random * 4500;
+    const shadow = scene.add
+      .rectangle(
+        block.x,
+        block.y,
+        Constants.TILE_WIDTH * 1.0,
+        Constants.TILE_HEIGHT * 1.0,
+        Constants.BLACK,
+        random * 0.8
+      )
+      .setDepth(Constants.OBJECT_DEPTH.DROP_WALL_SHADOW);
+
+    const b = scene.add.block(block.x, block.y - randomHeight, Constants.TILE_BLOCK_IDX);
+    currBlocks.set(block.id, b);
+    b.setDepth(Infinity);
+    b.setSensor(true);
+
+    scene.add.tween({
+      targets: currBlocks.get(block.id),
+      y: `+=${randomHeight}`,
+      duration: randomHeight,
+      repeat: 0,
+      onUpdate: () => {
+        shadow.setAlpha(shadow.alpha - 0.003);
+      },
+      onComplete: () => {
+        scene.cameras.main.shake(200, 0.001);
+        b.setDepth(Constants.OBJECT_DEPTH.BLOCK);
+        b.setSensor(false);
+        shadow.destroy();
+        eventCount++;
+        if (eventCount === blocks.size) {
+          gameEvents.emit(Event.GAME_PREPARING_COMPLETED);
+        }
+      },
+    });
   });
+
   return currBlocks;
 };
 

@@ -5,6 +5,8 @@ import Game from '../scenes/Game';
 import { Keyboard, NavKeys } from '../types/keyboard';
 import isMobile from './mobile';
 
+let button: Phaser.GameObjects.Image;
+
 export default function initializeKeys(game: Game): NavKeys {
   const kb = game.input.keyboard;
 
@@ -24,7 +26,7 @@ export default function initializeKeys(game: Game): NavKeys {
     });
 
     const container = game.add.container(Constants.BUTTON_X, Constants.BUTTON_Y);
-    const button = game.add.image(0, 0, 'bomb').setScale(2);
+    button = game.add.image(0, 0, 'bomb').setScale(2);
     button.setInteractive();
     button.on('pointerup', () => game.getCurrentPlayer().placeBomb());
 
@@ -38,4 +40,18 @@ export default function initializeKeys(game: Game): NavKeys {
     };
   }
   return keys;
+}
+
+export function enableKeys(keys: NavKeys): void {
+  Object.values(keys).forEach((key) => {
+    key.enabled = true;
+  });
+  if (isMobile()) button.setInteractive();
+}
+
+export function disableKeys(keys: NavKeys): void {
+  Object.values(keys).forEach((key) => {
+    key.enabled = false;
+  });
+  if (isMobile()) button.disableInteractive();
 }

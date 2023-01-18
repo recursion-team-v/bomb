@@ -5,7 +5,7 @@ import { Block } from '../items/Block';
 import Bomb, { Blast } from '../items/Bomb';
 import Item from '../items/Item';
 import { InnerWall, OuterWall, DropWall } from '../items/Wall';
-import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
+import VolumeIcon from '../services/SoundVolume';
 
 export {};
 
@@ -42,6 +42,16 @@ declare global {
         sessionId: string,
         x: number,
         y: number,
+        bombType: Constants.BOMB_TYPES,
+        bombStrength: number,
+        removedAt: number
+      ) => Bomb;
+      penetrationBomb: (
+        id: string,
+        sessionId: string,
+        x: number,
+        y: number,
+        bombType: Constants.BOMB_TYPES,
         bombStrength: number,
         removedAt: number
       ) => Bomb;
@@ -58,12 +68,7 @@ declare global {
       outerWall: (x: number, y: number, frame: number) => OuterWall;
       dropWall: (x: number, y: number, frame: number) => DropWall;
       block: (x: number, y: number, frame: number) => Block;
-    }
-  }
-
-  namespace Phaser {
-    interface Scene {
-      rexUI: RexUIPlugin;
+      volumeIcon: (scene: Phaser.Scene, x: number, y: number, isPlay?: boolean) => VolumeIcon;
     }
   }
 }

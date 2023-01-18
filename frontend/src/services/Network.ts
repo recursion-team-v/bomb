@@ -218,6 +218,11 @@ export default class Network {
     this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, player);
   }
 
+  // プレイヤーの名前を送る
+  sendPlayerName(playerName: string) {
+    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_INFO, playerName);
+  }
+
   // 自分のゲーム状態を送る
   sendGameState(state: Constants.GAME_STATE_TYPE) {
     this.room?.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, state);
@@ -234,5 +239,9 @@ export default class Network {
 
   now(): number {
     return this.ts.now();
+  }
+
+  getTs(): TimeSync {
+    return this.ts;
   }
 }
