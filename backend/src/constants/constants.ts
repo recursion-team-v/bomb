@@ -70,6 +70,47 @@ export type DIRECTION_TYPE = typeof DIRECTION[keyof typeof DIRECTION];
 export const MAX_PLAYER = 4;
 
 /*
+マップの定義
+*/
+
+export const DEFAULT_TIP_SIZE = 64; // デフォルトのチップサイズ
+
+// マップの設定
+export const TILE_ROWS = 13; // タイルの行数
+export const TILE_COLS = 20; // タイルの列数
+export const TILE_WIDTH = DEFAULT_TIP_SIZE; // タイルの横幅
+export const TILE_HEIGHT = DEFAULT_TIP_SIZE; // タイルの縦幅
+export const MAX_BLOCKS = 100;
+
+// マップのタイルシートの idx
+export const TILE_GROUND = {
+  DEFAULT_IDX: [3, 4, 5], // 地面タイルの idx (3, 4, 5)
+  SPAWN_IDX: [0, 1, 2], // 地面（スポーン）タイルの idx (0, 1, 2)
+};
+export const TILE_WALL = {
+  OUTER_TOP_BOT: [19],
+  OUTER_LEFT_RIGHT: [10],
+  OUTER_CORNER: [21, 22, 23],
+  INNER: [12, 13, 14, 19, 24, 25, 27],
+  INNER_CHAMFER: 25, // 内壁タイルの chamfer
+};
+export const TILE_BLOCK_IDX = 1; // 破壊できる箱の idx
+
+export const PLAYER_WIDTH = DEFAULT_TIP_SIZE; // プレイヤーの横幅
+export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
+
+/*
+画面の定義
+*/
+export const HEADER_HEIGHT = 64; // ヘッダーの高さ
+export const HEIGHT = TILE_HEIGHT * TILE_ROWS + HEADER_HEIGHT; // 画面の高さ
+export const MOBILE_HEIGHT = HEIGHT + 300; // モバイル用の余白
+export const WIDTH = TILE_WIDTH * TILE_COLS; // 画面の幅
+export const HEADER_COLOR_CODE = BLACK; // ヘッダーの色
+export const HEADER_TIMER_TEXT_COLOR_CODE = WHITE; // ヘッダーのタイマーの文字色
+export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
+
+/*
 プレイヤーの状態の定義
 */
 
@@ -91,8 +132,14 @@ export const MAX_SETTABLE_BOMB_COUNT = 8;
 // 初期の爆弾の破壊力
 export const INITIAL_BOMB_STRENGTH = 2;
 
+// 最大の爆弾の破壊力
+export const MAX_BOMB_STRENGTH = 12;
+
 // プレイヤーの初期移動速度
-export const INITIAL_PLAYER_SPEED = 2;
+export const INITIAL_PLAYER_SPEED = 2.5;
+
+// プレイヤーの最大移動速度
+export const MAX_PLAYER_SPEED = 5;
 
 // プレイヤーが被弾時に一定時間無敵になる時間(ms)
 export const PLAYER_INVINCIBLE_TIME = 3000;
@@ -100,11 +147,19 @@ export const PLAYER_INVINCIBLE_TIME = 3000;
 // プレイヤーの初期位置
 // TODO: サイズから計算する
 export const INITIAL_PLAYER_POSITION = [
-  { x: 96, y: 156 },
-  { x: 864, y: 156 },
-  { x: 96, y: 796 },
-  { x: 864, y: 796 },
-  { x: 480, y: 476 },
+  { x: PLAYER_WIDTH + PLAYER_WIDTH / 2, y: PLAYER_HEIGHT + PLAYER_HEIGHT / 2 + HEADER_HEIGHT },
+  {
+    x: PLAYER_WIDTH * (TILE_COLS - 2) + PLAYER_WIDTH / 2,
+    y: PLAYER_HEIGHT + PLAYER_HEIGHT / 2 + HEADER_HEIGHT,
+  },
+  {
+    x: PLAYER_WIDTH + PLAYER_WIDTH / 2,
+    y: PLAYER_HEIGHT * (TILE_ROWS - 2) + PLAYER_HEIGHT / 2 + HEADER_HEIGHT,
+  },
+  {
+    x: PLAYER_WIDTH * (TILE_COLS - 2) + PLAYER_WIDTH / 2,
+    y: PLAYER_HEIGHT * (TILE_ROWS - 2) + PLAYER_HEIGHT / 2 + HEADER_HEIGHT,
+  },
 ];
 
 // プレイヤーの名前の最大文字数
@@ -163,6 +218,14 @@ export const ITEM_TYPE = {
 
 export type ITEM_TYPES = typeof ITEM_TYPE[keyof typeof ITEM_TYPE];
 
+// アイテムを取得した際の増加量
+export const ITEM_INCREASE_RATE = {
+  [ITEM_TYPE.BOMB_POSSESSION_UP]: 1,
+  [ITEM_TYPE.BOMB_STRENGTH]: 1,
+  [ITEM_TYPE.HEART]: 1,
+  [ITEM_TYPE.PLAYER_SPEED]: 0.25,
+};
+
 /*
 アイテムの初期配置数
 */
@@ -184,47 +247,6 @@ export const COLLISION_CATEGORY = {
   DEFAULT: 0x0001, // デフォルト
   PLAYER: 0x0002, // プレイヤー
 };
-
-/*
-マップの定義
-*/
-
-export const DEFAULT_TIP_SIZE = 64; // デフォルトのチップサイズ
-
-// マップの設定
-export const TILE_ROWS = 13; // タイルの行数
-export const TILE_COLS = 15; // タイルの列数
-export const TILE_WIDTH = DEFAULT_TIP_SIZE; // タイルの横幅
-export const TILE_HEIGHT = DEFAULT_TIP_SIZE; // タイルの縦幅
-export const MAX_BLOCKS = 100;
-
-// マップのタイルシートの idx
-export const TILE_GROUND = {
-  DEFAULT_IDX: [3, 4, 5], // 地面タイルの idx (3, 4, 5)
-  SPAWN_IDX: [0, 1, 2], // 地面（スポーン）タイルの idx (0, 1, 2)
-};
-export const TILE_WALL = {
-  OUTER_TOP_BOT: [19],
-  OUTER_LEFT_RIGHT: [10],
-  OUTER_CORNER: [21, 22, 23],
-  INNER: [12, 13, 14, 19, 24, 25, 27],
-  INNER_CHAMFER: 25, // 内壁タイルの chamfer
-};
-export const TILE_BLOCK_IDX = 1; // 破壊できる箱の idx
-
-export const PLAYER_WIDTH = DEFAULT_TIP_SIZE; // プレイヤーの横幅
-export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
-
-/*
-画面の定義
-*/
-export const HEADER_HEIGHT = 64; // ヘッダーの高さ
-export const HEIGHT = TILE_HEIGHT * TILE_ROWS + HEADER_HEIGHT; // 画面の高さ
-export const MOBILE_HEIGHT = HEIGHT + 300; // モバイル用の余白
-export const WIDTH = TILE_WIDTH * TILE_COLS; // 画面の幅
-export const HEADER_COLOR_CODE = BLACK; // ヘッダーの色
-export const HEADER_TIMER_TEXT_COLOR_CODE = WHITE; // ヘッダーのタイマーの文字色
-export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
 
 /*
 ラベルの定義

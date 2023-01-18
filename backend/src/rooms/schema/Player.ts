@@ -122,8 +122,8 @@ export default class Player extends Schema {
 
   // ボムの火力を変更する
   setBombStrength(bombStrength: number) {
-    // TODO: 上限を設ける
-    this.bombStrength = bombStrength;
+    this.bombStrength =
+      bombStrength > Constants.MAX_BOMB_STRENGTH ? Constants.MAX_BOMB_STRENGTH : bombStrength;
   }
 
   // 速さを取得する
@@ -133,8 +133,7 @@ export default class Player extends Schema {
 
   // 速さを変更する
   setSpeed(speed: number) {
-    // TODO: 上限を設ける
-    this.speed = speed;
+    this.speed = speed > Constants.MAX_PLAYER_SPEED ? Constants.MAX_PLAYER_SPEED : speed;
   }
 
   // ボムを設置できるかをチェックする
