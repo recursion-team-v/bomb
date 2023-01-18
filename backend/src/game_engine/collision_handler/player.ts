@@ -9,19 +9,19 @@ export function playerToItem(player: Player, item: Item, engine: GameEngine) {
 
   switch (item.getType()) {
     case Constants.ITEM_TYPE.BOMB_STRENGTH:
-      player.setBombStrength(player.getBombStrength() + 1);
+      player.setBombStrength(player.getBombStrength() + Constants.ITEM_INCREASE_RATE.BOMB_STRENGTH);
       break;
 
     case Constants.ITEM_TYPE.PLAYER_SPEED:
-      player.setSpeed(player.getSpeed() + 1);
+      player.setSpeed(player.getSpeed() + Constants.ITEM_INCREASE_RATE.PLAYER_SPEED);
       break;
 
     case Constants.ITEM_TYPE.BOMB_POSSESSION_UP:
-      player.increaseMaxBombCount();
+      player.increaseMaxBombCount(Constants.ITEM_INCREASE_RATE.BOMB_POSSESSION_UP);
       break;
 
     case Constants.ITEM_TYPE.HEART:
-      player.healed(1);
+      player.healed(Constants.ITEM_INCREASE_RATE.HEART);
       break;
 
     case Constants.ITEM_TYPE.PENETRATION_BOMB:
