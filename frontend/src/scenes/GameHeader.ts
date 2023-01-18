@@ -1,13 +1,14 @@
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
+import '../services/SoundVolume';
 import MyPlayer from '../characters/MyPlayer';
 import * as Config from '../config/config';
 import Network from '../services/Network';
 import ToString from '../utils/color';
 import { getGameScene } from '../utils/globalGame';
-import { isMute, toggle } from '../utils/sound';
 import convertSecondsToMMSS from '../utils/timer';
+import { isPlay } from '../utils/sound';
 
 export default class GameHeader extends Phaser.Scene {
   private readonly width: number;
@@ -19,7 +20,6 @@ export default class GameHeader extends Phaser.Scene {
   private textBombCount!: Phaser.GameObjects.Text;
   private textBombStrength!: Phaser.GameObjects.Text;
   private textSpeed!: Phaser.GameObjects.Text;
-  private iconVolume!: Phaser.GameObjects.Image;
   private network!: Network;
   private imgBomb!: Phaser.GameObjects.Image;
 
@@ -55,15 +55,7 @@ export default class GameHeader extends Phaser.Scene {
       this.textSpeed,
     ]);
 
-    this.iconVolume = this.add
-      .image(
-        this.width - 60,
-        10,
-        Config.SOUND_DEFAULT_IS_PLAY ? Config.ASSET_KEY_VOLUME_ON : Config.ASSET_KEY_VOLUME_OFF
-      )
-      .setOrigin(0, 0)
-      .setInteractive()
-      .on('pointerdown', () => this.updateVolumeIcon());
+    this.add.volumeIcon(this, this.width - 60, 10, isPlay());
   }
 
   create(data: { network: Network }) {
@@ -96,14 +88,5 @@ export default class GameHeader extends Phaser.Scene {
       .setFontFamily('PressStart2P')
       .setColor(ToString(Constants.HEADER_TIMER_TEXT_COLOR_CODE))
       .setPadding(10, paddingHeight, 10, paddingHeight);
-  }
-
-  private volumeIcon(): string {
-    return isMute() ? Config.ASSET_KEY_VOLUME_ON : Config.ASSET_KEY_VOLUME_OFF;
-  }
-
-  private updateVolumeIcon() {
-    toggle();
-    this.iconVolume.setTexture(this.volumeIcon());
   }
 }
