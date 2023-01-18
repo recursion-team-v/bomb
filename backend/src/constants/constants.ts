@@ -291,8 +291,8 @@ export type OBJECT_COLLISIONS_TO_BLAST =
 export const OBJECT_DEPTH = {
   NONE: 0,
   [OBJECT_LABEL.ITEM]: 1, // ブロックの下にある
-  [OBJECT_LABEL.BLOCK]: 2, // ブロックをすり抜けられるアイテムがある
-  [OBJECT_LABEL.BLAST]: 3, // ブロックや、アイテムの上にある
+  [OBJECT_LABEL.BLAST]: 2, // ブロックや、アイテムの上にある
+  [OBJECT_LABEL.BLOCK]: 3, // ブロックをすり抜けられるアイテムがある
   [OBJECT_LABEL.BOMB]: 4, // 特殊なアイテムで壁の上を爆弾が滑ることがある
   [OBJECT_LABEL.PLAYER]: 10,
   [OBJECT_LABEL.WALL]: 99,

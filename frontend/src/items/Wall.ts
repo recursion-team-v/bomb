@@ -50,7 +50,6 @@ Phaser.GameObjects.GameObjectFactory.register(
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);
-
     return sprite;
   }
 );
