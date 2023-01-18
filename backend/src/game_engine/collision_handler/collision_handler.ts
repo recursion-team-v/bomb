@@ -3,7 +3,7 @@ import Matter from 'matter-js';
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
 import { playerToItem } from './player';
-import { blastToBomb, blastToPlayer } from './blast';
+import { blastToBomb } from './blast';
 
 export default function collisionHandler(
   engine: GameEngine,
@@ -55,8 +55,11 @@ export default function collisionHandler(
     const player = engine.state.getPlayer(sessionId);
     if (player === undefined) return;
 
+    if (player.isDead()) return;
+
     // TODO: 爆風に当たると30hitぐらいしちゃうので、回復アイテムを入れるならヒット後は数秒無敵にした方がいい
-    blastToPlayer(player);
+    player.damaged(Constants.BOMB_DAMAGE);
+    if (player.isDead()) engine.playerService.diePlayer(player);
   }
 
   // PLAYER & DROP_WALL
@@ -68,8 +71,11 @@ export default function collisionHandler(
     const player = engine.state.getPlayer(sessionId);
     if (player === undefined) return;
 
+    if (player.isDead()) return;
+
     // プレイヤーのHPを0にする
     player.damaged(player.hp);
+    engine.playerService.diePlayer(player);
   }
 
   // BLAST & BOMB

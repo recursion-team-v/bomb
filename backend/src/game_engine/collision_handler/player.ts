@@ -29,10 +29,14 @@ export function playerToItem(player: Player, item: Item, engine: GameEngine) {
       break;
 
     default:
+      return;
   }
 
   // アイテムを取得済みにする
   item.setObtained();
+
+  // アイテム取得履歴の追加
+  player.incrementItem(item.itemType);
 
   // アイテムを削除するキューに入れる
   engine.state.getItemToDestroyQueue().enqueue(item);
