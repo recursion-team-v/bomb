@@ -28,8 +28,8 @@ export default class Title extends Phaser.Scene {
 
   create(data: { network: Network }) {
     const playGame = (userName: string) => {
+      data.network.setPlayerName(userName);
       this.scene.start(Config.SCENE_NAME_LOBBY, { network: data.network });
-      data.network?.sendPlayerName(userName);
       this.se?.play();
       this.bgm?.stop();
     };

@@ -66,7 +66,6 @@ export default class MyPlayer extends Player {
     this.setBombType(player.bombType);
     this.setBombStrength(player.bombStrength);
     this.setMaxBombCount(player.maxBombCount);
-    this.setPlayerName(player.name);
   }
 
   update(cursorKeys: NavKeys, network: Network) {

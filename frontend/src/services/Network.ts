@@ -31,6 +31,7 @@ export default class Network {
 
   allRooms: RoomAvailable[] = [];
   mySessionId!: string;
+  private playerName = '';
 
   constructor() {
     const protocol = window.location.protocol.replace('http', 'ws');
@@ -77,13 +78,14 @@ export default class Network {
       name,
       password,
       autoDispose,
+      playerName: this.playerName,
     });
     await this.initialize();
     this.sendGameState(Constants.GAME_STATE.WAITING);
   }
 
   async joinCustomRoom(roomId: string, password: string | null) {
-    this.room = await this.client.joinById(roomId, { password });
+    this.room = await this.client.joinById(roomId, { playerName: this.playerName, password });
     await this.initialize();
     this.sendGameState(Constants.GAME_STATE.WAITING);
   }
@@ -218,11 +220,6 @@ export default class Network {
     this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, player);
   }
 
-  // プレイヤーの名前を送る
-  sendPlayerName(playerName: string) {
-    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_INFO, playerName);
-  }
-
   // 自分のゲーム状態を送る
   sendGameState(state: Constants.GAME_STATE_TYPE) {
     this.room?.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, state);
@@ -243,5 +240,14 @@ export default class Network {
 
   getTs(): TimeSync {
     return this.ts;
+  }
+
+  // FIXME: move from Network.ts
+  setPlayerName(playerName: string) {
+    this.playerName = playerName;
+  }
+
+  getPlayerName() {
+    return this.playerName;
   }
 }

@@ -227,7 +227,14 @@ export default class Game extends Phaser.Scene {
   private addMyPlayer() {
     const player = this.room.state.players.get(this.network.mySessionId);
     if (player === undefined) return;
-    const myPlayer = this.add.myPlayer(this.network.mySessionId, player.x, player.y, 'player');
+    const myPlayer = this.add.myPlayer(
+      this.network.mySessionId,
+      player.x,
+      player.y,
+      'player',
+      undefined,
+      player.name
+    );
     this.myPlayer = myPlayer;
     player.onChange = () => {
       this.myPlayer.handleServerChange(player);
@@ -235,7 +242,14 @@ export default class Game extends Phaser.Scene {
   }
 
   private handlePlayerJoinedRoom(player: ServerPlayer, sessionId: string) {
-    const otherPlayer = this.add.otherPlayer(sessionId, player.x, player.y, 'player');
+    const otherPlayer = this.add.otherPlayer(
+      sessionId,
+      player.x,
+      player.y,
+      'player',
+      undefined,
+      player.name
+    );
     this.otherPlayers.set(sessionId, otherPlayer);
 
     player.onChange = () => {

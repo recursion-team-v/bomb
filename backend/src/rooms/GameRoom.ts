@@ -60,12 +60,6 @@ export default class GameRoom extends Room<GameRoomState> {
       }
     );
 
-    this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_INFO, (client, data: any) => {
-      const player = this.state.getPlayer(client.sessionId);
-      if (player === undefined) return;
-      player?.setPlayerName(data);
-    });
-
     // クライアントからの移動入力を受け取ってキューに詰める
     this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, (client, data: any) => {
       // get reference to the player who sent the message
@@ -165,10 +159,10 @@ export default class GameRoom extends Room<GameRoomState> {
   //   });
   // }
 
-  onJoin(client: Client, options: any) {
+  onJoin(client: Client, options: { playerName: string }) {
     console.log(client.sessionId, 'joined!');
-    // create Player instance and add to matter
-    this.engine.playerService.addPlayer(client.sessionId);
+    const { playerName } = options;
+    this.engine.playerService.addPlayer(client.sessionId, playerName);
   }
 
   onLeave(client: Client, consented: boolean) {
