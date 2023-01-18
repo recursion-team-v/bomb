@@ -69,6 +69,9 @@ export default class Preloader extends Phaser.Scene {
       }
     );
 
+    this.load.image('bomb_point', 'assets/items/bomb/bomb_point.png');
+    this.load.image('penetration_bomb_point', 'assets/items/bomb/bomb_point_penetration.png');
+
     this.load.spritesheet(
       'penetration_bomb_horizontal_end_blast',
       'assets/items/bomb/horizontal_end_blast_penetration.png',
