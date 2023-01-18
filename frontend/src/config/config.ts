@@ -8,6 +8,7 @@ export const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 ゲームの設定
 */
 
+export const TIME_SYNC_INTERVAL = 10000; // timesync のインターバル(ms)
 export const IS_SHOW_BLAST_POINT = true; // 爆風の範囲を事前に表示するかどうか
 
 /*
