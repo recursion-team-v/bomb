@@ -40,9 +40,13 @@ export default class Network {
     endpoint = endpoint.replace('ws', 'http');
     this.ts = TimeCreate({
       server: `${endpoint}/timesync`,
-      interval: 1000,
+      interval: Config.TIME_SYNC_INTERVAL,
     });
     this.ts.sync();
+  }
+
+  getTs(): TimeSync {
+    return this.ts;
   }
 
   now(): number {
@@ -182,6 +186,11 @@ export default class Network {
   // 自分の爆弾を送る
   sendPlayerBomb(player: MyPlayer) {
     this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, player);
+  }
+
+  // プレイヤーの名前を送る
+  sendPlayerName(playerName: string) {
+    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_INFO, playerName);
   }
 
   // 自分のゲーム状態を送る

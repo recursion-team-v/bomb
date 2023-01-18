@@ -5,6 +5,7 @@ import Phaser from 'phaser';
 import '../characters/MyPlayer';
 import '../characters/OtherPlayer';
 import '../items/Bomb';
+import '../items/PenetrationBomb';
 import '../items/Wall';
 import '../items/Block';
 import '../items/Item';
@@ -23,7 +24,7 @@ import ServerBlast from '../../../backend/src/rooms/schema/Blast';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
 import Item from '../items/Item';
-import initializeKeys from '../utils/key';
+import initializeKeys, { disableKeys, enableKeys } from '../utils/key';
 import Network from '../services/Network';
 import OtherPlayer from '../characters/OtherPlayer';
 import { Block } from '../items/Block';
@@ -31,6 +32,7 @@ import phaserJuice from '../lib/phaserJuice';
 import GameQueue from '../../../backend/src/utils/gameQueue';
 import PlacementObjectInterface from '../../../backend/src/interfaces/placement_object';
 import { createBomb } from '../services/Bomb';
+import { gameEvents, Event } from '../events/GameEvents';
 import { removeBlock } from '../services/Block';
 import { dropWalls } from '../services/Map';
 import { removeItem } from '../services/Item';
@@ -52,9 +54,13 @@ export default class Game extends Phaser.Scene {
   private readonly blockToRemoveQueue: GameQueue<ServerBlock> = new GameQueue<ServerBlock>();
   private readonly itemToRemoveQueue: GameQueue<ServerItem> = new GameQueue<ServerItem>();
   private readonly currItems: Map<string, Item>; // 現在存在しているアイテム
+  private bgm!: Phaser.Sound.BaseSound;
+  private title!: Phaser.GameObjects.Container;
+  private upTitle!: Phaser.GameObjects.Image;
+  private downTitle!: Phaser.GameObjects.Image;
   private readonly currBombs: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているボム
   private readonly currBlasts: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているサーバの爆風
-  private bgm?: Phaser.Sound.BaseSound;
+  private seItemGet!: Phaser.Sound.BaseSound;
   private readonly juice: phaserJuice;
   private IsFinishedDropWallsEvent: boolean = false;
 
@@ -70,13 +76,33 @@ export default class Game extends Phaser.Scene {
   init() {
     // initialize key inputs
     this.cursorKeys = initializeKeys(this);
+    disableKeys(this.cursorKeys);
+    this.sound.play('battleStart', { volume: Config.SOUND_VOLUME });
     this.bgm = this.sound.add('stage_2', {
       volume: Config.SOUND_VOLUME,
     });
 
-    this.bgm.play({
-      loop: true,
+    this.seItemGet = this.sound.add('getItem', {
+      volume: Config.SOUND_VOLUME * 1.5,
     });
+
+    this.upTitle = this.add.image(0, Constants.HEIGHT / 2, Config.ASSET_KEY_BATTLE_START_UP);
+    this.downTitle = this.add.image(
+      Constants.WIDTH,
+      Constants.HEIGHT / 2 + 49,
+      Config.ASSET_KEY_BATTLE_START_DOWN
+    );
+    this.tweens.add({
+      targets: this.upTitle,
+      x: Constants.WIDTH / 2,
+      duration: 300,
+    });
+    this.tweens.add({
+      targets: this.downTitle,
+      x: Constants.WIDTH / 2,
+      duration: 300,
+    });
+    this.title = this.add.container(0, 0, [this.upTitle, this.downTitle]).setDepth(Infinity);
   }
 
   create(data: { network: Network }) {
@@ -87,13 +113,13 @@ export default class Game extends Phaser.Scene {
 
     // プレイヤーをゲームに追加
     this.addPlayers();
-
     // Colyseus のイベントを追加
     this.initNetworkEvents();
 
     // TODO: Preloader（Lobby）で読み込んで Game Scene に渡す
     this.room.onStateChange.once((state) => {
       // GameRoomState の blockArr が初期化されたら block（破壊）を描画
+
       const mapTiles = state.gameMap.mapTiles;
       this.rows = state.gameMap.rows;
       this.cols = state.gameMap.cols;
@@ -101,6 +127,34 @@ export default class Game extends Phaser.Scene {
       drawGround(this, mapTiles.GROUND_IDX); // draw ground
       drawWalls(this, mapTiles); // draw walls
       this.currBlocks = drawBlocks(this, state.blocks); // draw blocks
+    });
+
+    // 演出が終わったらゲームを開始
+    gameEvents.on(Event.GAME_PREPARING_COMPLETED, () => {
+      this.tweens.add({
+        targets: this.upTitle,
+        x: -Constants.WIDTH,
+        duration: 300,
+        ease: Phaser.Math.Easing.Quadratic.In,
+      });
+      this.tweens.add({
+        targets: this.downTitle,
+        x: Constants.WIDTH * 2,
+        duration: 300,
+        ease: Phaser.Math.Easing.Quadratic.In,
+      });
+
+      this.juice.fadeOut(this.title);
+
+      // キー入力を有効化
+      enableKeys(this.cursorKeys);
+
+      // BGM を再生
+      this.bgm.play({
+        loop: true,
+      });
+
+      // TODO: タイマースタート
     });
   }
 
@@ -120,7 +174,7 @@ export default class Game extends Phaser.Scene {
 
   private timeEventHandler() {
     // 壁落下イベント
-    if (this.network.remainTime() === Constants.INGAME_EVENT_DROP_WALLS_TIME) {
+    if (this.network.remainTime() - Constants.INGAME_EVENT_DROP_WALLS_TIME <= 0) {
       if (!this.IsFinishedDropWallsEvent) dropWalls();
       this.IsFinishedDropWallsEvent = true;
     }
@@ -168,7 +222,6 @@ export default class Game extends Phaser.Scene {
     if (player === undefined) return;
     const myPlayer = this.add.myPlayer(this.network.mySessionId, player.x, player.y, 'player');
     this.myPlayer = myPlayer;
-
     player.onChange = () => {
       this.myPlayer.handleServerChange(player);
     };
@@ -186,6 +239,7 @@ export default class Game extends Phaser.Scene {
   private handlePlayerLeftRoom(player: ServerPlayer, sessionId: string) {
     const otherPlayer = this.otherPlayers.get(sessionId);
     // 死んだ時にタブを閉じられると、player が undefined になってエラーになるので、見えなくするだけにする
+    otherPlayer?.nameLabel.destroy();
     otherPlayer?.setVisible(false);
   }
 
@@ -194,6 +248,7 @@ export default class Game extends Phaser.Scene {
 
     if (state === Constants.GAME_STATE.FINISHED && this.room !== undefined) {
       await this.room.leave();
+      this.network.getTs().destroy();
       this.bgm?.stop();
       this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
       this.scene.stop(Config.SCENE_NAME_GAME);
@@ -353,5 +408,9 @@ export default class Game extends Phaser.Scene {
     const otherPlayer = this.otherPlayers.get(sessionId);
     if (otherPlayer === undefined) return 0;
     return otherPlayer.getBombStrength();
+  }
+
+  public getSeItemGet(): Phaser.Sound.BaseSound {
+    return this.seItemGet;
   }
 }

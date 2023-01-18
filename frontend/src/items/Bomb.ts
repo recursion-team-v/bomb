@@ -6,7 +6,7 @@ import * as Config from '../config/config';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import { phaserGlobalGameObject } from '../PhaserGame';
 import Game from '../scenes/Game';
-import { getDimensionalMap, getHighestPriorityFromBodies } from '../services/Map';
+import { getDimensionalMap, getHighestBlastCollisionPriorityFromBodies } from '../services/Map';
 import { getGameScene } from '../utils/globalGame';
 import { getDepth } from './util';
 
@@ -17,6 +17,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
   private readonly stableX: number; // 爆弾が消えても座標を保持するための変数
   private readonly stableY: number; // 爆弾が消えても座標を保持するための変数
   private readonly stableScene: Phaser.Scene; // 爆弾が消えてもシーンを保持するための変数
+  private readonly bombType: Constants.BOMB_TYPES; // ボムの種類
   private readonly bombStrength: number; // 爆発の強さ
   private readonly sessionId: string; // サーバが一意にセットするセッションID(誰の爆弾か)
   private readonly removedAt: number; // サーバで管理している爆発する時間
@@ -30,6 +31,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     world: Phaser.Physics.Matter.World,
     x: number,
     y: number,
+    bombType: Constants.BOMB_TYPES,
     bombStrength: number,
     texture: string,
     removedAt: number
@@ -45,6 +47,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.removedAt = removedAt;
     this.stableX = x;
     this.stableY = y;
+    this.bombType = bombType;
     this.bombStrength = bombStrength;
     this.isExploded = false;
     this.stableScene = this.scene;
@@ -109,12 +112,13 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       dynamicY = -Constants.TILE_HEIGHT;
     }
 
+    const prefix = this.bombType === Constants.BOMB_TYPE.PENETRATION ? 'penetration_' : '';
     if (power > 1) {
       for (let i = 1; i < power; i++) {
         this.addBlastSprite(
           this.stableX + dynamicX * i,
           this.stableY + dynamicY * i,
-          'bomb_horizontal_blast',
+          `${prefix}bomb_horizontal_blast`,
           angle,
           false,
           true
@@ -125,7 +129,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     this.addBlastSprite(
       this.stableX + dynamicX * power,
       this.stableY + dynamicY * power,
-      'bomb_horizontal_end_blast',
+      `${prefix}bomb_horizontal_end_blast`,
       angle,
       false,
       true
@@ -137,8 +141,9 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     if (this.isExploded) return;
 
     const game = getGameScene();
-    const addBlastPoint = (x: number, y: number) =>
-      game.add.image(x, y, 'bomb_point').setScale(0.8);
+    const imageName =
+      this.bombType === Constants.BOMB_TYPE.PENETRATION ? 'penetration_bomb_point' : 'bomb_point';
+    const addBlastPoint = (x: number, y: number) => game.add.image(x, y, imageName).setScale(0.8);
 
     this.blastPointSprites.push(addBlastPoint(this.stableX, this.stableY));
 
@@ -169,7 +174,16 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
     this.se.play();
     // center
-    this.addBlastSprite(this.stableX, this.stableY, 'bomb_center_blast', 0, true, true, 1.2);
+    const prefix = this.bombType === Constants.BOMB_TYPE.PENETRATION ? 'penetration_' : '';
+    this.addBlastSprite(
+      this.stableX,
+      this.stableY,
+      `${prefix}bomb_center_blast`,
+      0,
+      true,
+      true,
+      1.2
+    );
 
     const br = this.calcBlastRange();
     // center 以外
@@ -194,7 +208,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
       game.getRows(),
       game.getCols(),
       scene,
-      getHighestPriorityFromBodies
+      getHighestBlastCollisionPriorityFromBodies
     );
 
     // 現在のユーザの爆弾の強さを取得
@@ -210,19 +224,19 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
 
     m.set(
       Constants.DIRECTION.UP,
-      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.UP)
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.UP, this.bombType)
     );
     m.set(
       Constants.DIRECTION.DOWN,
-      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.DOWN)
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.DOWN, this.bombType)
     );
     m.set(
       Constants.DIRECTION.LEFT,
-      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.LEFT)
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.LEFT, this.bombType)
     );
     m.set(
       Constants.DIRECTION.RIGHT,
-      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.RIGHT)
+      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.RIGHT, this.bombType)
     );
     return m;
   }
@@ -281,6 +295,7 @@ Phaser.GameObjects.GameObjectFactory.register(
     sessionId: string,
     x: number,
     y: number,
+    bombType: Constants.BOMB_TYPES,
     bombStrength: number,
     removedAt: number
   ) {
@@ -290,6 +305,7 @@ Phaser.GameObjects.GameObjectFactory.register(
       this.scene.matter.world,
       x,
       y,
+      bombType,
       bombStrength,
       'bomb',
       removedAt

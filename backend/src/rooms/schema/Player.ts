@@ -1,6 +1,7 @@
 import { Schema, type } from '@colyseus/schema';
 
 import * as Constants from '../../constants/constants';
+import { validateAndFixUserName } from '../../utils/validation';
 
 export default class Player extends Schema {
   @type('string')
@@ -36,6 +37,9 @@ export default class Player extends Schema {
   @type('number')
   speed: number = Constants.INITIAL_PLAYER_SPEED;
 
+  @type('number')
+  bombType: Constants.BOMB_TYPES;
+
   // ボムの破壊力
   @type('number')
   bombStrength: number;
@@ -48,23 +52,28 @@ export default class Player extends Schema {
   @type('number')
   maxBombCount: number;
 
+  // 取得したアイテムの種類と個数
+  getItemMap: Map<Constants.ITEM_TYPES, number>;
+
   // 最後に攻撃を受けた時間
   @type('number')
   lastDamagedAt: number;
 
   inputQueue: any[] = [];
 
-  constructor(sessionId: string, idx: number, name: string = Constants.DEFAULT_PLAYER_NAME) {
+  constructor(sessionId: string, idx: number, name: string = '') {
     super();
     this.sessionId = sessionId;
     this.idx = idx;
-    this.name = name;
+    this.name = validateAndFixUserName(name);
     this.hp = Constants.INITIAL_PLAYER_HP;
     this.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
     this.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
+    this.bombType = Constants.BOMB_TYPE.NORMAL;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.currentSetBombCount = 0;
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
+    this.getItemMap = new Map<Constants.ITEM_TYPES, number>();
     this.lastDamagedAt = 0;
   }
 
@@ -100,6 +109,16 @@ export default class Player extends Schema {
     return this.hp <= 0;
   }
 
+  // 配置するボムの種類を変更する
+  setBombType(t: Constants.BOMB_TYPES) {
+    this.bombType = t;
+  }
+
+  // ボムの種類を取得する
+  getBombType(): Constants.BOMB_TYPES {
+    return this.bombType;
+  }
+
   // 爆弾の破壊力を取得する
   getBombStrength(): number {
     return this.bombStrength;
@@ -107,8 +126,8 @@ export default class Player extends Schema {
 
   // ボムの火力を変更する
   setBombStrength(bombStrength: number) {
-    // TODO: 上限を設ける
-    this.bombStrength = bombStrength;
+    this.bombStrength =
+      bombStrength > Constants.MAX_BOMB_STRENGTH ? Constants.MAX_BOMB_STRENGTH : bombStrength;
   }
 
   // 速さを取得する
@@ -118,8 +137,7 @@ export default class Player extends Schema {
 
   // 速さを変更する
   setSpeed(speed: number) {
-    // TODO: 上限を設ける
-    this.speed = speed;
+    this.speed = speed > Constants.MAX_PLAYER_SPEED ? Constants.MAX_PLAYER_SPEED : speed;
   }
 
   // ボムを設置できるかをチェックする
@@ -145,5 +163,29 @@ export default class Player extends Schema {
     } else {
       this.maxBombCount += count;
     }
+  }
+
+  setPlayerName(playerName: string) {
+    this.name = playerName;
+  }
+
+  // アイテムを取得した数を記録する
+  incrementItem(itemType: Constants.ITEM_TYPES) {
+    const count = this.getItemMap.get(itemType);
+
+    if (count === undefined) {
+      this.getItemMap.set(itemType, 1);
+    } else {
+      this.getItemMap.set(itemType, count + 1);
+    }
+  }
+
+  // アイテムを取得合計数を取得する
+  getItemMapTotalCount(): number {
+    let count = 0;
+    this.getItemMap.forEach((value, key) => {
+      count += value;
+    });
+    return count;
   }
 }

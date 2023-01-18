@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import * as Config from '../config/config';
+import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import Network from '../services/Network';
 import { NavKeys } from '../types/keyboard';
 import { getGameScene } from '../utils/globalGame';
@@ -12,7 +13,6 @@ export default class MyPlayer extends Player {
   private serverX: number;
   private serverY: number;
   private readonly dead_se;
-  private readonly item_get_se;
 
   inputPayload = {
     left: false,
@@ -37,8 +37,11 @@ export default class MyPlayer extends Player {
     this.dead_se = this.scene.sound.add('gameOver', {
       volume: Config.SOUND_VOLUME * 1.5,
     });
-    this.item_get_se = this.scene.sound.add('getItem', {
-      volume: Config.SOUND_VOLUME * 1.5,
+    this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
+      const currBody = this.body as MatterJS.BodyType;
+      data.bodyA.id === currBody.id
+        ? collisionHandler(data.bodyA, data.bodyB)
+        : collisionHandler(data.bodyB, data.bodyA);
     });
     this.addNameLabel(Constants.BLUE);
   }
@@ -48,7 +51,6 @@ export default class MyPlayer extends Player {
     if (this.isDead()) return;
     this.serverX = player.x;
     this.serverY = player.y;
-
     this.forceMovePlayerPosition(player);
     this.setHP(player.hp);
     if (this.isDead()) {
@@ -61,15 +63,17 @@ export default class MyPlayer extends Player {
       });
     }
     this.setSpeed(player.speed);
+    this.setBombType(player.bombType);
     this.setBombStrength(player.bombStrength);
     this.setMaxBombCount(player.maxBombCount);
+    this.setPlayerName(player.name);
   }
 
   update(cursorKeys: NavKeys, network: Network) {
     if (this.isDead()) return false;
 
     // サーバの位置に合わせて移動
-    this.setVelocity(this.serverX - this.x, this.serverY - this.y);
+    this.setPosition(this.serverX, this.serverY);
     this.nameLabel.setPosition(this.x, this.y - 30);
 
     // キーボードの入力をサーバに送信
@@ -136,25 +140,6 @@ export default class MyPlayer extends Player {
 
     if (forceX === 0 && forceY === 0) return;
     this.setVelocity(forceX, forceY);
-  }
-
-  setMaxBombCount(maxBombCount: number): boolean {
-    if (super.setMaxBombCount(maxBombCount)) this.playItemGetSe();
-    return true;
-  }
-
-  setBombStrength(bombStrength: number): boolean {
-    if (super.setBombStrength(bombStrength)) this.playItemGetSe();
-    return true;
-  }
-
-  setSpeed(speed: number): boolean {
-    if (super.setSpeed(speed)) this.playItemGetSe();
-    return true;
-  }
-
-  private playItemGetSe() {
-    this.item_get_se.play();
   }
 }
 
