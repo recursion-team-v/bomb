@@ -113,7 +113,9 @@ export default class BlastService {
   // 爆風の範囲を計算する
   private calcBlastRange(): Map<Constants.DIRECTION_TYPE, number> {
     // 現在の map を取得
-    const map = this.gameEngine.getDimensionalMap(this.gameEngine.getHighestPriorityFromBodies);
+    const map = this.gameEngine.getDimensionalMap(
+      this.gameEngine.getHighestBlastCollisionPriorityFromBodies
+    );
 
     // 現在の爆弾の強さを取得
     const power = this.bomb.bombStrength;
