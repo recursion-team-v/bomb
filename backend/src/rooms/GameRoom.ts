@@ -10,6 +10,7 @@ import PlacementObjectInterface from '../interfaces/placement_object';
 import GameQueue from '../utils/gameQueue';
 import dropWalls from '../game_engine/services/dropWallService';
 import Item from './schema/Item';
+import Enemy from './schema/Enemy';
 
 export default class GameRoom extends Room<GameRoomState> {
   engine!: GameEngine;
@@ -21,6 +22,10 @@ export default class GameRoom extends Room<GameRoomState> {
 
     this.setState(new GameRoomState());
     this.engine = new GameEngine(this);
+
+    for (let i = 0; i < Constants.DEBUG_DEFAULT_ENEMY_COUNT; i++) {
+      this.engine.enemyService.addEnemy(`enemy-${i}`);
+    }
 
     // ゲーム開始をクライアントから受け取る
     this.onMessage(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, (client, data) => {
@@ -69,6 +74,7 @@ export default class GameRoom extends Room<GameRoomState> {
 
       this.state.timer.updateNow();
       this.timeEventHandler();
+      this.enemyHandler();
 
       while (elapsedTime >= Constants.FRAME_RATE) {
         this.state.timer.updateNow();
@@ -232,6 +238,47 @@ export default class GameRoom extends Room<GameRoomState> {
         dropWalls(this.engine);
       }
       this.IsFinishedDropWallsEvent = true;
+    }
+  }
+
+  enemyHandler() {
+    if (!this.state.gameState.isPlaying()) return;
+    const movableMap = this.engine.getDimensionalMap(this.engine.checkMovable);
+    // const bombMap = this.engine.getDimensionalMap(this.engine.getHasBomb);
+
+    for (let i = 0; i < Constants.DEBUG_DEFAULT_ENEMY_COUNT; i++) {
+      const player = this.state.getPlayer(`enemy-${i}`);
+      if (player === undefined) continue;
+
+      const enemy = player as Enemy;
+
+      if (!enemy.isMoved()) {
+        const key = enemy.moveToDirection();
+        const data = {
+          player: enemy,
+          inputPayload: {
+            up: key.up,
+            down: key.down,
+            left: key.left,
+            right: key.right,
+          },
+          isInput: true,
+        };
+        player.inputQueue.push(data);
+        continue;
+      }
+
+      const surroundTiles = enemy.getSurroundingTiles(movableMap);
+
+      for (const [key, value] of Object.entries(surroundTiles).sort(() => Math.random() - 0.5)) {
+        if (this.engine.isMovable(movableMap[value.y][value.x])) {
+          enemy.moveToNextTile(value.x, value.y);
+        }
+      }
+
+      // 爆弾設置
+      // if (!player.canSetBomb()) return;
+      // this.state.getBombToCreateQueue().enqueue(this.state.createBomb(player));
     }
   }
 }

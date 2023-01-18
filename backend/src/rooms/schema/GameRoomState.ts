@@ -9,6 +9,7 @@ import Map from './Map';
 import Player from './Player';
 import Timer from './Timer';
 import Blast from './Blast';
+import Enemy from './Enemy';
 
 export default class GameRoomState extends Schema {
   @type(GameState)
@@ -54,6 +55,16 @@ export default class GameRoomState extends Schema {
     player.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
     this.players.set(sessionId, player);
     return player;
+  }
+
+  createEnemy(sessionId: string): Enemy {
+    const enemy = new Enemy(sessionId, this.getPlayersCount());
+    const idx = this.getPlayersCount();
+    enemy.idx = idx;
+    enemy.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
+    enemy.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
+    this.players.set(sessionId, enemy);
+    return enemy;
   }
 
   createBomb(player: Player): Bomb {

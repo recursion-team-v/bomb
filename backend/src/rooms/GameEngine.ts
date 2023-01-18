@@ -5,6 +5,7 @@ import collisionHandler from '../game_engine/collision_handler/collision_handler
 import BombService from '../game_engine/services/bombService';
 import MapService from '../game_engine/services/mapService';
 import PlayerService from '../game_engine/services/playerService';
+import EnemyService from '../game_engine/services/enemyService';
 import GameRoomState from './schema/GameRoomState';
 import ItemService from '../game_engine/services/ItemService';
 import Player from './schema/Player';
@@ -32,6 +33,7 @@ export default class GameEngine {
 
   bombService: BombService;
   playerService: PlayerService;
+  enemyService: EnemyService;
   mapService: MapService;
   itemService: ItemService;
 
@@ -44,6 +46,7 @@ export default class GameEngine {
     this.engine.gravity.y = 0;
     this.bombService = new BombService(this);
     this.playerService = new PlayerService(this);
+    this.enemyService = new EnemyService(this);
     this.mapService = new MapService(this);
     this.itemService = new ItemService(this);
 
@@ -120,5 +123,36 @@ export default class GameEngine {
     });
 
     return highestPriority;
+  }
+
+  // matter bodies が存在するかどうかを判定し、存在する場合は 1 を返す
+  getHasBody(bodies: Matter.Body[]): number {
+    return bodies.length === 0 ? 0 : 1;
+  }
+
+  // 移動できるかどうかを判定し、移動できる場合は 0 / 破壊すれば移動できる場合は 1 / 移動できない場合は 2 を返す
+  checkMovable(bodies: Matter.Body[]): number {
+    let highestPriority = Constants.OBJECT_IS_MOVABLE.NONE as number;
+    if (bodies.length === 0) return highestPriority;
+
+    const hash = { ...Constants.OBJECT_IS_MOVABLE };
+
+    bodies.forEach((body) => {
+      const label = body.label as Constants.OBJECT_LABELS;
+      highestPriority = Math.max(highestPriority, hash[label]);
+    });
+
+    return highestPriority;
+  }
+
+  // 移動できるかどうかを判定し、移動できる場合は true を返す
+  isMovable(n: number): boolean {
+    return n === 0;
+  }
+
+  // matter bodies に bomb が存在するかどうかを判定し、存在する場合は 1 を返す
+  getHasBomb(bodies: Matter.Body[]): number {
+    const hasBomb = bodies.some((body) => body.label === Constants.OBJECT_LABEL.BOMB);
+    return hasBomb ? 1 : 0;
   }
 }

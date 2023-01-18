@@ -164,4 +164,16 @@ export default class Player extends Schema {
   setPlayerName(playerName: string) {
     this.name = playerName;
   }
+
+  /*
+  以下は、player スキーマを enemy として利用する際に使っているメソッドです
+  */
+
+  // x, y からタイルの位置を返します
+  getTilePosition(): { x: number; y: number } {
+    return {
+      x: (this.x - Constants.TILE_WIDTH / 2) / Constants.TILE_WIDTH,
+      y: (this.y - Constants.HEADER_HEIGHT - Constants.TILE_HEIGHT / 2) / Constants.TILE_HEIGHT,
+    };
+  }
 }

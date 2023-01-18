@@ -69,6 +69,9 @@ export type DIRECTION_TYPE = typeof DIRECTION[keyof typeof DIRECTION];
 // ルームの最大人数
 export const MAX_PLAYER = 4;
 
+// デバッグ: デフォルトの敵の数
+export const DEBUG_DEFAULT_ENEMY_COUNT = 2;
+
 /*
 プレイヤーの状態の定義
 */
@@ -193,7 +196,7 @@ export const TILE_ROWS = 13; // タイルの行数
 export const TILE_COLS = 15; // タイルの列数
 export const TILE_WIDTH = DEFAULT_TIP_SIZE; // タイルの横幅
 export const TILE_HEIGHT = DEFAULT_TIP_SIZE; // タイルの縦幅
-export const MAX_BLOCKS = 100;
+export const MAX_BLOCKS = 10;
 
 // マップのタイルシートの idx
 export const TILE_GROUND = {
@@ -273,6 +276,24 @@ export const OBJECT_DEPTH = {
 } as const;
 
 export type OBJECT_DEPTH_TYPE = typeof OBJECT_DEPTH[keyof typeof OBJECT_DEPTH];
+
+// プレイヤーが各オブジェクトの上を移動できるかどうか
+// 0: 移動できる
+// 1: 破壊すれば移動できる
+// 2: 移動できない
+export const OBJECT_IS_MOVABLE = {
+  NONE: 0,
+  [OBJECT_LABEL.BOMB]: 2,
+  [OBJECT_LABEL.BLAST]: 2, // 移動できるが、爆風に当たると死ぬので、移動できないとみなす
+  [OBJECT_LABEL.BLOCK]: 1,
+  [OBJECT_LABEL.ITEM]: 0,
+  [OBJECT_LABEL.PLAYER]: 0,
+  [OBJECT_LABEL.WALL]: 2,
+  [OBJECT_LABEL.DROP_WALL_SHADOW]: 2, // 移動できるがその後落ちてくる壁に当たると死ぬので、移動できないとみなす
+  [OBJECT_LABEL.DROP_WALL]: 2,
+} as const;
+
+export type OBJECT_IS_MOVABLE_TYPES = typeof OBJECT_IS_MOVABLE[keyof typeof OBJECT_IS_MOVABLE];
 
 /*
 モバイル用の操作アイコンの定義
