@@ -1,3 +1,5 @@
+import * as Constants from '../../../backend/src/constants/constants';
+
 const GetValue = Phaser.Utils.Objects.GetValue;
 
 export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
@@ -23,9 +25,11 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
         'cursor.color': 'black',
         'cursor.backgroundColor': 'white',
       },
+      maxLength: Constants.MAX_USER_NAME_LENGTH,
       padding: 10,
       wrap: {
         vAlign: 'center',
+        hAlign: 'center',
       },
       text: username,
     }),
