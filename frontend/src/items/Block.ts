@@ -19,7 +19,6 @@ Phaser.GameObjects.GameObjectFactory.register(
 
     this.displayList.add(sprite);
     this.updateList.add(sprite);
-    sprite.setScale(0.95);
     return sprite;
   }
 );
