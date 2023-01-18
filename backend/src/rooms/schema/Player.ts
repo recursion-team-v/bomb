@@ -1,6 +1,7 @@
 import { Schema, type } from '@colyseus/schema';
 
 import * as Constants from '../../constants/constants';
+import { validateAndFixUserName } from '../../utils/validation';
 
 export default class Player extends Schema {
   @type('string')
@@ -57,11 +58,11 @@ export default class Player extends Schema {
 
   inputQueue: any[] = [];
 
-  constructor(sessionId: string, idx: number, name: string = Constants.DEFAULT_PLAYER_NAME) {
+  constructor(sessionId: string, idx: number, name: string = '') {
     super();
     this.sessionId = sessionId;
     this.idx = idx;
-    this.name = name;
+    this.name = validateAndFixUserName(name);
     this.hp = Constants.INITIAL_PLAYER_HP;
     this.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
     this.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
