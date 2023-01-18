@@ -30,7 +30,7 @@ export function getDimensionalMap(
 }
 
 // matter bodies から label を確認し、最も優先度の高い判定を返す
-export function getHighestPriorityFromBodies(
+export function getHighestBlastCollisionPriorityFromBodies(
   bodies: Phaser.Types.Physics.Matter.MatterBody[]
 ): number {
   let highestPriority = Constants.OBJECT_COLLISION_TO_BLAST.NONE as number;
