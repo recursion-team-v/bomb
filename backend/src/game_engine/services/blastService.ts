@@ -2,8 +2,8 @@ import Matter from 'matter-js';
 
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
-import { Bomb, getSettablePosition } from '../../rooms/schema/Bomb';
 import Blast from '../../rooms/schema/Blast';
+import { Bomb, getSettablePosition } from '../../rooms/schema/Bomb';
 
 export default class BlastService {
   private readonly gameEngine: GameEngine;
@@ -18,7 +18,10 @@ export default class BlastService {
 
   // 爆風を matter に追加する
   add() {
-    const br: Map<Constants.DIRECTION_TYPE, number> = this.calcBlastRange();
+    // 現在の map を取得
+    const map = this.gameEngine.getDimensionalMap(this.gameEngine.getHighestPriorityFromBodies);
+
+    const br: Map<Constants.DIRECTION_TYPE, number> = calcBlastRange(map, this.bomb);
     const bodies = [
       this.centerBlast(),
       ...this.upperBlast(br.get(Constants.DIRECTION.UP) ?? 1),
@@ -109,40 +112,6 @@ export default class BlastService {
       Matter.Composite.remove(this.gameEngine.world, body);
     });
   }
-
-  // 爆風の範囲を計算する
-  private calcBlastRange(): Map<Constants.DIRECTION_TYPE, number> {
-    // 現在の map を取得
-    const map = this.gameEngine.getDimensionalMap(this.gameEngine.getHighestPriorityFromBodies);
-
-    // 現在の爆弾の強さを取得
-    const power = this.bomb.bombStrength;
-
-    // 現在のユーザの爆弾の位置を取得
-    const x = (this.bomb.x - Constants.TILE_WIDTH / 2) / Constants.TILE_WIDTH;
-    const y =
-      (this.bomb.y - Constants.TILE_HEIGHT / 2 - Constants.HEADER_HEIGHT) / Constants.TILE_HEIGHT;
-
-    // 現在のユーザの爆弾の位置から上下左右の範囲を計算
-    const m = new Map<Constants.DIRECTION_TYPE, number>();
-    m.set(
-      Constants.DIRECTION.UP,
-      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.UP, this.bomb.bombType)
-    );
-    m.set(
-      Constants.DIRECTION.DOWN,
-      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.DOWN, this.bomb.bombType)
-    );
-    m.set(
-      Constants.DIRECTION.LEFT,
-      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.LEFT, this.bomb.bombType)
-    );
-    m.set(
-      Constants.DIRECTION.RIGHT,
-      calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.RIGHT, this.bomb.bombType)
-    );
-    return m;
-  }
 }
 
 export function calcBlastRangeFromDirection(
@@ -174,4 +143,34 @@ export function calcBlastRangeFromDirection(
   }
 
   return size;
+}
+
+// 爆風の範囲を計算する
+export function calcBlastRange(map: number[][], bomb: Bomb): Map<Constants.DIRECTION_TYPE, number> {
+  // 現在の爆弾の強さを取得
+  const power = bomb.bombStrength;
+
+  // 現在のユーザの爆弾の位置を取得
+  const x = (bomb.x - Constants.TILE_WIDTH / 2) / Constants.TILE_WIDTH;
+  const y = (bomb.y - Constants.TILE_HEIGHT / 2 - Constants.HEADER_HEIGHT) / Constants.TILE_HEIGHT;
+
+  // 現在のユーザの爆弾の位置から上下左右の範囲を計算
+  const m = new Map<Constants.DIRECTION_TYPE, number>();
+  m.set(
+    Constants.DIRECTION.UP,
+    calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.UP, bomb.bombType)
+  );
+  m.set(
+    Constants.DIRECTION.DOWN,
+    calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.DOWN, bomb.bombType)
+  );
+  m.set(
+    Constants.DIRECTION.LEFT,
+    calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.LEFT, bomb.bombType)
+  );
+  m.set(
+    Constants.DIRECTION.RIGHT,
+    calcBlastRangeFromDirection(map, x, y, power, Constants.DIRECTION.RIGHT, bomb.bombType)
+  );
+  return m;
 }

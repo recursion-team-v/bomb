@@ -11,6 +11,14 @@ import GameQueue from '../utils/gameQueue';
 import dropWalls from '../game_engine/services/dropWallService';
 import Item from './schema/Item';
 import Enemy from './schema/Enemy';
+import {
+  normalizeDimension,
+  reverseNormalizeDimension,
+  getHighestPriorityTile,
+  sumOfProductsSynthesis,
+  directMovableMap,
+} from '../utils/calc';
+import { treatLevelByFreeSpace, treatLevelMapByBomb } from '../game_engine/services/enemyService';
 
 export default class GameRoom extends Room<GameRoomState> {
   engine!: GameEngine;
@@ -243,15 +251,60 @@ export default class GameRoom extends Room<GameRoomState> {
   }
 
   enemyHandler() {
+    if (!this.dummyFlag) return;
     if (!this.state.gameState.isPlaying()) return;
-    const movableMap = this.engine.getDimensionalMap(this.engine.checkMovable);
-    // const bombMap = this.engine.getDimensionalMap(this.engine.getHasBomb);
+
+    // const DimensionalMap = this.engine.getDimensionalMap((bodies) => bodies);
+
+    // 移動できるマス(ボムでブロックを破壊できる場所も含む)のマップを作成する
+    const checkMovableDimensionalMap = this.engine.getDimensionalMap(this.engine.checkMovable);
+    const movableMap = normalizeDimension(checkMovableDimensionalMap);
+
+    // 爆弾の影響度マップを作成する
+    const bombMap = reverseNormalizeDimension(
+      normalizeDimension(
+        treatLevelMapByBomb(
+          this.engine.getDimensionalMap(this.engine.getHighestPriorityFromBodies),
+          this.engine.getDimensionalMap((bodies) => this.engine.HasBomb(bodies))
+        )
+      )
+    );
+
+    const freeSpaceMap = normalizeDimension(treatLevelByFreeSpace(checkMovableDimensionalMap, 3));
 
     for (let i = 0; i < Constants.DEBUG_DEFAULT_ENEMY_COUNT; i++) {
       const player = this.state.getPlayer(`enemy-${i}`);
       if (player === undefined) continue;
 
       const enemy = player as Enemy;
+      if (enemy.isDead()) continue;
+
+      const { x: enemyX, y: enemyY } = enemy.getTilePosition();
+      const directMoveMap = normalizeDimension(
+        directMovableMap(checkMovableDimensionalMap, enemyX, enemyY)
+      );
+      // 影響度マップを作成する
+      const impactMap = sumOfProductsSynthesis(movableMap, [
+        // 爆弾、爆風の影響度マップ
+        {
+          dimensionalMap: bombMap,
+          ratio: Constants.ENEMY_EVALUATION_RATIO_BOMB,
+        },
+        // 移動できるマスの影響度マップ
+        {
+          dimensionalMap: directMoveMap,
+          ratio: Constants.ENEMY_EVALUATION_RATIO_MOVABLE,
+        },
+        // 特定のマスの周囲のマスにどの程度空きマスがあるか
+        {
+          // dimensionalMap: movableMap,
+          dimensionalMap: freeSpaceMap,
+          ratio: Constants.ENEMY_EVALUATION_RATIO_FREE_SPACE,
+        },
+      ]);
+
+      const { x, y } = getHighestPriorityTile(impactMap);
+      enemy.moveToNextTile(x, y);
 
       if (!enemy.isMoved()) {
         const key = enemy.moveToDirection();
@@ -266,16 +319,19 @@ export default class GameRoom extends Room<GameRoomState> {
           isInput: true,
         };
         player.inputQueue.push(data);
-        continue;
+      } else {
+        // if (canEscapeFromBomb(enemy, this.engine)) {
+        this.engine.bombService.enqueueBomb(player);
       }
+      // }
 
-      const surroundTiles = enemy.getSurroundingTiles(movableMap);
+      // const surroundTiles = enemy.getSurroundingTiles(movableMap);
 
-      for (const [key, value] of Object.entries(surroundTiles).sort(() => Math.random() - 0.5)) {
-        if (this.engine.isMovable(movableMap[value.y][value.x])) {
-          enemy.moveToNextTile(value.x, value.y);
-        }
-      }
+      // for (const [key, value] of Object.entries(surroundTiles).sort(() => Math.random() - 0.5)) {
+      //   if (this.engine.isMovable(movableMap[value.y][value.x])) {
+      //     enemy.moveToNextTile(value.x, value.y);
+      //   }
+      // }
 
       // 爆弾設置
       // if (!player.canSetBomb()) return;

@@ -8,8 +8,13 @@ export default class Enemy extends Player {
 
   constructor(sessionId: string, idx: number, name: string = Constants.DEFAULT_PLAYER_NAME) {
     super(sessionId, idx, name);
-    this.nextX = this.x;
-    this.nextY = this.y;
+    this.nextX = Infinity;
+    this.nextY = Infinity;
+  }
+
+  // x, y からタイルの位置を返します
+  getTilePosition(): { x: number; y: number } {
+    return PixelToTile(this.x, this.y);
   }
 
   // の周囲のタイルを返します

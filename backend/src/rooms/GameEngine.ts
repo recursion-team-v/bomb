@@ -1,15 +1,17 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
-import Matter from 'matter-js';
 import { Room } from 'colyseus';
+import Matter from 'matter-js';
+
+import * as Constants from '../constants/constants';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import BombService from '../game_engine/services/bombService';
+import EnemyService from '../game_engine/services/enemyService';
+import ItemService from '../game_engine/services/ItemService';
 import MapService from '../game_engine/services/mapService';
 import PlayerService from '../game_engine/services/playerService';
-import EnemyService from '../game_engine/services/enemyService';
+import { Bomb } from './schema/Bomb';
 import GameRoomState from './schema/GameRoomState';
-import ItemService from '../game_engine/services/ItemService';
 import Player from './schema/Player';
-import * as Constants from '../constants/constants';
 
 export default class GameEngine {
   world: Matter.World;
@@ -93,7 +95,7 @@ export default class GameEngine {
 
   // matter world 上の body から、二次元配列のマップを作成します
   // この時 fn で指定した関数を実行し、その結果をマップに反映します
-  getDimensionalMap(fn: (bodies: Matter.Body[]) => number): number[][] {
+  getDimensionalMap(fn: (bodies: Matter.Body[]) => any): number[][] {
     const dimensionalMap: number[][] = [];
 
     for (let y = 0; y < this.state.gameMap.rows; y++) {
@@ -130,7 +132,7 @@ export default class GameEngine {
     return bodies.length === 0 ? 0 : 1;
   }
 
-  // 移動できるかどうかを判定し、移動できる場合は 0 / 破壊すれば移動できる場合は 1 / 移動できない場合は 2 を返す
+  // 移動できるかどうかを判定し、移動できる場合は 2 / 破壊すれば移動できる場合は 1 / 移動できない場合は 0 を返す
   checkMovable(bodies: Matter.Body[]): number {
     let highestPriority = Constants.OBJECT_IS_MOVABLE.NONE as number;
     if (bodies.length === 0) return highestPriority;
@@ -139,7 +141,7 @@ export default class GameEngine {
 
     bodies.forEach((body) => {
       const label = body.label as Constants.OBJECT_LABELS;
-      highestPriority = Math.max(highestPriority, hash[label]);
+      highestPriority = Math.min(highestPriority, hash[label]);
     });
 
     return highestPriority;
@@ -150,9 +152,22 @@ export default class GameEngine {
     return n === 0;
   }
 
-  // matter bodies に bomb が存在するかどうかを判定し、存在する場合は 1 を返す
-  getHasBomb(bodies: Matter.Body[]): number {
-    const hasBomb = bodies.some((body) => body.label === Constants.OBJECT_LABEL.BOMB);
-    return hasBomb ? 1 : 0;
+  // matter bodies に bomb が存在するかどうかを判定し、
+  // ボムが存在する場合は Bomb をそれ以外は undefined を返す
+  HasBomb(bodies: Matter.Body[]): Bomb | undefined {
+    for (const body of bodies) {
+      if (body.label === Constants.OBJECT_LABEL.BOMB) {
+        const bombId = this.bombIdByBodyId.get(body.id);
+        if (bombId === undefined) return undefined;
+        return this.state.bombs.get(bombId);
+      }
+    }
+    return undefined;
+  }
+
+  // matter bodies に blast が存在するかどうかを判定し、
+  // blast が存在する場合は true をそれ以外は false を返す
+  HasBlast(bodies: Matter.Body[]): boolean {
+    return bodies.some((body) => body.label === Constants.OBJECT_LABEL.BLAST);
   }
 }
