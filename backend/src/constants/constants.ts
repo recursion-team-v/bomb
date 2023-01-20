@@ -205,7 +205,7 @@ export const TIME_LIMIT_SEC = 181; // (+1秒するといい感じに表示され
 
 // アイテムが一致時間破壊されない時間
 // ブロックを破壊した時にアイテムが出現するのだが、爆風が残ってるとアイテムが破壊されてしまうので一定時間無敵にする
-export const ITEM_INVINCIBLE_TIME = 3000; // ms
+export const ITEM_INVINCIBLE_TIME = 1500; // ms
 
 // プレイヤーが死んだ時に、そのプレイヤーのアイテムが落ちるまでの時間
 export const ITEM_DROP_TIME_WHEN_PLAYER_DEAD = 2000; // ms
