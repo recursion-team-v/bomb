@@ -83,14 +83,6 @@ export default class PlayerService {
   placeBomb(bomb: Bomb): boolean {
     const player = this.gameEngine.state.getPlayer(bomb.sessionId);
     if (player === undefined) return false;
-    if (!player.canSetBomb()) return false;
-
-    if (this.gameEngine.bombService.addBomb(bomb)) {
-      // 爆弾を設置できたら、設置している爆弾の数を増やす
-      player.increaseSetBombCount();
-      return true;
-    } else {
-      return false;
-    }
+    return this.gameEngine.bombService.addBomb(bomb);
   }
 }

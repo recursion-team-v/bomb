@@ -2,7 +2,7 @@ import { MapSchema, Schema, type } from '@colyseus/schema';
 import * as Constants from '../../constants/constants';
 import GameQueue from '../../utils/gameQueue';
 import Block from './Block';
-import { Bomb, getSettablePosition } from './Bomb';
+import { Bomb } from './Bomb';
 import GameState from './GameState';
 import Item from './Item';
 import Map from './Map';
@@ -65,13 +65,6 @@ export default class GameRoomState extends Schema {
     enemy.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
     this.players.set(sessionId, enemy);
     return enemy;
-  }
-
-  createBomb(player: Player): Bomb {
-    const { bx, by } = getSettablePosition(player.x, player.y);
-    const bomb = new Bomb(bx, by, player.getBombType(), player.getBombStrength(), player.sessionId);
-    this.bombs.set(bomb.id, bomb);
-    return bomb;
   }
 
   deleteBomb(bomb: Bomb) {
