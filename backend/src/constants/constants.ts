@@ -220,6 +220,15 @@ export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
 */
 
 // 敵AI が使用する影響度マップの評価値(合計値が 1 になるようにする)
+export const ENEMY_EVALUATION_RATIO_FREE_SPACE = 0.1; // どれぐらい自由に移動できるかの評価値
+export const ENEMY_EVALUATION_RATIO_ITEM = 0.4; // アイテムの評価値
+export const ENEMY_EVALUATION_RATIO_BOMB = 0.5; // ボムと将来発生する爆風の評価値
+
+/*
+敵の定義
+*/
+
+// 敵AI が使用する影響度マップの評価値(合計値が 1 になるようにする)
 export const ENEMY_EVALUATION_RATIO_MOVABLE = 0.5; // 移動可能なマスの評価値
 export const ENEMY_EVALUATION_RATIO_FREE_SPACE = 0.1; // どれぐらい自由に移動できるかの評価値
 export const ENEMY_EVALUATION_RATIO_BOMB = 0.4; // ボムと将来発生する爆風の評価値

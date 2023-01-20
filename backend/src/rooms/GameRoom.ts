@@ -260,6 +260,8 @@ export default class GameRoom extends Room<GameRoomState> {
     const checkMovableDimensionalMap = this.engine.getDimensionalMap(this.engine.checkMovable);
     const movableMap = normalizeDimension(checkMovableDimensionalMap);
 
+    const itemMap = normalizeDimension(this.engine.getDimensionalMap(this.engine.HasItem));
+
     // 爆弾の影響度マップを作成する
     const bombMap = reverseNormalizeDimension(
       normalizeDimension(
@@ -296,14 +298,36 @@ export default class GameRoom extends Room<GameRoomState> {
           ratio: Constants.ENEMY_EVALUATION_RATIO_MOVABLE,
         },
         // 特定のマスの周囲のマスにどの程度空きマスがあるか
-        {
-          // dimensionalMap: movableMap,
-          dimensionalMap: freeSpaceMap,
-          ratio: Constants.ENEMY_EVALUATION_RATIO_FREE_SPACE,
-        },
+      {
+        // dimensionalMap: movableMap,
+        dimensionalMap: freeSpaceMap,
+        ratio: Constants.ENEMY_EVALUATION_RATIO_FREE_SPACE,
+      },
+      // アイテムの影響度マップ
+      {
+        dimensionalMap: itemMap,
+        ratio: Constants.ENEMY_EVALUATION_RATIO_ITEM,
+      },
       ]);
 
-      const { x, y } = getHighestPriorityTile(impactMap);
+    for (let i = 0; i < Constants.DEBUG_DEFAULT_ENEMY_COUNT; i++) {
+      const player = this.state.getPlayer(`enemy-${i}`);
+      if (player === undefined) continue;
+
+      const enemy = player as Enemy;
+      if (enemy.isDead()) continue;
+
+      const { x: enemyX, y: enemyY } = enemy.getTilePosition();
+      const directMoveMap = directMovableMap(checkMovableDimensionalMap, enemyX, enemyY);
+
+      // 影響度マップに対して、今移動できるマスのみを残す
+      const impactMapIsMovable = impactMap.map((row, i) =>
+        row.map((v, j) => v * directMoveMap[i][j])
+      );
+
+      // if (bombMap.flat().filter((v: number) => v < 1).length > 0)
+      // console.log('impactMap', impactMap);
+      const { x, y } = getHighestPriorityTile(impactMapIsMovable);
       enemy.moveToNextTile(x, y);
 
       if (!enemy.isMoved()) {
