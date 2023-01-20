@@ -192,17 +192,25 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   // ボム増加アイテムを取得した数
   getItemCountOfBombCount(): number {
-    return this.maxBombCount - Constants.INITIAL_SETTABLE_BOMB_COUNT;
+    return (
+      (this.maxBombCount - Constants.INITIAL_SETTABLE_BOMB_COUNT) /
+      Constants.ITEM_INCREASE_RATE.BOMB_POSSESSION_UP
+    );
   }
 
   // 爆弾の破壊力アイテムを取得した数
   getItemCountOfBombStrength(): number {
-    return this.bombStrength - Constants.INITIAL_BOMB_STRENGTH;
+    return (
+      (this.bombStrength - Constants.INITIAL_BOMB_STRENGTH) /
+      Constants.ITEM_INCREASE_RATE.BOMB_STRENGTH
+    );
   }
 
   // 速さアイテムを取得した数
   getItemCountOfSpeed(): number {
-    return this.speed - Constants.INITIAL_PLAYER_SPEED;
+    return (
+      (this.speed - Constants.INITIAL_PLAYER_SPEED) / Constants.ITEM_INCREASE_RATE.PLAYER_SPEED
+    );
   }
 
   private animationFlash(duration: number) {
