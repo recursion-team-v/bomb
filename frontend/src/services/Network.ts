@@ -81,13 +81,13 @@ export default class Network {
       playerName,
     });
     await this.initialize();
-    this.sendGameState(Constants.GAME_STATE.WAITING);
+    this.sendPlayerGameState(Constants.PLAYER_GAME_STATE.WAITING);
   }
 
   async joinCustomRoom(roomId: string, password: string | null, playerName: string) {
     this.room = await this.client.joinById(roomId, { playerName, password });
     await this.initialize();
-    this.sendGameState(Constants.GAME_STATE.WAITING);
+    this.sendPlayerGameState(Constants.PLAYER_GAME_STATE.WAITING);
   }
 
   async initialize() {
@@ -206,7 +206,7 @@ export default class Network {
   }
 
   // ゲーム開始に関する情報を受け取った時
-  onStartGame(callback: (data: IGameStartInfo) => void, context?: any) {
+  onGameStartInfo(callback: (data: IGameStartInfo) => void, context?: any) {
     gameEvents.on(Event.START_GAME, callback, context);
   }
 
@@ -221,8 +221,8 @@ export default class Network {
   }
 
   // 自分のゲーム状態を送る
-  sendGameState(state: Constants.GAME_STATE_TYPE) {
-    this.room?.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, state);
+  sendPlayerGameState(state: Constants.PLAYER_GAME_STATE_TYPE) {
+    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_GAME_STATE, state);
   }
 
   syncClock(endpoint: string) {

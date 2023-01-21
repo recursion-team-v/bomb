@@ -8,7 +8,7 @@ export default class Player extends Schema {
   sessionId: string;
 
   @type('number')
-  gameState: Constants.GAME_STATE_TYPE = Constants.GAME_STATE.WAITING;
+  gameState: Constants.PLAYER_GAME_STATE_TYPE = Constants.PLAYER_GAME_STATE.WAITING;
 
   // プレイヤーの番号
   @type('number')
@@ -168,12 +168,16 @@ export default class Player extends Schema {
     }
   }
 
-  setGameState(gameState: Constants.GAME_STATE_TYPE) {
+  setGameState(gameState: Constants.PLAYER_GAME_STATE_TYPE) {
     this.gameState = gameState;
   }
 
+  isWaiting() {
+    return this.gameState === Constants.PLAYER_GAME_STATE.WAITING;
+  }
+
   isReady() {
-    return this.gameState === Constants.GAME_STATE.READY;
+    return this.gameState === Constants.PLAYER_GAME_STATE.READY;
   }
 
   setPlayerName(playerName: string) {
