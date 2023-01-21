@@ -36,9 +36,11 @@ import { gameEvents, Event } from '../events/GameEvents';
 import { removeBlock } from '../services/Block';
 import { dropWalls } from '../services/Map';
 import { removeItem } from '../services/Item';
+import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
+  private serverTimer?: ServerTimer;
   private room!: Room<GameRoomState>;
   private readonly otherPlayers: Map<string, OtherPlayer> = new Map();
   private myPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
@@ -105,11 +107,12 @@ export default class Game extends Phaser.Scene {
     this.title = this.add.container(0, 0, [this.upTitle, this.downTitle]).setDepth(Infinity);
   }
 
-  create(data: { network: Network }) {
+  create(data: { network: Network; serverTimer: ServerTimer }) {
     if (data.network == null) return;
     this.network = data.network;
     if (this.network.room == null) return;
     this.room = this.network.room;
+    this.serverTimer = data.serverTimer;
 
     // プレイヤーをゲームに追加
     this.addPlayers();
@@ -174,7 +177,11 @@ export default class Game extends Phaser.Scene {
 
   private timeEventHandler() {
     // 壁落下イベント
-    if (this.network.remainTime() - Constants.INGAME_EVENT_DROP_WALLS_TIME <= 0) {
+    if (this.serverTimer === undefined || this.network === undefined) return;
+    if (
+      this.serverTimer.finishedAt - this.network.now() <=
+      Constants.INGAME_EVENT_DROP_WALLS_TIME
+    ) {
       if (!this.IsFinishedDropWallsEvent) dropWalls();
       this.IsFinishedDropWallsEvent = true;
     }
@@ -220,7 +227,14 @@ export default class Game extends Phaser.Scene {
   private addMyPlayer() {
     const player = this.room.state.players.get(this.network.mySessionId);
     if (player === undefined) return;
-    const myPlayer = this.add.myPlayer(this.network.mySessionId, player.x, player.y, 'player');
+    const myPlayer = this.add.myPlayer(
+      this.network.mySessionId,
+      player.x,
+      player.y,
+      'player',
+      undefined,
+      player.name
+    );
     this.myPlayer = myPlayer;
     player.onChange = () => {
       this.myPlayer.handleServerChange(player);
@@ -228,7 +242,14 @@ export default class Game extends Phaser.Scene {
   }
 
   private handlePlayerJoinedRoom(player: ServerPlayer, sessionId: string) {
-    const otherPlayer = this.add.otherPlayer(sessionId, player.x, player.y, 'player');
+    const otherPlayer = this.add.otherPlayer(
+      sessionId,
+      player.x,
+      player.y,
+      'player',
+      undefined,
+      player.name
+    );
     this.otherPlayers.set(sessionId, otherPlayer);
 
     player.onChange = () => {

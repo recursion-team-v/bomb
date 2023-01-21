@@ -35,6 +35,7 @@ export const ASSET_KEY_BATTLE_START_DOWN = 'battle_start_down';
 
 export const SCENE_NAME_TITLE = 'title';
 export const SCENE_NAME_PRELOADER = 'preloader';
+export const SCENE_NAME_LOBBY = 'lobby';
 export const SCENE_NAME_GAME = 'game';
 export const SCENE_NAME_GAME_HEADER = 'gameHeader';
 export const SCENE_NAME_GAME_RESULT = 'gameResult';

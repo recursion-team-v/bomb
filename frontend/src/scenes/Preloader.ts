@@ -135,19 +135,17 @@ export default class Preloader extends Phaser.Scene {
     this.load.audio('opening', ['assets/bgm/opening.mp3']);
 
     this.load.on('complete', () => {
-      // add player animations
       createPlayerAnims(this.anims);
       createBombAnims(this.anims);
       createPenetrationBombAnims(this.anims);
       createExplodeAnims(this.anims);
       createPenetrationExplodeAnims(this.anims);
+      this.preloadComplete = true;
     });
   }
 
   init() {
     this.network = new Network();
-    // 自分がルームに参加できたら preload 完了
-    this.network.onMyPlayerJoinedRoom(() => (this.preloadComplete = true));
   }
 
   update() {

@@ -4,16 +4,18 @@ import * as Constants from '../../../backend/src/constants/constants';
 import '../services/SoundVolume';
 import MyPlayer from '../characters/MyPlayer';
 import * as Config from '../config/config';
-import Network from '../services/Network';
 import ToString from '../utils/color';
 import { getGameScene } from '../utils/globalGame';
 import convertSecondsToMMSS from '../utils/timer';
+import Network from '../services/Network';
+import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 import { isPlay } from '../utils/sound';
 
 export default class GameHeader extends Phaser.Scene {
   private readonly width: number;
   private readonly height: number;
 
+  private serverTimer?: ServerTimer;
   private textTimer!: Phaser.GameObjects.Text;
   private remainTime: number = 0;
   private player!: MyPlayer;
@@ -58,16 +60,17 @@ export default class GameHeader extends Phaser.Scene {
     this.add.volumeIcon(this, this.width - 60, 10, isPlay());
   }
 
-  create(data: { network: Network }) {
-    if (data.network == null) return;
+  create(data: { network: Network; serverTimer: ServerTimer }) {
+    const { network, serverTimer } = data;
+    if (network == null) return;
     this.network = data.network;
+    this.serverTimer = serverTimer;
   }
 
   update() {
-    if (this.network.getGameFinishedAt() === undefined) {
-      this.network.sendRequestGameStartInfo();
-    }
-    this.updateTextTimer(this.network.getGameFinishedAt() - this.network.now());
+    if (this.serverTimer === undefined) return;
+    this.updateTextTimer(this.serverTimer.finishedAt - this.network.now());
+
     if (this.player.getBombType() === Constants.BOMB_TYPE.PENETRATION) {
       this.imgBomb.setTexture(Constants.ITEM_TYPE.PENETRATION_BOMB);
     }

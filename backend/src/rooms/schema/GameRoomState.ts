@@ -46,8 +46,8 @@ export default class GameRoomState extends Schema {
     this.timer.set(Date.now());
   }
 
-  createPlayer(sessionId: string): Player {
-    const player = new Player(sessionId, this.getPlayersCount());
+  createPlayer(sessionId: string, playerName: string): Player {
+    const player = new Player(sessionId, this.getPlayersCount(), playerName);
     const idx = this.getPlayersCount();
     player.idx = idx;
     player.x = Constants.INITIAL_PLAYER_POSITION[idx].x;

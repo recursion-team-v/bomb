@@ -22,7 +22,10 @@ export const OBJECT_REMOVAL_DELAY = 100; // ms
 // Dockerfile の中と、デプロイ時にポートを指定しているので、ここの設定は開発時にしか利用されません。
 export const SERVER_LISTEN_PORT = 2567;
 // ゲームルーム参加時に使用するキー
-export const GAME_ROOM_KEY = 'game';
+export const GAME_PUBLIC_ROOM_KEY = 'game';
+export const GAME_CUSTOM_ROOM_KEY = 'custom';
+// ロビールーム参加時に使用するキー
+export const GAME_LOBBY_KEY = 'lobby';
 
 export const NOTIFICATION_TYPE = {
   // 1 番台はゲーム情報を通知するためのタイプ
@@ -31,6 +34,9 @@ export const NOTIFICATION_TYPE = {
 
   // プレイヤー情報を通知するためのタイプ
   PLAYER_INFO: 2,
+
+  // プレイヤーのゲーム状態を通知するためのタイプ
+  PLAYER_GAME_STATE: 3,
 
   // ゲームの開始に関する情報を通知するためのタイプ
   GAME_START_INFO: 10,
@@ -52,6 +58,15 @@ export const GAME_STATE = {
 } as const;
 
 export type GAME_STATE_TYPE = typeof GAME_STATE[keyof typeof GAME_STATE];
+
+export const PLAYER_GAME_STATE = {
+  WAITING: 1, // ゲーム開始前
+  READY: 2, // ゲーム準備完了
+  PLAYING: 3, // ゲーム中
+  FINISHED: 4, // ゲーム終了
+};
+
+export type PLAYER_GAME_STATE_TYPE = typeof PLAYER_GAME_STATE[keyof typeof PLAYER_GAME_STATE];
 
 // インゲーム内で発生する、壁が落下するイベントが発生する時間(ms)
 // 残り時間がこの時間になったら、イベントが発生する

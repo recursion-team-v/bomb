@@ -24,8 +24,8 @@ export default class PlayerService {
     this.gameEngine.state.players.delete(sessionId);
   }
 
-  addPlayer(sessionId: string) {
-    const player = this.gameEngine.state.createPlayer(sessionId);
+  addPlayer(sessionId: string, playerName: string) {
+    const player = this.gameEngine.state.createPlayer(sessionId, playerName);
     const playerBody = Matter.Bodies.rectangle(
       player.x,
       player.y,

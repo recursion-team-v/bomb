@@ -13,9 +13,16 @@ import Item from './schema/Item';
 
 export default class GameRoom extends Room<GameRoomState> {
   engine!: GameEngine;
+  private name?: string;
   private IsFinishedDropWallsEvent: boolean = false;
 
-  onCreate(options: any) {
+  async onCreate(options: any) {
+    const { autoDispose, playerName } = options;
+    this.name = playerName;
+    this.maxClients = Constants.MAX_PLAYER;
+    this.autoDispose = autoDispose;
+    await this.setMetadata({ name: this.name });
+
     // ルームで使用する時計
     this.clock.start();
 
@@ -23,21 +30,39 @@ export default class GameRoom extends Room<GameRoomState> {
     this.engine = new GameEngine(this);
 
     // ゲーム開始をクライアントから受け取る
-    this.onMessage(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, (client, data) => {
-      this.gameStartEvent();
-    });
+    this.onMessage(
+      Constants.NOTIFICATION_TYPE.PLAYER_GAME_STATE,
+      (client, gameState: Constants.PLAYER_GAME_STATE_TYPE) => {
+        switch (gameState) {
+          case Constants.PLAYER_GAME_STATE.READY: {
+            if (this.state.gameState.isPlaying()) {
+              // ゲームが既に開始している場合
+              const data = {
+                serverTimer: this.state.timer,
+              };
+              client.send(Constants.NOTIFICATION_TYPE.GAME_START_INFO, data);
+              return;
+            }
 
-    // ゲーム開始の情報をクライアントに送る
-    // FIXME: ロビーが入ったら変わるはずなので一時凌ぎ
-    this.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (client, data) => {
-      client.send(Constants.NOTIFICATION_TYPE.GAME_START_INFO, this.state.timer);
-    });
+            const myPlayer = this.state.getPlayer(client.sessionId);
+            if (myPlayer === undefined) return;
+            myPlayer.setGameState(gameState);
 
-    this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_INFO, (client, data: any) => {
-      const player = this.state.getPlayer(client.sessionId);
-      if (player === undefined) return;
-      player?.setPlayerName(data);
-    });
+            let isLobbyReady = true;
+            this.state.players.forEach(
+              (player) => (isLobbyReady = isLobbyReady && player.isReady())
+            );
+            if (isLobbyReady) {
+              const data = {
+                serverTimer: this.state.timer,
+              };
+              this.startGame();
+              this.broadcast(Constants.NOTIFICATION_TYPE.GAME_START_INFO, data);
+            }
+          }
+        }
+      }
+    );
 
     // クライアントからの移動入力を受け取ってキューに詰める
     this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, (client, data: any) => {
@@ -123,12 +148,10 @@ export default class GameRoom extends Room<GameRoomState> {
   }
 
   // ゲーム開始イベント
-  private gameStartEvent() {
-    try {
+  private startGame() {
+    if (!this.state.gameState.isPlaying()) {
       this.state.gameState.setPlaying();
       this.state.setTimer();
-    } catch (e) {
-      console.error(e);
     }
   }
 
@@ -140,10 +163,10 @@ export default class GameRoom extends Room<GameRoomState> {
   //   });
   // }
 
-  onJoin(client: Client, options: any) {
+  onJoin(client: Client, options: { playerName: string }) {
     console.log(client.sessionId, 'joined!');
-    // create Player instance and add to matter
-    this.engine.playerService.addPlayer(client.sessionId);
+    const { playerName } = options;
+    this.engine.playerService.addPlayer(client.sessionId, playerName);
   }
 
   onLeave(client: Client, consented: boolean) {
