@@ -17,11 +17,11 @@ export default class GameRoom extends Room<GameRoomState> {
   private IsFinishedDropWallsEvent: boolean = false;
 
   async onCreate(options: any) {
-    const { name, autoDispose } = options;
-    this.name = name;
+    const { autoDispose, playerName } = options;
+    this.name = playerName;
     this.maxClients = Constants.MAX_PLAYER;
     this.autoDispose = autoDispose;
-    await this.setMetadata({ name });
+    await this.setMetadata({ name: this.name });
 
     // ルームで使用する時計
     this.clock.start();
