@@ -23,22 +23,22 @@ export default class GameResult extends Phaser.Scene {
     );
 
     const winner = this.getWinner(data.gameResult);
-    // const players = this.getPlayers(data.gameResult);
+    const players = this.getPlayers(data.gameResult);
     // テスト用
-    const players = [
-      {
-        sessionId: 'test',
-        name: 'tanakaaaaaa',
-      },
-      {
-        sessionId: 'test2',
-        name: 'tanaka2',
-      },
-      {
-        sessionId: 'test3',
-        name: 'tanaka3',
-      },
-    ];
+    // const players = [
+    //   {
+    //     sessionId: 'test',
+    //     name: 'tanakaaaaaa',
+    //   },
+    //   {
+    //     sessionId: 'test2',
+    //     name: 'tanaka2',
+    //   },
+    //   {
+    //     sessionId: 'test3',
+    //     name: 'tanaka3',
+    //   },
+    // ];
 
     // 勝利者がいる場合
     if (winner !== '') {
