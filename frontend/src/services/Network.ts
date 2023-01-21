@@ -17,6 +17,7 @@ export interface IRoomData {
   name: string;
   password: string | null;
   autoDispose: boolean;
+  playerName: string;
 }
 
 export interface IGameStartInfo {
@@ -31,7 +32,6 @@ export default class Network {
 
   allRooms: RoomAvailable[] = [];
   mySessionId!: string;
-  private playerName = '';
 
   constructor() {
     const protocol = window.location.protocol.replace('http', 'ws');
@@ -73,19 +73,19 @@ export default class Network {
   }
 
   async createAndJoinCustomRoom(roomData: IRoomData) {
-    const { name, password, autoDispose } = roomData;
+    const { name, password, autoDispose, playerName } = roomData;
     this.room = await this.client.create(Constants.GAME_CUSTOM_ROOM_KEY, {
       name,
       password,
       autoDispose,
-      playerName: this.playerName,
+      playerName,
     });
     await this.initialize();
     this.sendGameState(Constants.GAME_STATE.WAITING);
   }
 
-  async joinCustomRoom(roomId: string, password: string | null) {
-    this.room = await this.client.joinById(roomId, { playerName: this.playerName, password });
+  async joinCustomRoom(roomId: string, password: string | null, playerName: string) {
+    this.room = await this.client.joinById(roomId, { playerName, password });
     await this.initialize();
     this.sendGameState(Constants.GAME_STATE.WAITING);
   }
@@ -240,14 +240,5 @@ export default class Network {
 
   getTs(): TimeSync {
     return this.ts;
-  }
-
-  // FIXME: move from Network.ts
-  setPlayerName(playerName: string) {
-    this.playerName = playerName;
-  }
-
-  getPlayerName() {
-    return this.playerName;
   }
 }

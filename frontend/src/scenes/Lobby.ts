@@ -16,17 +16,19 @@ export default class Lobby extends Phaser.Scene {
   private availableRooms: IAvailableRoom[] = [];
   private gridTable?: GridTable;
   private dialog?: Dialog;
+  private playerName = '';
 
   constructor() {
     super(Config.SCENE_NAME_LOBBY);
   }
 
-  create(data: { network: Network }) {
+  create(data: { network: Network; playerName: string }) {
     if (data.network === undefined) {
       throw new Error('server instance missing');
     } else {
       this.network = data.network;
     }
+    this.playerName = data.playerName;
 
     this.availableRooms = this.getAvailableRooms();
     this.network.onRoomsUpdated(this.handleRoomsUpdated, this);
@@ -49,6 +51,7 @@ export default class Lobby extends Phaser.Scene {
           name: 'custom room',
           password: null,
           autoDispose: true,
+          playerName: this.playerName,
         });
         this.dialog = createDialog(this, Constants.WIDTH / 2, Constants.HEIGHT / 2, () =>
           this.network.sendGameState(Constants.GAME_STATE.READY)
@@ -84,7 +87,7 @@ export default class Lobby extends Phaser.Scene {
     }
     const room = this.availableRooms[cellIndex];
     if (this.dialog == null) {
-      await this.network.joinCustomRoom(room.id, null);
+      await this.network.joinCustomRoom(room.id, null, this.playerName);
       this.dialog = createDialog(this, Constants.WIDTH / 2, Constants.HEIGHT / 2, () =>
         this.network.sendGameState(Constants.GAME_STATE.READY)
       );
