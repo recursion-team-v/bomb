@@ -71,9 +71,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     Phaser.Display.Align.In.Center(nameText, label);
     Phaser.Display.Align.To.BottomCenter(triangle, label, 5, 8);
 
-    this.nameLabel = game.add
-      .container(this.x, this.y, [label, nameText, triangle])
-      .setDepth(Infinity);
+    this.nameLabel = game.add.container(this.x, this.y, [label, nameText, triangle]).setDepth(1000);
   }
 
   // HP をセットします

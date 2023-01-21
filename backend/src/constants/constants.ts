@@ -19,6 +19,11 @@ export const OBJECT_CREATION_DELAY = 100; // ms
 // オブジェクト削除時の遅延時間
 export const OBJECT_REMOVAL_DELAY = 100; // ms
 
+// ゲームの状態をチェックする間隔
+// ゲームの状態をチェックする間隔を短くすると、ゲームの状態が変化したときにすぐに反映されます。
+// 500 ms にすることで、この期間の間に複数のプレイヤーが死んだときは、引き分けになるようにしています。
+export const CHECK_GAME_RESULT_INTERVAL = 500; // ms
+
 // Dockerfile の中と、デプロイ時にポートを指定しているので、ここの設定は開発時にしか利用されません。
 export const SERVER_LISTEN_PORT = 2567;
 // ゲームルーム参加時に使用するキー
@@ -58,6 +63,14 @@ export const GAME_STATE = {
 } as const;
 
 export type GAME_STATE_TYPE = typeof GAME_STATE[keyof typeof GAME_STATE];
+
+export const GAME_RESULT = {
+  NONE: 0,
+  WIN: 1,
+  DRAW: 2,
+};
+
+export type GAME_RESULT_TYPE = typeof GAME_RESULT[keyof typeof GAME_RESULT];
 
 export const PLAYER_GAME_STATE = {
   WAITING: 1, // ゲーム開始前
@@ -145,7 +158,7 @@ export const INITIAL_SETTABLE_BOMB_COUNT = 1;
 export const MAX_SETTABLE_BOMB_COUNT = 8;
 
 // 初期の爆弾の破壊力
-export const INITIAL_BOMB_STRENGTH = 2;
+export const INITIAL_BOMB_STRENGTH = 4;
 
 // 最大の爆弾の破壊力
 export const MAX_BOMB_STRENGTH = 12;
