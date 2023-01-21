@@ -2,8 +2,6 @@ import Matter from 'matter-js';
 
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
-import { Bomb } from '../../rooms/schema/Bomb';
-import { calcBlastRange } from './blastService';
 import Player from '../../rooms/schema/Player';
 import Enemy from '../../rooms/schema/Enemy';
 
@@ -72,8 +70,6 @@ export default class EnemyService {
         if (inputPayload.down === true) vy += velocity;
         Matter.Body.setVelocity(playerBody, { x: vx, y: vy });
       }
-
-      playerState.frameKey = playerData.frameKey;
     }
   }
 }

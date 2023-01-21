@@ -75,8 +75,6 @@ export default class PlayerService {
         if (inputPayload.down === true) vy += velocity;
         Matter.Body.setVelocity(playerBody, { x: vx, y: vy });
       }
-
-      playerState.frameKey = playerData.frameKey;
     }
   }
 
