@@ -48,9 +48,9 @@ export function TileToPixel(x: number, y: number): { x: number; y: number } {
 // ピクセル座標をタイル座標に変換します
 export function PixelToTile(x: number, y: number): { x: number; y: number } {
   return {
-    x: Math.round((x - Constants.TILE_WIDTH / 2) / Constants.TILE_WIDTH),
+    x: Math.round((Math.round(x) - Constants.TILE_WIDTH / 2) / Constants.TILE_WIDTH),
     y: Math.round(
-      (y - Constants.HEADER_HEIGHT - Constants.TILE_HEIGHT / 2) / Constants.TILE_HEIGHT
+      (Math.round(y) - Constants.HEADER_HEIGHT - Constants.TILE_HEIGHT / 2) / Constants.TILE_HEIGHT
     ),
   };
 }

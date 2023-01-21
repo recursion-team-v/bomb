@@ -3,18 +3,28 @@ import * as Constants from '../../constants/constants';
 import { TileToPixel, PixelToTile } from '../../utils/map';
 
 export default class Enemy extends Player {
+  // 次に移動する座標
   nextX: number;
   nextY: number;
+  // 目的地
+  goalX: number;
+  goalY: number;
 
   constructor(sessionId: string, idx: number, name: string = Constants.DEFAULT_PLAYER_NAME) {
     super(sessionId, idx, name);
     this.nextX = Infinity;
     this.nextY = Infinity;
+    this.goalX = Infinity;
+    this.goalY = Infinity;
   }
 
   // x, y からタイルの位置を返します
   getTilePosition(): { x: number; y: number } {
     return PixelToTile(this.x, this.y);
+  }
+
+  getNextTilePosition(): { x: number; y: number } {
+    return PixelToTile(this.nextX, this.nextY);
   }
 
   // の周囲のタイルを返します
@@ -33,16 +43,35 @@ export default class Enemy extends Player {
     };
   }
 
-  moveToNextTile(tileX: number, tileY: number) {
+  setNext(tileX: number, tileY: number) {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     const pos = TileToPixel(tileX, tileY);
     this.nextX = pos.x;
     this.nextY = pos.y;
   }
 
+  setGoal(tileX: number, tileY: number) {
+    const pos = TileToPixel(tileX, tileY);
+    this.goalX = pos.x;
+    this.goalY = pos.y;
+  }
+
+  // 次のタイルに移動済みかどうかを返します
+  isMovedToNext(): boolean {
+    return this.isMoved(this.nextX, this.nextY);
+  }
+
+  // 目的地に移動済みかどうかを返します
+  isMovedToGoal(): boolean {
+    return this.isMoved(this.goalX, this.goalY);
+  }
+
   // 既に移動済みかどうかを返します
-  isMoved() {
-    return Math.abs(this.x - this.nextX) < 5 && Math.abs(this.y - this.nextY) < 5;
+  isMoved(targetX: number, targetY: number): boolean {
+    return (
+      PixelToTile(this.x, this.y).x === PixelToTile(targetX, targetY).x &&
+      PixelToTile(this.x, this.y).y === PixelToTile(targetX, targetY).y
+    );
   }
 
   moveToDirection(): { up: boolean; down: boolean; left: boolean; right: boolean } {

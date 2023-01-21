@@ -17,12 +17,14 @@ import {
   getHighestPriorityTile,
   sumOfProductsSynthesis,
   directMovableMap,
+  searchPath,
 } from '../utils/calc';
 import { treatLevelByFreeSpace, treatLevelMapByBomb } from '../game_engine/services/enemyService';
 
 export default class GameRoom extends Room<GameRoomState> {
   engine!: GameEngine;
   private IsFinishedDropWallsEvent: boolean = false;
+  private readonly enemies = new Map<string, Enemy>();
 
   onCreate(options: any) {
     // ルームで使用する時計
@@ -32,7 +34,8 @@ export default class GameRoom extends Room<GameRoomState> {
     this.engine = new GameEngine(this);
 
     for (let i = 0; i < Constants.DEBUG_DEFAULT_ENEMY_COUNT; i++) {
-      this.engine.enemyService.addEnemy(`enemy-${i}`);
+      const enemy = this.engine.enemyService.addEnemy(`enemy-${i}`);
+      this.enemies.set(`enemy-${i}`, enemy);
     }
 
     // ゲーム開始をクライアントから受け取る
@@ -97,7 +100,11 @@ export default class GameRoom extends Room<GameRoomState> {
         elapsedTime -= Constants.FRAME_RATE;
 
         for (const [, player] of this.state.players) {
-          this.engine.playerService.updatePlayer(player);
+          if (this.enemies.get(player.sessionId) === undefined) {
+            this.engine.playerService.updatePlayer(player);
+          } else {
+            this.engine.enemyService.updateEnemy(player as Enemy);
+          }
         }
 
         // 爆弾の衝突判定の更新（プレイヤーが降りた場合は判定を変える)
@@ -272,35 +279,22 @@ export default class GameRoom extends Room<GameRoomState> {
       )
     );
 
-    const freeSpaceMap = normalizeDimension(treatLevelByFreeSpace(checkMovableDimensionalMap, 3));
+    // if (bombMap.flat().filter((v: number) => v < 1).length > 0) console.log('bombMap', bombMap);
 
-    for (let i = 0; i < Constants.DEBUG_DEFAULT_ENEMY_COUNT; i++) {
-      const player = this.state.getPlayer(`enemy-${i}`);
-      if (player === undefined) continue;
+    const notFreeSpaceMap = reverseNormalizeDimension(
+      normalizeDimension(treatLevelByFreeSpace(checkMovableDimensionalMap, 3))
+    );
 
-      const enemy = player as Enemy;
-      if (enemy.isDead()) continue;
-
-      const { x: enemyX, y: enemyY } = enemy.getTilePosition();
-      const directMoveMap = normalizeDimension(
-        directMovableMap(checkMovableDimensionalMap, enemyX, enemyY)
-      );
-      // 影響度マップを作成する
-      const impactMap = sumOfProductsSynthesis(movableMap, [
-        // 爆弾、爆風の影響度マップ
-        {
-          dimensionalMap: bombMap,
-          ratio: Constants.ENEMY_EVALUATION_RATIO_BOMB,
-        },
-        // 移動できるマスの影響度マップ
-        {
-          dimensionalMap: directMoveMap,
-          ratio: Constants.ENEMY_EVALUATION_RATIO_MOVABLE,
-        },
-        // 特定のマスの周囲のマスにどの程度空きマスがあるか
+    // 影響度マップを作成する
+    const impactMap = sumOfProductsSynthesis(movableMap, [
+      // 爆弾、爆風の影響度マップ
+      {
+        dimensionalMap: bombMap,
+        ratio: Constants.ENEMY_EVALUATION_RATIO_BOMB,
+      },
       {
         // dimensionalMap: movableMap,
-        dimensionalMap: freeSpaceMap,
+        dimensionalMap: notFreeSpaceMap,
         ratio: Constants.ENEMY_EVALUATION_RATIO_FREE_SPACE,
       },
       // アイテムの影響度マップ
@@ -308,7 +302,7 @@ export default class GameRoom extends Room<GameRoomState> {
         dimensionalMap: itemMap,
         ratio: Constants.ENEMY_EVALUATION_RATIO_ITEM,
       },
-      ]);
+    ]);
 
     for (let i = 0; i < Constants.DEBUG_DEFAULT_ENEMY_COUNT; i++) {
       const player = this.state.getPlayer(`enemy-${i}`);
@@ -318,19 +312,50 @@ export default class GameRoom extends Room<GameRoomState> {
       if (enemy.isDead()) continue;
 
       const { x: enemyX, y: enemyY } = enemy.getTilePosition();
+      // 直接移動できるマスのマップを作成する
       const directMoveMap = directMovableMap(checkMovableDimensionalMap, enemyX, enemyY);
 
       // 影響度マップに対して、今移動できるマスのみを残す
       const impactMapIsMovable = impactMap.map((row, i) =>
         row.map((v, j) => v * directMoveMap[i][j])
       );
+      // if (bombMap.flat().filter((v: number) => v < 1).length > 0) {
+      //   console.log('directMoveMap', directMoveMap);
+      //   console.log('impactMap', impactMap);
+      //   console.log('impactMapIsMovable', impactMapIsMovable);
+      // }
 
+      // console.log('directMoveMap', directMoveMap);
+      // console.log('impactMap', impactMap);
+      // console.log('impactMapIsMovable', impactMapIsMovable);
       // if (bombMap.flat().filter((v: number) => v < 1).length > 0)
       // console.log('impactMap', impactMap);
+      // console.log('directMoveMap', directMoveMap);
       const { x, y } = getHighestPriorityTile(impactMapIsMovable);
-      enemy.moveToNextTile(x, y);
 
-      if (!enemy.isMoved()) {
+      // 最終的に移動するマスを決定する
+      enemy.setGoal(x, y);
+
+      // ゴールに着くまで移動
+      if (!enemy.isMovedToGoal()) {
+        // 最短の移動経路を取得する
+        const moveList = searchPath({ x: enemyX, y: enemyY }, { x, y }, directMoveMap);
+
+        // 移動経路の結果が 0 の場合は、すでに目的にいるので何もしない
+        if (moveList.length === 0) continue;
+        enemy.setNext(moveList[1][0], moveList[1][1]);
+
+        console.log(
+          'now:',
+          enemy.getTilePosition(),
+          'next:',
+          enemy.getNextTilePosition(),
+          'goal:',
+          x,
+          y
+        );
+
+        // if (bombMap.flat().filter((v: number) => v < 1).length > 0) console.log('x, y', x, y);
         const key = enemy.moveToDirection();
         const data = {
           player: enemy,

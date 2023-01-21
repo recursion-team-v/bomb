@@ -4,6 +4,8 @@ import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
 import { Bomb } from '../../rooms/schema/Bomb';
 import { calcBlastRange } from './blastService';
+import Player from '../../rooms/schema/Player';
+import Enemy from '../../rooms/schema/Enemy';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class EnemyService {
@@ -14,7 +16,7 @@ export default class EnemyService {
   }
 
   // add のみメソッドが違うので別に定義する
-  addEnemy(sessionId: string) {
+  addEnemy(sessionId: string): Enemy {
     const enemy = this.gameEngine.state.createEnemy(sessionId);
     const enemyBody = Matter.Bodies.rectangle(
       enemy.x,
@@ -40,6 +42,39 @@ export default class EnemyService {
     Matter.Composite.add(this.gameEngine.world, [enemyBody]);
     enemyBody.collisionFilter.category = Constants.COLLISION_CATEGORY.PLAYER;
     enemyBody.collisionFilter.mask = Constants.COLLISION_CATEGORY.DEFAULT;
+
+    return enemy;
+  }
+
+  updateEnemy(enemy: Enemy, deltaTime?: number) {
+    const player: Player = enemy as Player;
+    const playerState = this.gameEngine.state.getPlayer(player.sessionId);
+    const playerBody = this.gameEngine.playerBodies.get(player.sessionId);
+    if (playerBody === undefined || playerState === undefined) return;
+
+    let data: any;
+
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+    while ((data = player.inputQueue.shift())) {
+      const { player: playerData, inputPayload, isInput } = data;
+
+      if (isInput === false) {
+        Matter.Body.setVelocity(playerBody, { x: 0, y: 0 });
+        Matter.Body.setPosition(playerBody, { x: player.x, y: player.y });
+      } else {
+        if (enemy.isMovedToGoal()) continue;
+        const velocity = player.speed;
+        let vx = 0;
+        let vy = 0;
+        if (inputPayload.left === true) vx -= velocity;
+        if (inputPayload.right === true) vx += velocity;
+        if (inputPayload.up === true) vy -= velocity;
+        if (inputPayload.down === true) vy += velocity;
+        Matter.Body.setVelocity(playerBody, { x: vx, y: vy });
+      }
+
+      playerState.frameKey = playerData.frameKey;
+    }
   }
 }
 

@@ -1,3 +1,5 @@
+import pathFinding from 'pathfinding';
+
 function normalize(value: number, min: number, max: number): number {
   return (value - min) / (max - min);
 }
@@ -89,8 +91,8 @@ function dfs(dmap: number[][], tileX: number, tileY: number): number[][] {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const [x, y] = stack.pop()!;
 
-    // 現在地が範囲外、障害物がある場合は終了
-    if (x < 0 || y < 0 || x >= dmap[0].length || y >= dmap.length) continue;
+    // 現在地が範囲外の場合は終了
+    if (x < 1 || y < 1 || x >= dmap[0].length || y >= dmap.length) continue;
 
     // すでに訪れたマスは終了
     if (visited[y][x] === 1) continue;
@@ -98,7 +100,12 @@ function dfs(dmap: number[][], tileX: number, tileY: number): number[][] {
     visited[y][x] = 1;
 
     // 障害物がある場合は終了
-    if (dmap[y][x] !== 2) continue;
+    // ただし、チェックする箇所が初期位置の場合はボムが置かれていることがあるので、その場合は障害物があって探索を終了しない
+    if (x === tileX && y === tileY) {
+      // 何もしない
+    } else {
+      if (dmap[y][x] !== 2) continue;
+    }
 
     result.push([x, y]);
 
@@ -109,4 +116,25 @@ function dfs(dmap: number[][], tileX: number, tileY: number): number[][] {
   }
 
   return result;
+}
+
+// From から To までの最短経路の配列を返します
+export function searchPath(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  dmap: number[][]
+): number[][] {
+  const grid = new pathFinding.Grid(dmap[0].length, dmap.length);
+
+  // 移動できまいマスを設定
+  dmap.forEach((row, y) => {
+    row.forEach((value, x) => {
+      const walkable: boolean = value === 1;
+      grid.setWalkableAt(x, y, walkable);
+    });
+  });
+
+  // 検索アルゴリズム
+  const finder = new pathFinding.AStarFinder();
+  return finder.findPath(from.x, from.y, to.x, to.y, grid);
 }
