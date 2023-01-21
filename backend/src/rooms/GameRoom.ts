@@ -19,7 +19,7 @@ export default class GameRoom extends Room<GameRoomState> {
   async onCreate(options: any) {
     const { name, autoDispose } = options;
     this.name = name;
-    this.maxClients = 4;
+    this.maxClients = Constants.MAX_PLAYER;
     this.autoDispose = autoDispose;
     await this.setMetadata({ name });
 
