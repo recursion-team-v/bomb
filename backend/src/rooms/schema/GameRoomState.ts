@@ -77,9 +77,9 @@ export default class GameRoomState extends Schema {
     return player;
   }
 
-  createBomb(player: Player, x: number, y: number, bombStrength: number): Bomb {
+  createBomb(player: Player): Bomb {
     const { bx, by } = getSettablePosition(player.x, player.y);
-    const bomb = new Bomb(bx, by, bombStrength, player.sessionId);
+    const bomb = new Bomb(bx, by, player.getBombType(), player.getBombStrength(), player.sessionId);
     this.bombs.set(bomb.id, bomb);
     return bomb;
   }

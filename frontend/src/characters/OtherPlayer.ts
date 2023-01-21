@@ -1,6 +1,6 @@
+import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import Player from './Player';
-import * as Constants from '../../../backend/src/constants/constants';
 
 export default class OtherPlayer extends Player {
   private serverX: number;
@@ -34,12 +34,15 @@ export default class OtherPlayer extends Player {
     this.frameKey = serverPlayer.frameKey;
     this.setHP(serverPlayer.hp);
     this.setSpeed(serverPlayer.speed);
+    this.setBombType(serverPlayer.bombType);
     this.setBombStrength(serverPlayer.bombStrength);
+    this.setPlayerName(serverPlayer.name);
 
     if (this.isDead()) {
       this.died();
       setTimeout(() => {
         this.setVisible(false); // 見えなくする
+        this.nameLabel.setVisible(false);
       }, 2500);
     }
   }
