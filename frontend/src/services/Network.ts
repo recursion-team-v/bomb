@@ -12,6 +12,7 @@ import { gameEvents, Event } from '../events/GameEvents';
 import MyPlayer from '../characters/MyPlayer';
 import Player from '../characters/Player';
 import TimeSync, { create as TimeCreate } from 'timesync';
+import GameResult from '../../../backend/src/rooms/schema/GameResult';
 
 export interface IRoomData {
   name: string;
@@ -130,6 +131,10 @@ export default class Network {
       gameEvents.emit(Event.GAME_STATE_UPDATED, data);
     };
 
+    this.room.state.gameResult.onChange = (data: any) => {
+      gameEvents.emit(Event.GAME_RESULT_RECEIVED, data);
+    };
+
     this.room.state.blocks.onRemove = (data: ServerBlock) => {
       gameEvents.emit(Event.BLOCKS_REMOVED, data);
     };
@@ -189,6 +194,10 @@ export default class Network {
   // gameState が更新された時
   onGameStateUpdated(callback: (data: any) => Promise<void>, context?: any) {
     gameEvents.on(Event.GAME_STATE_UPDATED, callback, context);
+  }
+
+  onGameResultUpdated(callback: (data: GameResult) => void, context?: any) {
+    gameEvents.on(Event.GAME_RESULT_RECEIVED, callback, context);
   }
 
   // blocks が消去（破壊）された時
