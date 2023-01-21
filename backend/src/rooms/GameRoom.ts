@@ -18,8 +18,10 @@ import {
   sumOfProductsSynthesis,
   directMovableMap,
   searchPath,
+  treatLevelByFreeSpace,
+  treatLevelMapByBomb,
+  numberOfDestroyableBlock,
 } from '../utils/calc';
-import { treatLevelByFreeSpace, treatLevelMapByBomb } from '../game_engine/services/enemyService';
 
 export default class GameRoom extends Room<GameRoomState> {
   engine!: GameEngine;
@@ -266,8 +268,14 @@ export default class GameRoom extends Room<GameRoomState> {
     // 移動できるマス(ボムでブロックを破壊できる場所も含む)のマップを作成する
     const checkMovableDimensionalMap = this.engine.getDimensionalMap(this.engine.checkMovable);
     const movableMap = normalizeDimension(checkMovableDimensionalMap);
-
+    // 爆風の範囲を測定するために使うマップを作成する
+    const highPriorityForBlastRadiusMap = this.engine.getDimensionalMap(
+      this.engine.getHighestPriorityFromBodies
+    );
+    // アイテムのマップ
     const itemMap = normalizeDimension(this.engine.getDimensionalMap(this.engine.HasItem));
+    // ブロックのマップ
+    const blockMap = normalizeDimension(this.engine.getDimensionalMap(this.engine.HasBlock));
 
     // 爆弾の影響度マップを作成する
     const bombMap = reverseNormalizeDimension(
@@ -281,28 +289,10 @@ export default class GameRoom extends Room<GameRoomState> {
 
     // if (bombMap.flat().filter((v: number) => v < 1).length > 0) console.log('bombMap', bombMap);
 
+    // 特定のマスの周囲のマスにどの程度空きマスがないか
     const notFreeSpaceMap = reverseNormalizeDimension(
       normalizeDimension(treatLevelByFreeSpace(checkMovableDimensionalMap, 3))
     );
-
-    // 影響度マップを作成する
-    const impactMap = sumOfProductsSynthesis(movableMap, [
-      // 爆弾、爆風の影響度マップ
-      {
-        dimensionalMap: bombMap,
-        ratio: Constants.ENEMY_EVALUATION_RATIO_BOMB,
-      },
-      {
-        // dimensionalMap: movableMap,
-        dimensionalMap: notFreeSpaceMap,
-        ratio: Constants.ENEMY_EVALUATION_RATIO_FREE_SPACE,
-      },
-      // アイテムの影響度マップ
-      {
-        dimensionalMap: itemMap,
-        ratio: Constants.ENEMY_EVALUATION_RATIO_ITEM,
-      },
-    ]);
 
     for (let i = 0; i < Constants.DEBUG_DEFAULT_ENEMY_COUNT; i++) {
       const player = this.state.getPlayer(`enemy-${i}`);
@@ -312,8 +302,51 @@ export default class GameRoom extends Room<GameRoomState> {
       if (enemy.isDead()) continue;
 
       const { x: enemyX, y: enemyY } = enemy.getTilePosition();
+
       // 直接移動できるマスのマップを作成する
-      const directMoveMap = directMovableMap(checkMovableDimensionalMap, enemyX, enemyY);
+      const MoveCountMap = directMovableMap(checkMovableDimensionalMap, enemyX, enemyY);
+      const directMoveMap = MoveCountMap.map((row, r) =>
+        row.map((v, c) => (row[c] = v === Infinity ? 0 : 1))
+      );
+
+      // 一度に破壊できるブロックが多い場所のマップを作成する
+      const goodBombPlaceMap = normalizeDimension(
+        numberOfDestroyableBlock(
+          directMoveMap,
+          blockMap,
+          highPriorityForBlastRadiusMap,
+          enemy.bombStrength
+        )
+      );
+
+      // 影響度マップを作成する
+      const impactMap = sumOfProductsSynthesis(movableMap, [
+        // 爆弾、爆風の影響度マップ
+        {
+          dimensionalMap: bombMap,
+          ratio: Constants.ENEMY_EVALUATION_RATIO_BOMB,
+        },
+        // 現在地点からの距離の影響度マップ
+        {
+          dimensionalMap: MoveCountMap,
+          ratio: Constants.ENEMY_EVALUATION_RATIO_NEAREST,
+        },
+        // {
+        //   // dimensionalMap: movableMap,
+        //   dimensionalMap: notFreeSpaceMap,
+        //   ratio: Constants.ENEMY_EVALUATION_RATIO_FREE_SPACE,
+        // },
+        // アイテムの影響度マップ
+        {
+          dimensionalMap: itemMap,
+          ratio: Constants.ENEMY_EVALUATION_RATIO_ITEM,
+        },
+        // 破壊できるブロックの数の影響度マップ
+        {
+          dimensionalMap: goodBombPlaceMap,
+          ratio: Constants.ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE,
+        },
+      ]);
 
       // 影響度マップに対して、今移動できるマスのみを残す
       const impactMapIsMovable = impactMap.map((row, i) =>

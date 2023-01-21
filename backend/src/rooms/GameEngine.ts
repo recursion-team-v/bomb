@@ -12,7 +12,6 @@ import PlayerService from '../game_engine/services/playerService';
 import { Bomb } from './schema/Bomb';
 import GameRoomState from './schema/GameRoomState';
 import Player from './schema/Player';
-import Item from './schema/Item';
 
 export default class GameEngine {
   world: Matter.World;
@@ -173,11 +172,18 @@ export default class GameEngine {
   }
 
   // matter bodies に item が存在するかどうかを判定し、
-  // item が存在する場合は 2 / block が存在する場合は 1 / それ以外は 0 を返す
-  // block を壊すとアイテムが出ることがあるので、block が存在する場合は 1 を返す
+  // item が存在する場合は 1 それ以外は 0 を返す
   HasItem(bodies: Matter.Body[]): number {
     for (const body of bodies) {
-      if (body.label === Constants.OBJECT_LABEL.ITEM) return 2;
+      if (body.label === Constants.OBJECT_LABEL.ITEM) return 1;
+    }
+    return 0;
+  }
+
+  // matter bodies に block が存在するかどうかを判定し、
+  // block が存在する場合は 1 それ以外は 0 を返す
+  HasBlock(bodies: Matter.Body[]): number {
+    for (const body of bodies) {
       if (body.label === Constants.OBJECT_LABEL.BLOCK) return 1;
     }
     return 0;
