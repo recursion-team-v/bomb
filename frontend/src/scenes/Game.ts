@@ -64,7 +64,6 @@ export default class Game extends Phaser.Scene {
   private readonly currBombs: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているボム
   private readonly currBlasts: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているサーバの爆風
   private gameResult?: GameResult;
-  private bgm?: Phaser.Sound.BaseSound;
   private seItemGet!: Phaser.Sound.BaseSound;
   private readonly juice: phaserJuice;
   private IsFinishedDropWallsEvent: boolean = false;
