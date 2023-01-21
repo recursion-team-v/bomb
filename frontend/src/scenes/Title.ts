@@ -61,7 +61,7 @@ export default class Title extends Phaser.Scene {
 
     createTextBox(
       this,
-      Number(this.game.config.width) / 4-25,
+      Number(this.game.config.width) / 4 - 25,
       Number(this.game.config.height) / 2 + 100,
       {
         wrapWidth: 650,
@@ -71,7 +71,7 @@ export default class Title extends Phaser.Scene {
     );
     createBombUsage(
       this,
-      Number(this.game.config.width) / 4+100,
+      Number(this.game.config.width) / 4 + 100,
       Number(this.game.config.height) / 2 + 250
     );
     createMoveUsage(
