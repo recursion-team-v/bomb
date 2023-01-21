@@ -21,7 +21,7 @@ export default class GameRoom extends Room<GameRoomState> {
     this.name = playerName;
     this.maxClients = Constants.MAX_PLAYER;
     this.autoDispose = autoDispose;
-    await this.setMetadata({ name: this.name });
+    await this.setMetadata({ name: this.name, locked: false });
 
     // ルームで使用する時計
     this.clock.start();
@@ -56,8 +56,9 @@ export default class GameRoom extends Room<GameRoomState> {
               const data = {
                 serverTimer: this.state.timer,
               };
-              this.startGame();
-              this.broadcast(Constants.NOTIFICATION_TYPE.GAME_START_INFO, data);
+              this.startGame()
+                .then(() => this.broadcast(Constants.NOTIFICATION_TYPE.GAME_START_INFO, data))
+                .catch((err) => console.log(err));
             }
           }
         }
@@ -141,8 +142,10 @@ export default class GameRoom extends Room<GameRoomState> {
   }
 
   // ゲーム開始イベント
-  private startGame() {
+  private async startGame() {
     if (!this.state.gameState.isPlaying()) {
+      await this.lock();
+      await this.setMetadata({ locked: true });
       this.state.gameState.setPlaying();
       this.state.setTimer();
     }
