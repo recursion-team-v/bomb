@@ -22,6 +22,8 @@ import {
   getHighestPriorityTileSurround,
   influenceToOtherTile,
   isSelfDie,
+  getDirectMovableMapIfBombSet,
+  getHighestPriorityTile,
 } from '../utils/calc';
 
 export default class GameRoom extends Room<GameRoomState> {
@@ -319,12 +321,7 @@ export default class GameRoom extends Room<GameRoomState> {
       // 一度に破壊できるブロックが多い場所のマップを作成する
       const goodBombPlaceMap = influenceToOtherTile(
         normalizeDimension(
-          numberOfDestroyableBlock(
-            directMoveMap,
-            blockMap,
-            highPriorityForBlastRadiusMap,
-            enemy.bombStrength
-          )
+          numberOfDestroyableBlock(directMoveMap, blockMap, highPriorityForBlastRadiusMap, enemy)
         )
       );
 
@@ -335,11 +332,11 @@ export default class GameRoom extends Room<GameRoomState> {
           dimensionalMap: deathMap,
           ratio: Constants.ENEMY_EVALUATION_RATIO_BOMB,
         },
-        // // 現在地点からの距離の影響度マップ
-        // {
-        //   dimensionalMap: MoveCountMap,
-        //   ratio: Constants.ENEMY_EVALUATION_RATIO_NEAREST,
-        // },
+        // 現在地点からの距離の影響度マップ
+        {
+          dimensionalMap: MoveCountMap,
+          ratio: Constants.ENEMY_EVALUATION_RATIO_NEAREST,
+        },
         // {
         //   // dimensionalMap: movableMap,
         //   dimensionalMap: notFreeSpaceMap,
@@ -362,9 +359,9 @@ export default class GameRoom extends Room<GameRoomState> {
         row.map((v, j) => v * directMoveMap[i][j])
       );
       // if (deathMap.flat().filter((v: number) => v < 1).length > 0) {
-      //   console.log('directMoveMap', directMoveMap);
+      // console.log('directMoveMap', directMoveMap);
       //   console.log('impactMap', impactMap);
-      //   console.log('impactMapIsMovable', impactMapIsMovable);
+      // console.log('impactMapIsMovable', impactMapIsMovable);
       // }
 
       // console.log('directMoveMap', directMoveMap);
@@ -375,23 +372,22 @@ export default class GameRoom extends Room<GameRoomState> {
       //   console.log('directMoveMap', directMoveMap);
       // }
 
-      // impactMapIsMovable　から、現在地点の周囲のマスの中で、最も影響度が高いマスを取得する
-      const { x, y } = getHighestPriorityTileSurround(impactMapIsMovable, enemyX, enemyY);
+      // impactMapIsMovable から、現在地点の周囲のマスの中で、最も影響度が高いマスを取得する
+      const { x, y } = getHighestPriorityTile(impactMapIsMovable, enemyX, enemyY);
+      // const { x, y } = getHighestPriorityTileSurround(impactMapIsMovable, enemyX, enemyY);
 
       // 最終的に移動するマスを決定する
       enemy.setGoal(x, y);
 
       // ゴールに着くまで移動
+
       if (!enemy.isMovedToGoal()) {
         // 最短の移動経路を取得する
-        const moveList = searchPath({ x: enemyX, y: enemyY }, { x, y }, directMoveMap);
-
-        // 移動経路の結果が 0 の場合は、すでに目的にいるので何もしない
-        if (moveList.length === 0) continue;
-        enemy.setNext(moveList[1][0], moveList[1][1]);
-
-        // 次に移動するマスの脅威度が 0.3 以下の場合は、移動しない
-        // if (impactMapIsMovable[moveList[1][1]][moveList[1][0]] < 0.3) continue;
+        const moveList = searchPath(
+          enemy.getTilePosition(),
+          enemy.getGoalTilePosition(),
+          directMoveMap
+        );
 
         // console.log(
         //   'now:',
@@ -399,9 +395,18 @@ export default class GameRoom extends Room<GameRoomState> {
         //   'next:',
         //   enemy.getNextTilePosition(),
         //   'goal:',
-        //   x,
-        //   y
+        //   enemy.getGoalTilePosition()
         // );
+        // console.log('impactMap', impactMap);
+        // console.log('impactMapIsMovable', impactMapIsMovable);
+
+        // 移動経路の結果が 0 の場合は、すでに目的にいるので何もしない
+        if (moveList.length === 0) continue;
+        // moveList.forEach((v) => console.log('moveList', v));
+        enemy.setNext(moveList[1][0], moveList[1][1]);
+
+        // 次に移動するマスの脅威度が 0.3 以下の場合は、移動しない
+        // if (impactMapIsMovable[moveList[1][1]][moveList[1][0]] < 0.1) continue;
 
         // if (deathMap.flat().filter((v: number) => v < 1).length > 0) console.log('x, y', x, y);
         const key = enemy.moveToDirection();
@@ -417,17 +422,21 @@ export default class GameRoom extends Room<GameRoomState> {
         };
         player.inputQueue.push(data);
       } else {
-        if (
-          isSelfDie(
-            directMoveMap,
-            highPriorityForBlastRadiusMap,
-            enemy.x,
-            enemy.y,
-            enemy.bombStrength
-          )
-        )
-          continue;
+        // もし爆弾を置いたらどうなるか？のマップを作成する
+        const mapIfSetBomb = getDirectMovableMapIfBombSet(
+          directMoveMap,
+          highPriorityForBlastRadiusMap,
+          enemy.x,
+          enemy.y,
+          enemy.bombStrength
+        );
+
+        // console.log('mapIfSetBomb', mapIfSetBomb);
+        if (isSelfDie(mapIfSetBomb, enemy, true)) continue;
+        // enemy.setGoal(getClosestAvailablePoint(mapIfSetBomb, {x, y: enemy.getTilePosition()});
+        if (!enemy.canSetBomb()) continue;
         this.engine.bombService.enqueueBomb(player);
+        // console.log('set bomb');
       }
       // }
 

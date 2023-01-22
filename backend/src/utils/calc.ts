@@ -3,7 +3,7 @@ import { calcBlastRange } from '../game_engine/services/blastService';
 import { Bomb } from '../rooms/schema/Bomb';
 import { TileToPixel, PixelToTile } from './map';
 import * as Constants from '../constants/constants';
-import { getHighestPriorityFromBodies } from '../../../frontend/src/services/Map';
+import Enemy from '../rooms/schema/Enemy';
 
 // min ~ max で正規化します
 function normalize(value: number, min: number, max: number): number {
@@ -61,9 +61,16 @@ export function sumOfProductsSynthesis(
 }
 
 // 影響度マップのうち、最も影響度の高いマスを返します
-export function getHighestPriorityTile(dmap: number[][]): { x: number; y: number } {
+// ただし、今の座標と同じ影響度なら今の座標を返します
+export function getHighestPriorityTile(
+  dmap: number[][],
+  nowX: number,
+  nowY: number
+): { x: number; y: number } {
   const singleMap = dmap.flat();
   const max = Math.max(...singleMap);
+  if (max === dmap[nowY][nowX]) return { x: nowX, y: nowY };
+
   const maxIndex = singleMap.indexOf(max);
   const y = Math.floor(maxIndex / dmap[0].length);
   const x = maxIndex % dmap[0].length;
@@ -78,7 +85,7 @@ export function getHighestPriorityTileSurround(
   count: number = 1
 ): { x: number; y: number } {
   const subGrid = getSubGrid(dmap, x, y, count);
-  const { x: tx, y: ty } = getHighestPriorityTile(subGrid);
+  const { x: tx, y: ty } = getHighestPriorityTile(subGrid, x, y);
 
   return { x: x + (tx - 1), y: y + (ty - 1) };
 }
@@ -196,12 +203,13 @@ export function numberOfDestroyableBlock(
   directMoveMap: number[][],
   blockMap: number[][],
   highestPriorityForBlastRadiusMap: number[][],
-  power: number
+  enemy: Enemy
 ): number[][] {
   const result: number[][] = Array(directMoveMap.length)
     .fill(0)
     .map(() => Array(directMoveMap[0].length).fill(0));
 
+  const power = enemy.bombStrength;
   if (power === 0) return result;
   for (let y = 0; y < directMoveMap.length; y++) {
     let hasLeft = false;
@@ -216,7 +224,14 @@ export function numberOfDestroyableBlock(
       const { x: bx, y: by } = TileToPixel(x, y);
 
       // ボムを設置すると自殺するならばセットしない
-      if (isSelfDie(directMoveMap, highestPriorityForBlastRadiusMap, bx, by, power)) continue;
+      const mapIfSetBomb = getDirectMovableMapIfBombSet(
+        directMoveMap,
+        highestPriorityForBlastRadiusMap,
+        bx,
+        by,
+        power
+      );
+      if (isSelfDie(mapIfSetBomb, enemy)) continue;
 
       // 爆風の範囲を計算する
       const blastRadius: Map<Constants.DIRECTION_TYPE, number> = calcBlastRange(
@@ -276,11 +291,12 @@ export function treatLevelMapByBomb(dmap: number[][], bombMap: any[][]): number[
       const blast: Map<Constants.DIRECTION_TYPE, number> = calcBlastRange(dmap, bomb);
 
       // 今後爆発する範囲を脅威マップに反映
-      // TODO: 爆発までの秒数に応じて脅威度を変更する (現状は 1 で固定)
-      // const ratio = Date.now() / bomb.removedAt;
-      const ratio = 1.0;
+      // 爆発までの秒数に応じて脅威度を変更する (0.1 ~ 1)
+      // FIXME: この ratio は誘爆を考慮していないので、誘爆を考慮した脅威度を計算する必要がある
+      const baseRatio = 0.1; // 置かれた瞬間の爆弾の場合は、ratio が 0 になるのを避けるため 0.1 を足す
+      const ratio = 1 - (bomb.removedAt - Date.now()) / Constants.BOMB_EXPLOSION_TIME + baseRatio;
 
-      result[y][x] = 1; // Bomb の位置は必ず脅威
+      result[y][x] = 1 * ratio; // Bomb の位置は必ず脅威
 
       for (let i = 1; i <= (blast.get(Constants.DIRECTION.UP) ?? 0); i++) {
         result[y - i][x] = 1 * ratio;
@@ -355,21 +371,14 @@ export function treatLevelByFreeSpace(dmap: number[][], count: number): number[]
   return result;
 }
 
-// マップにボムを置いた場合に、自殺になってしまうかどうかを判定する
-// directMoveMap: 直接移動できるマスのマップ
-// highestPriorityForBlastRadiusMap: 爆風の影響度が高いマスのマップ
-// x: ボムの x 座標
-// y: ボムの y 座標
-// power: ボムの威力
-// speed: この関数を呼び出す時点での自機のスピード
-export function isSelfDie(
+// マップにボムを置いた場合に、どのようなマップになるかを返す
+export function getDirectMovableMapIfBombSet(
   directMoveMap: number[][],
   highestPriorityForBlastRadiusMap: number[][],
   x: number,
   y: number,
-  power: number,
-  speed: number = Constants.INITIAL_PLAYER_SPEED
-): boolean {
+  power: number
+): number[][] {
   // x, y の地点にボムを置いた場合の爆風の範囲を計算
   const blastRadius: Map<Constants.DIRECTION_TYPE, number> = calcBlastRange(
     highestPriorityForBlastRadiusMap,
@@ -400,25 +409,62 @@ export function isSelfDie(
     }
   });
 
+  return result;
+}
+
+// マップにボムを置いた場合に、自殺になってしまうかどうかを判定する
+// mapIfSetBomb: 直接移動できるマスのマップ
+// x: ボムの x 座標
+// y: ボムの y 座標
+// power: ボムの威力
+// speed: この関数を呼び出す時点での自機のスピード
+export function isSelfDie(
+  mapIfSetBomb: number[][],
+  enemy: Enemy,
+  isUpdateGoal: boolean = false
+): boolean {
   // 移動可能なマスがなければ自殺とみなす
-  if (!result.flat().includes(1)) return true;
+  if (!mapIfSetBomb.flat().includes(1)) return true;
+
+  const result = mapIfSetBomb.map((row) => row.slice());
+
+  // タイル座標に変換
+  const { x: tx, y: ty } = enemy.getTilePosition();
+  result[ty][tx] = 0;
 
   // まだ移動できるマスを取得し、自機のスピードを考慮して移動できるマスがあるかどうかを判定
+  const { distance } = getClosestAvailablePoint(result, tx, ty);
+
+  const isSelfDie =
+    (distance * Constants.DEFAULT_TIP_SIZE) / enemy.speed > Constants.BOMB_EXPLOSION_TIME;
+
+  if (isSelfDie) return true;
+
+  return isSelfDie;
+}
+
+// 現在移動可能なマスのマップと現在位置から、最短で移動できる生き残れるマスのマップとその距離を返す
+export function getClosestAvailablePoint(
+  directMovableMap: number[][],
+  tx: number,
+  ty: number
+): { x: number; y: number; distance: number } {
   const availablePoint: number[][] = [];
-  result.forEach((row, ay) =>
+  directMovableMap.forEach((row, ay) =>
     row.forEach((value, ax) => (value === 1 ? availablePoint.push([ax, ay]) : undefined))
   );
 
   let minimumDistance = Infinity;
+  let result = { x: 0, y: 0, distance: Infinity };
+
   for (let i = 0; i < availablePoint.length; i++) {
     const [ax, ay] = availablePoint[i];
-    minimumDistance = Math.min(
-      minimumDistance,
-      searchPath({ x: tx, y: ty }, { x: ax, y: ay }, result).length
-    );
+    const path = searchPath({ x: tx, y: ty }, { x: ax, y: ay }, directMovableMap);
+    if (path.length < minimumDistance) {
+      result = { x: ax, y: ay, distance: path.length };
+      minimumDistance = path.length;
+    }
   }
 
-  // 移動できるマスがある場合は、ボムが爆発するまでに移動できるかどうかを判定
-
-  return (minimumDistance * Constants.DEFAULT_TIP_SIZE) / speed > Constants.BOMB_EXPLOSION_TIME;
+  return result;
 }

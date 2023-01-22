@@ -27,6 +27,10 @@ export default class Enemy extends Player {
     return PixelToTile(this.nextX, this.nextY);
   }
 
+  getGoalTilePosition(): { x: number; y: number } {
+    return PixelToTile(this.goalX, this.goalY);
+  }
+
   // の周囲のタイルを返します
   getSurroundingTiles(map: number[][]): {
     north: { x: number; y: number };

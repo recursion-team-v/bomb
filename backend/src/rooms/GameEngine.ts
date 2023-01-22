@@ -152,7 +152,7 @@ export default class GameEngine {
     return n === 0;
   }
 
-  // matter bodies に bomb が存在するかどうかを判定し、
+  // state.bombs に bomb が存在するかどうかを判定し、
   // ボムが存在する場合は Bomb をそれ以外は undefined を返す
   HasBomb(bodies: Matter.Body[]): Bomb | undefined {
     for (const body of bodies) {
