@@ -47,10 +47,12 @@ export default class Lobby extends Phaser.Scene {
   private getAvailableRooms() {
     const availableRooms: IAvailableRoom[] = [];
     for (const room of this.network.allRooms) {
-      availableRooms.push({
-        id: room.roomId,
-        name: room.metadata?.name,
-      });
+      if (room.metadata?.locked === false) {
+        availableRooms.push({
+          id: room.roomId,
+          name: room.metadata?.name,
+        });
+      }
     }
     return availableRooms;
   }
