@@ -4,6 +4,7 @@ import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
 import Blast from '../../rooms/schema/Blast';
 import { Bomb, getSettablePosition } from '../../rooms/schema/Bomb';
+import { PixelToTile } from '../../utils/map';
 
 export default class BlastService {
   private readonly gameEngine: GameEngine;
@@ -151,8 +152,7 @@ export function calcBlastRange(map: number[][], bomb: Bomb): Map<Constants.DIREC
   const power = bomb.bombStrength;
 
   // 現在のユーザの爆弾の位置を取得
-  const x = (bomb.x - Constants.TILE_WIDTH / 2) / Constants.TILE_WIDTH;
-  const y = (bomb.y - Constants.TILE_HEIGHT / 2 - Constants.HEADER_HEIGHT) / Constants.TILE_HEIGHT;
+  const { x, y } = PixelToTile(bomb.x, bomb.y);
 
   // 現在のユーザの爆弾の位置から上下左右の範囲を計算
   const m = new Map<Constants.DIRECTION_TYPE, number>();

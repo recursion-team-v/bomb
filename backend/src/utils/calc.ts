@@ -1,9 +1,11 @@
 import pathFinding from 'pathfinding';
-import { calcBlastRange, calcBlastRangeFromDirection } from '../game_engine/services/blastService';
+import { calcBlastRange } from '../game_engine/services/blastService';
 import { Bomb } from '../rooms/schema/Bomb';
-import { TileToPixel } from './map';
+import { TileToPixel, PixelToTile } from './map';
 import * as Constants from '../constants/constants';
+import { getHighestPriorityFromBodies } from '../../../frontend/src/services/Map';
 
+// min ~ max で正規化します
 function normalize(value: number, min: number, max: number): number {
   return (value - min) / (max - min);
 }
@@ -22,6 +24,7 @@ export function normalizeDimension(dmap: number[][]): number[][] {
   return normalizedMap;
 }
 
+// 二次元配列を正規化したものを反転します
 export function reverseNormalizeDimension(dmap: number[][]): number[][] {
   return dmap.map((row) => {
     return row.map((value) => {
@@ -67,6 +70,37 @@ export function getHighestPriorityTile(dmap: number[][]): { x: number; y: number
   return { x, y };
 }
 
+// x, y で指定された座標から影響度マップのうち、最も影響度の高いマスを返します
+export function getHighestPriorityTileSurround(
+  dmap: number[][],
+  x: number,
+  y: number,
+  count: number = 1
+): { x: number; y: number } {
+  const subGrid = getSubGrid(dmap, x, y, count);
+  const { x: tx, y: ty } = getHighestPriorityTile(subGrid);
+
+  return { x: x + (tx - 1), y: y + (ty - 1) };
+}
+
+// grid から x, y で指定された座標の周囲のマスを返します
+function getSubGrid(grid: number[][], x: number, y: number, count: number = 1): number[][] {
+  const subGrid: number[][] = [];
+  let sy = 0;
+  for (let i = y - count; i <= y + count; i++) {
+    subGrid[sy] = [];
+    let sx = 0;
+    for (let j = x - count; j <= x + count; j++) {
+      if (i >= 0 && i < grid.length && j >= 0 && j < grid[i].length) {
+        subGrid[sy][sx] = grid[i][j];
+      }
+      sx++;
+    }
+    sy++;
+  }
+  return subGrid;
+}
+
 // 今の座標から移動できかどうかを各マスに出力した二次元配列を返します
 // 各マスには、移動できる場合は移動量、移動できない場合は Infinity が入ります
 export function directMovableMap(dmap: number[][], tileX: number, tileY: number): number[][] {
@@ -83,6 +117,7 @@ export function directMovableMap(dmap: number[][], tileX: number, tileY: number)
 }
 
 // 今の座標から移動できるマス目を返します
+// 結果には、[x ,y , 移動できる場合は移動量、移動できない場合は Infinity] が入ります
 function dfs(dmap: number[][], tileX: number, tileY: number): number[][] {
   const visited: number[][] = Array(dmap.length)
     .fill(Infinity)
@@ -130,6 +165,7 @@ function dfs(dmap: number[][], tileX: number, tileY: number): number[][] {
 }
 
 // From から To までの最短経路の配列を返します
+// ここでの x / y は、配列の添字として扱われるため、実際の座標ではなく配列の何番目かを表します
 export function searchPath(
   from: { x: number; y: number },
   to: { x: number; y: number },
@@ -152,33 +188,37 @@ export function searchPath(
 
 // 所定の位置に bomb を置いた際に、いくつブロックを破壊できるかを返す
 // 最大で 4 方向にブロックを破壊できるので 4 がかえる
-// movableMap は移動できるマス目のマップ
+// directMoveMap は直接移動できるマス目のマップ
 // blockMap はブロックがあるマス目のマップ
 // highestPriorityForBlastRadiusMap は爆風の影響度マップ
 // power は爆風の強さ
 export function numberOfDestroyableBlock(
-  movableMap: number[][],
+  directMoveMap: number[][],
   blockMap: number[][],
   highestPriorityForBlastRadiusMap: number[][],
   power: number
 ): number[][] {
-  const result: number[][] = Array(movableMap.length)
+  const result: number[][] = Array(directMoveMap.length)
     .fill(0)
-    .map(() => Array(movableMap[0].length).fill(0));
+    .map(() => Array(directMoveMap[0].length).fill(0));
 
   if (power === 0) return result;
-  for (let y = 0; y < movableMap.length; y++) {
+  for (let y = 0; y < directMoveMap.length; y++) {
     let hasLeft = false;
     let hasRight = false;
     let hasUp = false;
     let hasDown = false;
 
-    for (let x = 0; x < movableMap[y].length; x++) {
+    for (let x = 0; x < directMoveMap[y].length; x++) {
       // 移動できるマス(1) = ボムが設置できるマス
-      if (movableMap[y][x] !== 1) continue;
+      if (directMoveMap[y][x] !== 1) continue;
+
+      const { x: bx, y: by } = TileToPixel(x, y);
+
+      // ボムを設置すると自殺するならばセットしない
+      if (isSelfDie(directMoveMap, highestPriorityForBlastRadiusMap, bx, by, power)) continue;
 
       // 爆風の範囲を計算する
-      const { x: bx, y: by } = TileToPixel(x, y);
       const blastRadius: Map<Constants.DIRECTION_TYPE, number> = calcBlastRange(
         highestPriorityForBlastRadiusMap,
         new Bomb(bx, by, Constants.BOMB_TYPE.NORMAL, power, 'dummy')
@@ -191,7 +231,8 @@ export function numberOfDestroyableBlock(
       }
 
       for (let i = 1; i <= (blastRadius.get(Constants.DIRECTION.RIGHT) ?? 0); i++) {
-        if (x + i < movableMap[y].length && !hasRight && blockMap[y][x + i] === 1) hasRight = true;
+        if (x + i < directMoveMap[y].length && !hasRight && blockMap[y][x + i] === 1)
+          hasRight = true;
       }
 
       for (let i = 1; i <= (blastRadius.get(Constants.DIRECTION.UP) ?? 0); i++) {
@@ -199,7 +240,7 @@ export function numberOfDestroyableBlock(
       }
 
       for (let i = 1; i <= (blastRadius.get(Constants.DIRECTION.DOWN) ?? 0); i++) {
-        if (y + i < movableMap.length && !hasDown && blockMap[y + i][x] === 1) hasDown = true;
+        if (y + i < directMoveMap.length && !hasDown && blockMap[y + i][x] === 1) hasDown = true;
       }
 
       if (hasLeft) result[y][x] += 1;
@@ -216,7 +257,7 @@ export function numberOfDestroyableBlock(
 // それをもとに爆風の範囲を計算しき脅威マップを返す
 // dmap: マップの配列
 // bombMap: Bomb の配列
-// 0: 爆風の範囲ではない /  0~1: 爆風からの距離に応じて / 1: 爆風の範囲
+// 0: 爆風の範囲ではない / 1: 爆風の範囲
 export function treatLevelMapByBomb(dmap: number[][], bombMap: any[][]): number[][] {
   // 1 埋めした配列を作成
   const result = Array(dmap.length)
@@ -224,7 +265,6 @@ export function treatLevelMapByBomb(dmap: number[][], bombMap: any[][]): number[
     .map(() => Array(dmap[0].length).fill(0));
 
   // 爆風が存在するマス目を格納するキュー
-  const bombQueue: number[][] = [];
 
   for (let y = 0; y < dmap.length; y++) {
     for (let x = 0; x < dmap[y].length; x++) {
@@ -241,41 +281,51 @@ export function treatLevelMapByBomb(dmap: number[][], bombMap: any[][]): number[
       const ratio = 1.0;
 
       result[y][x] = 1; // Bomb の位置は必ず脅威
-      bombQueue.push([x, y, 1]);
+
       for (let i = 1; i <= (blast.get(Constants.DIRECTION.UP) ?? 0); i++) {
         result[y - i][x] = 1 * ratio;
-        bombQueue.push([x, y - i, 1]);
       }
       for (let i = 1; i <= (blast.get(Constants.DIRECTION.DOWN) ?? 0); i++) {
         result[y + i][x] = 1 * ratio;
-        bombQueue.push([x, y + i, 1]);
       }
       for (let i = 1; i <= (blast.get(Constants.DIRECTION.LEFT) ?? 0); i++) {
         result[y][x - i] = 1 * ratio;
-        bombQueue.push([x - i, y, 1]);
       }
 
       for (let i = 1; i <= (blast.get(Constants.DIRECTION.RIGHT) ?? 0); i++) {
         result[y][x + i] = 1 * ratio;
-        bombQueue.push([x + i, y, 1]);
       }
     }
   }
 
   // 爆風に近いところは脅威度を高める
+  return result;
+}
+
+// マップを受け取り、そのうち 1 があるマス目の周囲に distance に応じて関連度を追加する
+export function influenceToOtherTile(treatMap: number[][]): number[][] {
+  const queue: number[][] = [];
+
+  // treatMap をコピー
+  const result = treatMap.map((row) => [...row]);
+
+  // treatMap に 1 があるマス目をキューに追加
+  treatMap.map((row, y) => row.map((tile, x) => (tile === 1 ? queue.push([x, y, 1]) : null)));
+
+  // 爆風に近いところは値を高める
   const visited = new Set();
-  while (bombQueue.length > 0 && bombQueue[0] !== undefined) {
+  while (queue.length > 0 && queue[0] !== undefined) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const [x, y, distance] = bombQueue.shift()!;
+    const [x, y, distance] = queue.shift()!;
     if (!visited.has(`${x},${y}`)) {
       visited.add(`${x},${y}`);
 
       // 爆風からの距離に応じて脅威度を変更
       result[y][x] = Math.max(Math.floor((1 / distance) * 100) / 100, result[y][x]);
-      if (x > 1) bombQueue.push([x - 1, y, distance + 1]);
-      if (x < result[0].length - 1) bombQueue.push([x + 1, y, distance + 1]);
-      if (y > 1) bombQueue.push([x, y - 1, distance + 1]);
-      if (y < result.length - 1) bombQueue.push([x, y + 1, distance + 1]);
+      if (x > 1) queue.push([x - 1, y, distance + 1]);
+      if (x < result[0].length - 1) queue.push([x + 1, y, distance + 1]);
+      if (y > 1) queue.push([x, y - 1, distance + 1]);
+      if (y < result.length - 1) queue.push([x, y + 1, distance + 1]);
     }
   }
   return result;
@@ -303,4 +353,72 @@ export function treatLevelByFreeSpace(dmap: number[][], count: number): number[]
   }
 
   return result;
+}
+
+// マップにボムを置いた場合に、自殺になってしまうかどうかを判定する
+// directMoveMap: 直接移動できるマスのマップ
+// highestPriorityForBlastRadiusMap: 爆風の影響度が高いマスのマップ
+// x: ボムの x 座標
+// y: ボムの y 座標
+// power: ボムの威力
+// speed: この関数を呼び出す時点での自機のスピード
+export function isSelfDie(
+  directMoveMap: number[][],
+  highestPriorityForBlastRadiusMap: number[][],
+  x: number,
+  y: number,
+  power: number,
+  speed: number = Constants.INITIAL_PLAYER_SPEED
+): boolean {
+  // x, y の地点にボムを置いた場合の爆風の範囲を計算
+  const blastRadius: Map<Constants.DIRECTION_TYPE, number> = calcBlastRange(
+    highestPriorityForBlastRadiusMap,
+    new Bomb(x, y, Constants.BOMB_TYPE.NORMAL, power, 'dummy')
+  );
+
+  const result = directMoveMap.map((row) => row.slice());
+
+  // タイル座標に変換
+  const { x: tx, y: ty } = PixelToTile(x, y);
+  result[ty][tx] = 0;
+
+  // 爆風の範囲を result に反映
+  blastRadius.forEach((value, key) => {
+    switch (key) {
+      case Constants.DIRECTION.UP:
+        for (let i = 1; i <= value; i++) result[ty - i][tx] = 0;
+        break;
+      case Constants.DIRECTION.DOWN:
+        for (let i = 1; i <= value; i++) result[ty + i][tx] = 0;
+        break;
+      case Constants.DIRECTION.LEFT:
+        for (let i = 1; i <= value; i++) result[ty][tx - i] = 0;
+        break;
+      case Constants.DIRECTION.RIGHT:
+        for (let i = 1; i <= value; i++) result[ty][tx + i] = 0;
+        break;
+    }
+  });
+
+  // 移動可能なマスがなければ自殺とみなす
+  if (!result.flat().includes(1)) return true;
+
+  // まだ移動できるマスを取得し、自機のスピードを考慮して移動できるマスがあるかどうかを判定
+  const availablePoint: number[][] = [];
+  result.forEach((row, ay) =>
+    row.forEach((value, ax) => (value === 1 ? availablePoint.push([ax, ay]) : undefined))
+  );
+
+  let minimumDistance = Infinity;
+  for (let i = 0; i < availablePoint.length; i++) {
+    const [ax, ay] = availablePoint[i];
+    minimumDistance = Math.min(
+      minimumDistance,
+      searchPath({ x: tx, y: ty }, { x: ax, y: ay }, result).length
+    );
+  }
+
+  // 移動できるマスがある場合は、ボムが爆発するまでに移動できるかどうかを判定
+
+  return (minimumDistance * Constants.DEFAULT_TIP_SIZE) / speed > Constants.BOMB_EXPLOSION_TIME;
 }
