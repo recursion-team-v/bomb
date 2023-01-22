@@ -4,6 +4,7 @@ import { createLoginDialog } from '../utils/title';
 import * as Constants from '../../../backend/src/constants/constants';
 import '../services/SoundVolume';
 import { validateAndFixUserName } from '../../../backend/src/utils/validation';
+import { createBombUsage, createItemUsage, createMoveUsage, createTextBox } from '../utils/usage';
 
 export default class Title extends Phaser.Scene {
   network?: Network;
@@ -47,5 +48,35 @@ export default class Title extends Phaser.Scene {
     }).on('playGame', function (userName: string) {
       playGame(validateAndFixUserName(userName));
     });
+    // createUsageDialog(this, {
+    //   x: Number(this.game.config.width) / 2,
+    //   y: Number(this.game.config.height) / 2 + 150,
+    // });
+
+    createTextBox(
+      this,
+      Number(this.game.config.width) / 4 - 25,
+      Number(this.game.config.height) / 2 + 100,
+      {
+        wrapWidth: 650,
+        fixedWidth: 650,
+        fixedHeight: 250,
+      }
+    );
+    createBombUsage(
+      this,
+      Number(this.game.config.width) / 4 + 100,
+      Number(this.game.config.height) / 2 + 250
+    );
+    createMoveUsage(
+      this,
+      Number(this.game.config.width) / 4 + 300,
+      Number(this.game.config.height) / 2 + 200
+    );
+    createItemUsage(
+      this,
+      Number(this.game.config.width) / 4 + 420,
+      Number(this.game.config.height) / 2 + 200
+    );
   }
 }
