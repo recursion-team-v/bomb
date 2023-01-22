@@ -19,6 +19,7 @@ declare global {
         y: number,
         texture: string,
         frame?: string | number,
+        name?: string,
         options?: Phaser.Types.Physics.Matter.MatterBodyConfig
       ) => Player;
       myPlayer: (
@@ -27,6 +28,7 @@ declare global {
         y: number,
         texture: string,
         frame?: string | number,
+        name?: string,
         options?: Phaser.Types.Physics.Matter.MatterBodyConfig
       ) => MyPlayer;
       otherPlayer: (
@@ -35,6 +37,7 @@ declare global {
         y: number,
         texture: string,
         frame?: string | number,
+        name?: string,
         options?: Phaser.Types.Physics.Matter.MatterBodyConfig
       ) => OtherPlayer;
       bomb: (

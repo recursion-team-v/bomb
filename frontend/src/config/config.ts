@@ -24,8 +24,12 @@ export const DEBUG_IS_SHOW_SERVER_BOMB = IS_DEBUG;
 asset 用
 */
 
+export const ASSET_KEY_PLAYER = 'player';
 export const ASSET_KEY_VOLUME_ON = 'volume_on';
 export const ASSET_KEY_VOLUME_OFF = 'volume_off';
+export const ASSET_KEY_WINNER = 'winner';
+export const ASSET_KEY_WINNER_CUP = 'winner_cup';
+export const ASSET_KEY_DRAW_GAME = 'draw_game';
 export const ASSET_KEY_BATTLE_START_UP = 'battle_start_up';
 export const ASSET_KEY_BATTLE_START_DOWN = 'battle_start_down';
 
@@ -35,6 +39,7 @@ export const ASSET_KEY_BATTLE_START_DOWN = 'battle_start_down';
 
 export const SCENE_NAME_TITLE = 'title';
 export const SCENE_NAME_PRELOADER = 'preloader';
+export const SCENE_NAME_LOBBY = 'lobby';
 export const SCENE_NAME_GAME = 'game';
 export const SCENE_NAME_GAME_HEADER = 'gameHeader';
 export const SCENE_NAME_GAME_RESULT = 'gameResult';

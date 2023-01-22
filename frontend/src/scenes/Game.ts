@@ -36,9 +36,12 @@ import { gameEvents, Event } from '../events/GameEvents';
 import { removeBlock } from '../services/Block';
 import { dropWalls } from '../services/Map';
 import { removeItem } from '../services/Item';
+import GameResult from '../../../backend/src/rooms/schema/GameResult';
+import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
+  private serverTimer?: ServerTimer;
   private room!: Room<GameRoomState>;
   private readonly otherPlayers: Map<string, OtherPlayer> = new Map();
   private myPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
@@ -60,6 +63,7 @@ export default class Game extends Phaser.Scene {
   private downTitle!: Phaser.GameObjects.Image;
   private readonly currBombs: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているボム
   private readonly currBlasts: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているサーバの爆風
+  private gameResult?: GameResult;
   private seItemGet!: Phaser.Sound.BaseSound;
   private readonly juice: phaserJuice;
   private IsFinishedDropWallsEvent: boolean = false;
@@ -105,11 +109,12 @@ export default class Game extends Phaser.Scene {
     this.title = this.add.container(0, 0, [this.upTitle, this.downTitle]).setDepth(Infinity);
   }
 
-  create(data: { network: Network }) {
+  create(data: { network: Network; serverTimer: ServerTimer }) {
     if (data.network == null) return;
     this.network = data.network;
     if (this.network.room == null) return;
     this.room = this.network.room;
+    this.serverTimer = data.serverTimer;
 
     // プレイヤーをゲームに追加
     this.addPlayers();
@@ -174,7 +179,11 @@ export default class Game extends Phaser.Scene {
 
   private timeEventHandler() {
     // 壁落下イベント
-    if (this.network.remainTime() - Constants.INGAME_EVENT_DROP_WALLS_TIME <= 0) {
+    if (this.serverTimer === undefined || this.network === undefined) return;
+    if (
+      this.serverTimer.finishedAt - this.network.now() <=
+      Constants.INGAME_EVENT_DROP_WALLS_TIME
+    ) {
       if (!this.IsFinishedDropWallsEvent) dropWalls();
       this.IsFinishedDropWallsEvent = true;
     }
@@ -194,6 +203,7 @@ export default class Game extends Phaser.Scene {
   private initNetworkEvents() {
     this.network.onPlayerJoinedRoom(this.handlePlayerJoinedRoom, this); // 他のプレイヤーの参加イベント
     this.network.onGameStateUpdated(this.handleGameStateChanged, this); // gameStateの変更イベント
+    this.network.onGameResultUpdated(this.handleGameResultUpdated, this); // ゲーム結果の変更イベント
     // TODO: アイテムをとって火力が上がった場合の処理を追加する
     this.network.onBombAdded(this.handleBombAdded, this); // プレイヤーのボム追加イベント
     this.network.onBombRemoved(this.handleBombRemoved, this);
@@ -220,7 +230,14 @@ export default class Game extends Phaser.Scene {
   private addMyPlayer() {
     const player = this.room.state.players.get(this.network.mySessionId);
     if (player === undefined) return;
-    const myPlayer = this.add.myPlayer(this.network.mySessionId, player.x, player.y, 'player');
+    const myPlayer = this.add.myPlayer(
+      this.network.mySessionId,
+      player.x,
+      player.y,
+      'player',
+      undefined,
+      player.name
+    );
     this.myPlayer = myPlayer;
     player.onChange = () => {
       this.myPlayer.handleServerChange(player);
@@ -228,7 +245,14 @@ export default class Game extends Phaser.Scene {
   }
 
   private handlePlayerJoinedRoom(player: ServerPlayer, sessionId: string) {
-    const otherPlayer = this.add.otherPlayer(sessionId, player.x, player.y, 'player');
+    const otherPlayer = this.add.otherPlayer(
+      sessionId,
+      player.x,
+      player.y,
+      'player',
+      undefined,
+      player.name
+    );
     this.otherPlayers.set(sessionId, otherPlayer);
 
     player.onChange = () => {
@@ -251,9 +275,20 @@ export default class Game extends Phaser.Scene {
       this.network.getTs().destroy();
       this.bgm?.stop();
       this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
-      this.scene.stop(Config.SCENE_NAME_GAME);
-      this.scene.start(Config.SCENE_NAME_GAME_RESULT);
+      this.scene.sendToBack(Config.SCENE_NAME_GAME);
+      const darken = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.8 } });
+      darken.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
+      darken.setDepth(Infinity);
+
+      this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
+        sessionId: this.room.sessionId,
+        gameResult: this.gameResult,
+      });
     }
+  }
+
+  private handleGameResultUpdated(result: GameResult) {
+    this.gameResult = result;
   }
 
   // ボム追加イベント時に、マップにボムを追加

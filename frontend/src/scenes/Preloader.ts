@@ -20,7 +20,10 @@ export default class Preloader extends Phaser.Scene {
     const frameWidth = Constants.DEFAULT_TIP_SIZE;
     const frameHeight = Constants.DEFAULT_TIP_SIZE;
 
-    this.load.spritesheet('player', 'assets/player.png', { frameWidth, frameHeight });
+    this.load.spritesheet(Config.ASSET_KEY_PLAYER, 'assets/player.png', {
+      frameWidth,
+      frameHeight,
+    });
 
     this.load.spritesheet('bomb', 'assets/items/bomb/bomb.png', {
       frameWidth,
@@ -107,6 +110,11 @@ export default class Preloader extends Phaser.Scene {
     this.load.image(Config.ASSET_KEY_VOLUME_ON, 'assets/icons/volume_on.png');
     this.load.image(Config.ASSET_KEY_VOLUME_OFF, 'assets/icons/volume_off.png');
 
+    // game result assets
+    this.load.image(Config.ASSET_KEY_WINNER, 'assets/winner.png');
+    this.load.image(Config.ASSET_KEY_WINNER_CUP, 'assets/winner_cup.png');
+    this.load.image(Config.ASSET_KEY_DRAW_GAME, 'assets/draw_game.png');
+
     if (isMobile()) {
       this.load.image(Constants.JOYSTICK_BASE_KEY, 'assets/joystick-base.png');
       this.load.image(Constants.JOYSTICK_STICK_KEY, 'assets/joystick-red.png');
@@ -145,19 +153,17 @@ export default class Preloader extends Phaser.Scene {
     this.load.audio('opening', ['assets/bgm/opening.mp3']);
 
     this.load.on('complete', () => {
-      // add player animations
       createPlayerAnims(this.anims);
       createBombAnims(this.anims);
       createPenetrationBombAnims(this.anims);
       createExplodeAnims(this.anims);
       createPenetrationExplodeAnims(this.anims);
+      this.preloadComplete = true;
     });
   }
 
   init() {
     this.network = new Network();
-    // 自分がルームに参加できたら preload 完了
-    this.network.onMyPlayerJoinedRoom(() => (this.preloadComplete = true));
   }
 
   update() {

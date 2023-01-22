@@ -7,6 +7,9 @@ export default class Player extends Schema {
   @type('string')
   sessionId: string;
 
+  @type('number')
+  gameState: Constants.PLAYER_GAME_STATE_TYPE = Constants.PLAYER_GAME_STATE.WAITING;
+
   // プレイヤーの番号
   @type('number')
   idx: number;
@@ -59,6 +62,10 @@ export default class Player extends Schema {
   @type('number')
   lastDamagedAt: number;
 
+  // 死んだ時間
+  @type('number')
+  diedAt: number;
+
   inputQueue: any[] = [];
 
   constructor(sessionId: string, idx: number, name: string = '') {
@@ -75,6 +82,7 @@ export default class Player extends Schema {
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
     this.getItemMap = new Map<Constants.ITEM_TYPES, number>();
     this.lastDamagedAt = 0;
+    this.diedAt = Infinity;
   }
 
   // ダメージを受けてHPを減らします
@@ -83,6 +91,7 @@ export default class Player extends Schema {
     if (this.isInvincible()) return;
 
     this.hp - damage < 0 ? (this.hp = 0) : (this.hp -= damage);
+    if (this.isDead()) this.diedAt = Date.now();
 
     this.updateLastDamagedAt();
   }
@@ -163,6 +172,18 @@ export default class Player extends Schema {
     } else {
       this.maxBombCount += count;
     }
+  }
+
+  setGameState(gameState: Constants.PLAYER_GAME_STATE_TYPE) {
+    this.gameState = gameState;
+  }
+
+  isWaiting() {
+    return this.gameState === Constants.PLAYER_GAME_STATE.WAITING;
+  }
+
+  isReady() {
+    return this.gameState === Constants.PLAYER_GAME_STATE.READY;
   }
 
   setPlayerName(playerName: string) {

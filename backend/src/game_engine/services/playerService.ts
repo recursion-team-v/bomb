@@ -3,8 +3,8 @@ import Matter from 'matter-js';
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
 import { Bomb } from '../../rooms/schema/Bomb';
-import Player from '../../rooms/schema/Player';
 import Item from '../../rooms/schema/Item';
+import Player from '../../rooms/schema/Player';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class PlayerService {
@@ -24,8 +24,8 @@ export default class PlayerService {
     this.gameEngine.state.players.delete(sessionId);
   }
 
-  addPlayer(sessionId: string) {
-    const player = this.gameEngine.state.createPlayer(sessionId);
+  addPlayer(sessionId: string, playerName: string) {
+    const player = this.gameEngine.state.createPlayer(sessionId, playerName);
     const playerBody = Matter.Bodies.rectangle(
       player.x,
       player.y,
@@ -87,7 +87,10 @@ export default class PlayerService {
 
     // プレイヤーが持っているアイテムを配列に格納して、シャッフルする
     const dropItemList: Constants.ITEM_TYPES[] = [];
-    player.getItemMap.forEach((count, item) => dropItemList.push(...Array(count).fill(item)));
+    player.getItemMap.forEach((count, item) =>
+      // ハートはドロップしない
+      item === Constants.ITEM_TYPE.HEART ? true : dropItemList.push(...Array(count).fill(item))
+    );
     dropItemList.sort(() => Math.random() - 0.5);
 
     // 現在のブロックや人、アイテムが存在しない map 取得
