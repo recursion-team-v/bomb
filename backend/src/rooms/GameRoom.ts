@@ -19,12 +19,12 @@ import {
   searchPath,
   treatLevelMapByBomb,
   numberOfDestroyableBlock,
-  getHighestPriorityTileSurround,
   influenceToOtherTile,
   isSelfDie,
   getDirectMovableMapIfBombSet,
   getHighestPriorityTile,
 } from '../utils/calc';
+import Player from './schema/Player';
 
 export default class GameRoom extends Room<GameRoomState> {
   engine!: GameEngine;
@@ -262,6 +262,24 @@ export default class GameRoom extends Room<GameRoomState> {
     }
   }
 
+  // 爆弾を設置する
+  enemySetBomb(directMoveMap: number[][], highPriorityForBlastRadiusMap: number[][], enemy: Enemy) {
+    // もし爆弾を置いたらどうなるか？のマップを作成する
+    const mapIfSetBomb = getDirectMovableMapIfBombSet(
+      directMoveMap,
+      highPriorityForBlastRadiusMap,
+      enemy.x,
+      enemy.y,
+      enemy.bombStrength
+    );
+
+    // console.log('mapIfSetBomb', mapIfSetBomb);
+    if (isSelfDie(mapIfSetBomb, enemy)) return;
+    // enemy.setGoal(getClosestAvailablePoint(mapIfSetBomb, {x, y: enemy.getTilePosition()});
+    if (!enemy.canSetBomb()) return;
+    this.engine.bombService.enqueueBomb(enemy as Player);
+  }
+
   enemyHandler() {
     if (!this.dummyFlag) return;
     if (!this.state.gameState.isPlaying()) return;
@@ -421,23 +439,9 @@ export default class GameRoom extends Room<GameRoomState> {
           isInput: true,
         };
         player.inputQueue.push(data);
-      } else {
-        // もし爆弾を置いたらどうなるか？のマップを作成する
-        const mapIfSetBomb = getDirectMovableMapIfBombSet(
-          directMoveMap,
-          highPriorityForBlastRadiusMap,
-          enemy.x,
-          enemy.y,
-          enemy.bombStrength
-        );
-
-        // console.log('mapIfSetBomb', mapIfSetBomb);
-        if (isSelfDie(mapIfSetBomb, enemy, true)) continue;
-        // enemy.setGoal(getClosestAvailablePoint(mapIfSetBomb, {x, y: enemy.getTilePosition()});
-        if (!enemy.canSetBomb()) continue;
-        this.engine.bombService.enqueueBomb(player);
         // console.log('set bomb');
       }
+      this.enemySetBomb(directMoveMap, highPriorityForBlastRadiusMap, enemy);
       // }
 
       // const surroundTiles = enemy.getSurroundingTiles(movableMap);

@@ -418,11 +418,7 @@ export function getDirectMovableMapIfBombSet(
 // y: ボムの y 座標
 // power: ボムの威力
 // speed: この関数を呼び出す時点での自機のスピード
-export function isSelfDie(
-  mapIfSetBomb: number[][],
-  enemy: Enemy,
-  isUpdateGoal: boolean = false
-): boolean {
+export function isSelfDie(mapIfSetBomb: number[][], enemy: Enemy): boolean {
   // 移動可能なマスがなければ自殺とみなす
   if (!mapIfSetBomb.flat().includes(1)) return true;
 
