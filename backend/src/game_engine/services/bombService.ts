@@ -3,9 +3,9 @@ import Matter from 'matter-js';
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
 import { Bomb, getSettablePosition } from '../../rooms/schema/Bomb';
-import BlastService from './blastService';
 import Player from '../../rooms/schema/Player';
 import { PixelToTile } from '../../utils/map';
+import BlastService from './blastService';
 
 export default class BombService {
   private readonly gameEngine: GameEngine;
@@ -56,7 +56,6 @@ export default class BombService {
 
     const { bx, by } = getSettablePosition(player.x, player.y);
     if (this.isExistsBombOnPosition(bx, by)) return;
-
     player.increaseSetBombCount();
     const bomb = new Bomb(bx, by, player.getBombType(), player.getBombStrength(), player.sessionId);
     this.gameEngine.state.bombs.set(bomb.id, bomb);

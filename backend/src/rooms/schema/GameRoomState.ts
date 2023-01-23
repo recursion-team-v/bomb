@@ -1,15 +1,17 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
+
 import * as Constants from '../../constants/constants';
 import GameQueue from '../../utils/gameQueue';
+import { PixelToTile } from '../../utils/map';
+import Blast from './Blast';
 import Block from './Block';
 import { Bomb } from './Bomb';
+import Enemy from './Enemy';
 import GameState from './GameState';
 import Item from './Item';
 import Map from './Map';
 import Player from './Player';
 import Timer from './Timer';
-import Blast from './Blast';
-import Enemy from './Enemy';
 
 export default class GameRoomState extends Schema {
   @type(GameState)
@@ -95,5 +97,21 @@ export default class GameRoomState extends Schema {
 
   deleteItem(item: Item) {
     this.items.delete(item.id);
+  }
+
+  // マップの各マスに対して、爆弾があるかどうかを返す
+  hasBomb(bombMap: number[][]): number[][] {
+    const result = Array(bombMap.length)
+      .fill(undefined)
+      .map(() => Array(bombMap[0].length).fill(undefined));
+
+    for (const key of this.bombs.keys()) {
+      const bomb = this.bombs.get(key);
+      if (bomb === undefined) continue;
+      const { x, y } = PixelToTile(bomb.x, bomb.y);
+      result[y][x] = bomb;
+    }
+
+    return result;
   }
 }

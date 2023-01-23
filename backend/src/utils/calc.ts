@@ -1,9 +1,10 @@
 import pathFinding from 'pathfinding';
+
+import * as Constants from '../constants/constants';
 import { calcBlastRange } from '../game_engine/services/blastService';
 import { Bomb } from '../rooms/schema/Bomb';
-import { TileToPixel, PixelToTile } from './map';
-import * as Constants from '../constants/constants';
 import Enemy from '../rooms/schema/Enemy';
+import { PixelToTile, TileToPixel } from './map';
 
 // min ~ max で正規化します
 function normalize(value: number, min: number, max: number): number {
@@ -180,7 +181,7 @@ export function searchPath(
 ): number[][] {
   const grid = new pathFinding.Grid(dmap[0].length, dmap.length);
 
-  // 移動できまいマスを設定
+  // 移動できないマスを設定
   dmap.forEach((row, y) => {
     row.forEach((value, x) => {
       const walkable: boolean = value === 1;
@@ -231,7 +232,7 @@ export function numberOfDestroyableBlock(
         by,
         power
       );
-      if (isSelfDie(mapIfSetBomb, enemy)) continue;
+      if (isSelfDie(directMoveMap, mapIfSetBomb, enemy, false)) continue;
 
       // 爆風の範囲を計算する
       const blastRadius: Map<Constants.DIRECTION_TYPE, number> = calcBlastRange(
@@ -386,8 +387,10 @@ export function getDirectMovableMapIfBombSet(
   );
 
   const result = directMoveMap.map((row) => row.slice());
+  // console.log(result);
 
   // タイル座標に変換
+  // 0 は通れないマス
   const { x: tx, y: ty } = PixelToTile(x, y);
   result[ty][tx] = 0;
 
@@ -418,7 +421,12 @@ export function getDirectMovableMapIfBombSet(
 // y: ボムの y 座標
 // power: ボムの威力
 // speed: この関数を呼び出す時点での自機のスピード
-export function isSelfDie(mapIfSetBomb: number[][], enemy: Enemy): boolean {
+export function isSelfDie(
+  directMoveMap: number[][],
+  mapIfSetBomb: number[][],
+  enemy: Enemy,
+  displayLog: boolean = false
+): boolean {
   // 移動可能なマスがなければ自殺とみなす
   if (!mapIfSetBomb.flat().includes(1)) return true;
 
@@ -429,36 +437,46 @@ export function isSelfDie(mapIfSetBomb: number[][], enemy: Enemy): boolean {
   result[ty][tx] = 0;
 
   // まだ移動できるマスを取得し、自機のスピードを考慮して移動できるマスがあるかどうかを判定
-  const { distance } = getClosestAvailablePoint(result, tx, ty);
+  const { x, y, distance } = getClosestAvailablePoint(directMoveMap, result, tx, ty, displayLog);
 
   const isSelfDie =
     (distance * Constants.DEFAULT_TIP_SIZE) / enemy.speed > Constants.BOMB_EXPLOSION_TIME;
 
-  if (isSelfDie) return true;
-
+  // if (displayLog) {
+  //   console.log('available point', x, y);
+  // }
   return isSelfDie;
 }
 
 // 現在移動可能なマスのマップと現在位置から、最短で移動できる生き残れるマスのマップとその距離を返す
 export function getClosestAvailablePoint(
-  directMovableMap: number[][],
+  directMoveMap: number[][],
+  mapIfSetBomb: number[][],
   tx: number,
-  ty: number
+  ty: number,
+  displayLog: boolean = false
 ): { x: number; y: number; distance: number } {
   const availablePoint: number[][] = [];
-  directMovableMap.forEach((row, ay) =>
+  mapIfSetBomb.forEach((row, ay) =>
     row.forEach((value, ax) => (value === 1 ? availablePoint.push([ax, ay]) : undefined))
   );
 
+  // if (displayLog) console.log('all availablePoint', availablePoint);
   let minimumDistance = Infinity;
   let result = { x: 0, y: 0, distance: Infinity };
+  // if (displayLog) console.log(mapIfSetBomb);
 
   for (let i = 0; i < availablePoint.length; i++) {
     const [ax, ay] = availablePoint[i];
-    const path = searchPath({ x: tx, y: ty }, { x: ax, y: ay }, directMovableMap);
+    const path = searchPath({ x: tx, y: ty }, { x: ax, y: ay }, directMoveMap);
+
+    // 移動できない場合は 0 が返ってくるので、その場合はスキップする
+    if (path.length === 0) continue;
+    // console.log('path', path, 'ax,ay', ax, ay);
     if (path.length < minimumDistance) {
       result = { x: ax, y: ay, distance: path.length };
       minimumDistance = path.length;
+      // console.log('src', tx, ty, 'dest', ax, ay, 'distance', minimumDistance);
     }
   }
 

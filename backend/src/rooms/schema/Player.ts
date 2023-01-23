@@ -1,7 +1,6 @@
 import { Schema, type } from '@colyseus/schema';
 
 import * as Constants from '../../constants/constants';
-import { PixelToTile } from '../../utils/map';
 
 export default class Player extends Schema {
   @type('string')

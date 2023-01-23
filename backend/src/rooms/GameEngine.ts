@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { Room } from 'colyseus';
 import Matter from 'matter-js';
 
@@ -9,10 +8,10 @@ import EnemyService from '../game_engine/services/enemyService';
 import ItemService from '../game_engine/services/ItemService';
 import MapService from '../game_engine/services/mapService';
 import PlayerService from '../game_engine/services/playerService';
-import { Bomb } from './schema/Bomb';
 import GameRoomState from './schema/GameRoomState';
 import Player from './schema/Player';
 
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 export default class GameEngine {
   world: Matter.World;
   room: Room<GameRoomState>;
@@ -150,19 +149,6 @@ export default class GameEngine {
   // 移動できるかどうかを判定し、移動できる場合は true を返す
   isMovable(n: number): boolean {
     return n === 0;
-  }
-
-  // state.bombs に bomb が存在するかどうかを判定し、
-  // ボムが存在する場合は Bomb をそれ以外は undefined を返す
-  HasBomb(bodies: Matter.Body[]): Bomb | undefined {
-    for (const body of bodies) {
-      if (body.label === Constants.OBJECT_LABEL.BOMB) {
-        const bombId = this.bombIdByBodyId.get(body.id);
-        if (bombId === undefined) return undefined;
-        return this.state.bombs.get(bombId);
-      }
-    }
-    return undefined;
   }
 
   // matter bodies に blast が存在するかどうかを判定し、

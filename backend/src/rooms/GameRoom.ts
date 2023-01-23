@@ -2,28 +2,28 @@ import { Client, Room } from 'colyseus';
 import Matter from 'matter-js';
 
 import * as Constants from '../constants/constants';
-import GameEngine from './GameEngine';
-import { Bomb } from './schema/Bomb';
-import Block from './schema/Block';
-import GameRoomState from './schema/GameRoomState';
-import PlacementObjectInterface from '../interfaces/placement_object';
-import GameQueue from '../utils/gameQueue';
 import dropWalls from '../game_engine/services/dropWallService';
-import Item from './schema/Item';
-import Enemy from './schema/Enemy';
+import PlacementObjectInterface from '../interfaces/placement_object';
 import {
-  normalizeDimension,
-  reverseNormalizeDimension,
-  sumOfProductsSynthesis,
   directMovableMap,
-  searchPath,
-  treatLevelMapByBomb,
-  numberOfDestroyableBlock,
-  influenceToOtherTile,
-  isSelfDie,
   getDirectMovableMapIfBombSet,
   getHighestPriorityTile,
+  influenceToOtherTile,
+  isSelfDie,
+  normalizeDimension,
+  numberOfDestroyableBlock,
+  reverseNormalizeDimension,
+  searchPath,
+  sumOfProductsSynthesis,
+  treatLevelMapByBomb,
 } from '../utils/calc';
+import GameQueue from '../utils/gameQueue';
+import GameEngine from './GameEngine';
+import Block from './schema/Block';
+import { Bomb } from './schema/Bomb';
+import Enemy from './schema/Enemy';
+import GameRoomState from './schema/GameRoomState';
+import Item from './schema/Item';
 import Player from './schema/Player';
 
 export default class GameRoom extends Room<GameRoomState> {
@@ -274,9 +274,9 @@ export default class GameRoom extends Room<GameRoomState> {
     );
 
     // console.log('mapIfSetBomb', mapIfSetBomb);
-    if (isSelfDie(mapIfSetBomb, enemy)) return;
-    // enemy.setGoal(getClosestAvailablePoint(mapIfSetBomb, {x, y: enemy.getTilePosition()});
     if (!enemy.canSetBomb()) return;
+    if (isSelfDie(directMoveMap, mapIfSetBomb, enemy, true)) return;
+    // enemy.setGoal(getClosestAvailablePoint(mapIfSetBomb, {x, y: enemy.getTilePosition()});
     this.engine.bombService.enqueueBomb(enemy as Player);
   }
 
@@ -384,11 +384,11 @@ export default class GameRoom extends Room<GameRoomState> {
 
       // console.log('directMoveMap', directMoveMap);
       // console.log('impactMap', impactMap);
-      // console.log('impactMapIsMovable', impactMapIsMovable);
-      // if (deathMap.flat().filter((v: number) => v < 1).length > 0) {
-      //   console.log('impactMap', impactMap);
-      //   console.log('directMoveMap', directMoveMap);
-      // }
+      if (deathMap.flat().filter((v: number) => v < 1).length > 0) {
+        console.log('impactMap', impactMap);
+        console.log('impactMapIsMovable', impactMapIsMovable);
+        // console.log('directMoveMap', directMoveMap);
+      }
 
       // impactMapIsMovable から、現在地点の周囲のマスの中で、最も影響度が高いマスを取得する
       const { x, y } = getHighestPriorityTile(impactMapIsMovable, enemyX, enemyY);
@@ -421,6 +421,27 @@ export default class GameRoom extends Room<GameRoomState> {
         // 移動経路の結果が 0 の場合は、すでに目的にいるので何もしない
         if (moveList.length === 0) continue;
         // moveList.forEach((v) => console.log('moveList', v));
+
+        // 次に移動するマスの安全度が1/2以下になるなら動かない
+        console.log(enemy.inputQueue.length);
+        console.log('now', enemy.x, enemy.y);
+        console.log(
+          'diff:',
+          'now',
+          impactMapIsMovable[enemyY][enemyX],
+          'next',
+          impactMapIsMovable[moveList[1][1]][moveList[1][0]]
+        );
+        if (
+          impactMapIsMovable[moveList[1][1]][moveList[1][0]] <
+          impactMapIsMovable[enemyY][enemyX] / 2
+        ) {
+          console.log('stop', enemy.x, enemy.y);
+          //　
+          this.engine.enemyService.stop(enemy);
+          continue;
+        }
+
         enemy.setNext(moveList[1][0], moveList[1][1]);
 
         // 次に移動するマスの脅威度が 0.3 以下の場合は、移動しない
@@ -438,10 +459,18 @@ export default class GameRoom extends Room<GameRoomState> {
           },
           isInput: true,
         };
-        player.inputQueue.push(data);
+        enemy.inputQueue.push(data);
         // console.log('set bomb');
       }
       this.enemySetBomb(directMoveMap, highPriorityForBlastRadiusMap, enemy);
+      console.log(
+        'now:',
+        enemy.getTilePosition(),
+        'next:',
+        enemy.getNextTilePosition(),
+        'goal:',
+        enemy.getGoalTilePosition()
+      );
       // }
 
       // const surroundTiles = enemy.getSurroundingTiles(movableMap);

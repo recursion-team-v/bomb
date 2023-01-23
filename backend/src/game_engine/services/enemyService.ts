@@ -2,8 +2,9 @@ import Matter from 'matter-js';
 
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
-import Player from '../../rooms/schema/Player';
 import Enemy from '../../rooms/schema/Enemy';
+import Player from '../../rooms/schema/Player';
+import { TileToPixel } from '../../utils/map';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class EnemyService {
@@ -54,13 +55,17 @@ export default class EnemyService {
 
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     while ((data = player.inputQueue.shift())) {
+      console.log('updateEnemy');
       const { player: playerData, inputPayload, isInput } = data;
 
       if (isInput === false) {
         Matter.Body.setVelocity(playerBody, { x: 0, y: 0 });
         Matter.Body.setPosition(playerBody, { x: player.x, y: player.y });
       } else {
-        if (enemy.isMovedToGoal()) continue;
+        if (enemy.isMovedToGoal()) {
+          this.stop(enemy);
+          break;
+        }
         const velocity = player.speed;
         let vx = 0;
         let vy = 0;
@@ -71,6 +76,17 @@ export default class EnemyService {
         Matter.Body.setVelocity(playerBody, { x: vx, y: vy });
       }
     }
+  }
+
+  stop(enemy: Enemy) {
+    enemy.stop();
+    const playerBody = this.gameEngine.playerBodies.get(enemy.sessionId);
+    if (playerBody === undefined) return;
+    Matter.Body.setVelocity(playerBody, { x: 0, y: 0 });
+
+    // 急に止めると、マス目にぴったり止まらず爆風に当たることがあるので、マス目に合わせる
+    const { x: tx, y: ty } = enemy.getTilePosition();
+    Matter.Body.setPosition(playerBody, TileToPixel(tx, ty));
   }
 }
 

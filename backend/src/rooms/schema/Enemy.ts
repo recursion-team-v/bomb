@@ -1,6 +1,6 @@
-import Player from './Player';
 import * as Constants from '../../constants/constants';
-import { TileToPixel, PixelToTile } from '../../utils/map';
+import { PixelToTile, TileToPixel } from '../../utils/map';
+import Player from './Player';
 
 export default class Enemy extends Player {
   // 次に移動する座標
@@ -85,5 +85,10 @@ export default class Enemy extends Player {
       left: this.x > this.nextX,
       right: this.x < this.nextX,
     };
+  }
+
+  // キューを空にして enemy の移動を止める
+  stop() {
+    this.inputQueue = [];
   }
 }
