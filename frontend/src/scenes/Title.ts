@@ -37,49 +37,30 @@ export default class Title extends Phaser.Scene {
       this.se?.play();
     };
 
-    this.add
-      .image(Number(this.game.config.width) / 2, Number(this.game.config.height) / 2 - 150, 'title')
-      .setScale(1.5);
+    this.add.image(Constants.WIDTH / 2, Constants.HEIGHT / 2 - 150, 'title').setScale(1.5);
 
     this.add.volumeIcon(this, Constants.WIDTH - 60, 10);
 
     createLoginDialog(this, {
-      x: Number(this.game.config.width) / 2,
-      y: Number(this.game.config.height) / 2,
+      x: Constants.WIDTH / 2,
+      y: Constants.HEIGHT / 2,
       title: 'input user name',
       username: '',
     }).on('playGame', function (userName: string) {
       playGame(validateAndFixUserName(userName));
     });
     // createUsageDialog(this, {
-    //   x: Number(this.game.config.width) / 2,
-    //   y: Number(this.game.config.height) / 2 + 150,
+    //   x: Constants.WIDTH / 2,
+    //   y: Constants.HEIGHT / 2 + 150,
     // });
 
-    createTextBox(
-      this,
-      Number(this.game.config.width) / 4 - 25,
-      Number(this.game.config.height) / 2 + 100,
-      {
-        wrapWidth: 650,
-        fixedWidth: 650,
-        fixedHeight: 250,
-      }
-    );
-    createBombUsage(
-      this,
-      Number(this.game.config.width) / 4 + 100,
-      Number(this.game.config.height) / 2 + 250
-    );
-    createMoveUsage(
-      this,
-      Number(this.game.config.width) / 4 + 300,
-      Number(this.game.config.height) / 2 + 200
-    );
-    createItemUsage(
-      this,
-      Number(this.game.config.width) / 4 + 420,
-      Number(this.game.config.height) / 2 + 200
-    );
+    createTextBox(this, Constants.WIDTH / 2 - 650 / 2, Constants.HEIGHT / 2 + 120, {
+      wrapWidth: 650,
+      fixedWidth: 650,
+      fixedHeight: 250,
+    }).setOrigin(0.5);
+    createBombUsage(this, Constants.WIDTH / 2 - 650 / 2 + 110, Constants.HEIGHT / 2 + 250);
+    createMoveUsage(this, Constants.WIDTH / 2 - 650 / 2 + 320, Constants.HEIGHT / 2 + 200);
+    createItemUsage(this, Constants.WIDTH / 2 - 650 / 2 + 460, Constants.HEIGHT / 2 + 200);
   }
 }
