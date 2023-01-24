@@ -4,7 +4,7 @@ import * as Constants from '../../../backend/src/constants/constants';
 import { IAvailableRoom } from '../scenes/Lobby';
 
 export const createButton = (scene: Phaser.Scene, text: string, color: number) => {
-  return scene.rexUI.add.label({
+  const button = scene.rexUI.add.label({
     orientation: 'x',
     background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10, color),
     text: scene.add.text(0, 0, text, {
@@ -19,6 +19,16 @@ export const createButton = (scene: Phaser.Scene, text: string, color: number) =
       right: 20,
     },
   });
+
+  button.on('pointerover', function () {
+    button.setScale(1.05);
+  });
+
+  button.on('pointerout', function () {
+    button.setScale(1);
+  });
+
+  return button;
 };
 
 export const createButtons = (

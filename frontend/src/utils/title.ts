@@ -54,6 +54,14 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
       loginDialog.emit('playGame', username);
     });
 
+  loginButton.on('pointerover', function () {
+    loginButton.setScale(1.05);
+  });
+
+  loginButton.on('pointerout', function () {
+    loginButton.setScale(1);
+  });
+
   // Dialog and its children
   const loginDialog = scene.rexUI.add
     .sizer({
