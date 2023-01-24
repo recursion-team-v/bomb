@@ -24,6 +24,7 @@ export default class GameResult extends Phaser.Scene {
 
     const winner = this.getWinner(data.gameResult);
     const players = this.getPlayers(data.gameResult);
+
     // テスト用
     // const players = [
     //   {
@@ -65,7 +66,7 @@ export default class GameResult extends Phaser.Scene {
         .setOrigin(0.5);
 
       for (let i = 0; i < players.length; i++) {
-        if (players[i].sessionId === data.sessionId) continue;
+        if (players[i].name === winner) continue;
         this.generatePlayerContainer(
           Constants.WIDTH * 0.6,
           Constants.HEIGHT * 0.4 + 150 * i,
