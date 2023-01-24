@@ -48,9 +48,14 @@ export const createDialog = (scene: Phaser.Scene, x: number, y: number, onClick:
           bottom: 10,
         },
       }),
+      content: createDialogContent(scene),
+      expand: {
+        content: false,
+      },
       actions: [createButton(scene, 0, 0, 'Ready?'), createButton(scene, 0, 0, 'exit')],
       space: {
         title: 10,
+        content: 10,
         left: 10,
         right: 10,
         top: 10,
@@ -77,6 +82,97 @@ export const createDialog = (scene: Phaser.Scene, x: number, y: number, onClick:
   });
 
   return dialog;
+};
+
+export const createDialogContent = (scene: Phaser.Scene) => {
+  return scene.rexUI.add
+    .gridSizer({
+      x: 0,
+      y: 0,
+      column: 2,
+      row: 2,
+      width: 500,
+      height: 500,
+      columnProportions: 1,
+      rowProportions: 1,
+      space: {
+        column: 20,
+        row: 20,
+      },
+    })
+    .add(createPlayerCard(scene))
+    .add(createPlayerCard(scene))
+    .add(createPlayerCard(scene))
+    .add(createPlayerCard(scene))
+    .layout();
+};
+
+export const createPlayerCard = (scene: Phaser.Scene) => {
+  const card = scene.rexUI.add
+    .label({
+      orientation: 1,
+      background: scene.rexUI.add
+        .roundRectangle(0, 0, 2, 2, 20, 0x374151)
+        .setStrokeStyle(2, 0xe2e8f0),
+      icon: scene.rexUI.add.container(0, 0, 150, 150, [
+        scene.rexUI.add.roundRectangle(0, 0, 150, 150, 20, 0xf87171),
+        scene.add.sprite(0, 0, 'player').setScale(1.2).play('player_down'),
+      ]),
+      text: scene.add.text(0, 0, '', { fontSize: '30px' }),
+      expandTextWidth: false,
+      expandTextHeight: false,
+      space: { left: 20, right: 20, top: 20, bottom: 20, icon: 10 },
+    })
+    .layout();
+
+  const children = card.getChildren();
+  const background = card.getElement('background');
+  children.forEach((child: any) => {
+    if (child === background) {
+      child.setFillStyle(0xf87171);
+    } else {
+      card.setChildVisible(child, false);
+    }
+  });
+
+  return card;
+};
+
+export const flipPlayerCard = (
+  scene: Phaser.Scene,
+  playerCard: Label,
+  currFace: 'back' | 'front'
+) => {
+  const flip = scene.rexUI.add.flip(playerCard, {
+    duration: 400,
+    face: currFace,
+    front: function (gameObject: any) {
+      const children = gameObject.getChildren();
+      const background = gameObject.getElement('background');
+      for (let i = 0, cnt = children.length; i < cnt; i++) {
+        const child = children[i];
+        if (child === background) {
+          child.setFillStyle(0x374151);
+        } else {
+          gameObject.setChildVisible(child, true);
+        }
+      }
+    },
+    back: function (gameObject: any) {
+      const children = gameObject.getChildren();
+      const background = gameObject.getElement('background');
+      for (let i = 0, cnt = children.length; i < cnt; i++) {
+        const child = children[i];
+        if (child === background) {
+          child.setFillStyle(0xf87171);
+        } else {
+          gameObject.setChildVisible(child, false);
+        }
+      }
+    },
+  });
+
+  flip.flip();
 };
 
 export const createGridTable = (scene: Phaser.Scene, availableRooms: IAvailableRoom[]) => {
@@ -121,7 +217,9 @@ export const createGridTable = (scene: Phaser.Scene, availableRooms: IAvailableR
             width,
             height,
             orientation: 0,
-            background: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 0).setStrokeStyle(2, 0xe2e8f0),
+            background: scene.rexUI.add
+              .roundRectangle(0, 0, 20, 20, 10)
+              .setStrokeStyle(2, 0xe2e8f0),
             icon: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 10, 0xa3e635),
             text: scene.add.text(0, 0, ''),
             space: {
@@ -132,9 +230,13 @@ export const createGridTable = (scene: Phaser.Scene, availableRooms: IAvailableR
         }
 
         cellContainer.setAlpha(1);
-        cellContainer.setMinSize(width, height); // Size might changed in this demo
-        cellContainer.getElement('text').setText(item.name + '\n' + item.id); // Set text of text object
-        // cellContainer.getElement('icon').setFillStyle(item.color);
+        cellContainer.setMinSize(width, height);
+        cellContainer
+          .getElement('text')
+          .setText(`${item.name}\n${item.clients}/${item.maxClients}`);
+        cellContainer
+          .getElement('icon')
+          .setFillStyle(item.clients >= item.maxClients ? 0xf87171 : 0xa3e635);
         cellContainer.getElement('background').setStrokeStyle(2, 0x6b7280).setDepth(0);
         return cellContainer;
       },

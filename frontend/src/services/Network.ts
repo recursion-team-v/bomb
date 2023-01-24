@@ -99,11 +99,12 @@ export default class Network {
 
     this.mySessionId = this.room.sessionId;
 
+    this.room.onStateChange.once((state) => {
+      gameEvents.emit(Event.MY_PLAYER_JOINED_ROOM, state.players);
+    });
+
     this.room.state.players.onAdd = (player: ServerPlayer, sessionId: string) => {
-      if (sessionId === this.mySessionId) {
-        gameEvents.emit(Event.MY_PLAYER_JOINED_ROOM, player, sessionId);
-        return;
-      }
+      if (sessionId === this.mySessionId) return;
       gameEvents.emit(Event.PLAYER_JOINED_ROOM, player, sessionId);
     };
 
@@ -158,7 +159,7 @@ export default class Network {
   }
 
   // 自分がルームに参加した時
-  onMyPlayerJoinedRoom(callback: (player: ServerPlayer, sessionId: string) => void, context?: any) {
+  onMyPlayerJoinedRoom(callback: (players: Map<string, ServerPlayer>) => void, context?: any) {
     gameEvents.on(Event.MY_PLAYER_JOINED_ROOM, callback, context);
   }
 

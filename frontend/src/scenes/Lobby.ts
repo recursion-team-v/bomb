@@ -1,13 +1,24 @@
 import * as Config from '../config/config';
 import * as Constants from '../../../backend/src/constants/constants';
 import Network, { IGameStartInfo } from '../services/Network';
-import { createButton, createButtons, createDialog, createGridTable } from '../utils/ui';
+import {
+  createButton,
+  createButtons,
+  createDialog,
+  createGridTable,
+  flipPlayerCard,
+} from '../utils/ui';
+import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import GridTable from 'phaser3-rex-plugins/templates/ui/gridtable/GridTable';
 import Dialog from 'phaser3-rex-plugins/templates/ui/dialog/Dialog';
+import GridSizer from 'phaser3-rex-plugins/templates/ui/gridsizer/GridSizer';
+import Label from 'phaser3-rex-plugins/templates/ui/label/Label';
 
 export interface IAvailableRoom {
   id: string;
   name: string;
+  clients: number;
+  maxClients: number;
 }
 
 export default class Lobby extends Phaser.Scene {
@@ -34,6 +45,21 @@ export default class Lobby extends Phaser.Scene {
     this.network.onGameStartInfo((data: IGameStartInfo) => {
       this.handleGameStart(data);
     });
+    this.network.onMyPlayerJoinedRoom((players) => {
+      players.forEach((player, sessionId) => {
+        if (sessionId === this.network.mySessionId) {
+          this.addMyPlayerCard(player);
+        } else {
+          this.addOtherPlayerCard(player);
+        }
+      });
+    });
+    this.network.onPlayerJoinedRoom((player) => {
+      this.addOtherPlayerCard(player);
+    });
+    this.network.onPlayerLeftRoom((player) => {
+      this.removePlayerCard(player);
+    });
 
     const buttons = createButtons(this, Constants.WIDTH / 2, Constants.HEIGHT / 5, [
       createButton(this, 0, 0, 'Create Room'),
@@ -50,6 +76,8 @@ export default class Lobby extends Phaser.Scene {
       availableRooms.push({
         id: room.roomId,
         name: room.metadata?.name,
+        clients: room.clients,
+        maxClients: room.maxClients,
       });
     }
     return availableRooms;
@@ -69,14 +97,14 @@ export default class Lobby extends Phaser.Scene {
     if (this.dialog == null) {
       this.gridTable?.setVisible(false);
       await this.network.createAndJoinCustomRoom({
-        name: 'custom room',
+        name: this.playerName,
         password: null,
         autoDispose: true,
         playerName: this.playerName,
       });
-      this.dialog = createDialog(this, Constants.WIDTH / 2, Constants.HEIGHT / 2, () =>
-        this.network.sendPlayerGameState(Constants.PLAYER_GAME_STATE.READY)
-      );
+      this.dialog = createDialog(this, Constants.WIDTH / 2, Constants.HEIGHT / 2, () => {
+        this.network.sendPlayerGameState(Constants.PLAYER_GAME_STATE.READY);
+      });
     }
   }
 
@@ -98,5 +126,38 @@ export default class Lobby extends Phaser.Scene {
     const { serverTimer } = data;
     this.scene.start(Config.SCENE_NAME_GAME, { network: this.network, serverTimer });
     this.scene.start(Config.SCENE_NAME_GAME_HEADER, { network: this.network, serverTimer });
+  }
+
+  private addMyPlayerCard(player: ServerPlayer) {
+    if (this.dialog != null) {
+      const dialogContent = this.dialog?.getElement('content') as GridSizer;
+      const playerCard = dialogContent.getChildren().at(player.idx) as Label;
+      playerCard.setText(this.playerName);
+      this.dialog?.layout();
+      setTimeout(() => {
+        flipPlayerCard(this, playerCard, 'back');
+      }, 200);
+    }
+  }
+
+  private addOtherPlayerCard(player: ServerPlayer) {
+    if (this.dialog != null) {
+      const dialogContent = this.dialog.getElement('content') as GridSizer;
+      const playerCard = dialogContent.getChildren().at(player.idx) as Label;
+      playerCard.setText(player.name);
+      this.dialog.layout();
+      setTimeout(() => {
+        flipPlayerCard(this, playerCard, 'back');
+      }, 200);
+    }
+  }
+
+  private removePlayerCard(player: ServerPlayer) {
+    if (this.dialog != null) {
+      const dialogContent = this.dialog.getElement('content') as GridSizer;
+      const playerCard = dialogContent.getChildren().at(player.idx) as Label;
+      this.dialog.layout();
+      flipPlayerCard(this, playerCard, 'front');
+    }
   }
 }
