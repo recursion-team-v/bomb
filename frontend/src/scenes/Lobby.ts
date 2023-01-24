@@ -55,6 +55,7 @@ export default class Lobby extends Phaser.Scene {
     }
     this.bgm = data.bgm;
     this.playerName = data.playerName;
+    this.add.volumeIcon(this, Constants.WIDTH - 60, 10);
 
     this.availableRooms = this.getAvailableRooms();
     this.network.onRoomsUpdated(this.handleRoomsUpdated, this);
