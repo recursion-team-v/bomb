@@ -152,9 +152,12 @@ export default class GameEngine {
   }
 
   // matter bodies に blast が存在するかどうかを判定し、
-  // blast が存在する場合は true をそれ以外は false を返す
-  HasBlast(bodies: Matter.Body[]): boolean {
-    return bodies.some((body) => body.label === Constants.OBJECT_LABEL.BLAST);
+  // blast が存在する場合は 1 をそれ以外は 0 を返す
+  HasBlast(bodies: Matter.Body[]): number {
+    for (const body of bodies) {
+      if (body.label === Constants.OBJECT_LABEL.BLAST) return 1;
+    }
+    return 0;
   }
 
   // matter bodies に item が存在するかどうかを判定し、

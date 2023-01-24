@@ -213,12 +213,12 @@ export function numberOfDestroyableBlock(
   const power = enemy.bombStrength;
   if (power === 0) return result;
   for (let y = 0; y < directMoveMap.length; y++) {
-    let hasLeft = false;
-    let hasRight = false;
-    let hasUp = false;
-    let hasDown = false;
-
     for (let x = 0; x < directMoveMap[y].length; x++) {
+      let hasLeft = false;
+      let hasRight = false;
+      let hasUp = false;
+      let hasDown = false;
+
       // 移動できるマス(1) = ボムが設置できるマス
       if (directMoveMap[y][x] !== 1) continue;
 
@@ -232,7 +232,7 @@ export function numberOfDestroyableBlock(
         by,
         power
       );
-      if (isSelfDie(directMoveMap, mapIfSetBomb, enemy, false)) continue;
+      if (isSelfDie(directMoveMap, mapIfSetBomb, enemy)) continue;
 
       // 爆風の範囲を計算する
       const blastRadius: Map<Constants.DIRECTION_TYPE, number> = calcBlastRange(
@@ -387,7 +387,6 @@ export function getDirectMovableMapIfBombSet(
   );
 
   const result = directMoveMap.map((row) => row.slice());
-  // console.log(result);
 
   // タイル座標に変換
   // 0 は通れないマス
@@ -424,8 +423,7 @@ export function getDirectMovableMapIfBombSet(
 export function isSelfDie(
   directMoveMap: number[][],
   mapIfSetBomb: number[][],
-  enemy: Enemy,
-  displayLog: boolean = false
+  enemy: Enemy
 ): boolean {
   // 移動可能なマスがなければ自殺とみなす
   if (!mapIfSetBomb.flat().includes(1)) return true;
@@ -437,14 +435,11 @@ export function isSelfDie(
   result[ty][tx] = 0;
 
   // まだ移動できるマスを取得し、自機のスピードを考慮して移動できるマスがあるかどうかを判定
-  const { x, y, distance } = getClosestAvailablePoint(directMoveMap, result, tx, ty, displayLog);
+  const { distance } = getClosestAvailablePoint(directMoveMap, result, tx, ty);
 
   const isSelfDie =
     (distance * Constants.DEFAULT_TIP_SIZE) / enemy.speed > Constants.BOMB_EXPLOSION_TIME;
 
-  // if (displayLog) {
-  //   console.log('available point', x, y);
-  // }
   return isSelfDie;
 }
 
@@ -453,18 +448,15 @@ export function getClosestAvailablePoint(
   directMoveMap: number[][],
   mapIfSetBomb: number[][],
   tx: number,
-  ty: number,
-  displayLog: boolean = false
+  ty: number
 ): { x: number; y: number; distance: number } {
   const availablePoint: number[][] = [];
   mapIfSetBomb.forEach((row, ay) =>
     row.forEach((value, ax) => (value === 1 ? availablePoint.push([ax, ay]) : undefined))
   );
 
-  // if (displayLog) console.log('all availablePoint', availablePoint);
   let minimumDistance = Infinity;
   let result = { x: 0, y: 0, distance: Infinity };
-  // if (displayLog) console.log(mapIfSetBomb);
 
   for (let i = 0; i < availablePoint.length; i++) {
     const [ax, ay] = availablePoint[i];
@@ -472,11 +464,9 @@ export function getClosestAvailablePoint(
 
     // 移動できない場合は 0 が返ってくるので、その場合はスキップする
     if (path.length === 0) continue;
-    // console.log('path', path, 'ax,ay', ax, ay);
     if (path.length < minimumDistance) {
       result = { x: ax, y: ay, distance: path.length };
       minimumDistance = path.length;
-      // console.log('src', tx, ty, 'dest', ax, ay, 'distance', minimumDistance);
     }
   }
 

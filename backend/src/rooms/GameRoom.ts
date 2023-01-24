@@ -276,6 +276,7 @@ export default class GameRoom extends Room<GameRoomState> {
     // console.log('mapIfSetBomb', mapIfSetBomb);
     if (!enemy.canSetBomb()) return;
     if (isSelfDie(directMoveMap, mapIfSetBomb, enemy, true)) return;
+    // console.log('mapIfSetBomb', mapIfSetBomb);
     // enemy.setGoal(getClosestAvailablePoint(mapIfSetBomb, {x, y: enemy.getTilePosition()});
     this.engine.bombService.enqueueBomb(enemy as Player);
   }
@@ -289,7 +290,7 @@ export default class GameRoom extends Room<GameRoomState> {
     // 爆弾の影響度マップを作成する
     const futureBlastMap = treatLevelMapByBomb(
       this.engine.getDimensionalMap(this.engine.getHighestPriorityFromBodies),
-      this.engine.getDimensionalMap((bodies) => this.engine.HasBomb(bodies))
+      this.state.hasBomb(this.engine.getDimensionalMap((bodies) => bodies))
     );
 
     // 爆風の位置から死亡マップを作成する
@@ -314,6 +315,8 @@ export default class GameRoom extends Room<GameRoomState> {
     // ブロックのマップ
     const blockMap = normalizeDimension(this.engine.getDimensionalMap(this.engine.HasBlock));
 
+    // 爆風のマップ
+    const blastMap = this.engine.getDimensionalMap(this.engine.HasBlast);
     // if (deathMap.flat().filter((v: number) => v < 1).length > 0) console.log('deathMap', deathMap);
 
     // 特定のマスの周囲のマスにどの程度空きマスがないか
@@ -384,11 +387,11 @@ export default class GameRoom extends Room<GameRoomState> {
 
       // console.log('directMoveMap', directMoveMap);
       // console.log('impactMap', impactMap);
-      if (deathMap.flat().filter((v: number) => v < 1).length > 0) {
-        console.log('impactMap', impactMap);
-        console.log('impactMapIsMovable', impactMapIsMovable);
-        // console.log('directMoveMap', directMoveMap);
-      }
+      // if (deathMap.flat().filter((v: number) => v < 1).length > 0) {
+      //   console.log('impactMap', impactMap);
+      //   console.log('impactMapIsMovable', impactMapIsMovable);
+      //   console.log('directMoveMap', directMoveMap);
+      // }
 
       // impactMapIsMovable から、現在地点の周囲のマスの中で、最も影響度が高いマスを取得する
       const { x, y } = getHighestPriorityTile(impactMapIsMovable, enemyX, enemyY);
@@ -422,22 +425,14 @@ export default class GameRoom extends Room<GameRoomState> {
         if (moveList.length === 0) continue;
         // moveList.forEach((v) => console.log('moveList', v));
 
-        // 次に移動するマスの安全度が1/2以下になるなら動かない
-        console.log(enemy.inputQueue.length);
-        console.log('now', enemy.x, enemy.y);
-        console.log(
-          'diff:',
-          'now',
-          impactMapIsMovable[enemyY][enemyX],
-          'next',
-          impactMapIsMovable[moveList[1][1]][moveList[1][0]]
-        );
+        // 次に移動するマスの安全度が1/2以下 or 爆風があるマスなるなら動かない
         if (
-          impactMapIsMovable[moveList[1][1]][moveList[1][0]] <
-          impactMapIsMovable[enemyY][enemyX] / 2
+          impactMapIsMovable[moveList[1][1]][moveList[1][0]] <=
+            impactMapIsMovable[enemyY][enemyX] * 0.5 ||
+          blastMap[moveList[1][1]][moveList[1][0]] === 1
         ) {
-          console.log('stop', enemy.x, enemy.y);
-          //　
+          // console.log('stop', enemy.x, enemy.y);
+          //　キューに移動が残ってると止めても移動するので、キューをクリアする
           this.engine.enemyService.stop(enemy);
           continue;
         }
@@ -461,16 +456,22 @@ export default class GameRoom extends Room<GameRoomState> {
         };
         enemy.inputQueue.push(data);
         // console.log('set bomb');
+      } else {
+        // 爆風の位置を含めて、マス目の安全度が 0.5 以上のマスを移動可能とみなす
+        const safeTileRate = 0.5;
+        const directMoveMapIncludeBlast = impactMapIsMovable.map((row, i) =>
+          row.map((v, j) => (v >= safeTileRate ? 1 : 0))
+        );
+        this.enemySetBomb(directMoveMapIncludeBlast, highPriorityForBlastRadiusMap, enemy);
+        // console.log(
+        //   'now:',
+        //   enemy.getTilePosition()
+        //   // 'next:',
+        //   // enemy.getNextTilePosition(),
+        //   // 'goal:',
+        //   // enemy.getGoalTilePosition()
+        // );
       }
-      this.enemySetBomb(directMoveMap, highPriorityForBlastRadiusMap, enemy);
-      console.log(
-        'now:',
-        enemy.getTilePosition(),
-        'next:',
-        enemy.getNextTilePosition(),
-        'goal:',
-        enemy.getGoalTilePosition()
-      );
       // }
 
       // const surroundTiles = enemy.getSurroundingTiles(movableMap);
