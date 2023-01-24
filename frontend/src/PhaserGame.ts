@@ -66,6 +66,7 @@ const config: Phaser.Types.Core.GameConfig = {
 };
 
 const phaserGame = new Phaser.Game(config);
+phaserGame.sound.mute = !Config.SOUND_DEFAULT_IS_PLAY;
 
 interface WindowInterface {
   game: Phaser.Game;
