@@ -178,7 +178,7 @@ export const flipPlayerCard = (
   currFace: 'back' | 'front'
 ) => {
   const flip = scene.rexUI.add.flip(playerCard, {
-    duration: 400,
+    duration: 150,
     face: currFace,
     front: function (gameObject: any) {
       const children = gameObject.getChildren();
