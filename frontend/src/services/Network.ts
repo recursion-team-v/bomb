@@ -151,6 +151,12 @@ export default class Network {
     this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (data: IGameStartInfo) => {
       gameEvents.emit(Event.START_GAME, data);
     });
+
+    this.room.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_IS_READY, (sessionId: string) => {
+      const player = this.room?.state.players.get(sessionId);
+      if (player === undefined) return;
+      gameEvents.emit(Event.PLAYER_IS_READY, player);
+    });
   }
 
   // ロビーのイベント
@@ -218,6 +224,10 @@ export default class Network {
   // ゲーム開始に関する情報を受け取った時
   onGameStartInfo(callback: (data: IGameStartInfo) => void, context?: any) {
     gameEvents.on(Event.START_GAME, callback, context);
+  }
+
+  onPlayerIsReady(callback: (player: ServerPlayer) => void, context?: any) {
+    gameEvents.on(Event.PLAYER_IS_READY, callback, context);
   }
 
   // 自分のプレイヤー動作を送る

@@ -43,6 +43,9 @@ export const NOTIFICATION_TYPE = {
   // プレイヤーのゲーム状態を通知するためのタイプ
   PLAYER_GAME_STATE: 3,
 
+  // プレイヤーが準備できたことを broadcast するためのタイプ
+  PLAYER_IS_READY: 4,
+
   // ゲームの開始に関する情報を通知するためのタイプ
   GAME_START_INFO: 10,
 

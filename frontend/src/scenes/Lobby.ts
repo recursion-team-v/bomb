@@ -13,6 +13,7 @@ import GridTable from 'phaser3-rex-plugins/templates/ui/gridtable/GridTable';
 import Dialog from 'phaser3-rex-plugins/templates/ui/dialog/Dialog';
 import GridSizer from 'phaser3-rex-plugins/templates/ui/gridsizer/GridSizer';
 import Label from 'phaser3-rex-plugins/templates/ui/label/Label';
+import ContainerLite from 'phaser3-rex-plugins/plugins/containerlite';
 
 export interface IAvailableRoom {
   id: string;
@@ -59,6 +60,9 @@ export default class Lobby extends Phaser.Scene {
     });
     this.network.onPlayerLeftRoom((player) => {
       this.removePlayerCard(player);
+    });
+    this.network.onPlayerIsReady((player) => {
+      this.handlePlayerIsReady(player);
     });
 
     const buttons = createButtons(this, Constants.WIDTH / 2, Constants.HEIGHT / 5, [
@@ -156,8 +160,31 @@ export default class Lobby extends Phaser.Scene {
     if (this.dialog != null) {
       const dialogContent = this.dialog.getElement('content') as GridSizer;
       const playerCard = dialogContent.getChildren().at(player.idx) as Label;
+      const icon = playerCard.getElement('icon') as ContainerLite;
+      icon.getChildren().forEach((child: any, idx) => {
+        if (idx === 0) {
+          child.setFillStyle(0xf87171);
+        } else if (idx === 1) {
+          child.setText('not ready');
+        }
+      });
       this.dialog.layout();
       flipPlayerCard(this, playerCard, 'front');
+    }
+  }
+
+  private handlePlayerIsReady(player: ServerPlayer) {
+    if (this.dialog != null) {
+      const dialogContent = this.dialog.getElement('content') as GridSizer;
+      const playerCard = dialogContent.getChildren().at(player.idx) as Label;
+      const icon = playerCard.getElement('icon') as ContainerLite;
+      icon.getChildren().forEach((child: any, idx) => {
+        if (idx === 0) {
+          child.setFillStyle(0xa3e635);
+        } else if (idx === 1) {
+          child.setText('ready');
+        }
+      });
     }
   }
 }
