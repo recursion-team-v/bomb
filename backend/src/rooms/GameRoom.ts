@@ -164,6 +164,10 @@ export default class GameRoom extends Room<GameRoomState> {
   }
 
   onLeave(client: Client, consented: boolean) {
+    const player = this.state.getPlayer(client.sessionId);
+    if (player !== undefined) {
+      this.state.playerIdxsAvail[player.idx] = true;
+    }
     this.engine.playerService.deletePlayer(client.sessionId);
   }
 
