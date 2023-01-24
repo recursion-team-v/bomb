@@ -41,11 +41,12 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
   const loginButton = scene.rexUI.add
     .label({
       orientation: 'x',
-      background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10, 0x959595),
+      background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10, Constants.GREEN),
       text: scene.add.text(0, 0, 'play game', {
         fontFamily: 'PressStart2P',
+        color: '#000',
       }),
-      space: { top: 10, bottom: 10, left: 10, right: 10 },
+      space: { top: 20, bottom: 20, left: 20, right: 20 },
     })
     .setInteractive()
     .on('pointerdown', function () {
@@ -63,7 +64,7 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
       height: heightValue,
     })
     .add(titleField, 0, 'center', { top: 10, bottom: 10, left: 10, right: 10 }, false)
-    .add(userNameField, 0, 'center', { bottom: 10, left: 10, right: 10 }, true)
+    .add(userNameField, 0, 'center', { bottom: 40, left: 10, right: 10 }, true)
     .add(loginButton, 0, 'center', { bottom: 10, left: 10, right: 10 }, false)
     .layout();
 

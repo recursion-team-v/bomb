@@ -27,14 +27,12 @@ export default class GameHeader extends Phaser.Scene {
 
   constructor() {
     super(Config.SCENE_NAME_GAME_HEADER);
-
     this.height = Constants.HEADER_HEIGHT;
     this.width = Constants.HEADER_WIDTH;
   }
 
   init() {
     this.cameras.main.setSize(this.width, this.height);
-    this.cameras.main.setBackgroundColor(ToString(Constants.HEADER_COLOR_CODE));
 
     this.player = getGameScene().getCurrentPlayer();
 

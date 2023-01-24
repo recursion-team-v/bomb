@@ -7,7 +7,7 @@ export const createButton = (scene: Phaser.Scene, x: number, y: number, text: st
   return scene.rexUI.add.label({
     width: 100,
     height: 40,
-    background: scene.rexUI.add.roundRectangle(x, y, 0, 0, 20, 0xa3e635),
+    background: scene.rexUI.add.roundRectangle(x, y, 0, 0, 20, Constants.GREEN),
     text: scene.add.text(0, 0, text, {
       fontSize: '18px',
       color: '#000',
@@ -42,9 +42,9 @@ export const createDialog = (
       y,
       width: 700,
       height: 700,
-      background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, 0xcbd5e1),
+      background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, Constants.LIGHT_GRAY),
       title: scene.rexUI.add.label({
-        background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, 0x6b7280),
+        background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, Constants.GRAY),
         text: scene.add.text(0, 0, 'Waiting for players to join...', {
           fontSize: '20px',
         }),
@@ -78,7 +78,7 @@ export const createDialog = (
     switch (index) {
       case 0:
         button.setText('waiting');
-        (button.getElement('background') as RoundRectangle).setFillStyle(0x6b7280);
+        (button.getElement('background') as RoundRectangle).setFillStyle(Constants.GRAY);
         button.layout();
         onClick();
         break;
@@ -121,10 +121,10 @@ export const createPlayerCard = (scene: Phaser.Scene) => {
     .label({
       orientation: 1,
       background: scene.rexUI.add
-        .roundRectangle(0, 0, 2, 2, 20, 0x374151)
-        .setStrokeStyle(2, 0xe2e8f0),
+        .roundRectangle(0, 0, 2, 2, 20, Constants.DARK_GRAY)
+        .setStrokeStyle(2, Constants.WHITE),
       icon: scene.rexUI.add.container(0, 0, 150, 150, [
-        scene.rexUI.add.roundRectangle(0, 0, 150, 150, 20, 0xf87171),
+        scene.rexUI.add.roundRectangle(0, 0, 150, 150, 20, Constants.LIGHT_RED),
         scene.add.text(0, -60, 'not ready', { color: '#000' }).setOrigin(0.5),
         scene.add.triangle(5, -35, -5, -5, 15, -5, 5, 5, Constants.BLUE).setOrigin(0.5),
         scene.add.sprite(0, 10, 'player').setScale(1.2).play('player_down'),
@@ -140,7 +140,7 @@ export const createPlayerCard = (scene: Phaser.Scene) => {
   const background = card.getElement('background');
   children.forEach((child: any) => {
     if (child === background) {
-      child.setFillStyle(0xf87171);
+      child.setFillStyle(Constants.LIGHT_RED);
     } else {
       card.setChildVisible(child, false);
     }
@@ -163,7 +163,7 @@ export const flipPlayerCard = (
       for (let i = 0, cnt = children.length; i < cnt; i++) {
         const child = children[i];
         if (child === background) {
-          child.setFillStyle(0x374151);
+          child.setFillStyle(Constants.DARK_GRAY);
         } else {
           gameObject.setChildVisible(child, true);
         }
@@ -175,7 +175,7 @@ export const flipPlayerCard = (
       for (let i = 0, cnt = children.length; i < cnt; i++) {
         const child = children[i];
         if (child === background) {
-          child.setFillStyle(0xf87171);
+          child.setFillStyle(Constants.LIGHT_RED);
         } else {
           gameObject.setChildVisible(child, false);
         }
@@ -194,7 +194,7 @@ export const createGridTable = (scene: Phaser.Scene, availableRooms: IAvailableR
       width: 400,
       height: 400,
       scrollMode: 0,
-      background: scene.rexUI.add.roundRectangle(0, 0, 20, 10, 10, 0x374151),
+      background: scene.rexUI.add.roundRectangle(0, 0, 20, 10, 10, Constants.DARK_GRAY),
       table: {
         cellWidth: undefined,
         cellHeight: 80,
@@ -206,7 +206,7 @@ export const createGridTable = (scene: Phaser.Scene, availableRooms: IAvailableR
       },
       slider: {
         track: scene.rexUI.add.roundRectangle(0, 0, 20, 10, 10, 374151),
-        thumb: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 13, 0xe2e8f0),
+        thumb: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 13, Constants.WHITE),
       },
       space: {
         left: 20,
@@ -230,8 +230,8 @@ export const createGridTable = (scene: Phaser.Scene, availableRooms: IAvailableR
             orientation: 0,
             background: scene.rexUI.add
               .roundRectangle(0, 0, 20, 20, 10)
-              .setStrokeStyle(2, 0xe2e8f0),
-            icon: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 10, 0xa3e635),
+              .setStrokeStyle(2, Constants.WHITE),
+            icon: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 10, Constants.GREEN),
             text: scene.add.text(0, 0, ''),
             space: {
               icon: 10,
@@ -247,8 +247,8 @@ export const createGridTable = (scene: Phaser.Scene, availableRooms: IAvailableR
           .setText(`${item.name}\n${item.clients}/${item.maxClients}`);
         cellContainer
           .getElement('icon')
-          .setFillStyle(item.clients >= item.maxClients ? 0xf87171 : 0xa3e635);
-        cellContainer.getElement('background').setStrokeStyle(2, 0x6b7280).setDepth(0);
+          .setFillStyle(item.clients >= item.maxClients ? Constants.RED : Constants.GREEN);
+        cellContainer.getElement('background').setStrokeStyle(2, Constants.GRAY).setDepth(0);
         return cellContainer;
       },
       items: availableRooms,
@@ -259,14 +259,14 @@ export const createGridTable = (scene: Phaser.Scene, availableRooms: IAvailableR
     .on(
       'cell.over',
       function (cellContainer: any, cellIndex: number) {
-        cellContainer.getElement('background').setStrokeStyle(2, 0xe2e8f0).setDepth(1);
+        cellContainer.getElement('background').setStrokeStyle(2, Constants.WHITE).setDepth(1);
       },
       this
     )
     .on(
       'cell.out',
       function (cellContainer: any, cellIndex: number) {
-        cellContainer.getElement('background').setStrokeStyle(2, 0x6b7280).setDepth(0);
+        cellContainer.getElement('background').setStrokeStyle(2, Constants.GRAY).setDepth(0);
       },
       this
     );

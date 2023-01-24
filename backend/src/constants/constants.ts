@@ -2,13 +2,16 @@
 色の定義
 */
 
+export const PAGE_COLOR = 0x18181b;
 export const BLACK = 0x000000;
 export const WHITE = 0xffffff;
-export const GRAY = 0x808080;
-export const LIGHT_GRAY = 0xc6c5d6;
+export const DARK_GRAY = 0x374151;
+export const GRAY = 0x6b7280;
+export const LIGHT_GRAY = 0xcbd5e1;
 export const BLUE = 0x0000ff;
-export const RED: number = 0xff0000;
-export const GREEN: number = 0x00ff00;
+export const RED = 0xff0000;
+export const GREEN = 0xa3e635;
+export const LIGHT_RED = 0xf87171;
 
 export const FPS = 60; // 1 秒間のフレーム数
 export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
