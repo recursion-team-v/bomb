@@ -29,6 +29,7 @@ export default class Title extends Phaser.Scene {
 
   create(data: { network: Network }) {
     const playGame = (userName: string) => {
+      localStorage.setItem('username', userName);
       this.scene.start(Config.SCENE_NAME_LOBBY, {
         network: data.network,
         playerName: userName,
@@ -41,11 +42,12 @@ export default class Title extends Phaser.Scene {
 
     this.add.volumeIcon(this, Constants.WIDTH - 60, 10);
 
+    const username = localStorage.getItem('username');
     createLoginDialog(this, {
       x: Constants.WIDTH / 2,
       y: Constants.HEIGHT / 2,
       title: 'input user name',
-      username: '',
+      username: username === null ? '' : username,
     }).on('playGame', function (userName: string) {
       playGame(validateAndFixUserName(userName));
     });
