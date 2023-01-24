@@ -28,7 +28,13 @@ export const createButtons = (
   return scene.rexUI.add.buttons({ x, y, orientation: 'y', buttons, space: { item: 10 } }).layout();
 };
 
-export const createDialog = (scene: Phaser.Scene, x: number, y: number, onClick: () => void) => {
+export const createDialog = (
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  onClick: () => void,
+  onClose: () => void
+) => {
   const dialog = scene.rexUI.add
     .dialog({
       x,
@@ -62,9 +68,9 @@ export const createDialog = (scene: Phaser.Scene, x: number, y: number, onClick:
         bottom: 10,
       },
     })
-    .layout()
     .popUp(100)
-    .setDepth(100);
+    .setDepth(200)
+    .layout();
 
   dialog.on('button.click', function (button: Label, _: any, index: number) {
     switch (index) {
@@ -75,8 +81,7 @@ export const createDialog = (scene: Phaser.Scene, x: number, y: number, onClick:
         onClick();
         break;
       case 1:
-        // TODO: handle close
-        dialog.emit('modal.requestClose');
+        onClose();
         break;
     }
   });

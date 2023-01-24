@@ -45,8 +45,8 @@ export default class Lobby extends Phaser.Scene {
 
     this.availableRooms = this.getAvailableRooms();
     this.network.onRoomsUpdated(this.handleRoomsUpdated, this);
-    this.network.onGameStartInfo((data: IGameStartInfo) => {
-      this.handleGameStart(data);
+    this.network.onGameStartInfo(async (data: IGameStartInfo) => {
+      await this.handleGameStart(data);
     });
     this.network.onMyPlayerJoinedRoom((players) => {
       players.forEach((player, sessionId) => {
@@ -99,7 +99,7 @@ export default class Lobby extends Phaser.Scene {
     if (this.network.room !== undefined) {
       await this.network.room.leave();
     }
-    if (this.dialog == null) {
+    if (this.dialog === undefined) {
       this.disableLobbyButtons();
       await this.network.createAndJoinCustomRoom({
         name: this.playerName,
@@ -107,9 +107,13 @@ export default class Lobby extends Phaser.Scene {
         autoDispose: true,
         playerName: this.playerName,
       });
-      this.dialog = createDialog(this, Constants.WIDTH / 2, Constants.HEIGHT / 2, () => {
-        this.network.sendPlayerGameState(Constants.PLAYER_GAME_STATE.READY);
-      });
+      this.dialog = createDialog(
+        this,
+        Constants.WIDTH / 2,
+        Constants.HEIGHT / 2,
+        () => this.network.sendPlayerGameState(Constants.PLAYER_GAME_STATE.READY),
+        () => this.onDialogClose()
+      );
     }
   }
 
@@ -119,23 +123,28 @@ export default class Lobby extends Phaser.Scene {
       await this.network.room.leave();
     }
     const room = this.availableRooms[cellIndex];
-    if (this.dialog == null) {
+    if (this.dialog === undefined) {
       this.disableLobbyButtons();
       await this.network.joinCustomRoom(room.id, null, this.playerName);
-      this.dialog = createDialog(this, Constants.WIDTH / 2, Constants.HEIGHT / 2, () =>
-        this.network.sendPlayerGameState(Constants.PLAYER_GAME_STATE.READY)
+      this.dialog = createDialog(
+        this,
+        Constants.WIDTH / 2,
+        Constants.HEIGHT / 2,
+        () => this.network.sendPlayerGameState(Constants.PLAYER_GAME_STATE.READY),
+        () => this.onDialogClose()
       );
     }
   }
 
-  private handleGameStart(data: IGameStartInfo) {
+  private async handleGameStart(data: IGameStartInfo) {
+    await this.network.lobby?.leave();
     const { serverTimer } = data;
     this.scene.start(Config.SCENE_NAME_GAME, { network: this.network, serverTimer });
     this.scene.start(Config.SCENE_NAME_GAME_HEADER, { network: this.network, serverTimer });
   }
 
   private addMyPlayerCard(player: ServerPlayer) {
-    if (this.dialog != null) {
+    if (this.dialog !== undefined) {
       const dialogContent = this.dialog.getElement('content') as GridSizer;
       const playerCard = dialogContent.getChildren().at(player.idx) as Label;
       playerCard.setText(this.playerName);
@@ -152,7 +161,7 @@ export default class Lobby extends Phaser.Scene {
   }
 
   private addOtherPlayerCard(player: ServerPlayer) {
-    if (this.dialog != null) {
+    if (this.dialog !== undefined) {
       const dialogContent = this.dialog.getElement('content') as GridSizer;
       const playerCard = dialogContent.getChildren().at(player.idx) as Label;
       playerCard.setText(player.name);
@@ -169,7 +178,7 @@ export default class Lobby extends Phaser.Scene {
   }
 
   private removePlayerCard(player: ServerPlayer) {
-    if (this.dialog != null) {
+    if (this.dialog !== undefined) {
       const dialogContent = this.dialog.getElement('content') as GridSizer;
       const playerCard = dialogContent.getChildren().at(player.idx) as Label;
       const icon = playerCard.getElement('icon') as ContainerLite;
@@ -186,7 +195,7 @@ export default class Lobby extends Phaser.Scene {
   }
 
   private handlePlayerIsReady(player: ServerPlayer) {
-    if (this.dialog != null) {
+    if (this.dialog !== undefined) {
       const dialogContent = this.dialog.getElement('content') as GridSizer;
       const playerCard = dialogContent.getChildren().at(player.idx) as Label;
       const icon = playerCard.getElement('icon') as ContainerLite;
@@ -198,6 +207,17 @@ export default class Lobby extends Phaser.Scene {
         }
       });
     }
+  }
+
+  private onDialogClose() {
+    this.dialog
+      ?.scaleDownDestroyPromise(100)
+      .then(async () => {
+        this.dialog = undefined;
+        await this.network.leaveRoom();
+        this.enableLobbyButtons();
+      })
+      .catch((err) => console.log(err));
   }
 
   private disableLobbyButtons() {

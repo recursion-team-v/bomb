@@ -87,15 +87,12 @@ export default class Network {
 
   async joinCustomRoom(roomId: string, password: string | null, playerName: string) {
     this.room = await this.client.joinById(roomId, { playerName, password });
-    await this.initialize();
+    this.initialize();
     this.sendPlayerGameState(Constants.PLAYER_GAME_STATE.WAITING);
   }
 
-  async initialize() {
+  initialize() {
     if (this.room == null) return;
-    if (this.lobby !== undefined) {
-      await this.lobby.leave();
-    }
 
     this.mySessionId = this.room.sessionId;
 
@@ -157,6 +154,14 @@ export default class Network {
       if (player === undefined) return;
       gameEvents.emit(Event.PLAYER_IS_READY, player);
     });
+  }
+
+  // 部屋退出
+  async leaveRoom() {
+    if (this.room !== undefined) {
+      await this.room.leave();
+      this.room = undefined;
+    }
   }
 
   // ロビーのイベント
@@ -222,7 +227,7 @@ export default class Network {
   }
 
   // ゲーム開始に関する情報を受け取った時
-  onGameStartInfo(callback: (data: IGameStartInfo) => void, context?: any) {
+  onGameStartInfo(callback: (data: IGameStartInfo) => Promise<void>, context?: any) {
     gameEvents.on(Event.START_GAME, callback, context);
   }
 
