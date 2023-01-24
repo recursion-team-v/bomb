@@ -179,9 +179,17 @@ export default class Network {
     gameEvents.on(Event.PLAYER_JOINED_ROOM, callback, context);
   }
 
+  removeOnPlayerJoinedRoom() {
+    gameEvents.removeAllListeners(Event.PLAYER_JOINED_ROOM);
+  }
+
   // 他のプレイヤーがルームを退出した時
   onPlayerLeftRoom(callback: (player: ServerPlayer, sessionId: string) => void, context?: any) {
     gameEvents.on(Event.PLAYER_LEFT_ROOM, callback, context);
+  }
+
+  removeOnPlayerLeftRoom() {
+    gameEvents.removeAllListeners(Event.PLAYER_LEFT_ROOM);
   }
 
   // プレイヤーがボムを追加した時

@@ -57,12 +57,8 @@ export default class Lobby extends Phaser.Scene {
         }
       });
     });
-    this.network.onPlayerJoinedRoom((player) => {
-      this.addOtherPlayerCard(player);
-    });
-    this.network.onPlayerLeftRoom((player) => {
-      this.removePlayerCard(player);
-    });
+    this.network.onPlayerJoinedRoom(this.addOtherPlayerCard, this);
+    this.network.onPlayerLeftRoom(this.removePlayerCard, this);
     this.network.onPlayerIsReady((player) => {
       this.handlePlayerIsReady(player);
     });
@@ -137,6 +133,8 @@ export default class Lobby extends Phaser.Scene {
   }
 
   private async handleGameStart(data: IGameStartInfo) {
+    this.network.removeOnPlayerJoinedRoom();
+    this.network.removeOnPlayerLeftRoom();
     await this.network.lobby?.leave();
     const { serverTimer } = data;
     this.scene.start(Config.SCENE_NAME_GAME, { network: this.network, serverTimer });
