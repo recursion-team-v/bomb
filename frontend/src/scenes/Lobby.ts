@@ -185,7 +185,19 @@ export default class Lobby extends Phaser.Scene {
       playerCard.setText(player.name);
       const icon = playerCard.getElement('icon') as ContainerLite;
       icon.getChildren().forEach((child: any, idx) => {
-        if (idx === 2) {
+        if (idx === 0) {
+          if (player.gameState === Constants.PLAYER_GAME_STATE.READY) {
+            child.setFillStyle(Constants.GREEN);
+          } else {
+            child.setFillStyle(Constants.LIGHT_RED);
+          }
+        } else if (idx === 1) {
+          if (player.gameState === Constants.PLAYER_GAME_STATE.READY) {
+            child.setText('ready');
+          } else {
+            child.setText('not ready');
+          }
+        } else if (idx === 2) {
           child.setFillStyle(Constants.RED);
         }
       });
