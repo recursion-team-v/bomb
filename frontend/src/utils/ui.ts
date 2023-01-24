@@ -120,7 +120,7 @@ export const createPlayerCard = (scene: Phaser.Scene) => {
         scene.add.triangle(5, -35, -5, -5, 15, -5, 5, 5, Constants.BLUE).setOrigin(0.5),
         scene.add.sprite(0, 10, 'player').setScale(1.2).play('player_down'),
       ]),
-      text: scene.add.text(0, 0, '', { fontSize: '30px' }),
+      text: scene.add.text(0, 0, '', { fontSize: '30px' }).setOrigin(0.5),
       expandTextWidth: false,
       expandTextHeight: false,
       space: { left: 20, right: 20, top: 20, bottom: 20, icon: 10 },

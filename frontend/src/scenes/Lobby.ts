@@ -14,6 +14,7 @@ import Dialog from 'phaser3-rex-plugins/templates/ui/dialog/Dialog';
 import GridSizer from 'phaser3-rex-plugins/templates/ui/gridsizer/GridSizer';
 import Label from 'phaser3-rex-plugins/templates/ui/label/Label';
 import ContainerLite from 'phaser3-rex-plugins/plugins/containerlite';
+import Buttons from 'phaser3-rex-plugins/templates/ui/buttons/Buttons';
 
 export interface IAvailableRoom {
   id: string;
@@ -25,6 +26,7 @@ export interface IAvailableRoom {
 export default class Lobby extends Phaser.Scene {
   network!: Network;
   private availableRooms: IAvailableRoom[] = [];
+  private buttons?: Buttons;
   private gridTable?: GridTable;
   private dialog?: Dialog;
   private playerName = '';
@@ -65,10 +67,10 @@ export default class Lobby extends Phaser.Scene {
       this.handlePlayerIsReady(player);
     });
 
-    const buttons = createButtons(this, Constants.WIDTH / 2, Constants.HEIGHT / 5, [
+    this.buttons = createButtons(this, Constants.WIDTH / 2, Constants.HEIGHT / 5, [
       createButton(this, 0, 0, 'Create Room'),
     ]);
-    buttons.on('button.click', this.handleRoomCreate, this);
+    this.buttons.on('button.click', this.handleRoomCreate, this);
 
     this.gridTable = createGridTable(this, this.availableRooms);
     this.gridTable.on('cell.click', this.handleRoomJoin, this);
@@ -97,9 +99,8 @@ export default class Lobby extends Phaser.Scene {
     if (this.network.room !== undefined) {
       await this.network.room.leave();
     }
-
     if (this.dialog == null) {
-      this.gridTable?.setVisible(false);
+      this.disableLobbyButtons();
       await this.network.createAndJoinCustomRoom({
         name: this.playerName,
         password: null,
@@ -119,6 +120,7 @@ export default class Lobby extends Phaser.Scene {
     }
     const room = this.availableRooms[cellIndex];
     if (this.dialog == null) {
+      this.disableLobbyButtons();
       await this.network.joinCustomRoom(room.id, null, this.playerName);
       this.dialog = createDialog(this, Constants.WIDTH / 2, Constants.HEIGHT / 2, () =>
         this.network.sendPlayerGameState(Constants.PLAYER_GAME_STATE.READY)
@@ -143,7 +145,6 @@ export default class Lobby extends Phaser.Scene {
           child.setFillStyle(Constants.BLUE);
         }
       });
-      this.dialog.layout();
       setTimeout(() => {
         flipPlayerCard(this, playerCard, 'back');
       }, 200);
@@ -161,7 +162,6 @@ export default class Lobby extends Phaser.Scene {
           child.setFillStyle(Constants.RED);
         }
       });
-      this.dialog.layout();
       setTimeout(() => {
         flipPlayerCard(this, playerCard, 'back');
       }, 200);
@@ -198,5 +198,15 @@ export default class Lobby extends Phaser.Scene {
         }
       });
     }
+  }
+
+  private disableLobbyButtons() {
+    this.gridTable?.off('cell.click', this.handleRoomJoin, this);
+    this.buttons?.setButtonEnable(false);
+  }
+
+  private enableLobbyButtons() {
+    this.gridTable?.on('cell.click', this.handleRoomJoin, this);
+    this.buttons?.setButtonEnable(true);
   }
 }
