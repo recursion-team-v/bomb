@@ -117,7 +117,8 @@ export const createPlayerCard = (scene: Phaser.Scene) => {
       icon: scene.rexUI.add.container(0, 0, 150, 150, [
         scene.rexUI.add.roundRectangle(0, 0, 150, 150, 20, 0xf87171),
         scene.add.text(0, -60, 'not ready', { color: '#000' }).setOrigin(0.5),
-        scene.add.sprite(0, 0, 'player').setScale(1.2).play('player_down'),
+        scene.add.triangle(5, -35, -5, -5, 15, -5, 5, 5, Constants.BLUE).setOrigin(0.5),
+        scene.add.sprite(0, 10, 'player').setScale(1.2).play('player_down'),
       ]),
       text: scene.add.text(0, 0, '', { fontSize: '30px' }),
       expandTextWidth: false,

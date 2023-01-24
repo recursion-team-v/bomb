@@ -134,10 +134,16 @@ export default class Lobby extends Phaser.Scene {
 
   private addMyPlayerCard(player: ServerPlayer) {
     if (this.dialog != null) {
-      const dialogContent = this.dialog?.getElement('content') as GridSizer;
+      const dialogContent = this.dialog.getElement('content') as GridSizer;
       const playerCard = dialogContent.getChildren().at(player.idx) as Label;
       playerCard.setText(this.playerName);
-      this.dialog?.layout();
+      const icon = playerCard.getElement('icon') as ContainerLite;
+      icon.getChildren().forEach((child: any, idx) => {
+        if (idx === 2) {
+          child.setFillStyle(Constants.BLUE);
+        }
+      });
+      this.dialog.layout();
       setTimeout(() => {
         flipPlayerCard(this, playerCard, 'back');
       }, 200);
@@ -149,6 +155,12 @@ export default class Lobby extends Phaser.Scene {
       const dialogContent = this.dialog.getElement('content') as GridSizer;
       const playerCard = dialogContent.getChildren().at(player.idx) as Label;
       playerCard.setText(player.name);
+      const icon = playerCard.getElement('icon') as ContainerLite;
+      icon.getChildren().forEach((child: any, idx) => {
+        if (idx === 2) {
+          child.setFillStyle(Constants.RED);
+        }
+      });
       this.dialog.layout();
       setTimeout(() => {
         flipPlayerCard(this, playerCard, 'back');
