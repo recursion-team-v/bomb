@@ -3,17 +3,18 @@ import Label from 'phaser3-rex-plugins/templates/ui/label/Label';
 import * as Constants from '../../../backend/src/constants/constants';
 import { IAvailableRoom } from '../scenes/Lobby';
 
-export const createButton = (scene: Phaser.Scene, x: number, y: number, text: string) => {
+export const createButton = (scene: Phaser.Scene, text: string, color: number) => {
   return scene.rexUI.add.label({
-    width: 100,
-    height: 40,
-    background: scene.rexUI.add.roundRectangle(x, y, 0, 0, 20, Constants.GREEN),
+    orientation: 'x',
+    background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10, color),
     text: scene.add.text(0, 0, text, {
-      fontSize: '18px',
+      fontFamily: 'PressStart2P',
       color: '#000',
     }),
     align: 'center',
     space: {
+      top: 20,
+      bottom: 20,
       left: 20,
       right: 20,
     },
@@ -45,9 +46,10 @@ export const createDialog = (
       background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, Constants.LIGHT_GRAY),
       title: scene.rexUI.add.label({
         background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, Constants.GRAY),
-        text: scene.add.text(0, 0, 'Waiting for players to join...', {
+        text: scene.add.text(0, 0, 'waiting for players to become ready...', {
           fontSize: '20px',
         }),
+        align: 'center',
         space: {
           left: 15,
           right: 15,
@@ -59,7 +61,10 @@ export const createDialog = (
       expand: {
         content: false,
       },
-      actions: [createButton(scene, 0, 0, 'Ready?'), createButton(scene, 0, 0, 'exit')],
+      actions: [
+        createButton(scene, 'ready?', Constants.GREEN),
+        createButton(scene, 'exit', Constants.GRAY),
+      ],
       space: {
         title: 10,
         content: 10,
@@ -125,11 +130,19 @@ export const createPlayerCard = (scene: Phaser.Scene) => {
         .setStrokeStyle(2, Constants.WHITE),
       icon: scene.rexUI.add.container(0, 0, 150, 150, [
         scene.rexUI.add.roundRectangle(0, 0, 150, 150, 20, Constants.LIGHT_RED),
-        scene.add.text(0, -60, 'not ready', { color: '#000' }).setOrigin(0.5),
+        scene.add
+          .text(0, -60, 'not ready', {
+            fontSize: '12px',
+            color: '#000',
+            fontFamily: 'PressStart2P',
+          })
+          .setOrigin(0.5),
         scene.add.triangle(5, -35, -5, -5, 15, -5, 5, 5, Constants.BLUE).setOrigin(0.5),
         scene.add.sprite(0, 10, 'player').setScale(1.2).play('player_down'),
       ]),
-      text: scene.add.text(0, 0, '', { fontSize: '30px' }).setOrigin(0.5),
+      text: scene.add
+        .text(0, 0, '', { fontSize: '18px', fontFamily: 'PressStart2P' })
+        .setOrigin(0.5),
       expandTextWidth: false,
       expandTextHeight: false,
       space: { left: 20, right: 20, top: 20, bottom: 20, icon: 10 },

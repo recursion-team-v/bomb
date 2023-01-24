@@ -77,7 +77,7 @@ export default class Lobby extends Phaser.Scene {
     });
 
     this.buttons = createButtons(this, Constants.WIDTH / 2, Constants.HEIGHT / 5, [
-      createButton(this, 0, 0, 'Create Room'),
+      createButton(this, 'create room', Constants.GREEN),
     ]);
     this.buttons.on('button.click', this.handleRoomCreate, this);
 
