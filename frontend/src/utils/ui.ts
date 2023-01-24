@@ -12,6 +12,7 @@ export const createButton = (scene: Phaser.Scene, x: number, y: number, text: st
       fontSize: '18px',
       color: '#000',
     }),
+    align: 'center',
     space: {
       left: 20,
       right: 20,
@@ -66,6 +67,7 @@ export const createDialog = (
         right: 10,
         top: 10,
         bottom: 10,
+        action: 30,
       },
     })
     .popUp(100)
@@ -75,7 +77,7 @@ export const createDialog = (
   dialog.on('button.click', function (button: Label, _: any, index: number) {
     switch (index) {
       case 0:
-        button.setText('waiting...');
+        button.setText('waiting');
         (button.getElement('background') as RoundRectangle).setFillStyle(0x6b7280);
         button.layout();
         onClick();
@@ -89,7 +91,7 @@ export const createDialog = (
   return dialog;
 };
 
-export const createDialogContent = (scene: Phaser.Scene) => {
+const createDialogContent = (scene: Phaser.Scene) => {
   return scene.rexUI.add
     .gridSizer({
       x: 0,
@@ -101,6 +103,8 @@ export const createDialogContent = (scene: Phaser.Scene) => {
       columnProportions: 1,
       rowProportions: 1,
       space: {
+        top: 10,
+        bottom: 10,
         column: 20,
         row: 20,
       },
