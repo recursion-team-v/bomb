@@ -25,6 +25,9 @@ export interface IAvailableRoom {
 
 export default class Lobby extends Phaser.Scene {
   network!: Network;
+  private bgm?: Phaser.Sound.BaseSound;
+  private se1?: Phaser.Sound.BaseSound;
+  private se2?: Phaser.Sound.BaseSound;
   private availableRooms: IAvailableRoom[] = [];
   private buttons?: Buttons;
   private gridTable?: GridTable;
@@ -35,12 +38,22 @@ export default class Lobby extends Phaser.Scene {
     super(Config.SCENE_NAME_LOBBY);
   }
 
-  create(data: { network: Network; playerName: string }) {
+  init() {
+    this.se1 = this.sound.add('select', {
+      volume: Config.SOUND_VOLUME,
+    });
+    this.se2 = this.sound.add('select1', {
+      volume: Config.SOUND_VOLUME,
+    });
+  }
+
+  create(data: { network: Network; playerName: string; bgm: Phaser.Sound.BaseSound }) {
     if (data.network === undefined) {
       throw new Error('server instance missing');
     } else {
       this.network = data.network;
     }
+    this.bgm = data.bgm;
     this.playerName = data.playerName;
 
     this.availableRooms = this.getAvailableRooms();
@@ -96,6 +109,7 @@ export default class Lobby extends Phaser.Scene {
       await this.network.room.leave();
     }
     if (this.dialog === undefined) {
+      this.se1?.play();
       this.disableLobbyButtons();
       await this.network.createAndJoinCustomRoom({
         name: this.playerName,
@@ -107,7 +121,7 @@ export default class Lobby extends Phaser.Scene {
         this,
         Constants.WIDTH / 2,
         Constants.HEIGHT / 2,
-        () => this.network.sendPlayerGameState(Constants.PLAYER_GAME_STATE.READY),
+        () => this.onDialogReady(),
         () => this.onDialogClose()
       );
     }
@@ -120,19 +134,21 @@ export default class Lobby extends Phaser.Scene {
     }
     const room = this.availableRooms[cellIndex];
     if (this.dialog === undefined) {
+      this.se1?.play();
       this.disableLobbyButtons();
       await this.network.joinCustomRoom(room.id, null, this.playerName);
       this.dialog = createDialog(
         this,
         Constants.WIDTH / 2,
         Constants.HEIGHT / 2,
-        () => this.network.sendPlayerGameState(Constants.PLAYER_GAME_STATE.READY),
+        () => this.onDialogReady(),
         () => this.onDialogClose()
       );
     }
   }
 
   private async handleGameStart(data: IGameStartInfo) {
+    this.bgm?.stop();
     this.network.removeOnPlayerJoinedRoom();
     this.network.removeOnPlayerLeftRoom();
     await this.network.lobby?.leave();
@@ -143,6 +159,7 @@ export default class Lobby extends Phaser.Scene {
 
   private addMyPlayerCard(player: ServerPlayer) {
     if (this.dialog !== undefined) {
+      this.se2?.play();
       const dialogContent = this.dialog.getElement('content') as GridSizer;
       const playerCard = dialogContent.getChildren().at(player.idx) as Label;
       playerCard.setText(this.playerName);
@@ -160,6 +177,7 @@ export default class Lobby extends Phaser.Scene {
 
   private addOtherPlayerCard(player: ServerPlayer) {
     if (this.dialog !== undefined) {
+      this.se2?.play();
       const dialogContent = this.dialog.getElement('content') as GridSizer;
       const playerCard = dialogContent.getChildren().at(player.idx) as Label;
       playerCard.setText(player.name);
@@ -182,7 +200,7 @@ export default class Lobby extends Phaser.Scene {
       const icon = playerCard.getElement('icon') as ContainerLite;
       icon.getChildren().forEach((child: any, idx) => {
         if (idx === 0) {
-          child.setFillStyle(0xf87171);
+          child.setFillStyle(Constants.LIGHT_RED);
         } else if (idx === 1) {
           child.setText('not ready');
         }
@@ -199,7 +217,7 @@ export default class Lobby extends Phaser.Scene {
       const icon = playerCard.getElement('icon') as ContainerLite;
       icon.getChildren().forEach((child: any, idx) => {
         if (idx === 0) {
-          child.setFillStyle(0xa3e635);
+          child.setFillStyle(Constants.GREEN);
         } else if (idx === 1) {
           child.setText('ready');
         }
@@ -207,7 +225,13 @@ export default class Lobby extends Phaser.Scene {
     }
   }
 
+  private onDialogReady() {
+    this.se1?.play();
+    this.network.sendPlayerGameState(Constants.PLAYER_GAME_STATE.READY);
+  }
+
   private onDialogClose() {
+    this.se1?.play();
     this.dialog
       ?.scaleDownDestroyPromise(100)
       .then(async () => {
