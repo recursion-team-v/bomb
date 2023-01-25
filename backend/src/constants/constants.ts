@@ -219,6 +219,9 @@ export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
 敵の定義
 */
 
+// 停止->移動の際に、この時間だけ停止していたら移動時にボムを置く
+export const ENEMY_PLACE_BOMB_INTERVAL_AFTER_MOVE = 2000; // ms
+
 // 敵のAIの評価を切り替えるタイミング
 export const ENEMY_EVALUATION_STEP = {
   BEGINNING: 'BEGINNING',
@@ -231,6 +234,7 @@ export type ENEMY_EVALUATION_STEPS =
 
 // 敵AI が使用する影響度マップの評価値(合計値が 1 になるようにする)
 export const ENEMY_EVALUATION_RATIO_PER_STEP = {
+  // 序盤
   [ENEMY_EVALUATION_STEP.BEGINNING]: {
     // すぐに移動できるかの評価値
     ENEMY_EVALUATION_RATIO_NEAREST: 0.1,
@@ -240,8 +244,8 @@ export const ENEMY_EVALUATION_RATIO_PER_STEP = {
     ENEMY_EVALUATION_RATIO_BOMB: 0.4,
     // ボムを設置するのに適した場所の評価値
     ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE: 0.2,
-    ENEMY_EVALUATION_RATIO_FAR_FROM_OTHER_PLAYER: 0.3,
   },
+  // 中盤
   [ENEMY_EVALUATION_STEP.MIDDLE]: {
     // 他のプレイヤーとの距離
     ENEMY_EVALUATION_RATIO_FAR_FROM_OTHER_PLAYER: 0.3,
@@ -254,6 +258,7 @@ export const ENEMY_EVALUATION_RATIO_PER_STEP = {
     // ボムを設置するのに適した場所の評価値
     ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE: 0.1,
   },
+  // 終盤
   [ENEMY_EVALUATION_STEP.END]: {
     // 他のプレイヤーとの距離
     ENEMY_EVALUATION_RATIO_FAR_FROM_OTHER_PLAYER: 0.2,

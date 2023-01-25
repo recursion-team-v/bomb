@@ -258,6 +258,12 @@ export default class EnemyService {
           continue;
         }
 
+        // 移動時に一定時間経過したら爆弾を設置する
+        if (Date.now() - enemy.stoppedAt < Constants.ENEMY_PLACE_BOMB_INTERVAL_AFTER_MOVE) {
+          this.enemySetBomb(impactMapIsMovable, highPriorityForBlastRadiusMap, enemy);
+          enemy.setStoppedAt();
+        }
+
         // 次に移動するマスを設定する
         // setGoal は最終的に移動するマス、setNext は次に移動するマス
         enemy.setNext(moveList[1][0], moveList[1][1]);
@@ -276,24 +282,30 @@ export default class EnemyService {
         };
         enemy.inputQueue.push(data);
       } else {
+        enemy.setStoppedAt();
         // ゴールに着いたら、爆弾を設置する
-
-        // ただし、爆弾を設置するときには、自殺にならないように設置する爆弾の影響を考慮する
-        const safeTileRate = 0.5;
-        // 爆風の位置を含めて、マス目の安全度が 0.5 以上のマスを移動可能とみなす
-        const directMoveMapIncludeBlast = impactMapIsMovable.map((row, i) =>
-          row.map((v, j) => (v >= safeTileRate ? 1 : 0))
-        );
-        this.enemySetBomb(directMoveMapIncludeBlast, highPriorityForBlastRadiusMap, enemy);
+        this.enemySetBomb(impactMapIsMovable, highPriorityForBlastRadiusMap, enemy);
       }
     }
   }
 
   // 爆弾を設置する
-  enemySetBomb(directMoveMap: number[][], highPriorityForBlastRadiusMap: number[][], enemy: Enemy) {
+  enemySetBomb(
+    impactMapIsMovable: number[][],
+    highPriorityForBlastRadiusMap: number[][],
+    enemy: Enemy
+  ) {
+    // ただし、爆弾を設置するときには、自殺にならないように設置する爆弾の影響を考慮する
+    const safeTileRate = 0.5;
+
+    // 爆風の位置を含めて、マス目の安全度が 0.5 以上のマスを移動可能とみなす
+    const directMoveMapIncludeBlast = impactMapIsMovable.map((row, i) =>
+      row.map((v, j) => (v >= safeTileRate ? 1 : 0))
+    );
+
     // もし爆弾を置いたらどうなるか？のマップを作成する
     const mapIfSetBomb = getDirectMovableMapIfBombSet(
-      directMoveMap,
+      directMoveMapIncludeBlast,
       highPriorityForBlastRadiusMap,
       enemy.x,
       enemy.y,
@@ -303,7 +315,7 @@ export default class EnemyService {
     if (!enemy.canSetBomb()) return;
 
     // もし爆弾を置いたら自分が死ぬなら爆弾を置かない
-    if (isSelfDie(directMoveMap, mapIfSetBomb, enemy)) return;
+    if (isSelfDie(directMoveMapIncludeBlast, mapIfSetBomb, enemy)) return;
 
     this.gameEngine.bombService.enqueueBomb(enemy as Player);
   }
