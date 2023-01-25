@@ -164,29 +164,48 @@ export default class EnemyService {
         )
       );
 
+      // AI の動きを決定するため、残り時間に応じたステップを取得
+      const gameStep = enemy.getStep(state.timer);
+      const targets = [];
+
+      for (const key in Constants.ENEMY_EVALUATION_RATIO_PER_STEP[gameStep]) {
+        switch (key) {
+          // 爆弾、爆風の影響度マップ
+          case Constants.ENEMY_EVALUATION_RATIO_LABEL.ENEMY_EVALUATION_RATIO_BOMB:
+            targets.push({
+              dimensionalMap: deathMap,
+              ratio: Constants.ENEMY_EVALUATION_RATIO_PER_STEP[gameStep][key] ?? 0,
+            });
+            break;
+
+          // 現在地点からの距離の影響度マップ
+          case Constants.ENEMY_EVALUATION_RATIO_LABEL.ENEMY_EVALUATION_RATIO_NEAREST:
+            targets.push({
+              dimensionalMap: MoveCountMap,
+              ratio: Constants.ENEMY_EVALUATION_RATIO_PER_STEP[gameStep][key] ?? 0,
+            });
+            break;
+
+          // アイテムの影響度マップ
+          case Constants.ENEMY_EVALUATION_RATIO_LABEL.ENEMY_EVALUATION_RATIO_ITEM:
+            targets.push({
+              dimensionalMap: itemMap,
+              ratio: Constants.ENEMY_EVALUATION_RATIO_PER_STEP[gameStep][key] ?? 0,
+            });
+            break;
+
+          // 破壊できるブロック数の影響度マップ
+          case Constants.ENEMY_EVALUATION_RATIO_LABEL.ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE:
+            targets.push({
+              dimensionalMap: goodBombPlaceMap,
+              ratio: Constants.ENEMY_EVALUATION_RATIO_PER_STEP[gameStep][key] ?? 0,
+            });
+            break;
+        }
+      }
+
       // マップを組み合わせて、影響度マップを作成する
-      const impactMap = sumOfProductsSynthesis(movableMap, [
-        // 爆弾、爆風の影響度マップ
-        {
-          dimensionalMap: deathMap,
-          ratio: Constants.ENEMY_EVALUATION_RATIO_BOMB,
-        },
-        // 現在地点からの距離の影響度マップ
-        {
-          dimensionalMap: MoveCountMap,
-          ratio: Constants.ENEMY_EVALUATION_RATIO_NEAREST,
-        },
-        // アイテムの影響度マップ
-        {
-          dimensionalMap: itemMap,
-          ratio: Constants.ENEMY_EVALUATION_RATIO_ITEM,
-        },
-        // 破壊できるブロックの数の影響度マップ
-        {
-          dimensionalMap: goodBombPlaceMap,
-          ratio: Constants.ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE,
-        },
-      ]);
+      const impactMap = sumOfProductsSynthesis(movableMap, targets);
 
       // 移動出来ないマスの影響度が高いと、移動できないマスに移動しようとしいつまでも次の行動に移らないので
       // 影響度マップに対して、今移動できるマスのみを残す

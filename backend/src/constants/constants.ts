@@ -219,19 +219,44 @@ export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
 敵の定義
 */
 
-// 敵AI が使用する影響度マップの評価値(合計値が 1 になるようにする)
-export const ENEMY_EVALUATION_RATIO_FREE_SPACE = 0.1; // どれぐらい自由に移動できるかの評価値
-export const ENEMY_EVALUATION_RATIO_ITEM = 0.4; // アイテムの評価値
-export const ENEMY_EVALUATION_RATIO_BOMB = 0.5; // ボムと将来発生する爆風の評価値
+// 敵のAIの評価を切り替えるタイミング
+export const ENEMY_EVALUATION_STEP = {
+  BEGINNING: 'BEGINNING',
+  MIDDLE: 'MIDDLE',
+  END: 'END',
+};
 
-/*
-敵の定義
-*/
+export type ENEMY_EVALUATION_STEPS =
+  typeof ENEMY_EVALUATION_STEP[keyof typeof ENEMY_EVALUATION_STEP];
 
 // 敵AI が使用する影響度マップの評価値(合計値が 1 になるようにする)
-export const ENEMY_EVALUATION_RATIO_MOVABLE = 0.5; // 移動可能なマスの評価値
-export const ENEMY_EVALUATION_RATIO_FREE_SPACE = 0.1; // どれぐらい自由に移動できるかの評価値
-export const ENEMY_EVALUATION_RATIO_BOMB = 0.4; // ボムと将来発生する爆風の評価値
+export const ENEMY_EVALUATION_RATIO_PER_STEP = {
+  [ENEMY_EVALUATION_STEP.BEGINNING]: {
+    // すぐに移動できるかの評価値
+    ENEMY_EVALUATION_RATIO_NEAREST: 0.1,
+    // アイテムの評価値
+    ENEMY_EVALUATION_RATIO_ITEM: 0.3,
+    // ボムと将来発生する爆風の評価値
+    ENEMY_EVALUATION_RATIO_BOMB: 0.4,
+    // ボムを設置するのに適した場所の評価値
+    ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE: 0.2,
+  },
+  [ENEMY_EVALUATION_STEP.MIDDLE]: {},
+  [ENEMY_EVALUATION_STEP.END]: {},
+};
+
+// 敵AI が使用する影響度マップの評価値のラベル
+export const ENEMY_EVALUATION_RATIO_LABEL = {
+  ENEMY_EVALUATION_RATIO_FREE_SPACE: 'ENEMY_EVALUATION_RATIO_FREE_SPACE', // どれぐらい自由に移動できるかの評価値
+  ENEMY_EVALUATION_RATIO_NEAREST: 'ENEMY_EVALUATION_RATIO_NEAREST', // 現在地からの距離の評価値
+  ENEMY_EVALUATION_RATIO_ITEM: 'ENEMY_EVALUATION_RATIO_ITEM', // アイテムの評価値
+  ENEMY_EVALUATION_RATIO_BOMB: 'ENEMY_EVALUATION_RATIO_BOMB', // ボムと将来発生する爆風の評価値
+  ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE: 'ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE', // ボムを置くのに適した場所の評価値
+  ENEMY_EVALUATION_RATIO_OTHER_PLAYER: 'ENEMY_EVALUATION_RATIO_OTHER_PLAYER', // 他のプレイヤーとの距離と攻撃しやすさの評価値
+} as const;
+
+export type ENEMY_EVALUATION_RATIO_LABELS =
+  typeof ENEMY_EVALUATION_RATIO_LABEL[keyof typeof ENEMY_EVALUATION_RATIO_LABEL];
 
 /*
 画面の定義
