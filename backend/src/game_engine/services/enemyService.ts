@@ -4,6 +4,19 @@ import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
 import Enemy from '../../rooms/schema/Enemy';
 import Player from '../../rooms/schema/Player';
+import {
+  directMovableMap,
+  getDirectMovableMapIfBombSet,
+  getHighestPriorityTile,
+  influenceToOtherTile,
+  isSelfDie,
+  normalizeDimension,
+  numberOfDestroyableBlock,
+  reverseNormalizeDimension,
+  searchPath,
+  sumOfProductsSynthesis,
+  treatLevelMapByBomb,
+} from '../../utils/calc';
 import { TileToPixel } from '../../utils/map';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -87,50 +100,175 @@ export default class EnemyService {
     const { x: tx, y: ty } = enemy.getTilePosition();
     Matter.Body.setPosition(playerBody, TileToPixel(tx, ty));
   }
+
+  // 現在の盤面から、敵の移動先を計算しキューに詰める
+  calcAdjustablePosition() {
+    const engine = this.gameEngine;
+    const state = engine.state;
+
+    // 爆弾の影響度マップを作成する
+    const futureBlastMap = treatLevelMapByBomb(
+      engine.getDimensionalMap(engine.getHighestPriorityFromBodies),
+      state.hasBomb(engine.getDimensionalMap((bodies) => bodies))
+    );
+
+    // 爆風の位置から死亡マップを作成する
+    const deathMap = reverseNormalizeDimension(
+      normalizeDimension(influenceToOtherTile(futureBlastMap))
+    );
+
+    // 移動できるマス(ボムでブロックを破壊できる場所も含む)のマップを作成する
+    // この時将来発生する爆風のマスは0にする
+    const checkMovableDimensionalMap = engine.getDimensionalMap(engine.checkMovable);
+    const movableMap = normalizeDimension(checkMovableDimensionalMap);
+
+    // 爆風の範囲を測定するために使うマップを作成する
+    const highPriorityForBlastRadiusMap = engine.getDimensionalMap(
+      engine.getHighestPriorityFromBodies
+    );
+
+    // アイテムのマップ
+    const itemMap = normalizeDimension(
+      influenceToOtherTile(engine.getDimensionalMap(engine.HasItem))
+    );
+
+    // ブロックのマップ
+    const blockMap = normalizeDimension(engine.getDimensionalMap(engine.HasBlock));
+
+    // 爆風のマップ
+    const blastMap = engine.getDimensionalMap(engine.HasBlast);
+
+    // 敵の数だけループして移動処理を行う
+    for (let i = 0; i < Constants.DEBUG_DEFAULT_ENEMY_COUNT; i++) {
+      const player = state.getPlayer(`enemy-${i}`);
+      if (player === undefined) continue;
+
+      const enemy = player as Enemy;
+      if (enemy.isDead()) continue;
+
+      const { x: enemyX, y: enemyY } = enemy.getTilePosition();
+
+      // 該当の敵が今、直接移動できるマスのマップを作成する
+      const MoveCountMap = directMovableMap(checkMovableDimensionalMap, enemyX, enemyY);
+      const directMoveMap = MoveCountMap.map((row, r) =>
+        // Infinityは移動できないマスなので 0 に変換する
+        // 0: 移動できないマス
+        // 1: 移動できるマス
+        row.map((v, c) => (row[c] = v === Infinity ? 0 : 1))
+      );
+
+      // 爆弾んをおいたときに、一度に破壊できるブロックが多い場所を評価するマップを作成する
+      const goodBombPlaceMap = influenceToOtherTile(
+        normalizeDimension(
+          numberOfDestroyableBlock(directMoveMap, blockMap, highPriorityForBlastRadiusMap, enemy)
+        )
+      );
+
+      // マップを組み合わせて、影響度マップを作成する
+      const impactMap = sumOfProductsSynthesis(movableMap, [
+        // 爆弾、爆風の影響度マップ
+        {
+          dimensionalMap: deathMap,
+          ratio: Constants.ENEMY_EVALUATION_RATIO_BOMB,
+        },
+        // 現在地点からの距離の影響度マップ
+        {
+          dimensionalMap: MoveCountMap,
+          ratio: Constants.ENEMY_EVALUATION_RATIO_NEAREST,
+        },
+        // アイテムの影響度マップ
+        {
+          dimensionalMap: itemMap,
+          ratio: Constants.ENEMY_EVALUATION_RATIO_ITEM,
+        },
+        // 破壊できるブロックの数の影響度マップ
+        {
+          dimensionalMap: goodBombPlaceMap,
+          ratio: Constants.ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE,
+        },
+      ]);
+
+      // 移動出来ないマスの影響度が高いと、移動できないマスに移動しようとしいつまでも次の行動に移らないので
+      // 影響度マップに対して、今移動できるマスのみを残す
+      const impactMapIsMovable = impactMap.map((row, i) =>
+        row.map((v, j) => v * directMoveMap[i][j])
+      );
+
+      // impactMapIsMovable から、最も良いマス(異動すべきマス)を取得し、ゴールを設定する
+      const { x, y } = getHighestPriorityTile(impactMapIsMovable, enemyX, enemyY);
+      enemy.setGoal(x, y);
+
+      // ゴールに着くまで移動を行う
+      if (!enemy.isMovedToGoal()) {
+        // 最短の移動経路を取得する
+        const moveList = searchPath(
+          enemy.getTilePosition(),
+          enemy.getGoalTilePosition(),
+          directMoveMap
+        );
+
+        // 移動経路の結果が 0 の場合は、すでに目的にいるので何もしない
+        if (moveList.length === 0) continue;
+
+        // 次に移動するマスの安全度が1/2以下 or 爆風があるマスなるなら動かない
+        // これがないと、最短経路という理由で爆風があるマスに移動しようとしてしまう
+        const downRate = 0.5;
+        if (
+          impactMapIsMovable[moveList[1][1]][moveList[1][0]] <=
+            impactMapIsMovable[enemyY][enemyX] * downRate ||
+          blastMap[moveList[1][1]][moveList[1][0]] === 1
+        ) {
+          engine.enemyService.stop(enemy);
+          continue;
+        }
+
+        // 次に移動するマスを設定する
+        // setGoal は最終的に移動するマス、setNext は次に移動するマス
+        enemy.setNext(moveList[1][0], moveList[1][1]);
+
+        // 次に移動するマスに合わせて、入力キーを設定しキューに追加する
+        const key = enemy.moveToDirection();
+        const data = {
+          player: enemy,
+          inputPayload: {
+            up: key.up,
+            down: key.down,
+            left: key.left,
+            right: key.right,
+          },
+          isInput: true,
+        };
+        enemy.inputQueue.push(data);
+      } else {
+        // ゴールに着いたら、爆弾を設置する
+
+        // ただし、爆弾を設置するときには、自殺にならないように設置する爆弾の影響を考慮する
+        const safeTileRate = 0.5;
+        // 爆風の位置を含めて、マス目の安全度が 0.5 以上のマスを移動可能とみなす
+        const directMoveMapIncludeBlast = impactMapIsMovable.map((row, i) =>
+          row.map((v, j) => (v >= safeTileRate ? 1 : 0))
+        );
+        this.enemySetBomb(directMoveMapIncludeBlast, highPriorityForBlastRadiusMap, enemy);
+      }
+    }
+  }
+
+  // 爆弾を設置する
+  enemySetBomb(directMoveMap: number[][], highPriorityForBlastRadiusMap: number[][], enemy: Enemy) {
+    // もし爆弾を置いたらどうなるか？のマップを作成する
+    const mapIfSetBomb = getDirectMovableMapIfBombSet(
+      directMoveMap,
+      highPriorityForBlastRadiusMap,
+      enemy.x,
+      enemy.y,
+      enemy.bombStrength
+    );
+
+    if (!enemy.canSetBomb()) return;
+
+    // もし爆弾を置いたら自分が死ぬなら爆弾を置かない
+    if (isSelfDie(directMoveMap, mapIfSetBomb, enemy)) return;
+
+    this.gameEngine.bombService.enqueueBomb(enemy as Player);
+  }
 }
-
-// // 引数として取得する y ✖️ x の配列に blast の有無 が入っているので
-// // それをもとに爆風の範囲を計算しき脅威マップを返す(1: 爆風の範囲, 0: それ以外)
-// export function treatLevelMapByBlast(field: any[][]): number[][] {
-//   const result: number[][] = [];
-
-//   for (let y = 0; y < field.length; y++) {
-//     for (let x = 0; x < field[y].length; x++) {
-//       if (result[y] === undefined) result[y] = [];
-//       result[y][x] = field[y][x] === true ? 1 : 0;
-//     }
-//   }
-
-//   return result;
-// }
-
-// export function canEscapeFromBomb(enemy: Enemy, engine: GameEngine): boolean {
-
-//   const bombMap = engine.bombMap;
-//   const dmap = engine.dmap;
-
-//   const bomb = bombMap[enemy.y][enemy.x] as Bomb;
-//   if (bomb === undefined) return false;
-
-//   const blast: Map<Constants.DIRECTION_TYPE, number> = calcBlastRange(dmap, bomb);
-
-//   const up = blast.get(DIRECTION.UP) ?? 0;
-//   const down = blast.get(DIRECTION.DOWN) ?? 0;
-//   const left = blast.get(DIRECTION.LEFT) ?? 0;
-//   const right = blast.get(DIRECTION.RIGHT) ?? 0;
-
-//   const canEscape = (y: number, x: number) => {
-//     if (y < 0 || y >= dmap.length) return false;
-//     if (x < 0 || x >= dmap[y].length) return false;
-//     if (dmap[y][x] === Constants.OBJECT_IS_NOT_MOVABLE) return false;
-//     if (bombMap[y][x] !== undefined) return false;
-//     return true;
-//   };
-
-//   if (canEscape(enemy.y - up, enemy.x)) return true;
-//   if (canEscape(enemy.y + down, enemy.x)) return true;
-//   if (canEscape(enemy.y, enemy.x - left)) return true;
-//   if (canEscape(enemy.y, enemy.x + right)) return true;
-
-//   return false;
-// }

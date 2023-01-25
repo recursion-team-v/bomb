@@ -1,6 +1,7 @@
 import * as Constants from '../../constants/constants';
 import { PixelToTile, TileToPixel } from '../../utils/map';
 import Player from './Player';
+import Timer from './Timer';
 
 export default class Enemy extends Player {
   // 次に移動する座標
@@ -90,5 +91,26 @@ export default class Enemy extends Player {
   // キューを空にして enemy の移動を止める
   stop() {
     this.inputQueue = [];
+  }
+
+  // 敵 AIの評価値を返します
+  evaluationRatioPerStep(step: Constants.ENEMY_EVALUATION_STEPS) {
+    return Constants.ENEMY_EVALUATION_RATIO_PER_STEP[step];
+  }
+
+  // ゲームの残り時間に応じて、ENEMY_EVALUATION_STEP を返す
+  getStep(timer: Timer) {
+    const gameTime = Constants.TIME_LIMIT_SEC * 1000;
+    switch (true) {
+      // 2/3 までの時間帯
+      case (gameTime * 2) / 3 < timer.getRemainTime():
+        return Constants.ENEMY_EVALUATION_STEP.BEGINNING;
+      // 1/3 までの時間帯
+      case gameTime / 3 < timer.getRemainTime():
+        return Constants.ENEMY_EVALUATION_STEP.MIDDLE;
+      // 0 までの時間帯
+      case gameTime / 3 >= timer.getRemainTime():
+        return Constants.ENEMY_EVALUATION_STEP.END;
+    }
   }
 }
