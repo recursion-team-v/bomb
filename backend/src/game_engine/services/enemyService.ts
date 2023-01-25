@@ -158,13 +158,6 @@ export default class EnemyService {
         row.map((v, c) => (row[c] = v === Infinity ? 0 : 1))
       );
 
-      // 爆弾をおいたときに、一度に破壊できるブロックが多い場所を評価するマップを作成する
-      const goodBombPlaceMap = influenceToOtherTile(
-        normalizeDimension(
-          numberOfDestroyableBlock(directMoveMap, blockMap, highPriorityForBlastRadiusMap, enemy)
-        )
-      );
-
       // 他のユーザとの距離を評価するマップを作成する
       // 離れているほど評価が高くなる
       const farFromOtherPlayerMap = reverseNormalizeDimension(
@@ -173,8 +166,27 @@ export default class EnemyService {
         )
       );
 
-      // AI の動きを決定するため、残り時間に応じたステップを取得
       const gameStep = enemy.getStep(state.timer);
+
+      // 爆弾をおいたときに、一度に破壊できるブロックが多い場所を評価するマップを作成する
+      let goodBombPlaceMap: number[][] = [];
+
+      // 計算量が多いので、ブロックの数が一定数以下の場合は計算しない
+      const currentBlocks = blockMap.flat().filter((row) => row === 1).length;
+      const mapSizeWithoutWall =
+        (Constants.TILE_COLS - 2) * (Constants.TILE_ROWS - 2) -
+        (Constants.TILE_COLS / 2 - 1) -
+        (Constants.TILE_ROWS / 2 - 1);
+
+      if (currentBlocks / mapSizeWithoutWall >= 0.65) {
+        goodBombPlaceMap = influenceToOtherTile(
+          normalizeDimension(
+            numberOfDestroyableBlock(directMoveMap, blockMap, highPriorityForBlastRadiusMap, enemy)
+          )
+        );
+      }
+
+      // AI の動きを決定するため、残り時間に応じたステップを取得
       const targets = [];
 
       for (const key in Constants.ENEMY_EVALUATION_RATIO_PER_STEP[gameStep]) {
@@ -205,6 +217,7 @@ export default class EnemyService {
 
           // 破壊できるブロック数の影響度マップ
           case Constants.ENEMY_EVALUATION_RATIO_LABEL.ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE:
+            if (goodBombPlaceMap.length === 0) break;
             targets.push({
               dimensionalMap: goodBombPlaceMap,
               ratio: Constants.ENEMY_EVALUATION_RATIO_PER_STEP[gameStep][key] ?? 0,

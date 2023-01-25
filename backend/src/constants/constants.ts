@@ -248,11 +248,11 @@ export const ENEMY_EVALUATION_RATIO_PER_STEP = {
   // 中盤
   [ENEMY_EVALUATION_STEP.MIDDLE]: {
     // 他のプレイヤーとの距離
-    ENEMY_EVALUATION_RATIO_FAR_FROM_OTHER_PLAYER: 0.3,
+    ENEMY_EVALUATION_RATIO_FAR_FROM_OTHER_PLAYER: 0.2,
     // すぐに移動できるかの評価値
     ENEMY_EVALUATION_RATIO_NEAREST: 0.1,
     // アイテムの評価値
-    ENEMY_EVALUATION_RATIO_ITEM: 0.1,
+    ENEMY_EVALUATION_RATIO_ITEM: 0.2,
     // ボムと将来発生する爆風の評価値
     ENEMY_EVALUATION_RATIO_BOMB: 0.4,
     // ボムを設置するのに適した場所の評価値
