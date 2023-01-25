@@ -45,6 +45,11 @@ export default class GameRoomState extends Schema {
     return this.players.size;
   }
 
+  // 生きてるプレイヤーのみを返します
+  getAvailablePlayers(): Player[] {
+    return Array.from(this.players.values()).filter((player) => !player.isDead());
+  }
+
   setTimer() {
     this.timer.set(Date.now());
   }

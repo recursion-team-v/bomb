@@ -99,7 +99,7 @@ export default class Enemy extends Player {
   }
 
   // ゲームの残り時間に応じて、ENEMY_EVALUATION_STEP を返す
-  getStep(timer: Timer) {
+  getStep(timer: Timer): Constants.ENEMY_EVALUATION_STEPS {
     const gameTime = Constants.TIME_LIMIT_SEC * 1000;
     switch (true) {
       // 2/3 までの時間帯
@@ -109,7 +109,7 @@ export default class Enemy extends Player {
       case gameTime / 3 < timer.getRemainTime():
         return Constants.ENEMY_EVALUATION_STEP.MIDDLE;
       // 0 までの時間帯
-      case gameTime / 3 >= timer.getRemainTime():
+      default:
         return Constants.ENEMY_EVALUATION_STEP.END;
     }
   }

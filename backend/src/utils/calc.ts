@@ -4,6 +4,7 @@ import * as Constants from '../constants/constants';
 import { calcBlastRange } from '../game_engine/services/blastService';
 import { Bomb } from '../rooms/schema/Bomb';
 import Enemy from '../rooms/schema/Enemy';
+import Player from '../rooms/schema/Player';
 import { PixelToTile, TileToPixel } from './map';
 
 // min ~ max で正規化します
@@ -468,6 +469,22 @@ export function getClosestAvailablePoint(
       result = { x: ax, y: ay, distance: path.length };
       minimumDistance = path.length;
     }
+  }
+
+  return result;
+}
+
+// 他のプレイヤーの位置をマップに反映する
+// プレイヤーがいるマスは 1 になる
+export function getOtherPlayersMap(sessionId: string, players: Player[]) {
+  const result = Array(Constants.TILE_ROWS)
+    .fill(0)
+    .map(() => Array(Constants.TILE_COLS).fill(0));
+
+  for (let i = 0; i < players.length; i++) {
+    if (players[i].sessionId === sessionId) continue;
+    const { x, y } = players[i].getTilePosition();
+    result[y][x] = 1;
   }
 
   return result;

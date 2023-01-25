@@ -240,19 +240,36 @@ export const ENEMY_EVALUATION_RATIO_PER_STEP = {
     ENEMY_EVALUATION_RATIO_BOMB: 0.4,
     // ボムを設置するのに適した場所の評価値
     ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE: 0.2,
+    ENEMY_EVALUATION_RATIO_FAR_FROM_OTHER_PLAYER: 0.3,
   },
-  [ENEMY_EVALUATION_STEP.MIDDLE]: {},
-  [ENEMY_EVALUATION_STEP.END]: {},
+  [ENEMY_EVALUATION_STEP.MIDDLE]: {
+    // 他のプレイヤーとの距離
+    ENEMY_EVALUATION_RATIO_FAR_FROM_OTHER_PLAYER: 0.3,
+    // すぐに移動できるかの評価値
+    ENEMY_EVALUATION_RATIO_NEAREST: 0.1,
+    // アイテムの評価値
+    ENEMY_EVALUATION_RATIO_ITEM: 0.1,
+    // ボムと将来発生する爆風の評価値
+    ENEMY_EVALUATION_RATIO_BOMB: 0.4,
+    // ボムを設置するのに適した場所の評価値
+    ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE: 0.1,
+  },
+  [ENEMY_EVALUATION_STEP.END]: {
+    // 他のプレイヤーとの距離
+    ENEMY_EVALUATION_RATIO_FAR_FROM_OTHER_PLAYER: 0.2,
+    // ボムと将来発生する爆風の評価値
+    ENEMY_EVALUATION_RATIO_BOMB: 0.8,
+  },
 };
 
 // 敵AI が使用する影響度マップの評価値のラベル
 export const ENEMY_EVALUATION_RATIO_LABEL = {
-  ENEMY_EVALUATION_RATIO_FREE_SPACE: 'ENEMY_EVALUATION_RATIO_FREE_SPACE', // どれぐらい自由に移動できるかの評価値
+  // ENEMY_EVALUATION_RATIO_FREE_SPACE: 'ENEMY_EVALUATION_RATIO_FREE_SPACE', // どれぐらい自由に移動できるかの評価値
+  ENEMY_EVALUATION_RATIO_FAR_FROM_OTHER_PLAYER: 'ENEMY_EVALUATION_RATIO_FAR_FROM_OTHER_PLAYER', // 他のプレイヤーからどれぐらい離れているかの評価値
   ENEMY_EVALUATION_RATIO_NEAREST: 'ENEMY_EVALUATION_RATIO_NEAREST', // 現在地からの距離の評価値
   ENEMY_EVALUATION_RATIO_ITEM: 'ENEMY_EVALUATION_RATIO_ITEM', // アイテムの評価値
   ENEMY_EVALUATION_RATIO_BOMB: 'ENEMY_EVALUATION_RATIO_BOMB', // ボムと将来発生する爆風の評価値
   ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE: 'ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE', // ボムを置くのに適した場所の評価値
-  ENEMY_EVALUATION_RATIO_OTHER_PLAYER: 'ENEMY_EVALUATION_RATIO_OTHER_PLAYER', // 他のプレイヤーとの距離と攻撃しやすさの評価値
 } as const;
 
 export type ENEMY_EVALUATION_RATIO_LABELS =
@@ -321,19 +338,19 @@ export const OBJECT_DEPTH = {
 export type OBJECT_DEPTH_TYPE = typeof OBJECT_DEPTH[keyof typeof OBJECT_DEPTH];
 
 // プレイヤーが各オブジェクトの上を移動できるかどうか
-// 0: 移動できる
+// 2: 移動できる
 // 1: 破壊すれば移動できる
-// 2: 移動できない
+// 0: 移動できない
 export const OBJECT_IS_MOVABLE = {
-  NONE: 0,
-  [OBJECT_LABEL.BOMB]: 2,
-  [OBJECT_LABEL.BLAST]: 2, // 移動できるが、爆風に当たると死ぬので、移動できないとみなす
+  NONE: 2,
+  [OBJECT_LABEL.BOMB]: 0,
+  [OBJECT_LABEL.BLAST]: 0, // 移動できるが、爆風に当たると死ぬので、移動できないとみなす
   [OBJECT_LABEL.BLOCK]: 1,
-  [OBJECT_LABEL.ITEM]: 0,
-  [OBJECT_LABEL.PLAYER]: 0,
-  [OBJECT_LABEL.WALL]: 2,
-  [OBJECT_LABEL.DROP_WALL_SHADOW]: 2, // 移動できるがその後落ちてくる壁に当たると死ぬので、移動できないとみなす
-  [OBJECT_LABEL.DROP_WALL]: 2,
+  [OBJECT_LABEL.ITEM]: 2,
+  [OBJECT_LABEL.PLAYER]: 2,
+  [OBJECT_LABEL.WALL]: 0,
+  [OBJECT_LABEL.DROP_WALL_SHADOW]: 0, // 移動できるがその後落ちてくる壁に当たると死ぬので、移動できないとみなす
+  [OBJECT_LABEL.DROP_WALL]: 0,
 } as const;
 
 export type OBJECT_IS_MOVABLE_TYPES = typeof OBJECT_IS_MOVABLE[keyof typeof OBJECT_IS_MOVABLE];

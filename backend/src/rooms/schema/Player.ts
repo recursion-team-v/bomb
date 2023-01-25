@@ -1,6 +1,7 @@
 import { Schema, type } from '@colyseus/schema';
 
 import * as Constants from '../../constants/constants';
+import { PixelToTile } from '../../utils/map';
 
 export default class Player extends Schema {
   @type('string')
@@ -163,5 +164,10 @@ export default class Player extends Schema {
 
   setPlayerName(playerName: string) {
     this.name = playerName;
+  }
+
+  // プレイヤーのマス目の位置を取得する
+  getTilePosition(): { x: number; y: number } {
+    return PixelToTile(this.x, this.y);
   }
 }

@@ -8,6 +8,7 @@ import {
   directMovableMap,
   getDirectMovableMapIfBombSet,
   getHighestPriorityTile,
+  getOtherPlayersMap,
   influenceToOtherTile,
   isSelfDie,
   normalizeDimension,
@@ -148,7 +149,7 @@ export default class EnemyService {
 
       const { x: enemyX, y: enemyY } = enemy.getTilePosition();
 
-      // 該当の敵が今、直接移動できるマスのマップを作成する
+      // 自分が今、直接移動できるマスのマップを作成する
       const MoveCountMap = directMovableMap(checkMovableDimensionalMap, enemyX, enemyY);
       const directMoveMap = MoveCountMap.map((row, r) =>
         // Infinityは移動できないマスなので 0 に変換する
@@ -157,10 +158,18 @@ export default class EnemyService {
         row.map((v, c) => (row[c] = v === Infinity ? 0 : 1))
       );
 
-      // 爆弾んをおいたときに、一度に破壊できるブロックが多い場所を評価するマップを作成する
+      // 爆弾をおいたときに、一度に破壊できるブロックが多い場所を評価するマップを作成する
       const goodBombPlaceMap = influenceToOtherTile(
         normalizeDimension(
           numberOfDestroyableBlock(directMoveMap, blockMap, highPriorityForBlastRadiusMap, enemy)
+        )
+      );
+
+      // 他のユーザとの距離を評価するマップを作成する
+      // 離れているほど評価が高くなる
+      const farFromOtherPlayerMap = reverseNormalizeDimension(
+        normalizeDimension(
+          influenceToOtherTile(getOtherPlayersMap(enemy.sessionId, state.getAvailablePlayers()))
         )
       );
 
@@ -198,6 +207,14 @@ export default class EnemyService {
           case Constants.ENEMY_EVALUATION_RATIO_LABEL.ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE:
             targets.push({
               dimensionalMap: goodBombPlaceMap,
+              ratio: Constants.ENEMY_EVALUATION_RATIO_PER_STEP[gameStep][key] ?? 0,
+            });
+            break;
+
+          // 他のプレイヤーからの距離の影響度マップ
+          case Constants.ENEMY_EVALUATION_RATIO_LABEL.ENEMY_EVALUATION_RATIO_FAR_FROM_OTHER_PLAYER:
+            targets.push({
+              dimensionalMap: farFromOtherPlayerMap,
               ratio: Constants.ENEMY_EVALUATION_RATIO_PER_STEP[gameStep][key] ?? 0,
             });
             break;
