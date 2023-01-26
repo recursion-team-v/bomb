@@ -18,6 +18,8 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   private readonly hit_se;
   nameLabel!: Phaser.GameObjects.Container;
   nameText!: Phaser.GameObjects.Text;
+  lastDirection: 'right' | 'left' | 'up' | 'down' = 'down';
+  dmgAnimPlaying = false;
 
   constructor(
     sessionId: string,
@@ -101,7 +103,11 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.hit_se.play();
     this.hp -= damage;
     this.animationShakeScreen();
-    this.animationFlash(Constants.PLAYER_INVINCIBLE_TIME);
+    this.dmgAnimPlaying = true;
+    this.play(`${this.character}_damage_${this.lastDirection}`).on('animationcomplete', () => {
+      this.dmgAnimPlaying = false;
+      this.animationFlash(Constants.PLAYER_INVINCIBLE_TIME);
+    });
   }
 
   private healed(healedHp: number) {
@@ -183,7 +189,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.setToSleep(); // これをしないと移動中だとローテーション中に移動してしまう
     this.setVelocity(0, 0);
     this.setSensor(true);
-    this.animationRotate();
+    this.play(`${this.character}_death_${this.lastDirection}`);
   }
 
   isEqualSessionId(sessionId: string): boolean {
@@ -229,18 +235,18 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     }, duration);
   }
 
-  private animationRotate() {
-    const juice = getGameScene().getJuice();
-    const rotateConfig = {
-      angle: 450,
-      duration: 500,
-      ease: 'Circular.easeInOut',
-      delay: 1000,
-      paused: false,
-    };
+  // private animationRotate() {
+  //   const juice = getGameScene().getJuice();
+  //   const rotateConfig = {
+  //     angle: 450,
+  //     duration: 500,
+  //     ease: 'Circular.easeInOut',
+  //     delay: 1000,
+  //     paused: false,
+  //   };
 
-    juice.rotate(this, rotateConfig);
-  }
+  //   juice.rotate(this, rotateConfig);
+  // }
 
   private animationShakeScreen(duration: number = 300) {
     this.scene.cameras.main.shake(duration, 0.01);

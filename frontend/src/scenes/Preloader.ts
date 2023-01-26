@@ -20,7 +20,7 @@ export default class Preloader extends Phaser.Scene {
     const frameWidth = Constants.DEFAULT_TIP_SIZE;
     const frameHeight = Constants.DEFAULT_TIP_SIZE;
 
-    for (const character of Object.values(Constants.CHARACTERS)) {
+    for (const character of Constants.CHARACTERS) {
       this.load.spritesheet(character, `assets/characters/${character}.png`, {
         frameWidth,
         frameHeight,
