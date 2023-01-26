@@ -15,6 +15,7 @@ import GridSizer from 'phaser3-rex-plugins/templates/ui/gridsizer/GridSizer';
 import Label from 'phaser3-rex-plugins/templates/ui/label/Label';
 import ContainerLite from 'phaser3-rex-plugins/plugins/containerlite';
 import Buttons from 'phaser3-rex-plugins/templates/ui/buttons/Buttons';
+import { isPlay } from '../utils/sound';
 
 export interface IAvailableRoom {
   id: string;
@@ -70,7 +71,7 @@ export default class Lobby extends Phaser.Scene {
     }
 
     this.playerName = data.playerName;
-    this.add.volumeIcon(this, Constants.WIDTH - 60, 10);
+    this.add.volumeIcon(this, Constants.WIDTH - 60, 10, isPlay());
 
     this.availableRooms = this.getAvailableRooms();
     this.network.onRoomsUpdated(this.handleRoomsUpdated, this);
