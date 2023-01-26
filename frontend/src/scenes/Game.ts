@@ -228,7 +228,7 @@ export default class Game extends Phaser.Scene {
   }
 
   private addPlayers() {
-    this.room.state.players.forEach((player, sessionId) => {
+    this.room.state.players.forEach((player: ServerPlayer, sessionId) => {
       if (sessionId === this.network.mySessionId) {
         this.addMyPlayer(); // 自分を追加
       } else if (player.isCPU) {
