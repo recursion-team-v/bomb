@@ -22,8 +22,6 @@ export default class OtherPlayer extends Player {
     this.serverY = y;
     this.frameKey = 14;
     this.setSensor(true); // プレイヤー同士はぶつからないようにする
-    const randomColor = Math.floor(Math.random() * 16777215);
-    this.setPlayerColor(randomColor);
     this.addNameLabel(Constants.RED);
   }
 

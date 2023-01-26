@@ -12,7 +12,7 @@ export const createCharacterAnims = (anims: Phaser.Animations.AnimationManager) 
         end: 1,
       }),
       repeat: -1,
-      frameRate: animsFrameRate * 0.6,
+      frameRate: animsFrameRate * 0.4,
     });
 
     anims.create({
@@ -22,7 +22,7 @@ export const createCharacterAnims = (anims: Phaser.Animations.AnimationManager) 
         end: 3,
       }),
       repeat: -1,
-      frameRate: animsFrameRate * 0.6,
+      frameRate: animsFrameRate * 0.4,
     });
 
     anims.create({
@@ -32,7 +32,7 @@ export const createCharacterAnims = (anims: Phaser.Animations.AnimationManager) 
         end: 5,
       }),
       repeat: -1,
-      frameRate: animsFrameRate * 0.6,
+      frameRate: animsFrameRate * 0.4,
     });
 
     anims.create({
@@ -42,7 +42,7 @@ export const createCharacterAnims = (anims: Phaser.Animations.AnimationManager) 
         end: 7,
       }),
       repeat: -1,
-      frameRate: animsFrameRate * 0.6,
+      frameRate: animsFrameRate * 0.4,
     });
 
     anims.create({

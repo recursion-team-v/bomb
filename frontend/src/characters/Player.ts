@@ -8,6 +8,7 @@ import { getGameScene } from '../utils/globalGame';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
   name: string;
+  character: string;
   private hp: number;
   private speed: number;
   private bombType: Constants.BOMB_TYPES; // ボムの種類
@@ -30,6 +31,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   ) {
     super(world, x, y, texture, frame, options);
     this.name = name === undefined ? Constants.DEFAULT_PLAYER_NAME : name;
+    this.character = texture;
     this.hp = Constants.INITIAL_PLAYER_HP;
     this.sessionId = sessionId;
     this.speed = Constants.INITIAL_PLAYER_SPEED;
@@ -37,6 +39,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
 
+    this.setScale(1.3, 1);
     this.setRectangle(Constants.PLAYER_WIDTH, Constants.PLAYER_HEIGHT, {
       chamfer: 10, // 0だと壁に対して斜め移動すると突っかかるので増やす
       friction: 0,
@@ -45,7 +48,6 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
       restitution: 0,
     });
     this.setFixedRotation();
-    this.setFrame(14); // 最初は下向いてる
 
     const body = this.body as MatterJS.BodyType;
     body.label = Constants.OBJECT_LABEL.PLAYER;

@@ -12,6 +12,7 @@ import Player from './Player';
 export default class MyPlayer extends Player {
   private serverX: number;
   private serverY: number;
+  private lastDirection: 'right' | 'left' | 'up' | 'down' = 'down';
   private readonly dead_se;
 
   inputPayload = {
@@ -100,11 +101,21 @@ export default class MyPlayer extends Player {
       if (this.inputPayload.down) vy += velocity;
     }
 
-    if (vx > 0) this.play('player_right', true);
-    else if (vx < 0) this.play('player_left', true);
-    else if (vy > 0) this.play('player_down', true);
-    else if (vy < 0) this.play('player_up', true);
-    else this.stop();
+    if (vx > 0) {
+      this.play(`${this.character}_right`, true);
+      this.lastDirection = 'right';
+    } else if (vx < 0) {
+      this.play(`${this.character}_left`, true);
+      this.lastDirection = 'left';
+    } else if (vy > 0) {
+      this.play(`${this.character}_down`, true);
+      this.lastDirection = 'down';
+    } else if (vy < 0) {
+      this.play(`${this.character}_up`, true);
+      this.lastDirection = 'up';
+    } else {
+      this.play(`${this.character}_idle_${this.lastDirection}`, true);
+    }
 
     network.sendPlayerMove(this, this.inputPayload, isInput);
 
