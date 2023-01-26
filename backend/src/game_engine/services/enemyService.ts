@@ -70,6 +70,8 @@ export default class EnemyService {
 
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     while ((data = player.inputQueue.shift())) {
+      // playerData を消すと CPU が動かなくなる
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { player: playerData, inputPayload, isInput } = data;
 
       if (isInput === false) {

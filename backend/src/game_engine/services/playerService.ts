@@ -62,6 +62,7 @@ export default class PlayerService {
 
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     while ((data = player.inputQueue.shift())) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { player: playerData, inputPayload, isInput } = data;
 
       if (isInput === false) {
