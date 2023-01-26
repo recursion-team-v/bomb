@@ -15,6 +15,7 @@ import GridSizer from 'phaser3-rex-plugins/templates/ui/gridsizer/GridSizer';
 import Label from 'phaser3-rex-plugins/templates/ui/label/Label';
 import ContainerLite from 'phaser3-rex-plugins/plugins/containerlite';
 import Buttons from 'phaser3-rex-plugins/templates/ui/buttons/Buttons';
+import { isPlay } from '../utils/sound';
 
 export interface IAvailableRoom {
   id: string;
@@ -28,7 +29,7 @@ export default class Lobby extends Phaser.Scene {
   private bgm?: Phaser.Sound.BaseSound;
   private se1?: Phaser.Sound.BaseSound;
   private se2?: Phaser.Sound.BaseSound;
-  private availableRooms: IAvailableRoom[] = [];
+  private availableRooms!: IAvailableRoom[];
   private buttons?: Buttons;
   private gridTable?: GridTable;
   private dialog?: Dialog;
@@ -39,6 +40,15 @@ export default class Lobby extends Phaser.Scene {
   }
 
   init() {
+    this.availableRooms = [];
+    this.buttons = undefined;
+    this.gridTable = undefined;
+    this.dialog = undefined;
+
+    this.bgm = this.sound.add('opening', {
+      volume: Config.SOUND_VOLUME,
+    });
+
     this.se1 = this.sound.add('select', {
       volume: Config.SOUND_VOLUME,
     });
@@ -47,15 +57,21 @@ export default class Lobby extends Phaser.Scene {
     });
   }
 
-  create(data: { network: Network; playerName: string; bgm: Phaser.Sound.BaseSound }) {
+  create(data: { network: Network; playerName: string; bgm: Phaser.Sound.BaseSound | undefined }) {
     if (data.network === undefined) {
       throw new Error('server instance missing');
     } else {
       this.network = data.network;
     }
-    this.bgm = data.bgm;
+
+    if (data.bgm === undefined) {
+      this.bgm?.play();
+    } else {
+      this.bgm = data.bgm;
+    }
+
     this.playerName = data.playerName;
-    this.add.volumeIcon(this, Constants.WIDTH - 60, 10);
+    this.add.volumeIcon(this, Constants.WIDTH - 60, 10, isPlay());
 
     this.availableRooms = this.getAvailableRooms();
     this.network.onRoomsUpdated(this.handleRoomsUpdated, this);
@@ -103,8 +119,10 @@ export default class Lobby extends Phaser.Scene {
 
   private handleRoomsUpdated() {
     this.availableRooms = this.getAvailableRooms();
-    this.gridTable?.setItems(this.availableRooms);
-    this.gridTable?.refresh();
+    if (this.gridTable !== undefined) {
+      this.gridTable?.setItems(this.availableRooms);
+      this.gridTable?.refresh();
+    }
   }
 
   private async handleRoomCreate() {
@@ -136,6 +154,7 @@ export default class Lobby extends Phaser.Scene {
       await this.network.room.leave();
     }
     const room = this.availableRooms[cellIndex];
+
     if (this.dialog === undefined) {
       this.se1?.play();
       this.disableLobbyButtons();
@@ -151,10 +170,12 @@ export default class Lobby extends Phaser.Scene {
   }
 
   private async handleGameStart(data: IGameStartInfo) {
+    // ロビーシーン停止の処理
     this.bgm?.stop();
-    this.network.removeOnPlayerJoinedRoom();
-    this.network.removeOnPlayerLeftRoom();
+    this.scene.stop(Config.SCENE_NAME_LOBBY);
+    this.network.removeAllEventListeners();
     await this.network.lobby?.leave();
+
     const { serverTimer } = data;
     this.scene.start(Config.SCENE_NAME_GAME, { network: this.network, serverTimer });
     this.scene.start(Config.SCENE_NAME_GAME_HEADER, { network: this.network, serverTimer });
