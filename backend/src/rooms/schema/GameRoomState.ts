@@ -41,6 +41,8 @@ export default class GameRoomState extends Schema {
   // アイテムを破壊するキュー
   private readonly itemToDestroyQueue: GameQueue<Item> = new GameQueue<Item>();
 
+  readonly enemies: Enemy[] = [];
+
   @type(Map) gameMap = new Map();
 
   getPlayer(sessionId: string): Player | undefined {

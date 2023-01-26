@@ -157,10 +157,14 @@ export default class GameRoom extends Room<GameRoomState> {
     }
   }
 
+  // CPU を追加する
   private addEnemy() {
-    for (let i = 0; i < Constants.MAX_PLAYER - this.state.getPlayersCount(); i++) {
+    const enemyCount = Constants.MAX_PLAYER - this.state.getPlayersCount();
+
+    for (let i = 0; i < enemyCount; i++) {
       const enemy = this.engine.enemyService.addEnemy(`enemy-${i}`);
       this.enemies.set(`enemy-${i}`, enemy);
+      this.state.enemies.push(enemy);
     }
   }
 

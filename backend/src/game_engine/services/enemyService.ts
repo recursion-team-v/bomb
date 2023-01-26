@@ -141,7 +141,7 @@ export default class EnemyService {
     const blastMap = engine.getDimensionalMap(engine.HasBlast);
 
     // 敵の数だけループして移動処理を行う
-    for (let i = 0; i < Constants.DEBUG_DEFAULT_ENEMY_COUNT; i++) {
+    for (let i = 0; i < state.enemies.length; i++) {
       const player = state.getPlayer(`enemy-${i}`);
       if (player === undefined) continue;
 
