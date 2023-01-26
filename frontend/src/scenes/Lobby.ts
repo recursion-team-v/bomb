@@ -53,6 +53,7 @@ export default class Lobby extends Phaser.Scene {
     } else {
       this.network = data.network;
     }
+    console.log(this.network);
     this.bgm = data.bgm;
     this.playerName = data.playerName;
     this.add.volumeIcon(this, Constants.WIDTH - 60, 10);
@@ -111,15 +112,19 @@ export default class Lobby extends Phaser.Scene {
     if (this.network.room !== undefined) {
       await this.network.room.leave();
     }
+    console.log(this.dialog);
     if (this.dialog === undefined) {
+      console.log('inside if');
       this.se1?.play();
       this.disableLobbyButtons();
-      await this.network.createAndJoinCustomRoom({
-        name: this.playerName,
-        password: null,
-        autoDispose: true,
-        playerName: this.playerName,
-      });
+      await this.network
+        .createAndJoinCustomRoom({
+          name: this.playerName,
+          password: null,
+          autoDispose: true,
+          playerName: this.playerName,
+        })
+        .catch((err) => console.log('lobby error: ', err));
       this.dialog = createDialog(
         this,
         Constants.WIDTH / 2,
@@ -136,6 +141,7 @@ export default class Lobby extends Phaser.Scene {
       await this.network.room.leave();
     }
     const room = this.availableRooms[cellIndex];
+
     if (this.dialog === undefined) {
       this.se1?.play();
       this.disableLobbyButtons();
@@ -156,6 +162,7 @@ export default class Lobby extends Phaser.Scene {
     this.network.removeOnPlayerLeftRoom();
     await this.network.lobby?.leave();
     const { serverTimer } = data;
+    this.dialog = undefined;
     this.scene.start(Config.SCENE_NAME_GAME, { network: this.network, serverTimer });
     this.scene.start(Config.SCENE_NAME_GAME_HEADER, { network: this.network, serverTimer });
   }

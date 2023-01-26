@@ -271,7 +271,9 @@ export default class Game extends Phaser.Scene {
     const state = data[0].value as Constants.GAME_STATE_TYPE;
 
     if (state === Constants.GAME_STATE.FINISHED && this.room !== undefined) {
+      this.scene.pause();
       await this.room.leave();
+      this.network.room = undefined;
       this.network.getTs().destroy();
       this.bgm?.stop();
       this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
@@ -281,6 +283,8 @@ export default class Game extends Phaser.Scene {
       darken.setDepth(Infinity);
 
       this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
+        network: this.network,
+        playerName: this.myPlayer.name,
         sessionId: this.room.sessionId,
         gameResult: this.gameResult,
       });

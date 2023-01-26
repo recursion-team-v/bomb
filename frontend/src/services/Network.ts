@@ -51,7 +51,7 @@ export default class Network {
 
   async joinLobbyRoom() {
     this.lobby = await this.client.joinOrCreate(Constants.GAME_LOBBY_KEY);
-
+    console.log(this.lobby);
     this.lobby.onMessage('rooms', (rooms) => {
       this.allRooms = rooms;
       gameEvents.emit(Event.ROOMS_UPDATED);
@@ -66,7 +66,6 @@ export default class Network {
       }
       gameEvents.emit(Event.ROOMS_UPDATED);
     });
-
     this.lobby.onMessage('-', (roomId) => {
       this.allRooms = this.allRooms.filter((room) => room.roomId !== roomId);
       gameEvents.emit(Event.ROOMS_UPDATED);
