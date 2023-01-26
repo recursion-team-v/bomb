@@ -70,6 +70,10 @@ export default class Player extends Schema {
   @type('number')
   diedAt: number;
 
+  // CPU
+  @type('boolean')
+  isCPU = false;
+
   inputQueue: any[] = [];
 
   constructor(sessionId: string, idx: number, name: string = '') {
