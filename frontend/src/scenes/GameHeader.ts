@@ -10,6 +10,7 @@ import convertSecondsToMMSS from '../utils/timer';
 import Network from '../services/Network';
 import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 import { isPlay } from '../utils/sound';
+import { Event, gameEvents } from '../events/GameEvents';
 
 export default class GameHeader extends Phaser.Scene {
   private readonly width: number;
@@ -24,6 +25,7 @@ export default class GameHeader extends Phaser.Scene {
   private textSpeed!: Phaser.GameObjects.Text;
   private network!: Network;
   private imgBomb!: Phaser.GameObjects.Image;
+  private startTimer!: boolean;
 
   constructor() {
     super(Config.SCENE_NAME_GAME_HEADER);
@@ -33,10 +35,14 @@ export default class GameHeader extends Phaser.Scene {
 
   init() {
     this.cameras.main.setSize(this.width, this.height);
-
     this.player = getGameScene().getCurrentPlayer();
 
-    this.textTimer = this.createText(0, 0, '');
+    this.startTimer = false;
+    this.textTimer = this.createText(
+      0,
+      0,
+      convertSecondsToMMSS(Constants.TIME_LIMIT_SEC - Constants.GAME_PREPARING_TIME - 1)
+    );
     this.textBombCount = this.createText(250, 0, `×${this.player.getItemCountOfBombCount()}`);
     this.textBombStrength = this.createText(400, 0, `×${this.player.getItemCountOfBombStrength()}`);
     this.textSpeed = this.createText(550, 0, `×${this.player.getItemCountOfSpeed()}`);
@@ -65,12 +71,15 @@ export default class GameHeader extends Phaser.Scene {
     if (network == null) return;
     this.network = data.network;
     this.serverTimer = serverTimer;
+
+    gameEvents.on(Event.GAME_PREPARING_COMPLETED, () => (this.startTimer = true));
   }
 
   update() {
     if (this.serverTimer === undefined) return;
-    this.updateTextTimer(this.serverTimer.finishedAt - this.network.now());
-
+    if (this.startTimer) {
+      this.updateTextTimer(this.serverTimer.finishedAt - this.network.now());
+    }
     if (this.player.getBombType() === Constants.BOMB_TYPE.PENETRATION) {
       this.imgBomb.setTexture(Constants.ITEM_TYPE.PENETRATION_BOMB);
     }
