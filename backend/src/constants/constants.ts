@@ -117,7 +117,7 @@ export const TILE_ROWS = 13; // タイルの行数
 export const TILE_COLS = 15; // タイルの列数
 export const TILE_WIDTH = DEFAULT_TIP_SIZE; // タイルの横幅
 export const TILE_HEIGHT = DEFAULT_TIP_SIZE; // タイルの縦幅
-export const MAX_BLOCKS = 10;
+export const MAX_BLOCKS = 100;
 
 // マップのタイルシートの idx
 export const TILE_GROUND = {
@@ -139,9 +139,6 @@ export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
 /*
 敵の定義
 */
-
-// 停止->移動の際に、この時間だけ停止していたら移動時にボムを置く
-export const ENEMY_PLACE_BOMB_INTERVAL_AFTER_MOVE = 2000; // ms
 
 // 敵のAIの評価を切り替えるタイミング
 export const ENEMY_EVALUATION_STEP = {
@@ -232,7 +229,7 @@ export const INITIAL_SETTABLE_BOMB_COUNT = 1;
 export const MAX_SETTABLE_BOMB_COUNT = 8;
 
 // 初期の爆弾の破壊力
-export const INITIAL_BOMB_STRENGTH = 4;
+export const INITIAL_BOMB_STRENGTH = 2;
 
 // 最大の爆弾の破壊力
 export const MAX_BOMB_STRENGTH = 12;
