@@ -58,13 +58,13 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   addNameLabel(triangleColor: number) {
     const game = getGameScene();
-    const label = game.add.rectangle(0, -35, 25 * this.name.length, 30, Constants.BLACK, 0.3);
     const nameText = game.add
       .text(0, 0, this.name, {
         fontSize: '20px',
         color: '#ffffff',
       })
       .setOrigin(0.5);
+    const label = game.add.rectangle(0, -35, nameText.width + 20, 30, Constants.BLACK, 0.3);
     const triangle = game.add.triangle(0, 0, -5, -5, 15, -5, 5, 5, triangleColor);
     this.nameText = nameText;
 

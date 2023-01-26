@@ -148,6 +148,7 @@ export default class Preloader extends Phaser.Scene {
     this.load.audio('hitPlayer', ['assets/se/hit_player.mp3']);
     this.load.audio('battleStart', ['assets/bgm/battle_start.mp3']);
     this.load.audio('select', ['assets/se/select.mp3']);
+    this.load.audio('select1', ['assets/se/select1.mp3']);
     this.load.audio('stage_1', ['assets/bgm/stage_1.mp3']);
     this.load.audio('stage_2', ['assets/bgm/stage_2.mp3']);
     this.load.audio('opening', ['assets/bgm/opening.mp3']);

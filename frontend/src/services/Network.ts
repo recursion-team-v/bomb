@@ -87,23 +87,21 @@ export default class Network {
 
   async joinCustomRoom(roomId: string, password: string | null, playerName: string) {
     this.room = await this.client.joinById(roomId, { playerName, password });
-    await this.initialize();
+    this.initialize();
     this.sendPlayerGameState(Constants.PLAYER_GAME_STATE.WAITING);
   }
 
-  async initialize() {
+  initialize() {
     if (this.room == null) return;
-    if (this.lobby !== undefined) {
-      await this.lobby.leave();
-    }
 
     this.mySessionId = this.room.sessionId;
 
+    this.room.onStateChange.once((state) => {
+      gameEvents.emit(Event.MY_PLAYER_JOINED_ROOM, state.players);
+    });
+
     this.room.state.players.onAdd = (player: ServerPlayer, sessionId: string) => {
-      if (sessionId === this.mySessionId) {
-        gameEvents.emit(Event.MY_PLAYER_JOINED_ROOM, player, sessionId);
-        return;
-      }
+      if (sessionId === this.mySessionId) return;
       gameEvents.emit(Event.PLAYER_JOINED_ROOM, player, sessionId);
     };
 
@@ -150,6 +148,20 @@ export default class Network {
     this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (data: IGameStartInfo) => {
       gameEvents.emit(Event.START_GAME, data);
     });
+
+    this.room.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_IS_READY, (sessionId: string) => {
+      const player = this.room?.state.players.get(sessionId);
+      if (player === undefined) return;
+      gameEvents.emit(Event.PLAYER_IS_READY, player);
+    });
+  }
+
+  // 部屋退出
+  async leaveRoom() {
+    if (this.room !== undefined) {
+      await this.room.leave();
+      this.room = undefined;
+    }
   }
 
   // ロビーのイベント
@@ -158,7 +170,7 @@ export default class Network {
   }
 
   // 自分がルームに参加した時
-  onMyPlayerJoinedRoom(callback: (player: ServerPlayer, sessionId: string) => void, context?: any) {
+  onMyPlayerJoinedRoom(callback: (players: Map<string, ServerPlayer>) => void, context?: any) {
     gameEvents.on(Event.MY_PLAYER_JOINED_ROOM, callback, context);
   }
 
@@ -167,9 +179,17 @@ export default class Network {
     gameEvents.on(Event.PLAYER_JOINED_ROOM, callback, context);
   }
 
+  removeOnPlayerJoinedRoom() {
+    gameEvents.removeAllListeners(Event.PLAYER_JOINED_ROOM);
+  }
+
   // 他のプレイヤーがルームを退出した時
   onPlayerLeftRoom(callback: (player: ServerPlayer, sessionId: string) => void, context?: any) {
     gameEvents.on(Event.PLAYER_LEFT_ROOM, callback, context);
+  }
+
+  removeOnPlayerLeftRoom() {
+    gameEvents.removeAllListeners(Event.PLAYER_LEFT_ROOM);
   }
 
   // プレイヤーがボムを追加した時
@@ -215,8 +235,12 @@ export default class Network {
   }
 
   // ゲーム開始に関する情報を受け取った時
-  onGameStartInfo(callback: (data: IGameStartInfo) => void, context?: any) {
+  onGameStartInfo(callback: (data: IGameStartInfo) => Promise<void>, context?: any) {
     gameEvents.on(Event.START_GAME, callback, context);
+  }
+
+  onPlayerIsReady(callback: (player: ServerPlayer) => void, context?: any) {
+    gameEvents.on(Event.PLAYER_IS_READY, callback, context);
   }
 
   // 自分のプレイヤー動作を送る

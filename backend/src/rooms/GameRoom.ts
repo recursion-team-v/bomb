@@ -47,6 +47,7 @@ export default class GameRoom extends Room<GameRoomState> {
             const myPlayer = this.state.getPlayer(client.sessionId);
             if (myPlayer === undefined) return;
             myPlayer.setGameState(gameState);
+            this.broadcast(Constants.NOTIFICATION_TYPE.PLAYER_IS_READY, client.sessionId);
 
             let isLobbyReady = true;
             this.state.players.forEach(
@@ -166,6 +167,10 @@ export default class GameRoom extends Room<GameRoomState> {
   }
 
   onLeave(client: Client, consented: boolean) {
+    const player = this.state.getPlayer(client.sessionId);
+    if (player !== undefined) {
+      this.state.playerIdxsAvail[player.idx] = true;
+    }
     this.engine.playerService.deletePlayer(client.sessionId);
   }
 

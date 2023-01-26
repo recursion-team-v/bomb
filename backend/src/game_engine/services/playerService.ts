@@ -26,6 +26,7 @@ export default class PlayerService {
 
   addPlayer(sessionId: string, playerName: string) {
     const player = this.gameEngine.state.createPlayer(sessionId, playerName);
+    if (player === undefined) return;
     const playerBody = Matter.Bodies.rectangle(
       player.x,
       player.y,

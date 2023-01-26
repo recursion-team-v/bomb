@@ -27,14 +27,12 @@ export default class GameHeader extends Phaser.Scene {
 
   constructor() {
     super(Config.SCENE_NAME_GAME_HEADER);
-
     this.height = Constants.HEADER_HEIGHT;
     this.width = Constants.HEADER_WIDTH;
   }
 
   init() {
     this.cameras.main.setSize(this.width, this.height);
-    this.cameras.main.setBackgroundColor(ToString(Constants.HEADER_COLOR_CODE));
 
     this.player = getGameScene().getCurrentPlayer();
 
@@ -48,14 +46,16 @@ export default class GameHeader extends Phaser.Scene {
       .image(200, 10, Constants.ITEM_TYPE.BOMB_POSSESSION_UP)
       .setScale(0.5)
       .setOrigin(0, 0);
-    this.add.container(0, 0, [
-      this.imgBomb,
-      this.textBombCount,
-      this.add.image(350, 10, Constants.ITEM_TYPE.BOMB_STRENGTH).setScale(0.5).setOrigin(0, 0),
-      this.textBombStrength,
-      this.add.image(500, 10, Constants.ITEM_TYPE.PLAYER_SPEED).setScale(0.5).setOrigin(0, 0),
-      this.textSpeed,
-    ]);
+    this.add
+      .container(0, 0, [
+        this.imgBomb,
+        this.textBombCount,
+        this.add.image(350, 10, Constants.ITEM_TYPE.BOMB_STRENGTH).setScale(0.5).setOrigin(0, 0),
+        this.textBombStrength,
+        this.add.image(500, 10, Constants.ITEM_TYPE.PLAYER_SPEED).setScale(0.5).setOrigin(0, 0),
+        this.textSpeed,
+      ])
+      .setDepth(Infinity);
 
     this.add.volumeIcon(this, this.width - 60, 10, isPlay());
   }

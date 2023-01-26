@@ -2,13 +2,16 @@
 色の定義
 */
 
+export const PAGE_COLOR = 0x18181b;
 export const BLACK = 0x000000;
 export const WHITE = 0xffffff;
-export const GRAY = 0x808080;
-export const LIGHT_GRAY = 0xc6c5d6;
+export const DARK_GRAY = 0x374151;
+export const GRAY = 0x6b7280;
+export const LIGHT_GRAY = 0xcbd5e1;
 export const BLUE = 0x0000ff;
-export const RED: number = 0xff0000;
-export const GREEN: number = 0x00ff00;
+export const RED = 0xff0000;
+export const GREEN = 0xa3e635;
+export const LIGHT_RED = 0xf87171;
 
 export const FPS = 60; // 1 秒間のフレーム数
 export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
@@ -42,6 +45,9 @@ export const NOTIFICATION_TYPE = {
 
   // プレイヤーのゲーム状態を通知するためのタイプ
   PLAYER_GAME_STATE: 3,
+
+  // プレイヤーが準備できたことを broadcast するためのタイプ
+  PLAYER_IS_READY: 4,
 
   // ゲームの開始に関する情報を通知するためのタイプ
   GAME_START_INFO: 10,
@@ -191,7 +197,7 @@ export const INITIAL_PLAYER_POSITION = [
 ];
 
 // プレイヤーの名前の最大文字数
-export const MAX_USER_NAME_LENGTH = 6;
+export const MAX_USER_NAME_LENGTH = 10;
 
 /*
 ボムの定義

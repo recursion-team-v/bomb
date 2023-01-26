@@ -59,5 +59,5 @@ export const PENETRATION_BOMB_ANIMATION_KEY = 'penetration_bomb_count';
 */
 
 // TODO 後で true にする
-export const SOUND_DEFAULT_IS_PLAY = false; // サウンドを再生するかどうか
+export const SOUND_DEFAULT_IS_PLAY = !IS_DEBUG; // サウンドを再生するかどうか
 export const SOUND_VOLUME = 0.2;

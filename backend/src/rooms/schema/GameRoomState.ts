@@ -22,6 +22,7 @@ export default class GameRoomState extends Schema {
   @type(GameResult)
   gameResult!: GameResult; // ゲーム結果
 
+  playerIdxsAvail: boolean[] = new Array(Constants.MAX_PLAYER).fill(true);
   @type({ map: Player }) players = new MapSchema<Player>();
   @type({ map: Bomb }) bombs = new MapSchema<Bomb>();
   @type({ map: Blast }) blasts = new MapSchema<Blast>();
@@ -67,9 +68,10 @@ export default class GameRoomState extends Schema {
     }
   }
 
-  createPlayer(sessionId: string, playerName: string): Player {
+  createPlayer(sessionId: string, playerName: string): Player | undefined {
     const player = new Player(sessionId, this.getPlayersCount(), playerName);
-    const idx = this.getPlayersCount();
+    const idx = this.getPlayerIdx();
+    if (idx === -1) return;
     player.idx = idx;
     player.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
     player.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
@@ -112,5 +114,16 @@ export default class GameRoomState extends Schema {
 
   deleteItem(item: Item) {
     this.items.delete(item.id);
+  }
+
+  getPlayerIdx() {
+    for (let i = 0; i < this.playerIdxsAvail.length; i++) {
+      if (this.playerIdxsAvail[i]) {
+        this.playerIdxsAvail[i] = false;
+        return i;
+      }
+    }
+
+    return -1;
   }
 }
