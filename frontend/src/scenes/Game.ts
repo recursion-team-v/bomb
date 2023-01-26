@@ -185,7 +185,7 @@ export default class Game extends Phaser.Scene {
 
   private initNetworkEvents() {
     this.network.onPlayerJoinedRoom(this.addOtherPlayer, this); // reconnectを導入する場合必要
-    // this.network.onGameStateUpdated(this.handleGameStateChanged, this); // gameStateの変更イベント
+    this.network.onGameStateUpdated(this.handleGameStateChanged, this); // gameStateの変更イベント
     this.network.onGameResultUpdated(this.handleGameResultUpdated, this); // ゲーム結果の変更イベント
     // TODO: アイテムをとって火力が上がった場合の処理を追加する
     this.network.onBombAdded(this.handleBombAdded, this); // プレイヤーのボム追加イベント
@@ -277,34 +277,34 @@ export default class Game extends Phaser.Scene {
     otherPlayer?.setVisible(false);
   }
 
-  // private async handleGameStateChanged(data: any) {
-  //   const state = data[0].value as Constants.GAME_STATE_TYPE;
+  private async handleGameStateChanged(data: any) {
+    const state = data[0].value as Constants.GAME_STATE_TYPE;
 
-  //   if (state === Constants.GAME_STATE.FINISHED && this.room !== undefined) {
-  //     // ゲームシーン停止の処理
-  //     this.startBgm.stop();
-  //     this.bgm?.stop();
-  //     this.scene.pause();
-  //     this.scene.sendToBack();
-  //     this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
+    if (state === Constants.GAME_STATE.FINISHED && this.room !== undefined) {
+      // ゲームシーン停止の処理
+      this.startBgm.stop();
+      this.bgm?.stop();
+      this.scene.pause();
+      this.scene.sendToBack();
+      this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
 
-  //     // 部屋退出の処理
-  //     this.network.removeAllEventListeners();
-  //     await this.network.leaveRoom();
-  //     this.network.getTs().destroy();
+      // 部屋退出の処理
+      this.network.removeAllEventListeners();
+      await this.network.leaveRoom();
+      this.network.getTs().destroy();
 
-  //     const darken = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.8 } });
-  //     darken.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
-  //     darken.setDepth(Infinity);
+      const darken = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.8 } });
+      darken.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
+      darken.setDepth(Infinity);
 
-  //     this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
-  //       network: this.network,
-  //       playerName: this.myPlayer.name,
-  //       sessionId: this.room.sessionId,
-  //       gameResult: this.gameResult,
-  //     });
-  //   }
-  // }
+      this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
+        network: this.network,
+        playerName: this.myPlayer.name,
+        sessionId: this.room.sessionId,
+        gameResult: this.gameResult,
+      });
+    }
+  }
 
   private handleGameResultUpdated(result: GameResult) {
     this.gameResult = result;

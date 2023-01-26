@@ -61,7 +61,7 @@ export default class GameResult extends Phaser.Scene {
     // ];
 
     // 勝利者がいる場合
-    if (winner !== '') {
+    if (winner !== undefined) {
       const cup = this.add.image(
         Constants.WIDTH * 0.25,
         Constants.HEIGHT * 0.4,
@@ -73,11 +73,11 @@ export default class GameResult extends Phaser.Scene {
       }, 100);
 
       this.add
-        .sprite(Constants.WIDTH * 0.25, Constants.HEIGHT * 0.58, Config.ASSET_KEY_PLAYER, 14)
-        .play('player_down')
-        .setScale(1.5);
+        .sprite(Constants.WIDTH * 0.25, Constants.HEIGHT * 0.58, winner.character, 14)
+        .play(`${winner.character}_down`)
+        .setScale(2.5);
       this.add
-        .text(Constants.WIDTH * 0.25, Constants.HEIGHT * 0.7, winner, {
+        .text(Constants.WIDTH * 0.25, Constants.HEIGHT * 0.7, winner.name, {
           fontSize: '40px',
           fontStyle: 'bold',
           align: 'center',
@@ -85,12 +85,12 @@ export default class GameResult extends Phaser.Scene {
         .setOrigin(0.5);
 
       for (let i = 0; i < players.length; i++) {
-        if (players[i].name === winner) continue;
+        if (players[i].sessionId === winner.sessionId) continue;
         this.generatePlayerContainer(
           Constants.WIDTH * 0.6,
           Constants.HEIGHT * 0.4 + 150 * i,
           players[i].name,
-          Config.ASSET_KEY_PLAYER
+          players[i].character
         );
       }
     } else {
@@ -99,7 +99,7 @@ export default class GameResult extends Phaser.Scene {
           Constants.WIDTH * 0.15 + 450 * (i % 2 === 0 ? 0 : 1),
           Constants.HEIGHT * 0.4 + 300 * (i % 2 === 0 ? Math.round(i / 2) : Math.round(i / 2) - 1),
           players[i].name,
-          Config.ASSET_KEY_PLAYER
+          players[i].character
         );
       }
     }
@@ -123,9 +123,9 @@ export default class GameResult extends Phaser.Scene {
     );
   }
 
-  generatePlayerContainer(x: number, y: number, name: string, assetKey: string) {
+  generatePlayerContainer(x: number, y: number, name: string, character: string) {
     this.add.container(x, y, [
-      this.add.sprite(0, 0, assetKey, 14).setScale(1.2),
+      this.add.sprite(0, 0, character, 14).setScale(1.2).play(`${character}_idle_down`),
       this.add.text(200, 0, name, { fontSize: '32px', align: 'center' }).setOrigin(0.5),
       this.add.line(30, 0, 100, 50, 500, 50, 0xffffff),
     ]);
@@ -149,11 +149,11 @@ export default class GameResult extends Phaser.Scene {
     return Config.ASSET_KEY_DRAW_GAME;
   }
 
-  getWinner(data: any): string {
+  getWinner(data: any): ServerPlayer | undefined {
     for (let i = 0; i < data.length; i++) {
-      if (data[i].field === 'winner') return data[i].value.name;
+      if (data[i].field === 'winner') return data[i].value;
     }
 
-    return '';
+    return undefined;
   }
 }
