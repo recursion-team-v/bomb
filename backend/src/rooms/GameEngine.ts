@@ -111,7 +111,7 @@ export default class GameEngine {
     return dimensionalMap;
   }
 
-  // matter bodies から label を確認し、最も優先度の高い判定を返す
+  // matter bodies から label を確認し、最も爆風に対する優先度の高い判定を返す
   getHighestPriorityFromBodies(bodies: Matter.Body[]): number {
     let highestPriority = Constants.OBJECT_COLLISION_TO_BLAST.NONE as number;
     if (bodies.length === 0) return highestPriority;
@@ -176,5 +176,20 @@ export default class GameEngine {
       if (body.label === Constants.OBJECT_LABEL.BLOCK) return 1;
     }
     return 0;
+  }
+
+  // matter bodies が存在しない map の座標を返す
+  getMapWithoutBody(): Array<{ x: number; y: number }> {
+    const map = this.getDimensionalMap(this.getHasBody);
+    const result = [];
+    for (let y = 0; y < map.length; y++) {
+      for (let x = 0; x < map[y].length; x++) {
+        if (map[y][x] === 0) {
+          result.push({ x, y });
+        }
+      }
+    }
+
+    return result;
   }
 }

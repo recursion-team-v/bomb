@@ -12,11 +12,24 @@ import { gameEvents, Event } from '../events/GameEvents';
 import MyPlayer from '../characters/MyPlayer';
 import Player from '../characters/Player';
 import TimeSync, { create as TimeCreate } from 'timesync';
+import GameResult from '../../../backend/src/rooms/schema/GameResult';
+
+export interface IRoomData {
+  name: string;
+  password: string | null;
+  autoDispose: boolean;
+  playerName: string;
+}
+
+export interface IGameStartInfo {
+  serverTimer: ServerTimer;
+}
 
 export default class Network {
   private readonly client: Client;
   private ts!: TimeSync;
   public room?: Room<GameRoomState>;
+  public lobby?: Room;
 
   allRooms: RoomAvailable[] = [];
   mySessionId!: string;
@@ -33,33 +46,47 @@ export default class Network {
       this.client = new Client(endpoint);
     }
     this.syncClock(endpoint);
-    this.joinOrCreateRoom().catch((err) => console.log(err));
+    this.joinLobbyRoom().catch((err) => console.log(err));
   }
 
-  syncClock(endpoint: string) {
-    endpoint = endpoint.replace('ws', 'http');
-    this.ts = TimeCreate({
-      server: `${endpoint}/timesync`,
-      interval: 1000,
+  async joinLobbyRoom() {
+    this.lobby = await this.client.joinOrCreate(Constants.GAME_LOBBY_KEY);
+    this.lobby.onMessage('rooms', (rooms) => {
+      this.allRooms = rooms;
+      gameEvents.emit(Event.ROOMS_UPDATED);
     });
-    this.ts.sync();
+
+    this.lobby.onMessage('+', ([roomId, room]) => {
+      const roomIndex = this.allRooms.findIndex((room) => room.roomId === roomId);
+      if (roomIndex !== -1) {
+        this.allRooms[roomIndex] = room;
+      } else {
+        this.allRooms.push(room);
+      }
+      gameEvents.emit(Event.ROOMS_UPDATED);
+    });
+    this.lobby.onMessage('-', (roomId) => {
+      this.allRooms = this.allRooms.filter((room) => room.roomId !== roomId);
+      gameEvents.emit(Event.ROOMS_UPDATED);
+    });
   }
 
-  now(): number {
-    return this.ts.now();
+  async createAndJoinCustomRoom(roomData: IRoomData) {
+    const { name, password, autoDispose, playerName } = roomData;
+    this.room = await this.client.create(Constants.GAME_CUSTOM_ROOM_KEY, {
+      name,
+      password,
+      autoDispose,
+      playerName,
+    });
+    await this.initialize();
+    this.sendPlayerGameState(Constants.PLAYER_GAME_STATE.WAITING);
   }
 
-  async joinOrCreateRoom() {
-    this.room = await this.client.joinOrCreate(Constants.GAME_ROOM_KEY);
-
-    // ゲーム開始の通知
-    // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
+  async joinCustomRoom(roomId: string, password: string | null, playerName: string) {
+    this.room = await this.client.joinById(roomId, { playerName, password });
     this.initialize();
-    this.receiveGameStartInfo(this.handleGameStartInfoReceived, this);
-
-    // ゲーム開始情報の受信イベント
-    // FIXME: ここでやるのではなくロビーでホストがスタートボタンを押した時にやる
-    this.sendGameProgress(Constants.GAME_STATE.PLAYING);
+    this.sendPlayerGameState(Constants.PLAYER_GAME_STATE.WAITING);
   }
 
   initialize() {
@@ -67,11 +94,12 @@ export default class Network {
 
     this.mySessionId = this.room.sessionId;
 
+    this.room.onStateChange.once((state) => {
+      gameEvents.emit(Event.MY_PLAYER_JOINED_ROOM, state.players);
+    });
+
     this.room.state.players.onAdd = (player: ServerPlayer, sessionId: string) => {
-      if (sessionId === this.mySessionId) {
-        gameEvents.emit(Event.MY_PLAYER_JOINED_ROOM, player, sessionId);
-        return;
-      }
+      if (sessionId === this.mySessionId) return;
       gameEvents.emit(Event.PLAYER_JOINED_ROOM, player, sessionId);
     };
 
@@ -99,6 +127,10 @@ export default class Network {
       gameEvents.emit(Event.GAME_STATE_UPDATED, data);
     };
 
+    this.room.state.gameResult.onChange = (data: any) => {
+      gameEvents.emit(Event.GAME_RESULT_RECEIVED, data);
+    };
+
     this.room.state.blocks.onRemove = (data: ServerBlock) => {
       gameEvents.emit(Event.BLOCKS_REMOVED, data);
     };
@@ -111,13 +143,32 @@ export default class Network {
       gameEvents.emit(Event.ITEM_REMOVED, data);
     };
 
-    this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (data: ServerTimer) => {
-      gameEvents.emit(Event.GAME_START_INFO_RECEIVED, data);
+    this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_START_INFO, (data: IGameStartInfo) => {
+      gameEvents.emit(Event.START_GAME, data);
+    });
+
+    this.room.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_IS_READY, (sessionId: string) => {
+      const player = this.room?.state.players.get(sessionId);
+      if (player === undefined) return;
+      gameEvents.emit(Event.PLAYER_IS_READY, player);
     });
   }
 
+  // 部屋退出
+  async leaveRoom() {
+    if (this.room !== undefined) {
+      await this.room.leave();
+      this.room = undefined;
+    }
+  }
+
+  // ロビーのイベント
+  onRoomsUpdated(callback: () => void, context?: any) {
+    gameEvents.on(Event.ROOMS_UPDATED, callback, context);
+  }
+
   // 自分がルームに参加した時
-  onMyPlayerJoinedRoom(callback: (player: ServerPlayer, sessionId: string) => void, context?: any) {
+  onMyPlayerJoinedRoom(callback: (players: Map<string, ServerPlayer>) => void, context?: any) {
     gameEvents.on(Event.MY_PLAYER_JOINED_ROOM, callback, context);
   }
 
@@ -155,6 +206,10 @@ export default class Network {
     gameEvents.on(Event.GAME_STATE_UPDATED, callback, context);
   }
 
+  onGameResultUpdated(callback: (data: GameResult) => void, context?: any) {
+    gameEvents.on(Event.GAME_RESULT_RECEIVED, callback, context);
+  }
+
   // blocks が消去（破壊）された時
   onBlocksRemoved(callback: (data: ServerBlock) => void, context?: any) {
     gameEvents.on(Event.BLOCKS_REMOVED, callback, context);
@@ -170,8 +225,17 @@ export default class Network {
   }
 
   // ゲーム開始に関する情報を受け取った時
-  receiveGameStartInfo(callback: (data: any) => void, context?: any) {
-    gameEvents.on(Event.GAME_START_INFO_RECEIVED, callback, context);
+  onGameStartInfo(callback: (data: IGameStartInfo) => Promise<void>, context?: any) {
+    gameEvents.on(Event.START_GAME, callback, context);
+  }
+
+  onPlayerIsReady(callback: (player: ServerPlayer) => void, context?: any) {
+    gameEvents.on(Event.PLAYER_IS_READY, callback, context);
+  }
+
+  // シーンを切り替える度に既に存在するイベントリスナーが新しく追加されてしまうため、毎回消す
+  removeAllEventListeners() {
+    gameEvents.removeAllListeners();
   }
 
   // 自分のプレイヤー動作を送る
@@ -184,41 +248,25 @@ export default class Network {
     this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, player);
   }
 
-  // プレイヤーの名前を送る
-  sendPlayerName(playerName: string) {
-    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_INFO, playerName);
-  }
-
   // 自分のゲーム状態を送る
-  sendGameProgress(state: Constants.GAME_STATE_TYPE) {
-    this.room?.send(Constants.NOTIFICATION_TYPE.GAME_PROGRESS, state);
+  sendPlayerGameState(state: Constants.PLAYER_GAME_STATE_TYPE) {
+    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_GAME_STATE, state);
   }
 
-  // ゲーム開始情報の取得リクエストを送る
-  sendRequestGameStartInfo() {
-    this.room?.send(Constants.NOTIFICATION_TYPE.GAME_START_INFO);
+  syncClock(endpoint: string) {
+    endpoint = endpoint.replace('ws', 'http');
+    this.ts = TimeCreate({
+      server: `${endpoint}/timesync`,
+      interval: 1000,
+    });
+    this.ts.sync();
   }
 
-  // FIXME:
-  // 本来はここにおくべきではなく、ロビー画面でゲーム開始ボタンを押した時にやればいいのだが
-  // まだロビーがないのでここにおく
-  private gameStartedAt!: number; // ゲームの開始時間
-  private gameFinishedAt!: number; // ゲームの終了時間
-
-  private handleGameStartInfoReceived(data: ServerTimer) {
-    this.gameStartedAt = data.startedAt;
-    this.gameFinishedAt = data.finishedAt;
+  now(): number {
+    return this.ts.now();
   }
 
-  public getGameStartedAt(): number {
-    return this.gameStartedAt;
-  }
-
-  public getGameFinishedAt(): number {
-    return this.gameFinishedAt;
-  }
-
-  public remainTime(): number {
-    return this.gameFinishedAt - this.now();
+  getTs(): TimeSync {
+    return this.ts;
   }
 }

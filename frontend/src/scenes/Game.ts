@@ -36,72 +36,95 @@ import { gameEvents, Event } from '../events/GameEvents';
 import { removeBlock } from '../services/Block';
 import { dropWalls } from '../services/Map';
 import { removeItem } from '../services/Item';
+import GameResult from '../../../backend/src/rooms/schema/GameResult';
+import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
+  private serverTimer?: ServerTimer;
   private room!: Room<GameRoomState>;
-  private readonly otherPlayers: Map<string, OtherPlayer> = new Map();
-  private myPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
-  cursorKeys!: NavKeys;
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly
-  private cols!: number; // サーバから受け取ったマップの列数
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly
+
+  private cursorKeys!: NavKeys;
   private rows!: number; // サーバから受け取ったマップの行数
+  private cols!: number; // サーバから受け取ったマップの列数
   private elapsedTime: number = 0; // 経過時間
   private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
+
+  private myPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
+  private otherPlayers!: Map<string, OtherPlayer>;
   private currBlocks?: Map<string, Block>; // 現在存在しているブロック
-  private readonly bombToCreateQueue: GameQueue<ServerBomb> = new GameQueue<ServerBomb>();
-  private readonly blockToRemoveQueue: GameQueue<ServerBlock> = new GameQueue<ServerBlock>();
-  private readonly itemToRemoveQueue: GameQueue<ServerItem> = new GameQueue<ServerItem>();
-  private readonly currItems: Map<string, Item>; // 現在存在しているアイテム
+  private currItems!: Map<string, Item>; // 現在存在しているアイテム
+  private currBombs!: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているボム
+  private currBlasts!: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているサーバの爆風
+  private bombToCreateQueue!: GameQueue<ServerBomb>;
+  private blockToRemoveQueue!: GameQueue<ServerBlock>;
+  private itemToRemoveQueue!: GameQueue<ServerItem>;
+
   private bgm!: Phaser.Sound.BaseSound;
-  private title!: Phaser.GameObjects.Text;
-  private readonly currBombs: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているボム
-  private readonly currBlasts: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているサーバの爆風
+  private startBgm!: Phaser.Sound.BaseSound;
+  private title!: Phaser.GameObjects.Container;
+  private upTitle!: Phaser.GameObjects.Image;
+  private downTitle!: Phaser.GameObjects.Image;
+  private gameResult?: GameResult;
   private seItemGet!: Phaser.Sound.BaseSound;
   private readonly juice: phaserJuice;
   private IsFinishedDropWallsEvent: boolean = false;
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
-    this.currItems = new Map();
-    this.currBombs = new Map();
-    this.currBlasts = new Map();
     // eslint-disable-next-line new-cap
     this.juice = new phaserJuice(this);
   }
 
   init() {
-    // initialize key inputs
+    // ゲームで使用する Map、Queue の初期化
+    this.bombToCreateQueue = new GameQueue<ServerBomb>();
+    this.blockToRemoveQueue = new GameQueue<ServerBlock>();
+    this.itemToRemoveQueue = new GameQueue<ServerItem>();
+    this.currItems = new Map();
+    this.currBombs = new Map();
+    this.currBlasts = new Map();
+    this.otherPlayers = new Map();
+
     this.cursorKeys = initializeKeys(this);
     disableKeys(this.cursorKeys);
-    this.sound.play('battleStart', { volume: Config.SOUND_VOLUME });
+
+    this.startBgm = this.sound.add('battleStart', { volume: Config.SOUND_VOLUME });
+    this.startBgm.play();
     this.bgm = this.sound.add('stage_2', {
       volume: Config.SOUND_VOLUME,
     });
-
     this.seItemGet = this.sound.add('getItem', {
       volume: Config.SOUND_VOLUME * 1.5,
     });
 
-    this.title = this.add
-      .text(Constants.WIDTH / 2, Constants.HEIGHT / 2, 'Battle Start!', {
-        fontSize: '50px',
-      })
-      .setColor('#ffffff')
-      .setDepth(Infinity)
-      .setOrigin(0.5, 0.5);
+    this.upTitle = this.add.image(0, Constants.HEIGHT / 2, Config.ASSET_KEY_BATTLE_START_UP);
+    this.downTitle = this.add.image(
+      Constants.WIDTH,
+      Constants.HEIGHT / 2 + 49,
+      Config.ASSET_KEY_BATTLE_START_DOWN
+    );
 
-    setInterval(() => {
-      this.juice.pulse(this.title);
-    }, 200);
+    this.tweens.add({
+      targets: this.upTitle,
+      x: Constants.WIDTH / 2,
+      duration: 300,
+    });
+    this.tweens.add({
+      targets: this.downTitle,
+      x: Constants.WIDTH / 2,
+      duration: 300,
+    });
+
+    this.title = this.add.container(0, 0, [this.upTitle, this.downTitle]).setDepth(Infinity);
   }
 
-  create(data: { network: Network }) {
+  create(data: { network: Network; serverTimer: ServerTimer }) {
     if (data.network == null) return;
     this.network = data.network;
     if (this.network.room == null) return;
     this.room = this.network.room;
+    this.serverTimer = data.serverTimer;
 
     // プレイヤーをゲームに追加
     this.addPlayers();
@@ -110,8 +133,6 @@ export default class Game extends Phaser.Scene {
 
     // TODO: Preloader（Lobby）で読み込んで Game Scene に渡す
     this.room.onStateChange.once((state) => {
-      // GameRoomState の blockArr が初期化されたら block（破壊）を描画
-
       const mapTiles = state.gameMap.mapTiles;
       this.rows = state.gameMap.rows;
       this.cols = state.gameMap.cols;
@@ -122,19 +143,7 @@ export default class Game extends Phaser.Scene {
     });
 
     // 演出が終わったらゲームを開始
-    gameEvents.on(Event.GAME_PREPARING_COMPLETED, () => {
-      this.juice.fadeOut(this.title);
-
-      // キー入力を有効化
-      enableKeys(this.cursorKeys);
-
-      // BGM を再生
-      this.bgm.play({
-        loop: true,
-      });
-
-      // TODO: タイマースタート
-    });
+    gameEvents.on(Event.GAME_PREPARING_COMPLETED, () => this.handleGamePreparingCompleted());
   }
 
   update(time: number, delta: number) {
@@ -153,7 +162,11 @@ export default class Game extends Phaser.Scene {
 
   private timeEventHandler() {
     // 壁落下イベント
-    if (this.network.remainTime() - Constants.INGAME_EVENT_DROP_WALLS_TIME <= 0) {
+    if (this.serverTimer === undefined || this.network === undefined) return;
+    if (
+      this.serverTimer.finishedAt - this.network.now() <=
+      Constants.INGAME_EVENT_DROP_WALLS_TIME
+    ) {
       if (!this.IsFinishedDropWallsEvent) dropWalls();
       this.IsFinishedDropWallsEvent = true;
     }
@@ -171,8 +184,9 @@ export default class Game extends Phaser.Scene {
   }
 
   private initNetworkEvents() {
-    this.network.onPlayerJoinedRoom(this.handlePlayerJoinedRoom, this); // 他のプレイヤーの参加イベント
+    this.network.onPlayerJoinedRoom(this.addOtherPlayer, this); // reconnectを導入する場合必要
     this.network.onGameStateUpdated(this.handleGameStateChanged, this); // gameStateの変更イベント
+    this.network.onGameResultUpdated(this.handleGameResultUpdated, this); // ゲーム結果の変更イベント
     // TODO: アイテムをとって火力が上がった場合の処理を追加する
     this.network.onBombAdded(this.handleBombAdded, this); // プレイヤーのボム追加イベント
     this.network.onBombRemoved(this.handleBombRemoved, this);
@@ -186,12 +200,39 @@ export default class Game extends Phaser.Scene {
     }
   }
 
+  private handleGamePreparingCompleted() {
+    this.tweens.add({
+      targets: this.upTitle,
+      x: -Constants.WIDTH,
+      duration: 300,
+      ease: Phaser.Math.Easing.Quadratic.In,
+    });
+    this.tweens.add({
+      targets: this.downTitle,
+      x: Constants.WIDTH * 2,
+      duration: 300,
+      ease: Phaser.Math.Easing.Quadratic.In,
+    });
+
+    this.juice.fadeOut(this.title);
+
+    // キー入力を有効化
+    enableKeys(this.cursorKeys);
+
+    // BGM を再生
+    this.bgm.play({
+      loop: true,
+    });
+
+    // TODO: タイマースタート
+  }
+
   private addPlayers() {
     this.room.state.players.forEach((player, sessionId) => {
       if (sessionId === this.network.mySessionId) {
         this.addMyPlayer(); // 自分を追加
       } else {
-        this.handlePlayerJoinedRoom(player, sessionId); // 既に参加しているプレイヤーを追加
+        this.addOtherPlayer(player, sessionId); // 他のプレイヤーを追加
       }
     });
   }
@@ -199,15 +240,29 @@ export default class Game extends Phaser.Scene {
   private addMyPlayer() {
     const player = this.room.state.players.get(this.network.mySessionId);
     if (player === undefined) return;
-    const myPlayer = this.add.myPlayer(this.network.mySessionId, player.x, player.y, 'player');
+    const myPlayer = this.add.myPlayer(
+      this.network.mySessionId,
+      player.x,
+      player.y,
+      'player',
+      undefined,
+      player.name
+    );
     this.myPlayer = myPlayer;
     player.onChange = () => {
       this.myPlayer.handleServerChange(player);
     };
   }
 
-  private handlePlayerJoinedRoom(player: ServerPlayer, sessionId: string) {
-    const otherPlayer = this.add.otherPlayer(sessionId, player.x, player.y, 'player');
+  private addOtherPlayer(player: ServerPlayer, sessionId: string) {
+    const otherPlayer = this.add.otherPlayer(
+      sessionId,
+      player.x,
+      player.y,
+      'player',
+      undefined,
+      player.name
+    );
     this.otherPlayers.set(sessionId, otherPlayer);
 
     player.onChange = () => {
@@ -226,12 +281,33 @@ export default class Game extends Phaser.Scene {
     const state = data[0].value as Constants.GAME_STATE_TYPE;
 
     if (state === Constants.GAME_STATE.FINISHED && this.room !== undefined) {
-      await this.room.leave();
+      // ゲームシーン停止の処理
+      this.startBgm.stop();
       this.bgm?.stop();
+      this.scene.pause();
+      this.scene.sendToBack();
       this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
-      this.scene.stop(Config.SCENE_NAME_GAME);
-      this.scene.start(Config.SCENE_NAME_GAME_RESULT);
+
+      // 部屋退出の処理
+      this.network.removeAllEventListeners();
+      await this.network.leaveRoom();
+      this.network.getTs().destroy();
+
+      const darken = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.8 } });
+      darken.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
+      darken.setDepth(Infinity);
+
+      this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
+        network: this.network,
+        playerName: this.myPlayer.name,
+        sessionId: this.room.sessionId,
+        gameResult: this.gameResult,
+      });
     }
+  }
+
+  private handleGameResultUpdated(result: GameResult) {
+    this.gameResult = result;
   }
 
   // ボム追加イベント時に、マップにボムを追加

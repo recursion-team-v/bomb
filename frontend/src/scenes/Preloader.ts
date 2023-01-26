@@ -20,7 +20,10 @@ export default class Preloader extends Phaser.Scene {
     const frameWidth = Constants.DEFAULT_TIP_SIZE;
     const frameHeight = Constants.DEFAULT_TIP_SIZE;
 
-    this.load.spritesheet('player', 'assets/player.png', { frameWidth, frameHeight });
+    this.load.spritesheet(Config.ASSET_KEY_PLAYER, 'assets/player.png', {
+      frameWidth,
+      frameHeight,
+    });
 
     this.load.spritesheet('bomb', 'assets/items/bomb/bomb.png', {
       frameWidth,
@@ -69,6 +72,9 @@ export default class Preloader extends Phaser.Scene {
       }
     );
 
+    this.load.image('bomb_point', 'assets/items/bomb/bomb_point.png');
+    this.load.image('penetration_bomb_point', 'assets/items/bomb/bomb_point_penetration.png');
+
     this.load.spritesheet(
       'penetration_bomb_horizontal_end_blast',
       'assets/items/bomb/horizontal_end_blast_penetration.png',
@@ -104,6 +110,11 @@ export default class Preloader extends Phaser.Scene {
     this.load.image(Config.ASSET_KEY_VOLUME_ON, 'assets/icons/volume_on.png');
     this.load.image(Config.ASSET_KEY_VOLUME_OFF, 'assets/icons/volume_off.png');
 
+    // game result assets
+    this.load.image(Config.ASSET_KEY_WINNER, 'assets/winner.png');
+    this.load.image(Config.ASSET_KEY_WINNER_CUP, 'assets/winner_cup.png');
+    this.load.image(Config.ASSET_KEY_DRAW_GAME, 'assets/draw_game.png');
+
     if (isMobile()) {
       this.load.image(Constants.JOYSTICK_BASE_KEY, 'assets/joystick-base.png');
       this.load.image(Constants.JOYSTICK_STICK_KEY, 'assets/joystick-red.png');
@@ -111,11 +122,25 @@ export default class Preloader extends Phaser.Scene {
 
     // title
     this.load.image('title', 'assets/title.png');
+
     // usage
     this.load.spritesheet('keyboard', 'assets/keyboard.png', {
       frameWidth,
       frameHeight,
     });
+
+    // keyboard
+    this.load.image('leftSpace', 'assets/keyboard/space_left.png');
+    this.load.image('rightSpace', 'assets/keyboard/space_right.png');
+    this.load.image('centerSpace', 'assets/keyboard/space_center.png');
+
+    this.load.image('left', 'assets/keyboard/left.png');
+    this.load.image('right', 'assets/keyboard/right.png');
+    this.load.image('top', 'assets/keyboard/top.png');
+    this.load.image('down', 'assets/keyboard/down.png');
+
+    this.load.image(Config.ASSET_KEY_BATTLE_START_UP, 'assets/battle_start_up.png');
+    this.load.image(Config.ASSET_KEY_BATTLE_START_DOWN, 'assets/battle_start_down.png');
 
     this.load.audio('bombExplode', ['assets/se/bomb.mp3']);
     this.load.audio('getItem', ['assets/se/get_item.mp3']);
@@ -123,24 +148,23 @@ export default class Preloader extends Phaser.Scene {
     this.load.audio('hitPlayer', ['assets/se/hit_player.mp3']);
     this.load.audio('battleStart', ['assets/bgm/battle_start.mp3']);
     this.load.audio('select', ['assets/se/select.mp3']);
+    this.load.audio('select1', ['assets/se/select1.mp3']);
     this.load.audio('stage_1', ['assets/bgm/stage_1.mp3']);
     this.load.audio('stage_2', ['assets/bgm/stage_2.mp3']);
     this.load.audio('opening', ['assets/bgm/opening.mp3']);
 
     this.load.on('complete', () => {
-      // add player animations
       createPlayerAnims(this.anims);
       createBombAnims(this.anims);
       createPenetrationBombAnims(this.anims);
       createExplodeAnims(this.anims);
       createPenetrationExplodeAnims(this.anims);
+      this.preloadComplete = true;
     });
   }
 
   init() {
     this.network = new Network();
-    // 自分がルームに参加できたら preload 完了
-    this.network.onMyPlayerJoinedRoom(() => (this.preloadComplete = true));
   }
 
   update() {

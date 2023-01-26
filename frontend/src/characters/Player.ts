@@ -58,22 +58,20 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   addNameLabel(triangleColor: number) {
     const game = getGameScene();
-    const label = game.add.rectangle(0, -35, 15 * this.name.length, 30, Constants.BLACK, 0.3);
     const nameText = game.add
       .text(0, 0, this.name, {
         fontSize: '20px',
         color: '#ffffff',
       })
       .setOrigin(0.5);
+    const label = game.add.rectangle(0, -35, nameText.width + 20, 30, Constants.BLACK, 0.3);
     const triangle = game.add.triangle(0, 0, -5, -5, 15, -5, 5, 5, triangleColor);
     this.nameText = nameText;
 
     Phaser.Display.Align.In.Center(nameText, label);
     Phaser.Display.Align.To.BottomCenter(triangle, label, 5, 8);
 
-    this.nameLabel = game.add
-      .container(this.x, this.y, [label, nameText, triangle])
-      .setDepth(Infinity);
+    this.nameLabel = game.add.container(this.x, this.y, [label, nameText, triangle]).setDepth(1000);
   }
 
   // HP をセットします
@@ -192,17 +190,25 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
 
   // ボム増加アイテムを取得した数
   getItemCountOfBombCount(): number {
-    return this.maxBombCount - Constants.INITIAL_SETTABLE_BOMB_COUNT;
+    return (
+      (this.maxBombCount - Constants.INITIAL_SETTABLE_BOMB_COUNT) /
+      Constants.ITEM_INCREASE_RATE.BOMB_POSSESSION_UP
+    );
   }
 
   // 爆弾の破壊力アイテムを取得した数
   getItemCountOfBombStrength(): number {
-    return this.bombStrength - Constants.INITIAL_BOMB_STRENGTH;
+    return (
+      (this.bombStrength - Constants.INITIAL_BOMB_STRENGTH) /
+      Constants.ITEM_INCREASE_RATE.BOMB_STRENGTH
+    );
   }
 
   // 速さアイテムを取得した数
   getItemCountOfSpeed(): number {
-    return this.speed - Constants.INITIAL_PLAYER_SPEED;
+    return (
+      (this.speed - Constants.INITIAL_PLAYER_SPEED) / Constants.ITEM_INCREASE_RATE.PLAYER_SPEED
+    );
   }
 
   private animationFlash(duration: number) {

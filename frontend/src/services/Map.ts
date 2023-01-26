@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
+
 import * as Constants from '../../../backend/src/constants/constants';
+import { getWallArr, spiralOrder } from '../../../backend/src/utils/map';
 import { getGameScene } from '../utils/globalGame';
-import { spiralOrder, getWallArr } from '../../../backend/src/utils/map';
 
 // matter world 上の body から、二次元配列のマップを作成します
 // この時 fn で指定した関数を実行し、その結果をマップに反映します

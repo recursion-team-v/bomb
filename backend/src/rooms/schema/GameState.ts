@@ -11,6 +11,13 @@ export default class GameState extends Schema {
     this.gameState = Constants.GAME_STATE.WAITING;
   }
 
+  setWaiting() {
+    if (!this.isFinished()) {
+      throw new Error('Invalid game state');
+    }
+    this.gameState = Constants.GAME_STATE.WAITING;
+  }
+
   setPlaying() {
     if (!this.isWaiting()) {
       throw new Error('Invalid game state');

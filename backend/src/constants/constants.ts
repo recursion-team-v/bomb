@@ -2,13 +2,16 @@
 色の定義
 */
 
+export const PAGE_COLOR = 0x18181b;
 export const BLACK = 0x000000;
 export const WHITE = 0xffffff;
-export const GRAY = 0x808080;
-export const LIGHT_GRAY = 0xc6c5d6;
+export const DARK_GRAY = 0x374151;
+export const GRAY = 0x6b7280;
+export const LIGHT_GRAY = 0xcbd5e1;
 export const BLUE = 0x0000ff;
-export const RED: number = 0xff0000;
-export const GREEN: number = 0x00ff00;
+export const RED = 0xff0000;
+export const GREEN = 0xa3e635;
+export const LIGHT_RED = 0xf87171;
 
 export const FPS = 60; // 1 秒間のフレーム数
 export const FRAME_RATE = 1000 / FPS; // 1 frame にかかる時間(ms)
@@ -19,10 +22,18 @@ export const OBJECT_CREATION_DELAY = 100; // ms
 // オブジェクト削除時の遅延時間
 export const OBJECT_REMOVAL_DELAY = 100; // ms
 
+// ゲームの状態をチェックする間隔
+// ゲームの状態をチェックする間隔を短くすると、ゲームの状態が変化したときにすぐに反映されます。
+// 500 ms にすることで、この期間の間に複数のプレイヤーが死んだときは、引き分けになるようにしています。
+export const CHECK_GAME_RESULT_INTERVAL = 500; // ms
+
 // Dockerfile の中と、デプロイ時にポートを指定しているので、ここの設定は開発時にしか利用されません。
 export const SERVER_LISTEN_PORT = 2567;
 // ゲームルーム参加時に使用するキー
-export const GAME_ROOM_KEY = 'game';
+export const GAME_PUBLIC_ROOM_KEY = 'game';
+export const GAME_CUSTOM_ROOM_KEY = 'custom';
+// ロビールーム参加時に使用するキー
+export const GAME_LOBBY_KEY = 'lobby';
 
 export const NOTIFICATION_TYPE = {
   // 1 番台はゲーム情報を通知するためのタイプ
@@ -31,6 +42,12 @@ export const NOTIFICATION_TYPE = {
 
   // プレイヤー情報を通知するためのタイプ
   PLAYER_INFO: 2,
+
+  // プレイヤーのゲーム状態を通知するためのタイプ
+  PLAYER_GAME_STATE: 3,
+
+  // プレイヤーが準備できたことを broadcast するためのタイプ
+  PLAYER_IS_READY: 4,
 
   // ゲームの開始に関する情報を通知するためのタイプ
   GAME_START_INFO: 10,
@@ -53,6 +70,23 @@ export const GAME_STATE = {
 
 export type GAME_STATE_TYPE = typeof GAME_STATE[keyof typeof GAME_STATE];
 
+export const GAME_RESULT = {
+  NONE: 0,
+  WIN: 1,
+  DRAW: 2,
+};
+
+export type GAME_RESULT_TYPE = typeof GAME_RESULT[keyof typeof GAME_RESULT];
+
+export const PLAYER_GAME_STATE = {
+  WAITING: 1, // ゲーム開始前
+  READY: 2, // ゲーム準備完了
+  PLAYING: 3, // ゲーム中
+  FINISHED: 4, // ゲーム終了
+};
+
+export type PLAYER_GAME_STATE_TYPE = typeof PLAYER_GAME_STATE[keyof typeof PLAYER_GAME_STATE];
+
 // インゲーム内で発生する、壁が落下するイベントが発生する時間(ms)
 // 残り時間がこの時間になったら、イベントが発生する
 export const INGAME_EVENT_DROP_WALLS_TIME = 30000; // 30 秒
@@ -71,119 +105,6 @@ export const MAX_PLAYER = 4;
 
 // デバッグ: デフォルトの敵の数
 export const DEBUG_DEFAULT_ENEMY_COUNT = 2;
-
-/*
-プレイヤーの状態の定義
-*/
-
-// デフォルトのプレイヤーの名前
-export const DEFAULT_PLAYER_NAME = 'noname';
-
-// プレイヤーの初期HP
-export const INITIAL_PLAYER_HP = 1;
-
-// プレイヤーの最大HP
-export const MAX_PLAYER_HP = 3;
-
-// 初期に設置できる爆弾の数
-export const INITIAL_SETTABLE_BOMB_COUNT = 1;
-
-// 最大に設置できる爆弾の数
-export const MAX_SETTABLE_BOMB_COUNT = 8;
-
-// 初期の爆弾の破壊力
-export const INITIAL_BOMB_STRENGTH = 2;
-
-// プレイヤーの初期移動速度
-export const INITIAL_PLAYER_SPEED = 2;
-
-// プレイヤーが被弾時に一定時間無敵になる時間(ms)
-export const PLAYER_INVINCIBLE_TIME = 3000;
-
-// プレイヤーの初期位置
-// TODO: サイズから計算する
-export const INITIAL_PLAYER_POSITION = [
-  { x: 96, y: 156 },
-  { x: 864, y: 156 },
-  { x: 96, y: 796 },
-  { x: 864, y: 796 },
-  { x: 480, y: 476 },
-];
-
-/*
-ボムの定義
-*/
-
-export const BOMB_TYPE = {
-  NORMAL: 1,
-  PENETRATION: 2, // ブロックを貫通するボム
-};
-
-export type BOMB_TYPES = typeof BOMB_TYPE[keyof typeof BOMB_TYPE];
-
-// 爆弾がプレイヤーに与えるダメージ
-export const BOMB_DAMAGE = 1;
-
-// 爆弾の爆発までの時間(ms)
-export const BOMB_EXPLOSION_TIME = 2330;
-
-// 爆弾が誘爆する時の遅延時間(ms)
-export const BOMB_DETONATION_DELAY = 50;
-
-// 爆風の衝突判定の割合
-export const BLAST_COLLISION_RATIO_X = 0.4;
-export const BLAST_COLLISION_RATIO_Y = 0.7;
-
-// 爆風が維持される時間(ms)
-// この時間だけ当たり判定が残る
-export const BLAST_AVAILABLE_TIME = 500;
-
-// クライアントとサーバで許容するプレイヤーの位置のズレ(px)
-export const PLAYER_TOLERANCE_DISTANCE = 100;
-
-// ゲームの制限時間
-export const TIME_LIMIT_SEC = 181; // (+1秒するといい感じに表示される)
-
-/*
-アイテムの定義
-*/
-
-// アイテムが一致時間破壊されない時間
-// ブロックを破壊した時にアイテムが出現するのだが、爆風が残ってるとアイテムが破壊されてしまうので一定時間無敵にする
-export const ITEM_INVINCIBLE_TIME = 3000; // ms
-
-export const ITEM_TYPE = {
-  NONE: 'NONE', // アイテムなし
-  BOMB_STRENGTH: 'BOMB_STRENGTH', // ボムの威力アップ
-  BOMB_POSSESSION_UP: 'BOMB_POSSESSION_UP', // ボムの所持数アップ
-  HEART: 'HEART', // 残機アップ
-  PENETRATION_BOMB: 'PENETRATION_BOMB', // ブロックを貫通するボム
-  PLAYER_SPEED: 'PLAYER_SPEED', // プレイヤーの移動速度アップ
-} as const;
-
-export type ITEM_TYPES = typeof ITEM_TYPE[keyof typeof ITEM_TYPE];
-
-/*
-アイテムの初期配置数
-*/
-
-export const ITEM_PLACE_COUNT = {
-  [ITEM_TYPE.NONE]: 0,
-  [ITEM_TYPE.BOMB_POSSESSION_UP]: 8,
-  [ITEM_TYPE.BOMB_STRENGTH]: 10,
-  [ITEM_TYPE.HEART]: 3,
-  [ITEM_TYPE.PENETRATION_BOMB]: 3,
-  [ITEM_TYPE.PLAYER_SPEED]: 5,
-};
-
-/*
-衝突判定のカテゴリ
-*/
-
-export const COLLISION_CATEGORY = {
-  DEFAULT: 0x0001, // デフォルト
-  PLAYER: 0x0002, // プレイヤー
-};
 
 /*
 マップの定義
@@ -292,6 +213,147 @@ export const HEADER_TIMER_TEXT_COLOR_CODE = WHITE; // ヘッダーのタイマ�
 export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
 
 /*
+プレイヤーの状態の定義
+*/
+
+// デフォルトのプレイヤーの名前
+export const DEFAULT_PLAYER_NAME = 'noname';
+
+// プレイヤーの初期HP
+export const INITIAL_PLAYER_HP = 1;
+
+// プレイヤーの最大HP
+export const MAX_PLAYER_HP = 3;
+
+// 初期に設置できる爆弾の数
+export const INITIAL_SETTABLE_BOMB_COUNT = 1;
+
+// 最大に設置できる爆弾の数
+export const MAX_SETTABLE_BOMB_COUNT = 8;
+
+// 初期の爆弾の破壊力
+export const INITIAL_BOMB_STRENGTH = 4;
+
+// 最大の爆弾の破壊力
+export const MAX_BOMB_STRENGTH = 12;
+
+// プレイヤーの初期移動速度
+export const INITIAL_PLAYER_SPEED = 2.5;
+
+// プレイヤーの最大移動速度
+export const MAX_PLAYER_SPEED = 5;
+
+// プレイヤーが被弾時に一定時間無敵になる時間(ms)
+export const PLAYER_INVINCIBLE_TIME = 3000;
+
+// プレイヤーの初期位置
+// TODO: サイズから計算する
+export const INITIAL_PLAYER_POSITION = [
+  { x: PLAYER_WIDTH + PLAYER_WIDTH / 2, y: PLAYER_HEIGHT + PLAYER_HEIGHT / 2 + HEADER_HEIGHT },
+  {
+    x: PLAYER_WIDTH * (TILE_COLS - 2) + PLAYER_WIDTH / 2,
+    y: PLAYER_HEIGHT + PLAYER_HEIGHT / 2 + HEADER_HEIGHT,
+  },
+  {
+    x: PLAYER_WIDTH + PLAYER_WIDTH / 2,
+    y: PLAYER_HEIGHT * (TILE_ROWS - 2) + PLAYER_HEIGHT / 2 + HEADER_HEIGHT,
+  },
+  {
+    x: PLAYER_WIDTH * (TILE_COLS - 2) + PLAYER_WIDTH / 2,
+    y: PLAYER_HEIGHT * (TILE_ROWS - 2) + PLAYER_HEIGHT / 2 + HEADER_HEIGHT,
+  },
+];
+
+// プレイヤーの名前の最大文字数
+export const MAX_USER_NAME_LENGTH = 10;
+
+/*
+ボムの定義
+*/
+
+export const BOMB_TYPE = {
+  NORMAL: 1,
+  PENETRATION: 2, // ブロックを貫通するボム
+};
+
+export type BOMB_TYPES = typeof BOMB_TYPE[keyof typeof BOMB_TYPE];
+
+// 爆弾がプレイヤーに与えるダメージ
+export const BOMB_DAMAGE = 1;
+
+// 爆弾の爆発までの時間(ms)
+export const BOMB_EXPLOSION_TIME = 2330;
+
+// 爆弾が誘爆する時の遅延時間(ms)
+export const BOMB_DETONATION_DELAY = 50;
+
+// 爆風の衝突判定の割合
+export const BLAST_COLLISION_RATIO_X = 0.4;
+export const BLAST_COLLISION_RATIO_Y = 0.7;
+
+// 爆風が維持される時間(ms)
+// この時間だけ当たり判定が残る
+export const BLAST_AVAILABLE_TIME = 500;
+
+// クライアントとサーバで許容するプレイヤーの位置のズレ(px)
+export const PLAYER_TOLERANCE_DISTANCE = 100;
+
+// ゲームの制限時間
+export const TIME_LIMIT_SEC = 181; // (+1秒するといい感じに表示される)
+
+/*
+アイテムの定義
+*/
+
+// アイテムが一致時間破壊されない時間
+// ブロックを破壊した時にアイテムが出現するのだが、爆風が残ってるとアイテムが破壊されてしまうので一定時間無敵にする
+export const ITEM_INVINCIBLE_TIME = 1500; // ms
+
+// プレイヤーが死んだ時に、そのプレイヤーのアイテムが落ちるまでの時間
+export const ITEM_DROP_TIME_WHEN_PLAYER_DEAD = 2000; // ms
+
+export const ITEM_TYPE = {
+  NONE: 'NONE', // アイテムなし
+  BOMB_STRENGTH: 'BOMB_STRENGTH', // ボムの威力アップ
+  BOMB_POSSESSION_UP: 'BOMB_POSSESSION_UP', // ボムの所持数アップ
+  HEART: 'HEART', // 残機アップ
+  PENETRATION_BOMB: 'PENETRATION_BOMB', // ブロックを貫通するボム
+  PLAYER_SPEED: 'PLAYER_SPEED', // プレイヤーの移動速度アップ
+} as const;
+
+export type ITEM_TYPES = typeof ITEM_TYPE[keyof typeof ITEM_TYPE];
+
+// アイテムを取得した際の増加量
+export const ITEM_INCREASE_RATE = {
+  [ITEM_TYPE.BOMB_POSSESSION_UP]: 1,
+  [ITEM_TYPE.BOMB_STRENGTH]: 1,
+  [ITEM_TYPE.HEART]: 1,
+  [ITEM_TYPE.PLAYER_SPEED]: 0.25,
+};
+
+/*
+アイテムの初期配置数
+*/
+
+export const ITEM_PLACE_COUNT = {
+  [ITEM_TYPE.NONE]: 0,
+  [ITEM_TYPE.BOMB_POSSESSION_UP]: 12,
+  [ITEM_TYPE.BOMB_STRENGTH]: 12,
+  [ITEM_TYPE.HEART]: 3,
+  [ITEM_TYPE.PENETRATION_BOMB]: 0,
+  [ITEM_TYPE.PLAYER_SPEED]: 8,
+};
+
+/*
+衝突判定のカテゴリ
+*/
+
+export const COLLISION_CATEGORY = {
+  DEFAULT: 0x0001, // デフォルト
+  PLAYER: 0x0002, // プレイヤー
+};
+
+/*
 ラベルの定義
 */
 
@@ -331,8 +393,8 @@ export type OBJECT_COLLISIONS_TO_BLAST =
 export const OBJECT_DEPTH = {
   NONE: 0,
   [OBJECT_LABEL.ITEM]: 1, // ブロックの下にある
-  [OBJECT_LABEL.BLOCK]: 2, // ブロックをすり抜けられるアイテムがある
-  [OBJECT_LABEL.BLAST]: 3, // ブロックや、アイテムの上にある
+  [OBJECT_LABEL.BLAST]: 2, // ブロックや、アイテムの上にある
+  [OBJECT_LABEL.BLOCK]: 3, // ブロックをすり抜けられるアイテムがある
   [OBJECT_LABEL.BOMB]: 4, // 特殊なアイテムで壁の上を爆弾が滑ることがある
   [OBJECT_LABEL.PLAYER]: 10,
   [OBJECT_LABEL.WALL]: 99,

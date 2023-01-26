@@ -3,10 +3,12 @@ import { MapSchema, Schema, type } from '@colyseus/schema';
 import * as Constants from '../../constants/constants';
 import GameQueue from '../../utils/gameQueue';
 import { PixelToTile } from '../../utils/map';
+import { generateGameResult } from '../GameResultHandler';
 import Blast from './Blast';
 import Block from './Block';
 import { Bomb } from './Bomb';
 import Enemy from './Enemy';
+import GameResult from './GameResult';
 import GameState from './GameState';
 import Item from './Item';
 import Map from './Map';
@@ -20,6 +22,10 @@ export default class GameRoomState extends Schema {
   @type(Timer)
   readonly timer = new Timer();
 
+  @type(GameResult)
+  gameResult!: GameResult; // ゲーム結果
+
+  playerIdxsAvail: boolean[] = new Array(Constants.MAX_PLAYER).fill(true);
   @type({ map: Player }) players = new MapSchema<Player>();
   @type({ map: Bomb }) bombs = new MapSchema<Bomb>();
   @type({ map: Blast }) blasts = new MapSchema<Blast>();
@@ -41,6 +47,10 @@ export default class GameRoomState extends Schema {
     return this.players.get(sessionId);
   }
 
+  getPlayers(): Player[] {
+    return Array.from(this.players.values());
+  }
+
   getPlayersCount() {
     return this.players.size;
   }
@@ -50,13 +60,26 @@ export default class GameRoomState extends Schema {
     return Array.from(this.players.values()).filter((player) => !player.isDead());
   }
 
+  getAlivePlayers() {
+    return this.getPlayers().filter((player) => !player.isDead());
+  }
+
   setTimer() {
     this.timer.set(Date.now());
   }
 
-  createPlayer(sessionId: string): Player {
-    const player = new Player(sessionId, this.getPlayersCount());
-    const idx = this.getPlayersCount();
+  setGameResult() {
+    const r = generateGameResult(this);
+    if (r !== undefined) {
+      this.gameResult = r;
+      this.gameState.setFinished();
+    }
+  }
+
+  createPlayer(sessionId: string, playerName: string): Player | undefined {
+    const player = new Player(sessionId, this.getPlayersCount(), playerName);
+    const idx = this.getPlayerIdx();
+    if (idx === -1) return;
     player.idx = idx;
     player.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
     player.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
@@ -102,6 +125,17 @@ export default class GameRoomState extends Schema {
 
   deleteItem(item: Item) {
     this.items.delete(item.id);
+  }
+
+  getPlayerIdx() {
+    for (let i = 0; i < this.playerIdxsAvail.length; i++) {
+      if (this.playerIdxsAvail[i]) {
+        this.playerIdxsAvail[i] = false;
+        return i;
+      }
+    }
+
+    return -1;
   }
 
   // マップの各マスに対して、爆弾があるかどうかを返す

@@ -3,6 +3,7 @@ import Matter from 'matter-js';
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
 import { Bomb } from '../../rooms/schema/Bomb';
+import Item from '../../rooms/schema/Item';
 import Player from '../../rooms/schema/Player';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -23,8 +24,9 @@ export default class PlayerService {
     this.gameEngine.state.players.delete(sessionId);
   }
 
-  addPlayer(sessionId: string) {
-    const player = this.gameEngine.state.createPlayer(sessionId);
+  addPlayer(sessionId: string, playerName: string) {
+    const player = this.gameEngine.state.createPlayer(sessionId, playerName);
+    if (player === undefined) return;
     const playerBody = Matter.Bodies.rectangle(
       player.x,
       player.y,
@@ -75,6 +77,38 @@ export default class PlayerService {
         if (inputPayload.down === true) vy += velocity;
         Matter.Body.setVelocity(playerBody, { x: vx, y: vy });
       }
+    }
+  }
+
+  // プレイヤーが死亡したときに呼び出される
+  diePlayer(player: Player) {
+    if (player.getItemMapTotalCount() === 0) return;
+
+    // プレイヤーが持っているアイテムを配列に格納して、シャッフルする
+    const dropItemList: Constants.ITEM_TYPES[] = [];
+    player.getItemMap.forEach((count, item) =>
+      // ハートはドロップしない
+      item === Constants.ITEM_TYPE.HEART ? true : dropItemList.push(...Array(count).fill(item))
+    );
+    dropItemList.sort(() => Math.random() - 0.5);
+
+    // 現在のブロックや人、アイテムが存在しない map 取得
+    const map = this.gameEngine.getMapWithoutBody();
+    map.sort(() => Math.random() - 0.5);
+
+    // プレイヤーが持っているアイテムを map の位置にランダムに配置する
+    for (let i = 0; i < Math.min(map.length, dropItemList.length); i++) {
+      const { x, y } = map[i];
+      const item = dropItemList[i];
+      this.gameEngine.room.clock.setTimeout(() => {
+        this.gameEngine.itemService.addItem(
+          new Item(
+            Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * x,
+            Constants.HEADER_HEIGHT + Constants.TILE_HEIGHT / 2 + Constants.TILE_HEIGHT * y,
+            item
+          )
+        );
+      }, Constants.ITEM_DROP_TIME_WHEN_PLAYER_DEAD);
     }
   }
 

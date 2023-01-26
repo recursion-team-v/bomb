@@ -5,6 +5,7 @@ import { Block } from '../items/Block';
 import Bomb, { Blast } from '../items/Bomb';
 import Item from '../items/Item';
 import { InnerWall, OuterWall, DropWall } from '../items/Wall';
+import VolumeIcon from '../services/SoundVolume';
 
 export {};
 
@@ -18,6 +19,7 @@ declare global {
         y: number,
         texture: string,
         frame?: string | number,
+        name?: string,
         options?: Phaser.Types.Physics.Matter.MatterBodyConfig
       ) => Player;
       myPlayer: (
@@ -26,6 +28,7 @@ declare global {
         y: number,
         texture: string,
         frame?: string | number,
+        name?: string,
         options?: Phaser.Types.Physics.Matter.MatterBodyConfig
       ) => MyPlayer;
       otherPlayer: (
@@ -34,6 +37,7 @@ declare global {
         y: number,
         texture: string,
         frame?: string | number,
+        name?: string,
         options?: Phaser.Types.Physics.Matter.MatterBodyConfig
       ) => OtherPlayer;
       bomb: (
@@ -67,6 +71,7 @@ declare global {
       outerWall: (x: number, y: number, frame: number) => OuterWall;
       dropWall: (x: number, y: number, frame: number) => DropWall;
       block: (x: number, y: number, frame: number) => Block;
+      volumeIcon: (scene: Phaser.Scene, x: number, y: number, isPlay?: boolean) => VolumeIcon;
     }
   }
 }

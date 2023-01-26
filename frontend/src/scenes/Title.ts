@@ -1,6 +1,10 @@
 import * as Config from '../config/config';
 import Network from '../services/Network';
 import { createLoginDialog } from '../utils/title';
+import * as Constants from '../../../backend/src/constants/constants';
+import '../services/SoundVolume';
+import { validateAndFixUserName } from '../../../backend/src/utils/validation';
+import { createBombUsage, createItemUsage, createMoveUsage, createTextBox } from '../utils/usage';
 
 export default class Title extends Phaser.Scene {
   network?: Network;
@@ -25,28 +29,40 @@ export default class Title extends Phaser.Scene {
 
   create(data: { network: Network }) {
     const playGame = (userName: string) => {
-      this.scene.start(Config.SCENE_NAME_GAME, {
+      localStorage.setItem('username', userName);
+      this.scene.start(Config.SCENE_NAME_LOBBY, {
         network: data.network,
+        playerName: userName,
+        bgm: this.bgm,
       });
-      this.scene.start(Config.SCENE_NAME_GAME_HEADER, {
-        network: data.network,
-      });
-      data.network?.sendPlayerName(userName);
       this.se?.play();
-      this.bgm?.stop();
     };
 
-    this.add
-      .image(Number(this.game.config.width) / 2, Number(this.game.config.height) / 2 - 150, 'title')
-      .setScale(1.5);
+    this.add.image(Constants.WIDTH / 2, Constants.HEIGHT / 2 - 150, 'title').setScale(1.5);
 
+    this.add.volumeIcon(this, Constants.WIDTH - 60, 10);
+
+    const username = localStorage.getItem('username');
     createLoginDialog(this, {
-      x: Number(this.game.config.width) / 2,
-      y: Number(this.game.config.height) / 2,
+      x: Constants.WIDTH / 2,
+      y: Constants.HEIGHT / 2,
       title: 'input user name',
-      username: '',
+      username: username === null ? '' : username,
     }).on('playGame', function (userName: string) {
-      playGame(userName);
+      playGame(validateAndFixUserName(userName));
     });
+    // createUsageDialog(this, {
+    //   x: Constants.WIDTH / 2,
+    //   y: Constants.HEIGHT / 2 + 150,
+    // });
+
+    createTextBox(this, Constants.WIDTH / 2 - 650 / 2, Constants.HEIGHT / 2 + 120, {
+      wrapWidth: 650,
+      fixedWidth: 650,
+      fixedHeight: 250,
+    }).setOrigin(0.5);
+    createBombUsage(this, Constants.WIDTH / 2 - 650 / 2 + 110, Constants.HEIGHT / 2 + 250);
+    createMoveUsage(this, Constants.WIDTH / 2 - 650 / 2 + 320, Constants.HEIGHT / 2 + 200);
+    createItemUsage(this, Constants.WIDTH / 2 - 650 / 2 + 460, Constants.HEIGHT / 2 + 200);
   }
 }
