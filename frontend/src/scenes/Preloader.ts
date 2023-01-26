@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import { createBombAnims, createPenetrationBombAnims } from '../anims/BombAnims';
+import { createCharacterAnims } from '../anims/CharacterAnims';
 import { createExplodeAnims, createPenetrationExplodeAnims } from '../anims/explodeAnims';
 import { createPlayerAnims } from '../anims/PlayerAnims';
 import * as Config from '../config/config';
@@ -19,6 +20,13 @@ export default class Preloader extends Phaser.Scene {
   preload() {
     const frameWidth = Constants.DEFAULT_TIP_SIZE;
     const frameHeight = Constants.DEFAULT_TIP_SIZE;
+
+    for (const character of Object.values(Constants.CHARACTERS)) {
+      this.load.spritesheet(character, `assets/characters/${character}.png`, {
+        frameWidth,
+        frameHeight,
+      });
+    }
 
     this.load.spritesheet(Config.ASSET_KEY_PLAYER, 'assets/player.png', {
       frameWidth,
@@ -159,6 +167,7 @@ export default class Preloader extends Phaser.Scene {
       createPenetrationBombAnims(this.anims);
       createExplodeAnims(this.anims);
       createPenetrationExplodeAnims(this.anims);
+      createCharacterAnims(this.anims);
       this.preloadComplete = true;
     });
   }

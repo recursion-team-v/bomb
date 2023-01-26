@@ -133,6 +133,15 @@ export const TILE_BLOCK_IDX = 1; // 破壊できる箱の idx
 export const PLAYER_WIDTH = DEFAULT_TIP_SIZE; // プレイヤーの横幅
 export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
 
+// プレイヤーのスプライト
+export const CHARACTERS = {
+  wolf: 'wolf',
+  cat: 'cat',
+  bunny: 'bunny',
+  bear: 'bear',
+  pig: 'pig',
+};
+
 /*
 画面の定義
 */
