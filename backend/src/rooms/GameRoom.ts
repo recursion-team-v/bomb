@@ -2,19 +2,21 @@ import { Client, Room } from 'colyseus';
 import Matter from 'matter-js';
 
 import * as Constants from '../constants/constants';
-import GameEngine from './GameEngine';
-import { Bomb } from './schema/Bomb';
-import Block from './schema/Block';
-import GameRoomState from './schema/GameRoomState';
+import dropWalls from '../game_engine/services/dropWallService';
 import PlacementObjectInterface from '../interfaces/placement_object';
 import GameQueue from '../utils/gameQueue';
-import dropWalls from '../game_engine/services/dropWallService';
+import GameEngine from './GameEngine';
+import Block from './schema/Block';
+import { Bomb } from './schema/Bomb';
+import Enemy from './schema/Enemy';
+import GameRoomState from './schema/GameRoomState';
 import Item from './schema/Item';
 
 export default class GameRoom extends Room<GameRoomState> {
   engine!: GameEngine;
   private name?: string;
   private IsFinishedDropWallsEvent: boolean = false;
+  private readonly enemies = new Map<string, Enemy>();
 
   async onCreate(options: any) {
     const { autoDispose, playerName } = options;
@@ -83,10 +85,7 @@ export default class GameRoom extends Room<GameRoomState> {
       // キューに詰める
       const player = this.state.getPlayer(client.sessionId);
       if (player === undefined) return;
-      if (player.isDead()) return;
-      if (!player.canSetBomb()) return;
-
-      this.state.getBombToCreateQueue().enqueue(this.state.createBomb(player));
+      this.engine.bombService.enqueueBomb(player);
     });
 
     // ゲーム結果をチェックする
@@ -99,6 +98,7 @@ export default class GameRoom extends Room<GameRoomState> {
 
       this.state.timer.updateNow();
       this.timeEventHandler();
+      this.enemyHandler();
 
       while (elapsedTime >= Constants.FRAME_RATE) {
         this.state.timer.updateNow();
@@ -106,7 +106,11 @@ export default class GameRoom extends Room<GameRoomState> {
         elapsedTime -= Constants.FRAME_RATE;
 
         for (const [, player] of this.state.players) {
-          this.engine.playerService.updatePlayer(player);
+          if (this.enemies.get(player.sessionId) === undefined) {
+            this.engine.playerService.updatePlayer(player);
+          } else {
+            this.engine.enemyService.updateEnemy(player as Enemy);
+          }
         }
 
         // 爆弾の衝突判定の更新（プレイヤーが降りた場合は判定を変える)
@@ -147,8 +151,20 @@ export default class GameRoom extends Room<GameRoomState> {
     if (!this.state.gameState.isPlaying()) {
       await this.lock();
       await this.setMetadata({ locked: true });
+      this.addEnemy();
       this.state.gameState.setPlaying();
       this.state.setTimer();
+    }
+  }
+
+  // CPU を追加する
+  private addEnemy() {
+    const enemyCount = Constants.MAX_PLAYER - this.state.getPlayersCount();
+
+    for (let i = 0; i < enemyCount; i++) {
+      const enemy = this.engine.enemyService.addEnemy(`enemy-${i}`);
+      this.enemies.set(`enemy-${i}`, enemy);
+      this.state.enemies.push(enemy);
     }
   }
 
@@ -186,7 +202,11 @@ export default class GameRoom extends Room<GameRoomState> {
   private createBombEvent(b: PlacementObjectInterface) {
     const bomb = b as Bomb;
     const isPlaced = this.engine.playerService.placeBomb(bomb); // ボムを設置する
-    if (isPlaced) this.state.getBombToExplodeQueue().enqueue(bomb); // 爆破用のボムキューに詰める
+    if (isPlaced) {
+      this.state.getBombToExplodeQueue().enqueue(bomb);
+    } else {
+      this.engine.bombService.deleteBomb(bomb);
+    }
   }
 
   // 爆弾削除のイべント
@@ -257,5 +277,12 @@ export default class GameRoom extends Room<GameRoomState> {
       }
       this.IsFinishedDropWallsEvent = true;
     }
+  }
+
+  // 敵の移動を行う
+  private enemyHandler() {
+    if (!this.state.gameState.isPlaying()) return;
+    if (!this.state.timer.isOpeningFinished()) return;
+    this.engine.enemyService.calcAdjustablePosition();
   }
 }

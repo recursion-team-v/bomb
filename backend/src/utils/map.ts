@@ -36,3 +36,21 @@ export function getWallArr(): number[][] {
   }
   return walls;
 }
+
+// タイル座標をピクセル座標に変換します
+export function TileToPixel(x: number, y: number): { x: number; y: number } {
+  return {
+    x: x * Constants.TILE_WIDTH + Constants.TILE_WIDTH / 2,
+    y: y * Constants.TILE_HEIGHT + Constants.TILE_HEIGHT / 2 + Constants.HEADER_HEIGHT,
+  };
+}
+
+// ピクセル座標をタイル座標に変換します
+export function PixelToTile(x: number, y: number): { x: number; y: number } {
+  return {
+    x: Math.round((Math.round(x) - Constants.TILE_WIDTH / 2) / Constants.TILE_WIDTH),
+    y: Math.round(
+      (Math.round(y) - Constants.HEADER_HEIGHT - Constants.TILE_HEIGHT / 2) / Constants.TILE_HEIGHT
+    ),
+  };
+}

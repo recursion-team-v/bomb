@@ -103,6 +103,9 @@ export type DIRECTION_TYPE = typeof DIRECTION[keyof typeof DIRECTION];
 // ルームの最大人数
 export const MAX_PLAYER = 4;
 
+// デバッグ: デフォルトの敵の数
+export const DEBUG_DEFAULT_ENEMY_COUNT = 2;
+
 /*
 マップの定義
 */
@@ -132,6 +135,70 @@ export const TILE_BLOCK_IDX = 1; // 破壊できる箱の idx
 
 export const PLAYER_WIDTH = DEFAULT_TIP_SIZE; // プレイヤーの横幅
 export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
+
+/*
+敵の定義
+*/
+
+// 敵のAIの評価を切り替えるタイミング
+export const ENEMY_EVALUATION_STEP = {
+  BEGINNING: 'BEGINNING',
+  MIDDLE: 'MIDDLE',
+  END: 'END',
+};
+
+export type ENEMY_EVALUATION_STEPS =
+  typeof ENEMY_EVALUATION_STEP[keyof typeof ENEMY_EVALUATION_STEP];
+
+// 敵AI が使用する影響度マップの評価値(合計値が 1 になるようにする)
+export const ENEMY_EVALUATION_RATIO_PER_STEP = {
+  // 序盤
+  [ENEMY_EVALUATION_STEP.BEGINNING]: {
+    // すぐに移動できるかの評価値
+    ENEMY_EVALUATION_RATIO_NEAREST: 0.1,
+    // アイテムの評価値
+    ENEMY_EVALUATION_RATIO_ITEM: 0.3,
+    // ボムと将来発生する爆風の評価値
+    ENEMY_EVALUATION_RATIO_BOMB: 0.3,
+    // ボムを設置するのに適した場所の評価値
+    ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE: 0.2,
+    // 他のプレイヤーとの距離
+    ENEMY_EVALUATION_RATIO_FAR_FROM_OTHER_PLAYER: 0.1,
+  },
+  // 中盤
+  [ENEMY_EVALUATION_STEP.MIDDLE]: {
+    // 他のプレイヤーとの距離
+    ENEMY_EVALUATION_RATIO_FAR_FROM_OTHER_PLAYER: 0.2,
+    // すぐに移動できるかの評価値
+    ENEMY_EVALUATION_RATIO_NEAREST: 0.1,
+    // アイテムの評価値
+    ENEMY_EVALUATION_RATIO_ITEM: 0.2,
+    // ボムと将来発生する爆風の評価値
+    ENEMY_EVALUATION_RATIO_BOMB: 0.4,
+    // ボムを設置するのに適した場所の評価値
+    ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE: 0.1,
+  },
+  // 終盤
+  [ENEMY_EVALUATION_STEP.END]: {
+    // 他のプレイヤーとの距離
+    ENEMY_EVALUATION_RATIO_FAR_FROM_OTHER_PLAYER: 0.2,
+    // ボムと将来発生する爆風の評価値
+    ENEMY_EVALUATION_RATIO_BOMB: 0.8,
+  },
+};
+
+// 敵AI が使用する影響度マップの評価値のラベル
+export const ENEMY_EVALUATION_RATIO_LABEL = {
+  // ENEMY_EVALUATION_RATIO_FREE_SPACE: 'ENEMY_EVALUATION_RATIO_FREE_SPACE', // どれぐらい自由に移動できるかの評価値
+  ENEMY_EVALUATION_RATIO_FAR_FROM_OTHER_PLAYER: 'ENEMY_EVALUATION_RATIO_FAR_FROM_OTHER_PLAYER', // 他のプレイヤーからどれぐらい離れているかの評価値
+  ENEMY_EVALUATION_RATIO_NEAREST: 'ENEMY_EVALUATION_RATIO_NEAREST', // 現在地からの距離の評価値
+  ENEMY_EVALUATION_RATIO_ITEM: 'ENEMY_EVALUATION_RATIO_ITEM', // アイテムの評価値
+  ENEMY_EVALUATION_RATIO_BOMB: 'ENEMY_EVALUATION_RATIO_BOMB', // ボムと将来発生する爆風の評価値
+  ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE: 'ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE', // ボムを置くのに適した場所の評価値
+} as const;
+
+export type ENEMY_EVALUATION_RATIO_LABELS =
+  typeof ENEMY_EVALUATION_RATIO_LABEL[keyof typeof ENEMY_EVALUATION_RATIO_LABEL];
 
 /*
 画面の定義
@@ -164,7 +231,7 @@ export const INITIAL_SETTABLE_BOMB_COUNT = 1;
 export const MAX_SETTABLE_BOMB_COUNT = 8;
 
 // 初期の爆弾の破壊力
-export const INITIAL_BOMB_STRENGTH = 4;
+export const INITIAL_BOMB_STRENGTH = 2;
 
 // 最大の爆弾の破壊力
 export const MAX_BOMB_STRENGTH = 12;
@@ -336,6 +403,24 @@ export const OBJECT_DEPTH = {
 } as const;
 
 export type OBJECT_DEPTH_TYPE = typeof OBJECT_DEPTH[keyof typeof OBJECT_DEPTH];
+
+// プレイヤーが各オブジェクトの上を移動できるかどうか
+// 2: 移動できる
+// 1: 破壊すれば移動できる
+// 0: 移動できない
+export const OBJECT_IS_MOVABLE = {
+  NONE: 2,
+  [OBJECT_LABEL.BOMB]: 0,
+  [OBJECT_LABEL.BLAST]: 0, // 移動できるが、爆風に当たると死ぬので、移動できないとみなす
+  [OBJECT_LABEL.BLOCK]: 1,
+  [OBJECT_LABEL.ITEM]: 2,
+  [OBJECT_LABEL.PLAYER]: 2,
+  [OBJECT_LABEL.WALL]: 0,
+  [OBJECT_LABEL.DROP_WALL_SHADOW]: 0, // 移動できるがその後落ちてくる壁に当たると死ぬので、移動できないとみなす
+  [OBJECT_LABEL.DROP_WALL]: 0,
+} as const;
+
+export type OBJECT_IS_MOVABLE_TYPES = typeof OBJECT_IS_MOVABLE[keyof typeof OBJECT_IS_MOVABLE];
 
 /*
 モバイル用の操作アイコンの定義

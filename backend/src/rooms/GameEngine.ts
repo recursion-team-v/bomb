@@ -1,15 +1,17 @@
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
-import Matter from 'matter-js';
 import { Room } from 'colyseus';
+import Matter from 'matter-js';
+
+import * as Constants from '../constants/constants';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import BombService from '../game_engine/services/bombService';
+import EnemyService from '../game_engine/services/enemyService';
+import ItemService from '../game_engine/services/ItemService';
 import MapService from '../game_engine/services/mapService';
 import PlayerService from '../game_engine/services/playerService';
 import GameRoomState from './schema/GameRoomState';
-import ItemService from '../game_engine/services/ItemService';
 import Player from './schema/Player';
-import * as Constants from '../constants/constants';
 
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 export default class GameEngine {
   world: Matter.World;
   room: Room<GameRoomState>;
@@ -32,6 +34,7 @@ export default class GameEngine {
 
   bombService: BombService;
   playerService: PlayerService;
+  enemyService: EnemyService;
   mapService: MapService;
   itemService: ItemService;
 
@@ -44,6 +47,7 @@ export default class GameEngine {
     this.engine.gravity.y = 0;
     this.bombService = new BombService(this);
     this.playerService = new PlayerService(this);
+    this.enemyService = new EnemyService(this);
     this.mapService = new MapService(this);
     this.itemService = new ItemService(this);
 
@@ -90,7 +94,7 @@ export default class GameEngine {
 
   // matter world 上の body から、二次元配列のマップを作成します
   // この時 fn で指定した関数を実行し、その結果をマップに反映します
-  getDimensionalMap(fn: (bodies: Matter.Body[]) => number): number[][] {
+  getDimensionalMap(fn: (bodies: Matter.Body[]) => any): number[][] {
     const dimensionalMap: number[][] = [];
 
     for (let y = 0; y < this.state.gameMap.rows; y++) {
@@ -108,7 +112,7 @@ export default class GameEngine {
   }
 
   // matter bodies から label を確認し、最も爆風に対する優先度の高い判定を返す
-  getHighestBlastCollisionPriorityFromBodies(bodies: Matter.Body[]): number {
+  getHighestPriorityFromBodies(bodies: Matter.Body[]): number {
     let highestPriority = Constants.OBJECT_COLLISION_TO_BLAST.NONE as number;
     if (bodies.length === 0) return highestPriority;
 
@@ -125,6 +129,53 @@ export default class GameEngine {
   // matter bodies が存在するかどうかを判定し、存在する場合は 1 を返す
   getHasBody(bodies: Matter.Body[]): number {
     return bodies.length === 0 ? 0 : 1;
+  }
+
+  // 移動できるかどうかを判定し、移動できる場合は 2 / 破壊すれば移動できる場合は 1 / 移動できない場合は 0 を返す
+  checkMovable(bodies: Matter.Body[]): number {
+    let highestPriority = Constants.OBJECT_IS_MOVABLE.NONE as number;
+    if (bodies.length === 0) return highestPriority;
+
+    const hash = { ...Constants.OBJECT_IS_MOVABLE };
+
+    bodies.forEach((body) => {
+      const label = body.label as Constants.OBJECT_LABELS;
+      highestPriority = Math.min(highestPriority, hash[label]);
+    });
+
+    return highestPriority;
+  }
+
+  // 移動できるかどうかを判定し、移動できる場合は true を返す
+  isMovable(n: number): boolean {
+    return n === 0;
+  }
+
+  // matter bodies に blast が存在するかどうかを判定し、
+  // blast が存在する場合は 1 をそれ以外は 0 を返す
+  HasBlast(bodies: Matter.Body[]): number {
+    for (const body of bodies) {
+      if (body.label === Constants.OBJECT_LABEL.BLAST) return 1;
+    }
+    return 0;
+  }
+
+  // matter bodies に item が存在するかどうかを判定し、
+  // item が存在する場合は 1 それ以外は 0 を返す
+  HasItem(bodies: Matter.Body[]): number {
+    for (const body of bodies) {
+      if (body.label === Constants.OBJECT_LABEL.ITEM) return 1;
+    }
+    return 0;
+  }
+
+  // matter bodies に block が存在するかどうかを判定し、
+  // block が存在する場合は 1 それ以外は 0 を返す
+  HasBlock(bodies: Matter.Body[]): number {
+    for (const body of bodies) {
+      if (body.label === Constants.OBJECT_LABEL.BLOCK) return 1;
+    }
+    return 0;
   }
 
   // matter bodies が存在しない map の座標を返す

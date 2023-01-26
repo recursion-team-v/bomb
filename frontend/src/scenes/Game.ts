@@ -323,7 +323,7 @@ export default class Game extends Phaser.Scene {
     }
   }
 
-  // ボム追加イベント時に、マップにボムを追加
+  // ボム削除イベント時に、マップにボムを追加
   private handleBombRemoved(serverBomb: ServerBomb) {
     if (Config.DEBUG_IS_SHOW_SERVER_BOMB) {
       const body = this.currBombs.get(serverBomb.id);
