@@ -71,7 +71,7 @@ export default class EnemyPlayer extends Player {
     } else {
       anim = `${this.character}_idle_${this.lastDirection}`;
     }
-    this.play(anim, true);
+    if (!this.dmgAnimPlaying) this.play(anim, true);
 
     this.nameLabel.setPosition(this.x, this.y - 30);
     this.oldX = this.x;
