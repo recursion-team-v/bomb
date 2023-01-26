@@ -4,16 +4,35 @@ import * as Config from '../config/config';
 import ServerGameResult from '../../../backend/src/rooms/schema/GameResult';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import phaserJuice from '../lib/phaserJuice';
+import { createButtons, createButton } from '../utils/ui';
+import Network from '../services/Network';
 
 export default class GameResult extends Phaser.Scene {
+  private network!: Network;
+  private se1?: Phaser.Sound.BaseSound;
   private readonly juice: phaserJuice;
+
   constructor() {
     super(Config.SCENE_NAME_GAME_RESULT);
     // eslint-disable-next-line new-cap
     this.juice = new phaserJuice(this);
   }
 
-  create(data: { sessionId: string; gameResult: ServerGameResult }) {
+  init() {
+    this.se1 = this.sound.add('select', {
+      volume: Config.SOUND_VOLUME,
+    });
+  }
+
+  create(data: {
+    network: Network;
+    playerName: string;
+    sessionId: string;
+    gameResult: ServerGameResult;
+  }) {
+    if (data.network == null) return;
+    this.network = data.network;
+
     this.cameras.main.setSize(Constants.WIDTH, Constants.HEIGHT);
 
     this.add.image(
@@ -85,21 +104,23 @@ export default class GameResult extends Phaser.Scene {
       }
     }
 
-    const button = this.add
-      .container(Constants.WIDTH * 0.6, Constants.HEIGHT * 0.9, [
-        this.add.graphics().fillStyle(0xcdcdcd, 1).fillRoundedRect(0, 0, 260, 50, 5),
-        this.add
-          .text(130, 25, 'Go to Lobby', {
-            color: '#000000',
-            fontSize: '32px',
-            align: 'center',
-          })
-          .setOrigin(0.5),
-      ])
-      .setInteractive();
-
-    // FIXME: ここでロビーに遷移する処理を追加する
-    button.on('pointerup', () => {});
+    const buttons = createButtons(this, Constants.WIDTH * 0.6, Constants.HEIGHT * 0.9, [
+      createButton(this, 'Go to Lobby', Constants.GREEN),
+    ]);
+    buttons.on(
+      'button.click',
+      async () => {
+        this.se1?.play();
+        await this.network.joinLobbyRoom();
+        this.scene.get(Config.SCENE_NAME_GAME).scene.stop(); // ゲームシーンを shutdown する
+        this.scene.stop();
+        this.scene.start(Config.SCENE_NAME_LOBBY, {
+          network: this.network,
+          playerName: data.playerName,
+        });
+      },
+      this
+    );
   }
 
   generatePlayerContainer(x: number, y: number, name: string, assetKey: string) {
