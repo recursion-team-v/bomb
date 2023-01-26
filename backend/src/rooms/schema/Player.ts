@@ -142,6 +142,11 @@ export default class Player extends Schema {
     return this.maxBombCount - this.currentSetBombCount > 0;
   }
 
+  // ボムを設置しているかをチェックする
+  isSetBomb(): boolean {
+    return this.currentSetBombCount > 0;
+  }
+
   // 今設置しているボムの個数を増やす
   increaseSetBombCount() {
     if (this.canSetBomb()) this.currentSetBombCount++;

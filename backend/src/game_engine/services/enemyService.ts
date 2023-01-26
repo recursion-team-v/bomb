@@ -4,6 +4,7 @@ import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
 import Enemy from '../../rooms/schema/Enemy';
 import Player from '../../rooms/schema/Player';
+import Timer from '../../rooms/schema/Timer';
 import {
   directMovableMap,
   getDirectMovableMapIfBombSet,
@@ -271,12 +272,6 @@ export default class EnemyService {
           continue;
         }
 
-        // 移動時に一定時間経過したら爆弾を設置する
-        if (Date.now() - enemy.stoppedAt < Constants.ENEMY_PLACE_BOMB_INTERVAL_AFTER_MOVE) {
-          this.enemySetBomb(impactMapIsMovable, highPriorityForBlastRadiusMap, enemy);
-          enemy.setStoppedAt();
-        }
-
         // 次に移動するマスを設定する
         // setGoal は最終的に移動するマス、setNext は次に移動するマス
         enemy.setNext(moveList[1][0], moveList[1][1]);
@@ -295,9 +290,8 @@ export default class EnemyService {
         };
         enemy.inputQueue.push(data);
       } else {
-        enemy.setStoppedAt();
         // ゴールに着いたら、爆弾を設置する
-        this.enemySetBomb(impactMapIsMovable, highPriorityForBlastRadiusMap, enemy);
+        this.enemySetBomb(impactMapIsMovable, highPriorityForBlastRadiusMap, enemy, state.timer);
       }
     }
   }
@@ -306,7 +300,8 @@ export default class EnemyService {
   enemySetBomb(
     impactMapIsMovable: number[][],
     highPriorityForBlastRadiusMap: number[][],
-    enemy: Enemy
+    enemy: Enemy,
+    timer: Timer
   ) {
     // ただし、爆弾を設置するときには、自殺にならないように設置する爆弾の影響を考慮する
     const safeTileRate = 0.5;
@@ -325,6 +320,9 @@ export default class EnemyService {
       enemy.bombStrength
     );
 
+    // 序盤かつ、既にボムを置いていたら安全のために爆弾を置かない
+    if (enemy.getStep(timer) === Constants.ENEMY_EVALUATION_STEP.BEGINNING && enemy.isSetBomb())
+      return;
     if (!enemy.canSetBomb()) return;
 
     // もし爆弾を置いたら自分が死ぬなら爆弾を置かない

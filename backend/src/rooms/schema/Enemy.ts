@@ -11,16 +11,12 @@ export default class Enemy extends Player {
   goalX: number;
   goalY: number;
 
-  // このプレイヤーが移動を停止した時間
-  stoppedAt: number;
-
   constructor(sessionId: string, idx: number, name: string = Constants.DEFAULT_PLAYER_NAME) {
     super(sessionId, idx, name);
     this.nextX = Infinity;
     this.nextY = Infinity;
     this.goalX = Infinity;
     this.goalY = Infinity;
-    this.stoppedAt = 0;
   }
 
   // x, y からタイルの位置を返します
@@ -63,10 +59,6 @@ export default class Enemy extends Player {
     const pos = TileToPixel(tileX, tileY);
     this.goalX = pos.x;
     this.goalY = pos.y;
-  }
-
-  setStoppedAt() {
-    this.stoppedAt = Date.now();
   }
 
   // 次のタイルに移動済みかどうかを返します
