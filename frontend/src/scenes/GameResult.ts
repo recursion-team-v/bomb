@@ -113,6 +113,7 @@ export default class GameResult extends Phaser.Scene {
         this.se1?.play();
         await this.network.joinLobbyRoom();
         this.scene.get(Config.SCENE_NAME_GAME).scene.stop(); // ゲームシーンを shutdown する
+        this.scene.stop();
         this.scene.start(Config.SCENE_NAME_LOBBY, {
           network: this.network,
           playerName: data.playerName,
