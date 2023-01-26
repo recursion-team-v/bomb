@@ -1,4 +1,5 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
+import { faker } from '@faker-js/faker';
 
 import * as Constants from '../../constants/constants';
 import GameQueue from '../../utils/gameQueue';
@@ -90,7 +91,8 @@ export default class GameRoomState extends Schema {
   }
 
   createEnemy(sessionId: string): Enemy {
-    const enemy = new Enemy(sessionId, this.getPlayersCount());
+    const name = faker.name.firstName().slice(0, Constants.MAX_USER_NAME_LENGTH - 1);
+    const enemy = new Enemy(sessionId, this.getPlayersCount(), name);
     const idx = this.getPlayersCount();
     enemy.idx = idx;
     enemy.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
