@@ -117,7 +117,6 @@ export default class GameRoomState extends Schema {
   }
 
   getPlayerIdx() {
-    console.log(this.playerIdxsAvail);
     for (let i = 0; i < this.playerIdxsAvail.length; i++) {
       if (this.playerIdxsAvail[i]) {
         this.playerIdxsAvail[i] = false;
