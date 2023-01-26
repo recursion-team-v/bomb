@@ -31,11 +31,6 @@ export default class GameRoom extends Room<GameRoomState> {
     this.setState(new GameRoomState());
     this.engine = new GameEngine(this);
 
-    for (let i = 0; i < Constants.DEBUG_DEFAULT_ENEMY_COUNT; i++) {
-      const enemy = this.engine.enemyService.addEnemy(`enemy-${i}`);
-      this.enemies.set(`enemy-${i}`, enemy);
-    }
-
     // ゲーム開始をクライアントから受け取る
     this.onMessage(
       Constants.NOTIFICATION_TYPE.PLAYER_GAME_STATE,
@@ -156,8 +151,16 @@ export default class GameRoom extends Room<GameRoomState> {
     if (!this.state.gameState.isPlaying()) {
       await this.lock();
       await this.setMetadata({ locked: true });
+      this.addEnemy();
       this.state.gameState.setPlaying();
       this.state.setTimer();
+    }
+  }
+
+  private addEnemy() {
+    for (let i = 0; i < Constants.MAX_PLAYER - this.state.getPlayersCount(); i++) {
+      const enemy = this.engine.enemyService.addEnemy(`enemy-${i}`);
+      this.enemies.set(`enemy-${i}`, enemy);
     }
   }
 
