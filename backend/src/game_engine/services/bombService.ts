@@ -2,7 +2,9 @@ import Matter from 'matter-js';
 
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
-import { Bomb } from '../../rooms/schema/Bomb';
+import { Bomb, getSettablePosition } from '../../rooms/schema/Bomb';
+import Player from '../../rooms/schema/Player';
+import { PixelToTile } from '../../utils/map';
 import BlastService from './blastService';
 
 export default class BombService {
@@ -14,12 +16,6 @@ export default class BombService {
 
   // ボムを matter に追加する
   addBomb(bomb: Bomb): boolean {
-    // 既にボムがある場所には設置できない
-    if (this.isExistsBombOnPosition(bomb.x, bomb.y)) {
-      this.deleteBomb(bomb);
-      return false;
-    }
-
     const bombBody = Matter.Bodies.rectangle(
       bomb.x,
       bomb.y,
@@ -39,12 +35,31 @@ export default class BombService {
   }
 
   // ボムを matter から削除する
-  private deleteBomb(bomb: Bomb) {
+  deleteBomb(bomb: Bomb) {
+    // 設置者のボム数を増やす
+    const player = this.gameEngine.getPlayer(bomb.sessionId);
+    if (player !== undefined) {
+      // ボムを設置したプレイヤーの設置中のボム数を減らす
+      player.decreaseSetBombCount();
+    }
     this.gameEngine.state.deleteBomb(bomb);
     const bombBody = this.gameEngine.bombBodies.get(bomb.id);
     if (bombBody === undefined) return;
-    Matter.Composite.remove(this.gameEngine.world, bombBody);
     this.gameEngine.bombBodies.delete(bomb.id);
+    Matter.Composite.remove(this.gameEngine.world, bombBody);
+  }
+
+  // ボムをキューに詰めます
+  enqueueBomb(player: Player) {
+    if (player.isDead()) return;
+    if (!player.canSetBomb()) return;
+
+    const { bx, by } = getSettablePosition(player.x, player.y);
+    if (this.isExistsBombOnPosition(bx, by)) return;
+    player.increaseSetBombCount();
+    const bomb = new Bomb(bx, by, player.getBombType(), player.getBombStrength(), player.sessionId);
+    this.gameEngine.state.bombs.set(bomb.id, bomb);
+    this.gameEngine.state.getBombToCreateQueue().enqueue(bomb);
   }
 
   explode(bomb: Bomb) {
@@ -56,13 +71,6 @@ export default class BombService {
     // 爆風を作成する
     const blastService = new BlastService(this.gameEngine, bomb);
     blastService.add();
-
-    // 設置者のボム数を増やす
-    const player = this.gameEngine.getPlayer(bomb.sessionId);
-    if (player !== undefined) {
-      // ボムを設置したプレイヤーの設置中のボム数を減らす
-      player.decreaseSetBombCount();
-    }
 
     // ボムを削除する
     this.deleteBomb(bomb);
@@ -83,10 +91,21 @@ export default class BombService {
   // 指定した位置にボムが存在するかどうかを返す
   private isExistsBombOnPosition(x: number, y: number): boolean {
     let isExists = false;
+    const { x: tx, y: ty } = PixelToTile(x, y);
+
+    // すでに matter に追加されているボムのリストをチェックする
     this.gameEngine.bombBodies.forEach((bombBody) => {
       if (bombBody.position.x === x && bombBody.position.y === y) {
         isExists = true;
       }
+    });
+
+    if (isExists) return true;
+
+    // まだ matter に追加されていないボムのリストをチェックする
+    this.gameEngine.state.bombs.forEach((bomb) => {
+      const { x: bx, y: by } = PixelToTile(bomb.x, bomb.y);
+      if (tx === bx && ty === by) isExists = true;
     });
     return isExists;
   }

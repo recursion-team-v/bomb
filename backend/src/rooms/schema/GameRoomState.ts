@@ -1,16 +1,20 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
+import { faker } from '@faker-js/faker';
+
 import * as Constants from '../../constants/constants';
 import GameQueue from '../../utils/gameQueue';
+import { PixelToTile } from '../../utils/map';
+import { generateGameResult } from '../GameResultHandler';
+import Blast from './Blast';
 import Block from './Block';
-import { Bomb, getSettablePosition } from './Bomb';
+import { Bomb } from './Bomb';
+import Enemy from './Enemy';
+import GameResult from './GameResult';
 import GameState from './GameState';
 import Item from './Item';
 import Map from './Map';
 import Player from './Player';
 import Timer from './Timer';
-import Blast from './Blast';
-import GameResult from './GameResult';
-import { generateGameResult } from '../GameResultHandler';
 
 export default class GameRoomState extends Schema {
   @type(GameState)
@@ -38,6 +42,8 @@ export default class GameRoomState extends Schema {
   // アイテムを破壊するキュー
   private readonly itemToDestroyQueue: GameQueue<Item> = new GameQueue<Item>();
 
+  readonly enemies: Enemy[] = [];
+
   @type(Map) gameMap = new Map();
 
   getPlayer(sessionId: string): Player | undefined {
@@ -50,6 +56,11 @@ export default class GameRoomState extends Schema {
 
   getPlayersCount() {
     return this.players.size;
+  }
+
+  // 生きてるプレイヤーのみを返します
+  getAvailablePlayers(): Player[] {
+    return Array.from(this.players.values()).filter((player) => !player.isDead());
   }
 
   getAlivePlayers() {
@@ -79,11 +90,15 @@ export default class GameRoomState extends Schema {
     return player;
   }
 
-  createBomb(player: Player): Bomb {
-    const { bx, by } = getSettablePosition(player.x, player.y);
-    const bomb = new Bomb(bx, by, player.getBombType(), player.getBombStrength(), player.sessionId);
-    this.bombs.set(bomb.id, bomb);
-    return bomb;
+  createEnemy(sessionId: string): Enemy {
+    const name = faker.name.firstName().slice(0, Constants.MAX_USER_NAME_LENGTH - 1);
+    const enemy = new Enemy(sessionId, this.getPlayersCount(), name);
+    const idx = this.getPlayersCount();
+    enemy.idx = idx;
+    enemy.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
+    enemy.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
+    this.players.set(sessionId, enemy);
+    return enemy;
   }
 
   deleteBomb(bomb: Bomb) {
@@ -125,5 +140,21 @@ export default class GameRoomState extends Schema {
     }
 
     return -1;
+  }
+
+  // マップの各マスに対して、爆弾があるかどうかを返す
+  hasBomb(bombMap: number[][]): number[][] {
+    const result = Array(bombMap.length)
+      .fill(undefined)
+      .map(() => Array(bombMap[0].length).fill(undefined));
+
+    for (const key of this.bombs.keys()) {
+      const bomb = this.bombs.get(key);
+      if (bomb === undefined) continue;
+      const { x, y } = PixelToTile(bomb.x, bomb.y);
+      result[y][x] = bomb;
+    }
+
+    return result;
   }
 }

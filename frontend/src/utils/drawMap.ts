@@ -49,10 +49,15 @@ export const drawWalls = (scene: Phaser.Scene, mapTiles: MapTiles) => {
 export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
   const currBlocks = new Map<string, BlockBody>();
   let eventCount = 0;
+  let flag = true;
 
   blocks.forEach((block) => {
     const random = Math.random();
-    const randomHeight = random * 4500;
+    let randomHeight = random * Constants.GAME_PREPARING_TIME * 1000;
+    if (flag) {
+      randomHeight = Constants.GAME_PREPARING_TIME * 1000; // 必ず一つのブロックをゲーム開始演出時間に合わせる
+      flag = false;
+    }
     const shadow = scene.add
       .rectangle(
         block.x,

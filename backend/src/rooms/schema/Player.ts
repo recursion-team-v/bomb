@@ -1,6 +1,7 @@
 import { Schema, type } from '@colyseus/schema';
 
 import * as Constants from '../../constants/constants';
+import { PixelToTile } from '../../utils/map';
 import { validateAndFixUserName } from '../../utils/validation';
 
 export default class Player extends Schema {
@@ -158,6 +159,11 @@ export default class Player extends Schema {
     return this.maxBombCount - this.currentSetBombCount > 0;
   }
 
+  // ボムを設置しているかをチェックする
+  isSetBomb(): boolean {
+    return this.currentSetBombCount > 0;
+  }
+
   // 今設置しているボムの個数を増やす
   increaseSetBombCount() {
     if (this.canSetBomb()) this.currentSetBombCount++;
@@ -212,5 +218,10 @@ export default class Player extends Schema {
       count += value;
     });
     return count;
+  }
+
+  // プレイヤーのマス目の位置を取得する
+  getTilePosition(): { x: number; y: number } {
+    return PixelToTile(this.x, this.y);
   }
 }

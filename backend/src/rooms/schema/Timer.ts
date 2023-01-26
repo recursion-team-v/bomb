@@ -43,4 +43,9 @@ export default class Timer extends Schema {
   isFinished(): boolean {
     return this.now >= this.finishedAt;
   }
+
+  // クライアントのオープニング演出が終わっているかどうかを返す
+  isOpeningFinished(): boolean {
+    return this.now >= this.startedAt + Constants.GAME_PREPARING_TIME * 1000;
+  }
 }

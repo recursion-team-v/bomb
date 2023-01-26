@@ -2,6 +2,7 @@ import { Schema, type } from '@colyseus/schema';
 import { v4 as uuidv4 } from 'uuid';
 
 import * as Constants from '../../constants/constants';
+import { PixelToTile, TileToPixel } from '../../utils/map';
 
 export class Bomb extends Schema {
   // 位置
@@ -84,9 +85,7 @@ export class Bomb extends Schema {
 // TODO: クライアントもこっちを参照するようにする
 // 指定の座標から設置可能な座標を返します
 export function getSettablePosition(x: number, y: number): { bx: number; by: number } {
-  const bx = Math.floor(x / Constants.TILE_WIDTH) * Constants.TILE_WIDTH + Constants.TILE_WIDTH / 2;
-  const by =
-    Math.floor(y / Constants.TILE_HEIGHT) * Constants.TILE_HEIGHT + Constants.TILE_HEIGHT / 2;
-
+  const { x: px, y: py } = PixelToTile(x, y);
+  const { x: bx, y: by } = TileToPixel(px, py);
   return { bx, by };
 }
