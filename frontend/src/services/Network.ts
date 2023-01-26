@@ -51,7 +51,6 @@ export default class Network {
 
   async joinLobbyRoom() {
     this.lobby = await this.client.joinOrCreate(Constants.GAME_LOBBY_KEY);
-    console.log(this.lobby);
     this.lobby.onMessage('rooms', (rooms) => {
       this.allRooms = rooms;
       gameEvents.emit(Event.ROOMS_UPDATED);
@@ -178,17 +177,9 @@ export default class Network {
     gameEvents.on(Event.PLAYER_JOINED_ROOM, callback, context);
   }
 
-  removeOnPlayerJoinedRoom() {
-    gameEvents.removeAllListeners(Event.PLAYER_JOINED_ROOM);
-  }
-
   // 他のプレイヤーがルームを退出した時
   onPlayerLeftRoom(callback: (player: ServerPlayer, sessionId: string) => void, context?: any) {
     gameEvents.on(Event.PLAYER_LEFT_ROOM, callback, context);
-  }
-
-  removeOnPlayerLeftRoom() {
-    gameEvents.removeAllListeners(Event.PLAYER_LEFT_ROOM);
   }
 
   // プレイヤーがボムを追加した時
@@ -240,6 +231,11 @@ export default class Network {
 
   onPlayerIsReady(callback: (player: ServerPlayer) => void, context?: any) {
     gameEvents.on(Event.PLAYER_IS_READY, callback, context);
+  }
+
+  // シーンを切り替える度に既に存在するイベントリスナーが新しく追加されてしまうため、毎回消す
+  removeAllEventListeners() {
+    gameEvents.removeAllListeners();
   }
 
   // 自分のプレイヤー動作を送る

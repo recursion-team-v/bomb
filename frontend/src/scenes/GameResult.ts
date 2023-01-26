@@ -8,11 +8,20 @@ import { createButtons, createButton } from '../utils/ui';
 import Network from '../services/Network';
 
 export default class GameResult extends Phaser.Scene {
+  private network!: Network;
+  private se1?: Phaser.Sound.BaseSound;
   private readonly juice: phaserJuice;
+
   constructor() {
     super(Config.SCENE_NAME_GAME_RESULT);
     // eslint-disable-next-line new-cap
     this.juice = new phaserJuice(this);
+  }
+
+  init() {
+    this.se1 = this.sound.add('select', {
+      volume: Config.SOUND_VOLUME,
+    });
   }
 
   create(data: {
@@ -21,6 +30,9 @@ export default class GameResult extends Phaser.Scene {
     sessionId: string;
     gameResult: ServerGameResult;
   }) {
+    if (data.network == null) return;
+    this.network = data.network;
+
     this.cameras.main.setSize(Constants.WIDTH, Constants.HEIGHT);
 
     this.add.image(
@@ -98,10 +110,11 @@ export default class GameResult extends Phaser.Scene {
     buttons.on(
       'button.click',
       async () => {
-        await data.network.joinLobbyRoom();
-        this.scene.remove(Config.SCENE_NAME_GAME);
+        this.se1?.play();
+        await this.network.joinLobbyRoom();
+        this.scene.get(Config.SCENE_NAME_GAME).scene.stop(); // ゲームシーンを shutdown する
         this.scene.start(Config.SCENE_NAME_LOBBY, {
-          network: data.network,
+          network: this.network,
           playerName: data.playerName,
         });
       },
