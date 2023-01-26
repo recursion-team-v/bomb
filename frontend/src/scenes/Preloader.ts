@@ -4,7 +4,6 @@ import * as Constants from '../../../backend/src/constants/constants';
 import { createBombAnims, createPenetrationBombAnims } from '../anims/BombAnims';
 import { createCharacterAnims } from '../anims/CharacterAnims';
 import { createExplodeAnims, createPenetrationExplodeAnims } from '../anims/explodeAnims';
-import { createPlayerAnims } from '../anims/PlayerAnims';
 import * as Config from '../config/config';
 import Network from '../services/Network';
 import isMobile from '../utils/mobile';
@@ -27,11 +26,6 @@ export default class Preloader extends Phaser.Scene {
         frameHeight,
       });
     }
-
-    this.load.spritesheet(Config.ASSET_KEY_PLAYER, 'assets/player.png', {
-      frameWidth,
-      frameHeight,
-    });
 
     this.load.spritesheet('bomb', 'assets/items/bomb/bomb.png', {
       frameWidth,
@@ -162,7 +156,6 @@ export default class Preloader extends Phaser.Scene {
     this.load.audio('opening', ['assets/bgm/opening.mp3']);
 
     this.load.on('complete', () => {
-      createPlayerAnims(this.anims);
       createBombAnims(this.anims);
       createPenetrationBombAnims(this.anims);
       createExplodeAnims(this.anims);
