@@ -68,7 +68,7 @@ export default class GameRoomState extends Schema {
     }
   }
 
-  createPlayer(sessionId: string, playerName: string) {
+  createPlayer(sessionId: string, playerName: string): Player | undefined {
     const player = new Player(sessionId, this.getPlayersCount(), playerName);
     const idx = this.getPlayerIdx();
     if (idx === -1) return;
