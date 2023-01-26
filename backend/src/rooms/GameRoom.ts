@@ -278,6 +278,7 @@ export default class GameRoom extends Room<GameRoomState> {
   // 敵の移動を行う
   private enemyHandler() {
     if (!this.state.gameState.isPlaying()) return;
+    if (!this.state.timer.isOpeningFinished()) return;
     this.engine.enemyService.calcAdjustablePosition();
   }
 }
