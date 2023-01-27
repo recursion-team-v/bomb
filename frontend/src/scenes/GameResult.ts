@@ -91,7 +91,7 @@ export default class GameResult extends Phaser.Scene {
         if (players[i].hp > 0) continue;
         this.generatePlayerContainer(
           Constants.WIDTH * 0.6,
-          Constants.HEIGHT * 0.4 + 100 * index,
+          Constants.HEIGHT * 0.4 + 150 * index,
           players[i].name,
           Config.ASSET_KEY_PLAYER
         );
