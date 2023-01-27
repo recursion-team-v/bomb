@@ -98,7 +98,12 @@ export const createMoveUsage = function (scene: Phaser.Scene, x: number, y: numb
   group.add(scene.add.image(x - 50, y + 50, 'left').setScale(3));
   group.add(scene.add.image(x + 50, y + 50, 'right').setScale(3));
   group.add(scene.add.image(x, y + 100, 'down').setScale(3));
-  group.add(scene.add.image(x, y + 50, 'player', 14).setScale(0.8));
+  group.add(
+    scene.add
+      .sprite(x, y + 50, Constants.CHARACTERS[1])
+      .setScale(0.9)
+      .play(`${Constants.CHARACTERS[1]}_down`)
+  );
   group.add(scene.add.text(x - 60, y + 130, 'movement').setFontFamily('PressStart2P'));
 };
 

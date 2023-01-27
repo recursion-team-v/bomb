@@ -6,6 +6,7 @@ import Bomb, { Blast } from '../items/Bomb';
 import Item from '../items/Item';
 import { InnerWall, OuterWall, DropWall } from '../items/Wall';
 import VolumeIcon from '../services/SoundVolume';
+import EnemyPlayer from '../characters/EnemyPlayer';
 
 export {};
 
@@ -40,6 +41,15 @@ declare global {
         name?: string,
         options?: Phaser.Types.Physics.Matter.MatterBodyConfig
       ) => OtherPlayer;
+      enemyPlayer: (
+        sessionId: string,
+        x: number,
+        y: number,
+        texture: string,
+        frame?: string | number,
+        name?: string,
+        options?: Phaser.Types.Physics.Matter.MatterBodyConfig
+      ) => EnemyPlayer;
       bomb: (
         id: string,
         sessionId: string,
