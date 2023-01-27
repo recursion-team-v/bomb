@@ -1,11 +1,12 @@
 import Phaser from 'phaser';
+
 import * as Constants from '../../../backend/src/constants/constants';
-import * as Config from '../config/config';
 import ServerGameResult from '../../../backend/src/rooms/schema/GameResult';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
+import * as Config from '../config/config';
 import phaserJuice from '../lib/phaserJuice';
-import { createButtons, createButton } from '../utils/ui';
 import Network from '../services/Network';
+import { createButton, createButtons } from '../utils/ui';
 
 export default class GameResult extends Phaser.Scene {
   private network!: Network;
@@ -104,7 +105,7 @@ export default class GameResult extends Phaser.Scene {
       }
     }
 
-    const buttons = createButtons(this, Constants.WIDTH * 0.6, Constants.HEIGHT * 0.9, [
+    const buttons = createButtons(this, Constants.WIDTH * 0.8, Constants.HEIGHT * 0.9, [
       createButton(this, 'Go to Lobby', Constants.GREEN),
     ]);
     buttons.on(
