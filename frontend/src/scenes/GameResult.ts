@@ -34,7 +34,6 @@ export default class GameResult extends Phaser.Scene {
   }) {
     if (data.network == null) return;
     this.network = data.network;
-
     this.cameras.main.setSize(Constants.WIDTH, Constants.HEIGHT);
 
     // 舞台幕を開ける
@@ -45,6 +44,7 @@ export default class GameResult extends Phaser.Scene {
       .setDepth(Infinity)
       .play({ key: Config.CURTAIN_OPEN_ANIMATION_KEY, hideOnComplete: true }, true);
 
+    // タイトルを表示
     this.add.image(
       Constants.WIDTH * 0.5,
       Constants.HEIGHT * 0.1,
@@ -72,6 +72,9 @@ export default class GameResult extends Phaser.Scene {
 
     // 勝利者がいる場合
     if (winner !== undefined) {
+      // 花火を表示
+      this.addFireWorks();
+
       // トロフィーを表示
       this.add
         .sprite(Constants.WIDTH * 0.25, Constants.HEIGHT * 0.38, Config.ASSET_KEY_TROPHY)
@@ -152,5 +155,39 @@ export default class GameResult extends Phaser.Scene {
 
     if (result === Constants.GAME_RESULT.WIN) return Config.ASSET_KEY_WINNER;
     return Config.ASSET_KEY_DRAW_GAME;
+  }
+
+  addFireWorks() {
+    const particles = this.add.particles('flares');
+    const emitterConfig = {
+      alpha: { start: 1, end: 0, ease: 'Cubic.easeIn' },
+      angle: { start: 0, end: 360, steps: 100 },
+      blendMode: 'ADD',
+      frame: { frames: ['red', 'yellow', 'green', 'blue'], cycle: true, quantity: 500 },
+      frequency: 2000,
+      gravityY: 300,
+      lifespan: 1000,
+      quantity: 1000,
+      reserve: 500,
+      scale: { min: 0.05, max: 0.15 },
+      speed: { min: 10, max: 600 },
+      x: 512,
+      y: 384,
+    };
+    const emitter = particles.createEmitter(emitterConfig);
+
+    console.log(emitter.toJSON());
+
+    const { width, height } = this.scale;
+    const { FloatBetween } = Phaser.Math;
+
+    this.time.addEvent({
+      delay: 1000,
+      startAt: 1000,
+      repeat: -1,
+      callback: () => {
+        emitter.setPosition(width * FloatBetween(0.25, 0.75), height * FloatBetween(0, 0.5));
+      },
+    });
   }
 }

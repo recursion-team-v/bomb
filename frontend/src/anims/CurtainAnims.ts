@@ -8,7 +8,7 @@ export const createCurtainOpenAnims = (anims: Phaser.Animations.AnimationManager
       start: 0,
       end: 9,
     }),
-    frameRate: 5, // 秒間に表示する画像の枚数
+    frameRate: 10, // 秒間に表示する画像の枚数
     repeat: 0,
   });
 };

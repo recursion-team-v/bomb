@@ -137,6 +137,9 @@ export default class Preloader extends Phaser.Scene {
       frameHeight: 192,
     });
 
+    // flares
+    this.load.atlas('flares', 'assets/flares.png', 'assets/flares.json');
+
     // usage
     this.load.spritesheet('keyboard', 'assets/keyboard.png', {
       frameWidth,
