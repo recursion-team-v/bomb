@@ -38,6 +38,7 @@ import { dropWalls } from '../services/Map';
 import { removeItem } from '../services/Item';
 import GameResult from '../../../backend/src/rooms/schema/GameResult';
 import ServerTimer from '../../../backend/src/rooms/schema/Timer';
+import { getWinner } from '../utils/result';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
@@ -292,18 +293,11 @@ export default class Game extends Phaser.Scene {
       await this.network.leaveRoom();
       this.network.getTs().destroy();
 
-      const darken = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.8 } });
-      darken.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
-      darken.setDepth(Infinity - 1);
+      const moveToResultScene = () => {
+        const darken = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.8 } });
+        darken.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
+        darken.setDepth(Infinity - 1);
 
-      const curtain = this.add
-        .sprite(0, 0, 'curtain_open')
-        .setOrigin(0, 0)
-        .setScale(1.5, 2)
-        .setDepth(Infinity)
-        .play({ key: Config.CURTAIN_OPEN_ANIMATION_KEY, hideOnComplete: true }, true);
-
-      curtain.once('animationcomplete', () => {
         this.scene.pause();
         this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
           network: this.network,
@@ -311,7 +305,19 @@ export default class Game extends Phaser.Scene {
           sessionId: this.room.sessionId,
           gameResult: this.gameResult,
         });
-      });
+      };
+
+      // 勝利者がいる場合は、勝利者の位置にカメラを移動
+      const winner = getWinner(this.gameResult);
+      if (winner !== undefined) {
+        const camera = this.cameras.main;
+        camera.setZoom(1);
+        camera.pan(winner.x, winner.y, 1500, 'Sine.easeInOut');
+        camera.zoomTo(2, 1500, 'Sine.easeInOut', true);
+        camera.once('camerazoomcomplete', moveToResultScene);
+      } else {
+        moveToResultScene();
+      }
     }
   }
 

@@ -36,6 +36,14 @@ export default class GameResult extends Phaser.Scene {
 
     this.cameras.main.setSize(Constants.WIDTH, Constants.HEIGHT);
 
+    // 舞台幕を開ける
+    this.add
+      .sprite(0, 0, 'curtain_open')
+      .setOrigin(0, 0)
+      .setScale(1.5, 2)
+      .setDepth(Infinity)
+      .play({ key: Config.CURTAIN_OPEN_ANIMATION_KEY, hideOnComplete: true }, true);
+
     this.add.image(
       Constants.WIDTH * 0.5,
       Constants.HEIGHT * 0.15,
