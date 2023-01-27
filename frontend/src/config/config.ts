@@ -28,11 +28,11 @@ export const ASSET_KEY_PLAYER = 'player';
 export const ASSET_KEY_VOLUME_ON = 'volume_on';
 export const ASSET_KEY_VOLUME_OFF = 'volume_off';
 export const ASSET_KEY_WINNER = 'winner';
-export const ASSET_KEY_WINNER_CUP = 'winner_cup';
 export const ASSET_KEY_DRAW_GAME = 'draw_game';
 export const ASSET_KEY_BATTLE_START_UP = 'battle_start_up';
 export const ASSET_KEY_BATTLE_START_DOWN = 'battle_start_down';
 export const ASSET_KEY_CURTAIN_OPEN = 'curtain_open';
+export const ASSET_KEY_TROPHY = 'trophy';
 
 /*
 シーンの名前
@@ -54,8 +54,8 @@ export const BOMB_SPRITE_FRAME_COUNT = 18; // 爆弾の画像の枚数
 // 爆弾のアニメーションの key
 export const BOMB_ANIMATION_KEY = 'bomb_count';
 export const PENETRATION_BOMB_ANIMATION_KEY = 'penetration_bomb_count';
-
 export const CURTAIN_OPEN_ANIMATION_KEY = 'curtain_open_animation';
+export const TROPHY_ANIMATION_KEY = 'trophy_animation';
 
 /*
 サウンド関連

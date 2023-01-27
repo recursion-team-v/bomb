@@ -8,6 +8,7 @@ import { createCurtainOpenAnims } from '../anims/CurtainAnims';
 import * as Config from '../config/config';
 import Network from '../services/Network';
 import isMobile from '../utils/mobile';
+import { createTrophyAnims } from '../anims/TrophyAnims';
 
 export default class Preloader extends Phaser.Scene {
   private preloadComplete = false;
@@ -113,7 +114,6 @@ export default class Preloader extends Phaser.Scene {
 
     // game result assets
     this.load.image(Config.ASSET_KEY_WINNER, 'assets/winner.png');
-    this.load.image(Config.ASSET_KEY_WINNER_CUP, 'assets/winner_cup.png');
     this.load.image(Config.ASSET_KEY_DRAW_GAME, 'assets/draw_game.png');
 
     if (isMobile()) {
@@ -128,6 +128,11 @@ export default class Preloader extends Phaser.Scene {
     this.load.spritesheet(Config.ASSET_KEY_CURTAIN_OPEN, 'assets/stage_curtain.png', {
       frameWidth: 640,
       frameHeight: 480,
+    });
+
+    this.load.spritesheet(Config.ASSET_KEY_TROPHY, 'assets/trophy.png', {
+      frameWidth: 192,
+      frameHeight: 192,
     });
 
     // usage
@@ -167,6 +172,7 @@ export default class Preloader extends Phaser.Scene {
       createExplodeAnims(this.anims);
       createPenetrationExplodeAnims(this.anims);
       createCurtainOpenAnims(this.anims);
+      createTrophyAnims(this.anims);
       this.preloadComplete = true;
     });
   }

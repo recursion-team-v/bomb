@@ -71,15 +71,10 @@ export default class GameResult extends Phaser.Scene {
 
     // 勝利者がいる場合
     if (winner !== undefined) {
-      const cup = this.add.image(
-        Constants.WIDTH * 0.25,
-        Constants.HEIGHT * 0.4,
-        Config.ASSET_KEY_WINNER_CUP
-      );
-
-      setInterval(() => {
-        this.juice.flash(cup);
-      }, 100);
+      // トロフィーを表示
+      this.add
+        .sprite(Constants.WIDTH * 0.25, Constants.HEIGHT * 0.4, Config.ASSET_KEY_TROPHY)
+        .play({ key: Config.TROPHY_ANIMATION_KEY }, true);
 
       this.add
         .sprite(Constants.WIDTH * 0.25, Constants.HEIGHT * 0.58, Config.ASSET_KEY_PLAYER, 14)
