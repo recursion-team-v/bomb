@@ -4,6 +4,7 @@ import Phaser from 'phaser';
 // register to GameObjectFactory
 import '../characters/MyPlayer';
 import '../characters/OtherPlayer';
+import '../characters/EnemyPlayer';
 import '../items/Bomb';
 import '../items/PenetrationBomb';
 import '../items/Wall';
@@ -39,6 +40,7 @@ import { removeItem } from '../services/Item';
 import GameResult from '../../../backend/src/rooms/schema/GameResult';
 import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 import { getWinner } from '../utils/result';
+import EnemyPlayer from '../characters/EnemyPlayer';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
@@ -52,7 +54,7 @@ export default class Game extends Phaser.Scene {
   private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
 
   private myPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
-  private otherPlayers!: Map<string, OtherPlayer>;
+  private otherPlayers!: Map<string, OtherPlayer | EnemyPlayer>; // 他のプレイヤー
   private currBlocks?: Map<string, Block>; // 現在存在しているブロック
   private currItems!: Map<string, Item>; // 現在存在しているアイテム
   private currBombs!: Map<string, Phaser.GameObjects.Arc>; // 現在存在しているボム
@@ -185,7 +187,7 @@ export default class Game extends Phaser.Scene {
   }
 
   private initNetworkEvents() {
-    this.network.onPlayerJoinedRoom(this.addOtherPlayer, this); // reconnectを導入する場合必要
+    this.network.onPlayerJoinedRoom(this.handlePlayerJoinedRoom, this); // reconnectを導入する場合必要 (CPU が遅れて参加した場合)
     this.network.onGameStateUpdated(this.handleGameStateChanged, this); // gameStateの変更イベント
     this.network.onGameResultUpdated(this.handleGameResultUpdated, this); // ゲーム結果の変更イベント
     // TODO: アイテムをとって火力が上がった場合の処理を追加する
@@ -224,14 +226,14 @@ export default class Game extends Phaser.Scene {
     this.bgm.play({
       loop: true,
     });
-
-    // TODO: タイマースタート
   }
 
   private addPlayers() {
-    this.room.state.players.forEach((player, sessionId) => {
+    this.room.state.players.forEach((player: ServerPlayer, sessionId) => {
       if (sessionId === this.network.mySessionId) {
         this.addMyPlayer(); // 自分を追加
+      } else if (player.isCPU) {
+        this.addEnemyPlayer(player, sessionId); // CPU を追加
       } else {
         this.addOtherPlayer(player, sessionId); // 他のプレイヤーを追加
       }
@@ -245,7 +247,7 @@ export default class Game extends Phaser.Scene {
       this.network.mySessionId,
       player.x,
       player.y,
-      'player',
+      player.character,
       undefined,
       player.name
     );
@@ -260,7 +262,7 @@ export default class Game extends Phaser.Scene {
       sessionId,
       player.x,
       player.y,
-      'player',
+      player.character,
       undefined,
       player.name
     );
@@ -269,6 +271,28 @@ export default class Game extends Phaser.Scene {
     player.onChange = () => {
       otherPlayer.handleServerChange(player);
     };
+  }
+
+  private addEnemyPlayer(player: ServerPlayer, sessionId: string) {
+    const enemyPlayer = this.add.enemyPlayer(
+      sessionId,
+      player.x,
+      player.y,
+      player.character,
+      undefined,
+      player.name
+    );
+    this.otherPlayers.set(sessionId, enemyPlayer);
+
+    player.onChange = () => {
+      enemyPlayer.handleServerChange(player);
+    };
+  }
+
+  private handlePlayerJoinedRoom(player: ServerPlayer, sessionId: string) {
+    // ping によって CPU が遅れて参加した場合描画されてなかったため
+    if (player.isCPU) this.addEnemyPlayer(player, sessionId);
+    else this.addOtherPlayer(player, sessionId);
   }
 
   private handlePlayerLeftRoom(player: ServerPlayer, sessionId: string) {
@@ -431,7 +455,7 @@ export default class Game extends Phaser.Scene {
 
   // 他のプレイヤーの移動処理
   private moveOtherPlayers() {
-    this.otherPlayers.forEach((otherPlayer: OtherPlayer) => {
+    this.otherPlayers.forEach((otherPlayer: OtherPlayer | EnemyPlayer) => {
       otherPlayer.update();
     });
   }
@@ -440,7 +464,7 @@ export default class Game extends Phaser.Scene {
     return this.myPlayer;
   }
 
-  public getOtherPlayers(): Map<string, OtherPlayer> {
+  public getOtherPlayers(): Map<string, OtherPlayer | EnemyPlayer> {
     return this.otherPlayers;
   }
 
