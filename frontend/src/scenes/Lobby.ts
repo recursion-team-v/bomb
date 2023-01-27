@@ -172,6 +172,10 @@ export default class Lobby extends Phaser.Scene {
   private async handleGameStart(data: IGameStartInfo) {
     // ロビーシーン停止の処理
     this.bgm?.stop();
+
+    // 少しでも早くから再生するために、ここで再生する
+    this.sound.add('battleStart', { volume: Config.SOUND_VOLUME }).play();
+
     this.scene.stop(Config.SCENE_NAME_LOBBY);
     this.network.removeAllEventListeners();
     await this.network.lobby?.leave();

@@ -63,7 +63,6 @@ export default class Game extends Phaser.Scene {
   private itemToRemoveQueue!: GameQueue<ServerItem>;
 
   private bgm!: Phaser.Sound.BaseSound;
-  private startBgm!: Phaser.Sound.BaseSound;
   private title!: Phaser.GameObjects.Container;
   private upTitle!: Phaser.GameObjects.Image;
   private downTitle!: Phaser.GameObjects.Image;
@@ -91,8 +90,6 @@ export default class Game extends Phaser.Scene {
     this.cursorKeys = initializeKeys(this);
     disableKeys(this.cursorKeys);
 
-    this.startBgm = this.sound.add('battleStart', { volume: Config.SOUND_VOLUME });
-    this.startBgm.play();
     this.bgm = this.sound.add('stage_2', {
       volume: Config.SOUND_VOLUME,
     });
@@ -306,7 +303,6 @@ export default class Game extends Phaser.Scene {
 
     if (state === Constants.GAME_STATE.FINISHED && this.room !== undefined) {
       // ゲームシーン停止の処理
-      this.startBgm.stop();
       this.bgm?.stop();
       this.scene.pause();
       this.scene.sendToBack();
