@@ -4,6 +4,7 @@ import * as Constants from '../../../backend/src/constants/constants';
 import { createBombAnims, createPenetrationBombAnims } from '../anims/BombAnims';
 import { createExplodeAnims, createPenetrationExplodeAnims } from '../anims/explodeAnims';
 import { createPlayerAnims } from '../anims/PlayerAnims';
+import { createCurtainOpenAnims } from '../anims/CurtainAnims';
 import * as Config from '../config/config';
 import Network from '../services/Network';
 import isMobile from '../utils/mobile';
@@ -123,6 +124,12 @@ export default class Preloader extends Phaser.Scene {
     // title
     this.load.image('title', 'assets/title.png');
 
+    // stage curtain
+    this.load.spritesheet(Config.ASSET_KEY_CURTAIN_OPEN, 'assets/stage_curtain.png', {
+      frameWidth: 640,
+      frameHeight: 480,
+    });
+
     // usage
     this.load.spritesheet('keyboard', 'assets/keyboard.png', {
       frameWidth,
@@ -159,6 +166,7 @@ export default class Preloader extends Phaser.Scene {
       createPenetrationBombAnims(this.anims);
       createExplodeAnims(this.anims);
       createPenetrationExplodeAnims(this.anims);
+      createCurtainOpenAnims(this.anims);
       this.preloadComplete = true;
     });
   }

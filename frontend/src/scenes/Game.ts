@@ -284,7 +284,6 @@ export default class Game extends Phaser.Scene {
       // ゲームシーン停止の処理
       this.startBgm.stop();
       this.bgm?.stop();
-      this.scene.pause();
       this.scene.sendToBack();
       this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
 
@@ -295,13 +294,23 @@ export default class Game extends Phaser.Scene {
 
       const darken = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.8 } });
       darken.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
-      darken.setDepth(Infinity);
+      darken.setDepth(Infinity - 1);
 
-      this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
-        network: this.network,
-        playerName: this.myPlayer.name,
-        sessionId: this.room.sessionId,
-        gameResult: this.gameResult,
+      const curtain = this.add
+        .sprite(0, 0, 'curtain_open')
+        .setOrigin(0, 0)
+        .setScale(1.5, 2)
+        .setDepth(Infinity)
+        .play({ key: Config.CURTAIN_OPEN_ANIMATION_KEY, hideOnComplete: true }, true);
+
+      curtain.once('animationcomplete', () => {
+        this.scene.pause();
+        this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
+          network: this.network,
+          playerName: this.myPlayer.name,
+          sessionId: this.room.sessionId,
+          gameResult: this.gameResult,
+        });
       });
     }
   }
