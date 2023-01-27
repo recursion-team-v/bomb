@@ -84,7 +84,7 @@ export default class GameResult extends Phaser.Scene {
           align: 'center',
         })
         .setOrigin(0.5);
-      
+
       // y軸でfor文のiを参照すると勝者のiが一つ分飛ぶことになるので間隔ができてしまうので、別で敗者の時にインクリメントする変数を定義
       let index = 0;
       for (let i = 0; i < players.length; i++) {
