@@ -100,9 +100,9 @@ export const createMoveUsage = function (scene: Phaser.Scene, x: number, y: numb
   group.add(scene.add.image(x, y + 100, 'down').setScale(3));
   group.add(
     scene.add
-      .sprite(x, y + 50, Constants.CHARACTERS[0])
+      .sprite(x, y + 50, Constants.CHARACTERS[1])
       .setScale(0.9)
-      .play(`${Constants.CHARACTERS[0]}_down`)
+      .play(`${Constants.CHARACTERS[1]}_down`)
   );
   group.add(scene.add.text(x - 60, y + 130, 'movement').setFontFamily('PressStart2P'));
 };
