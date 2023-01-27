@@ -332,8 +332,8 @@ export default class Game extends Phaser.Scene {
       if (winner !== undefined) {
         const camera = this.cameras.main;
         camera.setZoom(1);
-        camera.pan(winner.x, winner.y, 1500, 'Sine.easeInOut');
-        camera.zoomTo(2, 1500, 'Sine.easeInOut', true);
+        camera.pan(winner.x, winner.y, 2000, 'Sine.easeInOut');
+        camera.zoomTo(2, 2000, 'Sine.easeInOut', true);
         camera.once('camerazoomcomplete', moveToResultScene);
       } else {
         moveToResultScene();

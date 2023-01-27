@@ -82,6 +82,7 @@ export default class GameResult extends Phaser.Scene {
 
       this.add
         .sprite(Constants.WIDTH * 0.25, Constants.HEIGHT * 0.58, winner.character, 14)
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         .play(`${winner.character}_down`)
         .setScale(2.5);
       this.add

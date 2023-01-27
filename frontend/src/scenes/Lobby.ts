@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import * as Config from '../config/config';
 import * as Constants from '../../../backend/src/constants/constants';
 import Network, { IGameStartInfo } from '../services/Network';
