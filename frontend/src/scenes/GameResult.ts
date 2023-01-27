@@ -6,6 +6,7 @@ import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import phaserJuice from '../lib/phaserJuice';
 import { createButtons, createButton } from '../utils/ui';
 import Network from '../services/Network';
+import { getWinner } from '../utils/result';
 
 export default class GameResult extends Phaser.Scene {
   private network!: Network;
@@ -41,7 +42,7 @@ export default class GameResult extends Phaser.Scene {
       this.getResultKey(data.gameResult)
     );
 
-    const winner = this.getWinner(data.gameResult);
+    const winner = getWinner(data.gameResult);
     const players = this.getPlayers(data.gameResult);
 
     // テスト用
@@ -61,7 +62,7 @@ export default class GameResult extends Phaser.Scene {
     // ];
 
     // 勝利者がいる場合
-    if (winner !== '') {
+    if (winner !== undefined) {
       const cup = this.add.image(
         Constants.WIDTH * 0.25,
         Constants.HEIGHT * 0.4,
@@ -77,7 +78,7 @@ export default class GameResult extends Phaser.Scene {
         .play('player_down')
         .setScale(1.5);
       this.add
-        .text(Constants.WIDTH * 0.25, Constants.HEIGHT * 0.7, winner, {
+        .text(Constants.WIDTH * 0.25, Constants.HEIGHT * 0.7, winner.name, {
           fontSize: '40px',
           fontStyle: 'bold',
           align: 'center',
@@ -85,7 +86,7 @@ export default class GameResult extends Phaser.Scene {
         .setOrigin(0.5);
 
       for (let i = 0; i < players.length; i++) {
-        if (players[i].name === winner) continue;
+        if (players[i].name === winner.name) continue;
         this.generatePlayerContainer(
           Constants.WIDTH * 0.6,
           Constants.HEIGHT * 0.4 + 150 * i,
@@ -147,13 +148,5 @@ export default class GameResult extends Phaser.Scene {
 
     if (result === Constants.GAME_RESULT.WIN) return Config.ASSET_KEY_WINNER;
     return Config.ASSET_KEY_DRAW_GAME;
-  }
-
-  getWinner(data: any): string {
-    for (let i = 0; i < data.length; i++) {
-      if (data[i].field === 'winner') return data[i].value.name;
-    }
-
-    return '';
   }
 }
