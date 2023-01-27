@@ -318,11 +318,7 @@ export default class Game extends Phaser.Scene {
       this.network.getTs().destroy();
 
       const moveToResultScene = () => {
-        const darken = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.8 } });
-        darken.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
-        darken.setDepth(Infinity - 1);
-
-        this.scene.pause();
+        this.scene.stop();
         this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
           network: this.network,
           playerName: this.myPlayer.name,

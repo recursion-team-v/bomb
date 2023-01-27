@@ -47,7 +47,7 @@ export default class GameResult extends Phaser.Scene {
 
     this.add.image(
       Constants.WIDTH * 0.5,
-      Constants.HEIGHT * 0.15,
+      Constants.HEIGHT * 0.1,
       this.getResultKey(data.gameResult)
     );
 
