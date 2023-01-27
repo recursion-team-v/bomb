@@ -235,19 +235,6 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     }, duration);
   }
 
-  // private animationRotate() {
-  //   const juice = getGameScene().getJuice();
-  //   const rotateConfig = {
-  //     angle: 450,
-  //     duration: 500,
-  //     ease: 'Circular.easeInOut',
-  //     delay: 1000,
-  //     paused: false,
-  //   };
-
-  //   juice.rotate(this, rotateConfig);
-  // }
-
   private animationShakeScreen(duration: number = 300) {
     this.scene.cameras.main.shake(duration, 0.01);
   }
