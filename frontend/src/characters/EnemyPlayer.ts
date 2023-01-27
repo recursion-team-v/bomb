@@ -2,10 +2,11 @@ import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import Player from './Player';
 
-export default class OtherPlayer extends Player {
+export default class EnemyPlayer extends Player {
   private serverX: number;
   private serverY: number;
-  private frameKey: number;
+  private oldX: number; // 一回前の位置(アニメーション用)
+  private oldY: number; // 一回前の位置(アニメーション用)
 
   constructor(
     sessionId: string,
@@ -20,7 +21,8 @@ export default class OtherPlayer extends Player {
     super(sessionId, world, x, y, texture, frame, name, options);
     this.serverX = x;
     this.serverY = y;
-    this.frameKey = 0;
+    this.oldX = x;
+    this.oldY = y;
     this.setSensor(true); // プレイヤー同士はぶつからないようにする
     this.addNameLabel(Constants.RED);
   }
@@ -29,7 +31,6 @@ export default class OtherPlayer extends Player {
     if (this.isDead()) return false;
     this.serverX = serverPlayer.x;
     this.serverY = serverPlayer.y;
-    this.frameKey = serverPlayer.frameKey;
     this.setHP(serverPlayer.hp);
     this.setSpeed(serverPlayer.speed);
     this.setBombType(serverPlayer.bombType);
@@ -50,13 +51,36 @@ export default class OtherPlayer extends Player {
     // 線形補完(TODO: 調整)
     this.x = Math.ceil(Phaser.Math.Linear(this.x, this.serverX, 0.35)); // 動きがちょっと滑らか過ぎるから 0.2 -> 0.35
     this.y = Math.ceil(Phaser.Math.Linear(this.y, this.serverY, 0.35));
-    this.setFrame(this.frameKey);
+
+    const vx = Math.round(this.x - this.oldX);
+    const vy = Math.round(this.y - this.oldY);
+
+    let anim: string;
+    if (vx > 0.75) {
+      anim = `${this.character}_right`;
+      this.lastDirection = 'right';
+    } else if (vx < -0.75) {
+      anim = `${this.character}_left`;
+      this.lastDirection = 'left';
+    } else if (vy > 0.75) {
+      anim = `${this.character}_down`;
+      this.lastDirection = 'down';
+    } else if (vy < -0.75) {
+      anim = `${this.character}_up`;
+      this.lastDirection = 'up';
+    } else {
+      anim = `${this.character}_idle_${this.lastDirection}`;
+    }
+    if (!this.dmgAnimPlaying) this.play(anim, true);
+
     this.nameLabel.setPosition(this.x, this.y - 30);
+    this.oldX = this.x;
+    this.oldY = this.y;
   }
 }
 
 Phaser.GameObjects.GameObjectFactory.register(
-  'otherPlayer',
+  'enemyPlayer',
   function (
     this: Phaser.GameObjects.GameObjectFactory,
     sessionId: string,
@@ -67,7 +91,7 @@ Phaser.GameObjects.GameObjectFactory.register(
     name?: string,
     options?: Phaser.Types.Physics.Matter.MatterBodyConfig
   ) {
-    const sprite = new OtherPlayer(
+    const sprite = new EnemyPlayer(
       sessionId,
       this.scene.matter.world,
       x,

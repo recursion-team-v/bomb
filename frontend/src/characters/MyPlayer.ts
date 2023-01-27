@@ -100,11 +100,23 @@ export default class MyPlayer extends Player {
       if (this.inputPayload.down) vy += velocity;
     }
 
-    if (vx > 0) this.play('player_right', true);
-    else if (vx < 0) this.play('player_left', true);
-    else if (vy > 0) this.play('player_down', true);
-    else if (vy < 0) this.play('player_up', true);
-    else this.stop();
+    let anim: string;
+    if (vx > 0) {
+      anim = `${this.character}_right`;
+      this.lastDirection = 'right';
+    } else if (vx < 0) {
+      anim = `${this.character}_left`;
+      this.lastDirection = 'left';
+    } else if (vy > 0) {
+      anim = `${this.character}_down`;
+      this.lastDirection = 'down';
+    } else if (vy < 0) {
+      anim = `${this.character}_up`;
+      this.lastDirection = 'up';
+    } else {
+      anim = `${this.character}_idle_${this.lastDirection}`;
+    }
+    if (!this.dmgAnimPlaying) this.play(anim, true);
 
     network.sendPlayerMove(this, this.inputPayload, isInput);
 

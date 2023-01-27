@@ -8,6 +8,7 @@ import { getGameScene } from '../utils/globalGame';
 
 export default class Player extends Phaser.Physics.Matter.Sprite {
   name: string;
+  character: string;
   private hp: number;
   private speed: number;
   private bombType: Constants.BOMB_TYPES; // ボムの種類
@@ -17,6 +18,8 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   private readonly hit_se;
   nameLabel!: Phaser.GameObjects.Container;
   nameText!: Phaser.GameObjects.Text;
+  lastDirection: 'right' | 'left' | 'up' | 'down' = 'down';
+  dmgAnimPlaying = false;
 
   constructor(
     sessionId: string,
@@ -30,6 +33,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
   ) {
     super(world, x, y, texture, frame, options);
     this.name = name === undefined ? Constants.DEFAULT_PLAYER_NAME : name;
+    this.character = texture;
     this.hp = Constants.INITIAL_PLAYER_HP;
     this.sessionId = sessionId;
     this.speed = Constants.INITIAL_PLAYER_SPEED;
@@ -37,6 +41,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.maxBombCount = Constants.INITIAL_SETTABLE_BOMB_COUNT;
 
+    this.setScale(1.3, 1);
     this.setRectangle(Constants.PLAYER_WIDTH, Constants.PLAYER_HEIGHT, {
       chamfer: 10, // 0だと壁に対して斜め移動すると突っかかるので増やす
       friction: 0,
@@ -45,7 +50,6 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
       restitution: 0,
     });
     this.setFixedRotation();
-    this.setFrame(14); // 最初は下向いてる
 
     const body = this.body as MatterJS.BodyType;
     body.label = Constants.OBJECT_LABEL.PLAYER;
@@ -99,7 +103,11 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.hit_se.play();
     this.hp -= damage;
     this.animationShakeScreen();
-    this.animationFlash(Constants.PLAYER_INVINCIBLE_TIME);
+    this.dmgAnimPlaying = true;
+    this.play(`${this.character}_damage_${this.lastDirection}`).on('animationcomplete', () => {
+      this.dmgAnimPlaying = false;
+      this.animationFlash(Constants.PLAYER_INVINCIBLE_TIME);
+    });
   }
 
   private healed(healedHp: number) {
@@ -181,7 +189,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.setToSleep(); // これをしないと移動中だとローテーション中に移動してしまう
     this.setVelocity(0, 0);
     this.setSensor(true);
-    this.animationRotate();
+    this.play(`${this.character}_death_${this.lastDirection}`);
   }
 
   isEqualSessionId(sessionId: string): boolean {
@@ -225,19 +233,6 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     setTimeout(() => {
       clearInterval(timer);
     }, duration);
-  }
-
-  private animationRotate() {
-    const juice = getGameScene().getJuice();
-    const rotateConfig = {
-      angle: 450,
-      duration: 500,
-      ease: 'Circular.easeInOut',
-      delay: 1000,
-      paused: false,
-    };
-
-    juice.rotate(this, rotateConfig);
   }
 
   private animationShakeScreen(duration: number = 300) {

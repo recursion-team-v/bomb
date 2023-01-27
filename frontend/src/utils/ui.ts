@@ -107,7 +107,7 @@ export const createDialog = (
 };
 
 const createDialogContent = (scene: Phaser.Scene) => {
-  return scene.rexUI.add
+  const grid = scene.rexUI.add
     .gridSizer({
       x: 0,
       y: 0,
@@ -124,14 +124,16 @@ const createDialogContent = (scene: Phaser.Scene) => {
         row: 20,
       },
     })
-    .add(createPlayerCard(scene))
-    .add(createPlayerCard(scene))
-    .add(createPlayerCard(scene))
-    .add(createPlayerCard(scene))
     .layout();
+
+  for (const character of Constants.CHARACTERS) {
+    grid.add(createPlayerCard(scene, character));
+  }
+
+  return grid;
 };
 
-export const createPlayerCard = (scene: Phaser.Scene) => {
+export const createPlayerCard = (scene: Phaser.Scene, character: string) => {
   const card = scene.rexUI.add
     .label({
       orientation: 1,
@@ -148,7 +150,7 @@ export const createPlayerCard = (scene: Phaser.Scene) => {
           })
           .setOrigin(0.5),
         scene.add.triangle(5, -35, -5, -5, 15, -5, 5, 5, Constants.BLUE).setOrigin(0.5),
-        scene.add.sprite(0, 10, 'player').setScale(1.2).play('player_down'),
+        scene.add.sprite(0, 10, character).setScale(1.6, 1.3).play(`${character}_idle_down`, true),
       ]),
       text: scene.add
         .text(0, 0, '', { fontSize: '18px', fontFamily: 'PressStart2P' })

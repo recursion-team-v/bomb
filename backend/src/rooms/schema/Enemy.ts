@@ -13,6 +13,7 @@ export default class Enemy extends Player {
 
   constructor(sessionId: string, idx: number, name: string = Constants.DEFAULT_PLAYER_NAME) {
     super(sessionId, idx, name);
+    this.isCPU = true;
     this.nextX = Infinity;
     this.nextY = Infinity;
     this.goalX = Infinity;

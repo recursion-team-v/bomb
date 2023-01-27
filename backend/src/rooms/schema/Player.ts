@@ -11,6 +11,9 @@ export default class Player extends Schema {
   @type('number')
   gameState: Constants.PLAYER_GAME_STATE_TYPE = Constants.PLAYER_GAME_STATE.WAITING;
 
+  @type('string')
+  character: string;
+
   // プレイヤーの番号
   @type('number')
   idx: number;
@@ -67,12 +70,17 @@ export default class Player extends Schema {
   @type('number')
   diedAt: number;
 
+  // CPU
+  @type('boolean')
+  isCPU = false;
+
   inputQueue: any[] = [];
 
   constructor(sessionId: string, idx: number, name: string = '') {
     super();
     this.sessionId = sessionId;
     this.idx = idx;
+    this.character = Constants.CHARACTERS[idx];
     this.name = validateAndFixUserName(name);
     this.hp = Constants.INITIAL_PLAYER_HP;
     this.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
