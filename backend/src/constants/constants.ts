@@ -2,6 +2,8 @@
 色の定義
 */
 
+export const DEBUG_ADMIN_PASSWORD = 'admin';
+
 export const PAGE_COLOR = 0x18181b;
 export const BLACK = 0x000000;
 export const WHITE = 0xffffff;
