@@ -330,15 +330,18 @@ export default class Game extends Phaser.Scene {
       this.network.getTs().destroy();
 
       const moveToResultScene = () => {
-        setTimeout(() => {
-          this.scene.stop();
-          this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
-            network: this.network,
-            playerName: this.myPlayer.name,
-            sessionId: this.room.sessionId,
-            gameResult: this.gameResult,
-          });
-        }, winner !== undefined ? 1500 : 3000);
+        setTimeout(
+          () => {
+            this.scene.stop();
+            this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
+              network: this.network,
+              playerName: this.myPlayer.name,
+              sessionId: this.room.sessionId,
+              gameResult: this.gameResult,
+            });
+          },
+          winner !== undefined ? 1500 : 3000
+        );
       };
 
       // 勝利者がいる場合は、勝利者の位置にカメラを移動
