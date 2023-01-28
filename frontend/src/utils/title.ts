@@ -16,7 +16,7 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
   // User name field object
   const userNameField = scene.rexUI.add.label({
     orientation: 'x',
-    background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10).setStrokeStyle(1, 0x959595),
+    background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10, 0x959595).setAlpha(0.8),
     text: scene.rexUI.add.canvasInput(xValue, yValue, 300, 36, {
       style: {
         fontSize: 20,
