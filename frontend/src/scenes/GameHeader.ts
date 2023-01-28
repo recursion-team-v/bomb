@@ -63,7 +63,7 @@ export default class GameHeader extends Phaser.Scene {
       ])
       .setDepth(Infinity);
 
-    this.add.volumeIcon(this, this.width - 60, 10, isPlay());
+    this.add.volumeIcon(this, this.width - 100, 10, isPlay());
   }
 
   create(data: { network: Network; serverTimer: ServerTimer }) {
