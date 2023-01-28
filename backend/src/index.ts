@@ -6,6 +6,7 @@ import express from 'express';
 import cors from 'cors';
 import GameRoom from './rooms/GameRoom';
 import * as Constants from './constants/constants';
+import basicAuth from 'express-basic-auth';
 
 // import する上手いやり方わからず require になってます
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -18,8 +19,15 @@ const gameServer = new Server({
   server: createServer(app),
 });
 
-// TODO: add authentication
-app.use('/monitor', monitor());
+const adminPassword = process.env.ADMIN_PASSWORD ?? Constants.DEBUG_ADMIN_PASSWORD;
+const basicAuthMiddleware = basicAuth({
+  users: {
+    admin: adminPassword,
+  },
+  challenge: true,
+});
+
+app.use('/monitor', basicAuthMiddleware, monitor());
 gameServer.define(Constants.GAME_LOBBY_KEY, LobbyRoom);
 // gameServer.define(Constants.GAME_PUBLIC_ROOM_KEY, GameRoom, { name: 'public' });
 gameServer.define(Constants.GAME_CUSTOM_ROOM_KEY, GameRoom).enableRealtimeListing();
