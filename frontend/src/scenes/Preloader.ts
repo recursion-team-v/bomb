@@ -19,6 +19,12 @@ export default class Preloader extends Phaser.Scene {
   }
 
   preload() {
+    // アセットを読み込む前に、ローディングであることを伝えるテキストを表示する
+    this.add.text(Constants.WIDTH / 2 - 100, Constants.HEIGHT / 2, 'Loading game...', {
+      fontSize: '32px',
+      color: '#fff',
+    });
+
     const frameWidth = Constants.DEFAULT_TIP_SIZE;
     const frameHeight = Constants.DEFAULT_TIP_SIZE;
 
