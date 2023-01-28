@@ -17,6 +17,7 @@
     "colyseus": "^0.14.24",
     "cors": "^2.8.5",
     "express": "^4.18.2",
+    "express-basic-auth": "^1.2.1",
     "matter-js": "^0.18.0",
     "pathfinding": "^0.4.18",
     "timesync": "^1.0.11",
