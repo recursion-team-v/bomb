@@ -9,6 +9,7 @@ import { createCurtainOpenAnims } from '../anims/CurtainAnims';
 import * as Config from '../config/config';
 import Network from '../services/Network';
 import isMobile from '../utils/mobile';
+import { createMapAnims } from '../anims/MapAnims';
 import { createTitleBackgroundAnims } from '../anims/TitleBackground';
 
 export default class Preloader extends Phaser.Scene {
@@ -100,17 +101,24 @@ export default class Preloader extends Phaser.Scene {
       }
     );
 
-    // tile sheet for ground
-    this.load.image('tile_grounds', 'assets/tile_grounds.png');
+    // sprites for map assets
+    for (const mapAsset of Object.values(Constants.MAP_ASSETS)) {
+      this.load.spritesheet(mapAsset, `assets/map/ground/${mapAsset}.png`, {
+        frameWidth,
+        frameHeight,
+      });
+    }
 
-    // sprites for outer/inner wall
-    this.load.spritesheet(Constants.OBJECT_LABEL.WALL, 'assets/tile_walls.png', {
-      frameWidth,
-      frameHeight,
-    });
+    // sprites for grounds
+    for (const groundType of Object.values(Constants.GROUND_TYPES)) {
+      this.load.spritesheet(`ground_${groundType}`, `assets/map/ground/ground_${groundType}.png`, {
+        frameWidth,
+        frameHeight,
+      });
+    }
 
     // sprites for block
-    this.load.spritesheet(Constants.OBJECT_LABEL.BLOCK, 'assets/tile_walls.png', {
+    this.load.spritesheet(Constants.OBJECT_LABEL.BLOCK, 'assets/map/block.png', {
       frameWidth,
       frameHeight,
     });
@@ -152,17 +160,10 @@ export default class Preloader extends Phaser.Scene {
     // flares
     this.load.atlas('flares', 'assets/flares.png', 'assets/flares.json');
 
-    // usage
-    this.load.spritesheet('keyboard', 'assets/keyboard.png', {
-      frameWidth,
-      frameHeight,
-    });
+    this.load.image('nameBar', 'assets/nameBar.png');
 
     // keyboard
-    this.load.image('leftSpace', 'assets/keyboard/space_left.png');
-    this.load.image('rightSpace', 'assets/keyboard/space_right.png');
-    this.load.image('centerSpace', 'assets/keyboard/space_center.png');
-
+    this.load.image('space', 'assets/keyboard/space.png');
     this.load.image('left', 'assets/keyboard/left.png');
     this.load.image('right', 'assets/keyboard/right.png');
     this.load.image('top', 'assets/keyboard/top.png');
@@ -177,8 +178,7 @@ export default class Preloader extends Phaser.Scene {
     this.load.audio('battleStart', ['assets/bgm/battle_start.mp3']);
     this.load.audio('select', ['assets/se/select.mp3']);
     this.load.audio('select1', ['assets/se/select1.mp3']);
-    this.load.audio('stage_1', ['assets/bgm/stage_1.mp3']);
-    this.load.audio('stage_2', ['assets/bgm/stage_2.mp3']);
+    this.load.audio('stage', ['assets/bgm/stage.mp3']);
     this.load.audio('opening', ['assets/bgm/opening.mp3']);
     this.load.audio('result', ['assets/bgm/result.mp3']);
     this.load.audio('win', ['assets/bgm/win.mp3']);
@@ -194,6 +194,7 @@ export default class Preloader extends Phaser.Scene {
       createCurtainOpenAnims(this.anims);
       createTrophyAnims(this.anims);
       createCharacterAnims(this.anims);
+      createMapAnims(this.anims);
       this.preloadComplete = true;
     });
   }

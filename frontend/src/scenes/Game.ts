@@ -97,7 +97,7 @@ export default class Game extends Phaser.Scene {
 
     this.startBgm = this.sound.add('battleStart', { volume: Config.SOUND_VOLUME });
     this.startBgm.play();
-    this.bgm = this.sound.add('stage_2', {
+    this.bgm = this.sound.add('stage', {
       volume: Config.SOUND_VOLUME,
     });
     this.seItemGet = this.sound.add('getItem', {
@@ -148,12 +148,11 @@ export default class Game extends Phaser.Scene {
 
     // TODO: Preloader（Lobby）で読み込んで Game Scene に渡す
     this.room.onStateChange.once((state) => {
-      const mapTiles = state.gameMap.mapTiles;
       this.rows = state.gameMap.rows;
       this.cols = state.gameMap.cols;
 
-      drawGround(this, mapTiles.GROUND_IDX); // draw ground
-      drawWalls(this, mapTiles); // draw walls
+      drawGround(this); // draw ground
+      drawWalls(this); // draw walls
       this.currBlocks = drawBlocks(this, state.blocks); // draw blocks
     });
 

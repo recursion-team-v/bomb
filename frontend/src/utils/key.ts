@@ -55,3 +55,7 @@ export function disableKeys(keys: NavKeys): void {
   });
   if (isMobile()) button.disableInteractive();
 }
+
+export function customCursor(scene: Phaser.Scene) {
+  scene.input.setDefaultCursor('url(assets/icons/cursor.png), pointer');
+}

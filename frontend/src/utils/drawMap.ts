@@ -2,7 +2,6 @@ import { MapSchema } from '@colyseus/schema';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import Block from '../../../backend/src/rooms/schema/Block';
-import MapTiles from '../../../backend/src/rooms/schema/MapTiles';
 import { Event, gameEvents } from '../events/GameEvents';
 import { Block as BlockBody } from '../items/Block';
 
@@ -11,37 +10,47 @@ const cols = Constants.TILE_COLS;
 const tileWidth = Constants.TILE_WIDTH;
 const tileHeight = Constants.TILE_HEIGHT;
 
-export const drawGround = (scene: Phaser.Scene, groundIdx: number) => {
-  const groundArray = generateGroundArray(rows, cols, groundIdx);
-  const groundMap = scene.make.tilemap({
-    data: groundArray,
-    tileWidth,
-    tileHeight,
-  });
-  groundMap.addTilesetImage('tile_grounds', undefined, tileWidth, tileHeight, 0, 0);
-  groundMap.createLayer(0, 'tile_grounds', 0, Constants.HEADER_HEIGHT).setAlpha(0.7).setDepth(-2);
+export const drawGround = (scene: Phaser.Scene) => {
+  for (let y = 1; y < rows - 1; y++) {
+    for (let x = 1; x < cols - 1; x++) {
+      const random = Phaser.Math.Between(0, 10);
+      const newx = tileWidth / 2 + tileWidth * x;
+      const newy = Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y;
+      const texture = random > 7 ? Constants.MAP_ASSETS.grass_1 : Constants.MAP_ASSETS.grass_2;
+      scene.add.sprite(newx, newy, texture);
+      if (!(x % 2 === 0 && y % 2 === 0)) {
+        if (random < 2) {
+          scene.add.sprite(newx, newy, Constants.MAP_ASSETS.plants, Phaser.Math.Between(0, 6));
+        }
+      }
+    }
+  }
 };
 
-export const drawWalls = (scene: Phaser.Scene, mapTiles: MapTiles) => {
-  // add outer walls
+export const drawWalls = (scene: Phaser.Scene) => {
   for (let x = 0; x < cols; x++) {
-    if (x === 0 || x === cols - 1) {
-      addOuterWall(scene, x, 0, mapTiles.OUTER_WALL_CORNER);
-      addOuterWall(scene, x, rows - 1, mapTiles.OUTER_WALL_CORNER);
+    if (x === 0) {
+      addOuterWall(scene, x, 0, Constants.GROUND_TYPES.top_left);
+      addOuterWall(scene, x, rows - 1, Constants.GROUND_TYPES.bottom_left);
+    } else if (x === cols - 1) {
+      addOuterWall(scene, x, 0, Constants.GROUND_TYPES.top_right);
+      addOuterWall(scene, x, rows - 1, Constants.GROUND_TYPES.bottom_right);
     } else {
-      addOuterWall(scene, x, 0, mapTiles.OUTER_WALL_TOP_BOT);
-      addOuterWall(scene, x, rows - 1, mapTiles.OUTER_WALL_TOP_BOT);
+      addOuterWall(scene, x, 0, Constants.GROUND_TYPES.top);
+      addOuterWall(scene, x, rows - 1, Constants.GROUND_TYPES.bottom);
     }
   }
   for (let y = 1; y < rows - 1; y++) {
-    addOuterWall(scene, 0, y, mapTiles.OUTER_WALL_LEFT_RIGHT);
-    addOuterWall(scene, cols - 1, y, mapTiles.OUTER_WALL_LEFT_RIGHT);
+    addOuterWall(scene, 0, y, Constants.GROUND_TYPES.left);
+    addOuterWall(scene, cols - 1, y, Constants.GROUND_TYPES.right);
   }
 
   // add inner walls
   for (let y = 2; y < rows - 1; y += 2) {
     for (let x = 2; x < cols - 1; x += 2) {
-      addInnerWall(scene, x, y, mapTiles.INNER_WALL);
+      const random = Phaser.Math.Between(1, 2);
+      const texture = random === 1 ? Constants.MAP_ASSETS.rock_1 : Constants.MAP_ASSETS.rock_2;
+      addInnerWall(scene, x, y, texture);
     }
   }
 };
@@ -69,7 +78,7 @@ export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
       )
       .setDepth(Constants.OBJECT_DEPTH.DROP_WALL_SHADOW);
 
-    const b = scene.add.block(block.x, block.y - randomHeight, Constants.TILE_BLOCK_IDX);
+    const b = scene.add.block(block.x, block.y - randomHeight);
     currBlocks.set(block.id, b);
     b.setDepth(Infinity);
     b.setSensor(true);
@@ -98,36 +107,17 @@ export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
   return currBlocks;
 };
 
-const generateGroundArray = (rows: number, cols: number, groundIdx: number) => {
-  const ground = Constants.TILE_GROUND.DEFAULT_IDX[groundIdx];
-
-  const arr = Array(rows)
-    .fill(ground)
-    .map(() => Array(cols).fill(ground));
-
-  // 市松模様にする
-  for (let y = 1; y < rows - 1; y++) {
-    for (let x = 1; x < cols - 1; x++) {
-      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-      if ((y + x) % 2 === 0) arr[y][x] = arr[y][x] + 3; // 暗い画像が + 3 の位置にあるので
-    }
-  }
-
-  return arr;
-};
-
-const addInnerWall = (scene: Phaser.Scene, x: number, y: number, frame: number) => {
+const addInnerWall = (scene: Phaser.Scene, x: number, y: number, texture: string) => {
   scene.add.innerWall(
     tileWidth / 2 + tileWidth * x,
     Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
-    frame
+    texture
   );
 };
 
-const addOuterWall = (scene: Phaser.Scene, x: number, y: number, frame: number) => {
-  scene.add.outerWall(
-    tileWidth / 2 + tileWidth * x,
-    Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
-    frame
-  );
+const addOuterWall = (scene: Phaser.Scene, x: number, y: number, groundType: string) => {
+  const newx = tileWidth / 2 + tileWidth * x;
+  const newy = Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y;
+  const textureKey = `ground_${groundType}`;
+  scene.add.outerWall(newx, newy, textureKey).play(groundType);
 };

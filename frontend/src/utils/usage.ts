@@ -85,25 +85,22 @@ const getBuiltInText = function (
 
 export const createBombUsage = function (scene: Phaser.Scene, x: number, y: number) {
   const group = scene.add.group();
-  group.add(scene.add.image(x - 30, y, 'leftSpace').setScale(3));
-  group.add(scene.add.image(x, y, 'centerSpace').setScale(3));
-  group.add(scene.add.image(x + 30, y, 'rightSpace').setScale(3));
   group.add(
     scene.add
-      .sprite(x + 80, y, 'bomb')
+      .sprite(x, y - 20, 'bomb')
       .setScale(0.8)
       .play({ key: Config.BOMB_ANIMATION_KEY, repeat: -1 })
   );
-  group.add(scene.add.text(x - 40, y - 10, 'space').setFontFamily('PressStart2P'));
+  group.add(scene.add.image(x, y + 50, 'space'));
   group.add(scene.add.text(x - 80, y + 110, 'place bomb').setFontFamily('PressStart2P'));
 };
 
 export const createMoveUsage = function (scene: Phaser.Scene, x: number, y: number) {
   const group = scene.add.group();
-  group.add(scene.add.image(x, y, 'top').setScale(3));
-  group.add(scene.add.image(x - 50, y + 50, 'left').setScale(3));
-  group.add(scene.add.image(x + 50, y + 50, 'right').setScale(3));
-  group.add(scene.add.image(x, y + 100, 'down').setScale(3));
+  group.add(scene.add.image(x, y - 10, 'top').setScale(3));
+  group.add(scene.add.image(x - 60, y + 50, 'left').setScale(3));
+  group.add(scene.add.image(x + 55, y + 50, 'right').setScale(3));
+  group.add(scene.add.image(x, y + 110, 'down').setScale(3));
   group.add(
     scene.add
       .sprite(x, y + 50, Constants.CHARACTERS[1])

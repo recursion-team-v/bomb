@@ -1,7 +1,6 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
 
 import * as Constants from '../../constants/constants';
-import MapTiles from './MapTiles';
 
 export default class Map extends Schema {
   @type('number')
@@ -12,9 +11,6 @@ export default class Map extends Schema {
 
   @type(['number'])
   blockArr: number[]; // 箱（破壊可能）
-
-  @type(MapTiles)
-  mapTiles = new MapTiles();
 
   constructor() {
     super();

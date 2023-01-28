@@ -8,6 +8,7 @@ import phaserJuice from '../lib/phaserJuice';
 import Network from '../services/Network';
 import { getWinner } from '../utils/result';
 import { createButton, createButtons } from '../utils/ui';
+import { addBackground } from '../utils/title';
 
 export default class GameResult extends Phaser.Scene {
   private network!: Network;
@@ -51,6 +52,8 @@ export default class GameResult extends Phaser.Scene {
       .setDepth(Infinity)
       .play({ key: Config.CURTAIN_OPEN_ANIMATION_KEY, hideOnComplete: true }, true);
     // .playAfterDelay({ key: Config.CURTAIN_OPEN_ANIMATION_KEY, hideOnComplete: true }, 1000);
+
+    addBackground(this);
 
     // タイトルを表示
     this.add.image(
@@ -183,7 +186,7 @@ export default class GameResult extends Phaser.Scene {
       frequency: 2000,
       gravityY: 300,
       lifespan: 1000,
-      quantity: 1000,
+      quantity: 700,
       reserve: 500,
       scale: { min: 0.05, max: 0.15 },
       speed: { min: 10, max: 600 },
@@ -191,9 +194,6 @@ export default class GameResult extends Phaser.Scene {
       y: 384,
     };
     const emitter = particles.createEmitter(emitterConfig);
-
-    console.log(emitter.toJSON());
-
     const { width, height } = this.scale;
     const { FloatBetween } = Phaser.Math;
 
