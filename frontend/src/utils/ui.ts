@@ -9,7 +9,7 @@ export const createButton = (scene: Phaser.Scene, text: string, color: number) =
     background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10, color),
     text: scene.add.text(0, 0, text, {
       fontFamily: 'PressStart2P',
-      color: '#000',
+      color: 'white',
     }),
     align: 'center',
     space: {
@@ -268,9 +268,9 @@ export const createGridTable = (scene: Phaser.Scene, availableRooms: IAvailableR
 
         cellContainer.setAlpha(1);
         cellContainer.setMinSize(width, height);
-        cellContainer
-          .getElement('text')
-          .setText(`${item.name}\n${item.clients}/${item.maxClients}`);
+        const text =
+          item.id === 'default' ? item.name : `${item.name}\n${item.clients}/${item.maxClients}`;
+        cellContainer.getElement('text').setText(text);
         cellContainer
           .getElement('icon')
           .setFillStyle(item.clients >= item.maxClients ? Constants.RED : Constants.GREEN);
