@@ -268,9 +268,9 @@ export const createGridTable = (scene: Phaser.Scene, availableRooms: IAvailableR
 
         cellContainer.setAlpha(1);
         cellContainer.setMinSize(width, height);
-        cellContainer
-          .getElement('text')
-          .setText(`${item.name}\n${item.clients}/${item.maxClients}`);
+        const text =
+          item.id === 'default' ? item.name : `${item.name}\n${item.clients}/${item.maxClients}`;
+        cellContainer.getElement('text').setText(text);
         cellContainer
           .getElement('icon')
           .setFillStyle(item.clients >= item.maxClients ? Constants.RED : Constants.GREEN);

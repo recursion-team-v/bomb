@@ -117,6 +117,9 @@ export default class Lobby extends Phaser.Scene {
         });
       }
     }
+    if (availableRooms.length === 0) {
+      availableRooms.push({ name: 'No rooms available', clients: 0, maxClients: 0, id: 'default' });
+    }
     return availableRooms;
   }
 
