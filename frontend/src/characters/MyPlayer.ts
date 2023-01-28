@@ -2,7 +2,6 @@ import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
-import * as Config from '../config/config';
 import collisionHandler from '../game_engine/collision_handler/collision_handler';
 import Network from '../services/Network';
 import { NavKeys } from '../types/keyboard';
@@ -12,7 +11,6 @@ import Player from './Player';
 export default class MyPlayer extends Player {
   private serverX: number;
   private serverY: number;
-  private readonly dead_se;
 
   inputPayload = {
     left: false,
@@ -34,9 +32,6 @@ export default class MyPlayer extends Player {
     super(sessionId, world, x, y, texture, frame, name, options);
     this.serverX = x;
     this.serverY = y;
-    this.dead_se = this.scene.sound.add('gameOver', {
-      volume: Config.SOUND_VOLUME,
-    });
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
       const currBody = this.body as MatterJS.BodyType;
       data.bodyA.id === currBody.id
@@ -55,12 +50,6 @@ export default class MyPlayer extends Player {
     this.setHP(player.hp);
     if (this.isDead()) {
       this.died();
-      this.scene.time.addEvent({
-        delay: 1000,
-        callback: () => {
-          this.dead_se.play();
-        },
-      });
     }
     this.setSpeed(player.speed);
     this.setBombType(player.bombType);
