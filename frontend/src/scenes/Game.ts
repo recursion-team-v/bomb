@@ -104,7 +104,7 @@ export default class Game extends Phaser.Scene {
     this.upTitle = this.add.image(0, Constants.HEIGHT / 2, Config.ASSET_KEY_BATTLE_START_UP);
     this.downTitle = this.add.image(
       Constants.WIDTH,
-      Constants.HEIGHT / 2 + 49,
+      Constants.HEIGHT / 2 + 42,
       Config.ASSET_KEY_BATTLE_START_DOWN
     );
 
