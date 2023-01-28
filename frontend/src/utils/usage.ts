@@ -1,4 +1,5 @@
 import * as Constants from '../../../backend/src/constants/constants';
+import * as Config from '../config/config';
 
 const GetValue = Phaser.Utils.Objects.GetValue;
 
@@ -87,7 +88,12 @@ export const createBombUsage = function (scene: Phaser.Scene, x: number, y: numb
   group.add(scene.add.image(x - 30, y, 'leftSpace').setScale(3));
   group.add(scene.add.image(x, y, 'centerSpace').setScale(3));
   group.add(scene.add.image(x + 30, y, 'rightSpace').setScale(3));
-  group.add(scene.add.image(x + 80, y, 'bomb', 4).setScale(0.8));
+  group.add(
+    scene.add
+      .sprite(x + 80, y, 'bomb')
+      .setScale(0.8)
+      .play({ key: Config.BOMB_ANIMATION_KEY, repeat: -1 })
+  );
   group.add(scene.add.text(x - 40, y - 10, 'space').setFontFamily('PressStart2P'));
   group.add(scene.add.text(x - 80, y + 80, 'place bomb').setFontFamily('PressStart2P'));
 };
