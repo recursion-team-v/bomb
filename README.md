@@ -26,6 +26,8 @@ TODO: gif などを入れたい
   - [stemkoski/HTML-Joysticks](https://github.com/stemkoski/HTML-Joysticks)
   - [アイコン素材ダウンロードサイト「icooon-mono](https://icooon-mono.com/)
   - [ロックオンのシルエット 02 | 無料の Ai・PNG 白黒シルエットイラスト](https://www.silhouette-illust.com/illust/9685#google_vignette)
+  - トロフィー
+    - [アニメーション素材１ - ぴぽや倉庫](https://pipoya.net/sozai/assets/animation/animation-material-1/)
 
 ### 音楽
 
