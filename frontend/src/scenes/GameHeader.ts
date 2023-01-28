@@ -43,9 +43,9 @@ export default class GameHeader extends Phaser.Scene {
       0,
       convertSecondsToMMSS(Constants.TIME_LIMIT_SEC - Constants.GAME_PREPARING_TIME - 1)
     );
-    this.textBombCount = this.createText(250, 0, `×${this.player.getItemCountOfBombCount()}`);
-    this.textBombStrength = this.createText(400, 0, `×${this.player.getItemCountOfBombStrength()}`);
-    this.textSpeed = this.createText(550, 0, `×${this.player.getItemCountOfSpeed()}`);
+    this.textBombCount = this.createText(250, 5, `×${this.player.getItemCountOfBombCount()}`);
+    this.textBombStrength = this.createText(400, 5, `×${this.player.getItemCountOfBombStrength()}`);
+    this.textSpeed = this.createText(550, 5, `×${this.player.getItemCountOfSpeed()}`);
 
     // 特に意味はないが Container でまとめておく
     this.imgBomb = this.add

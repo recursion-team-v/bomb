@@ -90,6 +90,7 @@ export default class GameResult extends Phaser.Scene {
           fontSize: '40px',
           fontStyle: 'bold',
           align: 'center',
+          fontFamily: 'PressStart2P',
         })
         .setOrigin(0.5);
 
@@ -135,7 +136,9 @@ export default class GameResult extends Phaser.Scene {
   generatePlayerContainer(x: number, y: number, name: string, character: string) {
     this.add.container(x, y, [
       this.add.sprite(0, 0, character, 14).setScale(1.2).play(`${character}_idle_down`),
-      this.add.text(200, 0, name, { fontSize: '32px', align: 'center' }).setOrigin(0.5),
+      this.add
+        .text(200, 0, name, { fontSize: '32px', align: 'center', fontFamily: 'PressStart2P' })
+        .setOrigin(0.5),
       this.add.line(30, 0, 100, 50, 500, 50, 0xffffff),
     ]);
   }
