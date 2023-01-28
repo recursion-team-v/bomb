@@ -1,5 +1,5 @@
 import * as Constants from '../../../backend/src/constants/constants';
-
+import * as Config from '../config/config';
 const GetValue = Phaser.Utils.Objects.GetValue;
 
 export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
@@ -16,7 +16,9 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
   // User name field object
   const userNameField = scene.rexUI.add.label({
     orientation: 'x',
-    background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10).setStrokeStyle(1, 0x959595),
+    background: scene.rexUI.add
+      .roundRectangle(0, 0, 10, 10, 10, Constants.LIGHT_GRAY)
+      .setAlpha(0.8),
     text: scene.rexUI.add.canvasInput(xValue, yValue, 300, 36, {
       style: {
         fontSize: 20,
@@ -41,10 +43,10 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
   const loginButton = scene.rexUI.add
     .label({
       orientation: 'x',
-      background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10, Constants.GREEN),
+      background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10, Constants.LIGHT_RED),
       text: scene.add.text(0, 0, 'play game', {
         fontFamily: 'PressStart2P',
-        color: '#000',
+        color: 'white',
       }),
       space: { top: 20, bottom: 20, left: 20, right: 20 },
     })
@@ -77,4 +79,12 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
     .layout();
 
   return loginDialog;
+};
+
+export const addBackground = function (scene: Phaser.Scene) {
+  scene.add
+    .sprite(0, 0, Config.ASSET_KEY_TITLE_BACKGROUND)
+    .setOrigin(0, 0)
+    .setScale(1.2)
+    .play(Config.TITLE_BACKGROUND_ANIMATION_KEY, true);
 };
