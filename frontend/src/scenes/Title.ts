@@ -66,6 +66,5 @@ export default class Title extends Phaser.Scene {
     createBombUsage(this, Constants.WIDTH / 2 - 650 / 2 + 110, Constants.HEIGHT / 2 + 230);
     createMoveUsage(this, Constants.WIDTH / 2 - 650 / 2 + 320, Constants.HEIGHT / 2 + 180);
     createItemUsage(this, Constants.WIDTH / 2 - 650 / 2 + 460, Constants.HEIGHT / 2 + 160);
-    this.add.text(0, 25, 'BGM: https://seadenden-8bit.com').setFontFamily('PressStart2P');
   }
 }
