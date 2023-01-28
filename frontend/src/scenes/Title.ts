@@ -67,8 +67,8 @@ export default class Title extends Phaser.Scene {
       fixedWidth: 650,
       fixedHeight: 250,
     }).setOrigin(0.5);
-    createBombUsage(this, Constants.WIDTH / 2 - 650 / 2 + 110, Constants.HEIGHT / 2 + 250);
-    createMoveUsage(this, Constants.WIDTH / 2 - 650 / 2 + 320, Constants.HEIGHT / 2 + 200);
+    createBombUsage(this, Constants.WIDTH / 2 - 650 / 2 + 110, Constants.HEIGHT / 2 + 270);
+    createMoveUsage(this, Constants.WIDTH / 2 - 650 / 2 + 320, Constants.HEIGHT / 2 + 220);
     createItemUsage(this, Constants.WIDTH / 2 - 650 / 2 + 460, Constants.HEIGHT / 2 + 200);
   }
 }

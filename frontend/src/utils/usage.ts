@@ -95,7 +95,7 @@ export const createBombUsage = function (scene: Phaser.Scene, x: number, y: numb
       .play({ key: Config.BOMB_ANIMATION_KEY, repeat: -1 })
   );
   group.add(scene.add.text(x - 40, y - 10, 'space').setFontFamily('PressStart2P'));
-  group.add(scene.add.text(x - 80, y + 80, 'place bomb').setFontFamily('PressStart2P'));
+  group.add(scene.add.text(x - 80, y + 110, 'place bomb').setFontFamily('PressStart2P'));
 };
 
 export const createMoveUsage = function (scene: Phaser.Scene, x: number, y: number) {
@@ -108,9 +108,9 @@ export const createMoveUsage = function (scene: Phaser.Scene, x: number, y: numb
     scene.add
       .sprite(x, y + 50, Constants.CHARACTERS[1])
       .setScale(0.9)
-      .play(`${Constants.CHARACTERS[1]}_down`)
+      .play(`${Constants.CHARACTERS[0]}_down`)
   );
-  group.add(scene.add.text(x - 60, y + 130, 'movement').setFontFamily('PressStart2P'));
+  group.add(scene.add.text(x - 60, y + 160, 'movement').setFontFamily('PressStart2P'));
 };
 
 export const createItemUsage = function (scene: Phaser.Scene, x: number, y: number) {
@@ -137,5 +137,13 @@ export const createItemUsage = function (scene: Phaser.Scene, x: number, y: numb
       .setScale(0.8)
       .setFontFamily('PressStart2P')
   );
-  group.add(scene.add.text(x + 60, y + 130, 'items').setFontFamily('PressStart2P'));
+
+  group.add(scene.add.image(x, y + 150, Constants.ITEM_TYPE.HEART).setScale(0.4));
+  group.add(
+    scene.add
+      .text(x + 30, y + 140, 'HP up')
+      .setScale(0.8)
+      .setFontFamily('PressStart2P')
+  );
+  group.add(scene.add.text(x + 60, y + 180, 'items').setFontFamily('PressStart2P'));
 };
