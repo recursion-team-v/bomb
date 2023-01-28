@@ -1,8 +1,23 @@
-## Bom Bom Panic
+# Bom Bom Panic
 
 [ボムボムパニック](https://bombompanic.vercel.app/)
 
 TODO: gif などを入れたい
+
+## 使用技術
+
+![image](image/architecture.drawio.png)
+
+| 種類                     | 使用技術                                                                                                      |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| フロントエンド           | TypeScript                                                                                                    |
+| バックエンド             | Node.js / TypeScript                                                                                          |
+| ゲームエンジン           | [Phaser3](https://phaser.io/phaser3) / [matter.js](https://brm.io/matter-js/)                                 |
+| リアルタイム通信         | [Colyseus](https://www.colyseus.io/)                                                                          |
+| デプロイ(フロントエンド) | [Vercel](https://vercel.com/)                                                                                 |
+| デプロイ(バックエンド)   | [Cloud Run](https://cloud.google.com/run)                                                                     |
+| CI / CD                  | [GitHub Actions](https://github.co.jp/features/actions) / [Cloud Build](https://cloud.google.com/build?hl=ja) |
+| ビルド                   | [Vite](https://ja.vitejs.dev/)                                                                                |
 
 ## Special Thanks
 
@@ -23,17 +38,22 @@ TODO: gif などを入れたい
 - ロゴ
   - [ピクセルフォント - ピクセルフォント変換](https://fontmeme.com/ja/font-pixel-style/)
 - その他
-  - [stemkoski/HTML-Joysticks](https://github.com/stemkoski/HTML-Joysticks)
-  - [アイコン素材ダウンロードサイト「icooon-mono](https://icooon-mono.com/)
-  - [ロックオンのシルエット 02 | 無料の Ai・PNG 白黒シルエットイラスト](https://www.silhouette-illust.com/illust/9685#google_vignette)
+  - ジョイスティック
+    - [stemkoski/HTML-Joysticks](https://github.com/stemkoski/HTML-Joysticks)
+  - 音量アイコン
+    - [アイコン素材ダウンロードサイト「icooon-mono](https://icooon-mono.com/)
   - トロフィー
     - [アニメーション素材１ - ぴぽや倉庫](https://pipoya.net/sozai/assets/animation/animation-material-1/)
+  - カーソル
+    - [Sprout Lands - UI Pack by Cup Nooble](https://cupnooble.itch.io/sprout-lands-ui-pack?download)
 
 ### 音楽
 
 - BGM
-  - [ファミコン風 | フリー BGM・無料ダウンロード 魔王魂](https://maou.audio/category/bgm/bgm-8bit/)
+  - [しーでんでん ファミコン風 オリジナルフリー BGM ｜ seadenden 8bit freeBGM](https://seadenden-8bit.com/)
   - [ファミコン風　オリジナルフリー BGM seadenden 8bit freeBGM](https://seadenden-8bit.com/)
   - [ファミコン風 BGM/SE リスト | ファミコン風フリー BGM サイト | イワシロ音楽素材](https://iwashiro-sounds.work/)
+  - [魔王魂 | 無料で使える森田交一の音楽](https://maou.audio/)
 - SE
-  - [『sfxr』　ファミコン風・8bit 効果音](https://taira-komori.jpn.org/sfxrfami.html)
+  - [無料効果音で遊ぼう！](https://taira-komori.jpn.org/index.html)
+  - [Game UI sounds | Royalty Free Music - Pixabay](https://pixabay.com/sound-effects/game-ui-sounds-14857/)

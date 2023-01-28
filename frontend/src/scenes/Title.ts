@@ -5,6 +5,7 @@ import * as Constants from '../../../backend/src/constants/constants';
 import '../services/SoundVolume';
 import { validateAndFixUserName } from '../../../backend/src/utils/validation';
 import { createBombUsage, createItemUsage, createMoveUsage, createTextBox } from '../utils/usage';
+import { customCursor } from '../utils/key';
 
 export default class Title extends Phaser.Scene {
   network?: Network;
@@ -29,6 +30,7 @@ export default class Title extends Phaser.Scene {
 
   create(data: { network: Network }) {
     addBackground(this);
+    customCursor(this);
 
     const playGame = (userName: string) => {
       localStorage.setItem('username', userName);
@@ -42,9 +44,9 @@ export default class Title extends Phaser.Scene {
 
     this.add.image(Constants.WIDTH / 2, Constants.HEIGHT / 5, 'title').setScale(1.5);
 
-    this.add.volumeIcon(this, Constants.WIDTH - 60, 10);
+    this.add.volumeIcon(this, Constants.WIDTH - 100, 10);
 
-    const username = localStorage.getItem('username');
+    const username = localStorage.getItem('bbp_username');
     createLoginDialog(this, {
       x: Constants.WIDTH / 2,
       y: Constants.HEIGHT / 5 + 200,

@@ -8,6 +8,7 @@ import phaserJuice from '../lib/phaserJuice';
 import Network from '../services/Network';
 import { getWinner } from '../utils/result';
 import { createButton, createButtons } from '../utils/ui';
+import { addBackground } from '../utils/title';
 
 export default class GameResult extends Phaser.Scene {
   private network!: Network;
@@ -50,6 +51,8 @@ export default class GameResult extends Phaser.Scene {
       .setScale(1.5, 2)
       .setDepth(Infinity)
       .play({ key: Config.CURTAIN_OPEN_ANIMATION_KEY, hideOnComplete: true }, true);
+
+    addBackground(this);
 
     // タイトルを表示
     this.add.image(
