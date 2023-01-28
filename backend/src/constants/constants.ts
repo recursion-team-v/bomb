@@ -411,6 +411,7 @@ export const OBJECT_DEPTH = {
   [OBJECT_LABEL.BLAST]: 2, // ブロックや、アイテムの上にある
   [OBJECT_LABEL.BLOCK]: 3, // ブロックをすり抜けられるアイテムがある
   [OBJECT_LABEL.BOMB]: 4, // 特殊なアイテムで壁の上を爆弾が滑ることがある
+  // reserved: 9 は敵キャラクターが使用しています
   [OBJECT_LABEL.PLAYER]: 10,
   [OBJECT_LABEL.WALL]: 99,
   [OBJECT_LABEL.DROP_WALL_SHADOW]: 100,
