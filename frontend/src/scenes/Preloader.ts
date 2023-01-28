@@ -159,10 +159,7 @@ export default class Preloader extends Phaser.Scene {
     });
 
     // keyboard
-    this.load.image('leftSpace', 'assets/keyboard/space_left.png');
-    this.load.image('rightSpace', 'assets/keyboard/space_right.png');
-    this.load.image('centerSpace', 'assets/keyboard/space_center.png');
-
+    this.load.image('space', 'assets/keyboard/space.png');
     this.load.image('left', 'assets/keyboard/left.png');
     this.load.image('right', 'assets/keyboard/right.png');
     this.load.image('top', 'assets/keyboard/top.png');
