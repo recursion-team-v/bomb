@@ -44,6 +44,8 @@ TODO: gif などを入れたい
     - [アイコン素材ダウンロードサイト「icooon-mono](https://icooon-mono.com/)
   - トロフィー
     - [アニメーション素材１ - ぴぽや倉庫](https://pipoya.net/sozai/assets/animation/animation-material-1/)
+  - カーソル
+    - [Sprout Lands - UI Pack by Cup Nooble](https://cupnooble.itch.io/sprout-lands-ui-pack?download)
 
 ### 音楽
 
