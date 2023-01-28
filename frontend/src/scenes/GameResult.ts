@@ -182,7 +182,7 @@ export default class GameResult extends Phaser.Scene {
       frequency: 2000,
       gravityY: 300,
       lifespan: 1000,
-      quantity: 1000,
+      quantity: 700,
       reserve: 500,
       scale: { min: 0.05, max: 0.15 },
       speed: { min: 10, max: 600 },
@@ -190,9 +190,6 @@ export default class GameResult extends Phaser.Scene {
       y: 384,
     };
     const emitter = particles.createEmitter(emitterConfig);
-
-    console.log(emitter.toJSON());
-
     const { width, height } = this.scale;
     const { FloatBetween } = Phaser.Math;
 
