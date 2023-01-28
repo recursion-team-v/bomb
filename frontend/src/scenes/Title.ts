@@ -1,6 +1,6 @@
 import * as Config from '../config/config';
 import Network from '../services/Network';
-import { createLoginDialog } from '../utils/title';
+import { addBackground, createLoginDialog } from '../utils/title';
 import * as Constants from '../../../backend/src/constants/constants';
 import '../services/SoundVolume';
 import { validateAndFixUserName } from '../../../backend/src/utils/validation';
@@ -28,11 +28,7 @@ export default class Title extends Phaser.Scene {
   }
 
   create(data: { network: Network }) {
-    this.add
-      .sprite(0, 0, Config.ASSET_KEY_TITLE_BACKGROUND)
-      .setOrigin(0, 0)
-      .setScale(1.2)
-      .play(Config.TITLE_BACKGROUND_ANIMATION_KEY, true);
+    addBackground(this);
 
     const playGame = (userName: string) => {
       localStorage.setItem('username', userName);

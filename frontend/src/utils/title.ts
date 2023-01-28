@@ -1,5 +1,5 @@
 import * as Constants from '../../../backend/src/constants/constants';
-
+import * as Config from '../config/config';
 const GetValue = Phaser.Utils.Objects.GetValue;
 
 export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
@@ -79,4 +79,12 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
     .layout();
 
   return loginDialog;
+};
+
+export const addBackground = function (scene: Phaser.Scene) {
+  scene.add
+    .sprite(0, 0, Config.ASSET_KEY_TITLE_BACKGROUND)
+    .setOrigin(0, 0)
+    .setScale(1.2)
+    .play(Config.TITLE_BACKGROUND_ANIMATION_KEY, true);
 };
