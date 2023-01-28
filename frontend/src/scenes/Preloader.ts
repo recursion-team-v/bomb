@@ -4,6 +4,8 @@ import * as Constants from '../../../backend/src/constants/constants';
 import { createBombAnims, createPenetrationBombAnims } from '../anims/BombAnims';
 import { createCharacterAnims } from '../anims/CharacterAnims';
 import { createExplodeAnims, createPenetrationExplodeAnims } from '../anims/explodeAnims';
+import { createTrophyAnims } from '../anims/TrophyAnims';
+import { createCurtainOpenAnims } from '../anims/CurtainAnims';
 import * as Config from '../config/config';
 import Network from '../services/Network';
 import isMobile from '../utils/mobile';
@@ -120,7 +122,6 @@ export default class Preloader extends Phaser.Scene {
 
     // game result assets
     this.load.image(Config.ASSET_KEY_WINNER, 'assets/winner.png');
-    this.load.image(Config.ASSET_KEY_WINNER_CUP, 'assets/winner_cup.png');
     this.load.image(Config.ASSET_KEY_DRAW_GAME, 'assets/draw_game.png');
 
     if (isMobile()) {
@@ -130,6 +131,26 @@ export default class Preloader extends Phaser.Scene {
 
     // title
     this.load.image('title', 'assets/title.png');
+
+    // stage curtain
+    this.load.spritesheet(Config.ASSET_KEY_CURTAIN_OPEN, 'assets/stage_curtain.png', {
+      frameWidth: 640,
+      frameHeight: 480,
+    });
+
+    this.load.spritesheet(Config.ASSET_KEY_TROPHY, 'assets/trophy.png', {
+      frameWidth: 192,
+      frameHeight: 192,
+    });
+
+    // flares
+    this.load.atlas('flares', 'assets/flares.png', 'assets/flares.json');
+
+    // usage
+    this.load.spritesheet('keyboard', 'assets/keyboard.png', {
+      frameWidth,
+      frameHeight,
+    });
 
     // keyboard
     this.load.image('leftSpace', 'assets/keyboard/space_left.png');
@@ -160,6 +181,8 @@ export default class Preloader extends Phaser.Scene {
       createPenetrationBombAnims(this.anims);
       createExplodeAnims(this.anims);
       createPenetrationExplodeAnims(this.anims);
+      createCurtainOpenAnims(this.anims);
+      createTrophyAnims(this.anims);
       createCharacterAnims(this.anims);
       this.preloadComplete = true;
     });
