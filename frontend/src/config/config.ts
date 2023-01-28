@@ -24,6 +24,7 @@ export const DEBUG_IS_SHOW_SERVER_BOMB = IS_DEBUG;
 asset 用
 */
 
+export const ASSET_KEY_TITLE_BACKGROUND = 'title_background';
 export const ASSET_KEY_PLAYER = 'player';
 export const ASSET_KEY_VOLUME_ON = 'volume_on';
 export const ASSET_KEY_VOLUME_OFF = 'volume_off';
@@ -51,7 +52,8 @@ export const SCENE_NAME_GAME_RESULT = 'gameResult';
 
 export const BOMB_SPRITE_FRAME_COUNT = 18; // 爆弾の画像の枚数
 
-// 爆弾のアニメーションの key
+// アニメーションの key
+export const TITLE_BACKGROUND_ANIMATION_KEY = 'title_background_animation';
 export const BOMB_ANIMATION_KEY = 'bomb_count';
 export const PENETRATION_BOMB_ANIMATION_KEY = 'penetration_bomb_count';
 export const CURTAIN_OPEN_ANIMATION_KEY = 'curtain_open_animation';

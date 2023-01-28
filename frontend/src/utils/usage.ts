@@ -43,8 +43,8 @@ export const createTextBox = function (
       y: yValue,
 
       background: scene.rexUI.add
-        .roundRectangle(xValue, yValue, 2, 2, 20)
-        .setStrokeStyle(2, 0x959595),
+        .roundRectangle(xValue, yValue, 2, 2, 20, Constants.LIGHT_GRAY)
+        .setAlpha(0.8),
 
       text: getBuiltInText(scene, wrapWidth, fixedWidth, fixedHeight),
       // text: getBBcodeText(scene, wrapWidth, fixedWidth, fixedHeight),
