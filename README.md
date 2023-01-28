@@ -38,3 +38,4 @@ TODO: gif などを入れたい
   - [魔王魂 | 無料で使える森田交一の音楽](https://maou.audio/)
 - SE
   - [無料効果音で遊ぼう！](https://taira-komori.jpn.org/index.html)
+  - [Game UI sounds | Royalty Free Music - Pixabay](https://pixabay.com/sound-effects/game-ui-sounds-14857/)
