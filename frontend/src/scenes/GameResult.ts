@@ -6,6 +6,7 @@ import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import * as Config from '../config/config';
 import phaserJuice from '../lib/phaserJuice';
 import Network from '../services/Network';
+import { getWinner } from '../utils/result';
 import { createButton, createButtons } from '../utils/ui';
 
 export default class GameResult extends Phaser.Scene {
@@ -33,16 +34,24 @@ export default class GameResult extends Phaser.Scene {
   }) {
     if (data.network == null) return;
     this.network = data.network;
-
     this.cameras.main.setSize(Constants.WIDTH, Constants.HEIGHT);
 
+    // 舞台幕を開ける
+    this.add
+      .sprite(0, 0, 'curtain_open')
+      .setOrigin(0, 0)
+      .setScale(1.5, 2)
+      .setDepth(Infinity)
+      .play({ key: Config.CURTAIN_OPEN_ANIMATION_KEY, hideOnComplete: true }, true);
+
+    // タイトルを表示
     this.add.image(
       Constants.WIDTH * 0.5,
-      Constants.HEIGHT * 0.15,
+      Constants.HEIGHT * 0.1,
       this.getResultKey(data.gameResult)
     );
 
-    const winner = this.getWinner(data.gameResult);
+    const winner = getWinner(data.gameResult);
     const players = this.getPlayers(data.gameResult);
 
     // テスト用
@@ -63,18 +72,17 @@ export default class GameResult extends Phaser.Scene {
 
     // 勝利者がいる場合
     if (winner !== undefined) {
-      const cup = this.add.image(
-        Constants.WIDTH * 0.25,
-        Constants.HEIGHT * 0.4,
-        Config.ASSET_KEY_WINNER_CUP
-      );
+      // 花火を表示
+      this.addFireWorks();
 
-      setInterval(() => {
-        this.juice.flash(cup);
-      }, 100);
+      // トロフィーを表示
+      this.add
+        .sprite(Constants.WIDTH * 0.25, Constants.HEIGHT * 0.38, Config.ASSET_KEY_TROPHY)
+        .play({ key: Config.TROPHY_ANIMATION_KEY }, true);
 
       this.add
         .sprite(Constants.WIDTH * 0.25, Constants.HEIGHT * 0.58, winner.character, 14)
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         .play(`${winner.character}_down`)
         .setScale(2.5);
       this.add
@@ -150,11 +158,37 @@ export default class GameResult extends Phaser.Scene {
     return Config.ASSET_KEY_DRAW_GAME;
   }
 
-  getWinner(data: any): ServerPlayer | undefined {
-    for (let i = 0; i < data.length; i++) {
-      if (data[i].field === 'winner') return data[i].value;
-    }
+  addFireWorks() {
+    const particles = this.add.particles('flares');
+    const emitterConfig = {
+      alpha: { start: 1, end: 0, ease: 'Cubic.easeIn' },
+      angle: { start: 0, end: 360, steps: 100 },
+      blendMode: 'ADD',
+      frame: { frames: ['red', 'yellow', 'green', 'blue'], cycle: true, quantity: 500 },
+      frequency: 2000,
+      gravityY: 300,
+      lifespan: 1000,
+      quantity: 1000,
+      reserve: 500,
+      scale: { min: 0.05, max: 0.15 },
+      speed: { min: 10, max: 600 },
+      x: 512,
+      y: 384,
+    };
+    const emitter = particles.createEmitter(emitterConfig);
 
-    return undefined;
+    console.log(emitter.toJSON());
+
+    const { width, height } = this.scale;
+    const { FloatBetween } = Phaser.Math;
+
+    this.time.addEvent({
+      delay: 1000,
+      startAt: 1000,
+      repeat: -1,
+      callback: () => {
+        emitter.setPosition(width * FloatBetween(0.25, 0.75), height * FloatBetween(0, 0.5));
+      },
+    });
   }
 }
