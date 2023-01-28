@@ -58,6 +58,7 @@ export const createDialog = (
         background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, Constants.GRAY),
         text: scene.add.text(0, 0, 'waiting for players to become ready...', {
           fontSize: '20px',
+          fontFamily: 'PressStart2P',
         }),
         align: 'center',
         space: {
