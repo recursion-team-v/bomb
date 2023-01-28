@@ -108,7 +108,7 @@ export const createMoveUsage = function (scene: Phaser.Scene, x: number, y: numb
     scene.add
       .sprite(x, y + 50, Constants.CHARACTERS[1])
       .setScale(0.9)
-      .play(`${Constants.CHARACTERS[1]}_down`)
+      .play(`${Constants.CHARACTERS[0]}_down`)
   );
   group.add(scene.add.text(x - 60, y + 160, 'movement').setFontFamily('PressStart2P'));
 };

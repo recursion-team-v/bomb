@@ -139,7 +139,7 @@ export const PLAYER_WIDTH = DEFAULT_TIP_SIZE; // プレイヤーの横幅
 export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
 
 // character スプライト key
-export const CHARACTERS = ['wolf', 'cat', 'bunny', 'pig'];
+export const CHARACTERS = ['cat', 'wolf', 'bunny', 'pig'];
 
 /*
 敵の定義
