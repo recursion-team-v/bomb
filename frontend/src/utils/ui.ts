@@ -9,7 +9,7 @@ export const createButton = (scene: Phaser.Scene, text: string, color: number) =
     background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10, color),
     text: scene.add.text(0, 0, text, {
       fontFamily: 'PressStart2P',
-      color: '#000',
+      color: 'white',
     }),
     align: 'center',
     space: {

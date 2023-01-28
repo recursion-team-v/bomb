@@ -17,6 +17,7 @@ import Label from 'phaser3-rex-plugins/templates/ui/label/Label';
 import ContainerLite from 'phaser3-rex-plugins/plugins/containerlite';
 import Buttons from 'phaser3-rex-plugins/templates/ui/buttons/Buttons';
 import { isPlay } from '../utils/sound';
+import { addBackground } from '../utils/title';
 
 export interface IAvailableRoom {
   id: string;
@@ -71,6 +72,7 @@ export default class Lobby extends Phaser.Scene {
       this.bgm = data.bgm;
     }
 
+    addBackground(this);
     this.playerName = data.playerName;
     this.add.volumeIcon(this, Constants.WIDTH - 60, 10, isPlay());
 
@@ -95,7 +97,7 @@ export default class Lobby extends Phaser.Scene {
     });
 
     this.buttons = createButtons(this, Constants.WIDTH / 2, Constants.HEIGHT / 5, [
-      createButton(this, 'create room', Constants.GREEN),
+      createButton(this, 'create room', Constants.LIGHT_RED),
     ]);
     this.buttons.on('button.click', this.handleRoomCreate, this);
 
