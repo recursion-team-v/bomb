@@ -19,7 +19,7 @@ TODO: gif などを入れたい
 - フォント
   - [Press Start 2P - Google Fonts](https://fonts.google.com/specimen/Press+Start+2P)
 - ロゴ
-  - [ロゴ及び画像ジェネレーター](https://ja.cooltext.com/)
+  - [ピクセルフォント - ピクセルフォント変換](https://fontmeme.com/ja/font-pixel-style/)
 - その他
   - [stemkoski/HTML-Joysticks](https://github.com/stemkoski/HTML-Joysticks)
   - [アイコン素材ダウンロードサイト「icooon-mono](https://icooon-mono.com/)
