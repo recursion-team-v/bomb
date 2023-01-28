@@ -14,9 +14,16 @@ const tileHeight = Constants.TILE_HEIGHT;
 export const drawGround = (scene: Phaser.Scene, groundIdx: number) => {
   for (let y = 1; y < rows - 1; y++) {
     for (let x = 1; x < cols - 1; x++) {
+      const random = Phaser.Math.Between(0, 10);
       const newx = tileWidth / 2 + tileWidth * x;
       const newy = Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y;
-      scene.add.sprite(newx, newy, 'ground_grass');
+      const texture = random > 7 ? Constants.MAP_ASSETS.grass_1 : Constants.MAP_ASSETS.grass_2;
+      scene.add.sprite(newx, newy, texture);
+      if (!(x % 2 === 0 && y % 2 === 0)) {
+        if (random < 2) {
+          scene.add.sprite(newx, newy, Constants.MAP_ASSETS.plants, Phaser.Math.Between(0, 6));
+        }
+      }
     }
   }
 };
@@ -24,25 +31,27 @@ export const drawGround = (scene: Phaser.Scene, groundIdx: number) => {
 export const drawWalls = (scene: Phaser.Scene, mapTiles: MapTiles) => {
   for (let x = 0; x < cols; x++) {
     if (x === 0) {
-      addOuterWall(scene, x, 0, Constants.GROUND_TILES.top_left);
-      addOuterWall(scene, x, rows - 1, Constants.GROUND_TILES.bottom_left);
+      addOuterWall(scene, x, 0, Constants.GROUND_TYPES.top_left);
+      addOuterWall(scene, x, rows - 1, Constants.GROUND_TYPES.bottom_left);
     } else if (x === cols - 1) {
-      addOuterWall(scene, x, 0, Constants.GROUND_TILES.top_right);
-      addOuterWall(scene, x, rows - 1, Constants.GROUND_TILES.bottom_right);
+      addOuterWall(scene, x, 0, Constants.GROUND_TYPES.top_right);
+      addOuterWall(scene, x, rows - 1, Constants.GROUND_TYPES.bottom_right);
     } else {
-      addOuterWall(scene, x, 0, Constants.GROUND_TILES.top);
-      addOuterWall(scene, x, rows - 1, Constants.GROUND_TILES.bottom);
+      addOuterWall(scene, x, 0, Constants.GROUND_TYPES.top);
+      addOuterWall(scene, x, rows - 1, Constants.GROUND_TYPES.bottom);
     }
   }
   for (let y = 1; y < rows - 1; y++) {
-    addOuterWall(scene, 0, y, Constants.GROUND_TILES.left);
-    addOuterWall(scene, cols - 1, y, Constants.GROUND_TILES.right);
+    addOuterWall(scene, 0, y, Constants.GROUND_TYPES.left);
+    addOuterWall(scene, cols - 1, y, Constants.GROUND_TYPES.right);
   }
 
   // add inner walls
   for (let y = 2; y < rows - 1; y += 2) {
     for (let x = 2; x < cols - 1; x += 2) {
-      addInnerWall(scene, x, y, 'rock');
+      const random = Phaser.Math.Between(1, 2);
+      const texture = random === 1 ? Constants.MAP_ASSETS.rock_1 : Constants.MAP_ASSETS.rock_2;
+      addInnerWall(scene, x, y, texture);
     }
   }
 };

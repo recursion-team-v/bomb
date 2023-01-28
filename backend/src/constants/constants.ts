@@ -4,7 +4,7 @@
 
 export const DEBUG_ADMIN_PASSWORD = 'admin';
 
-export const PAGE_COLOR = 0x82a6ea;
+export const PAGE_COLOR = 0x18181b;
 export const BLACK = 0x000000;
 export const WHITE = 0xffffff;
 export const DARK_GRAY = 0x374151;
@@ -121,7 +121,7 @@ export const TILE_WIDTH = DEFAULT_TIP_SIZE; // タイルの横幅
 export const TILE_HEIGHT = DEFAULT_TIP_SIZE; // タイルの縦幅
 export const MAX_BLOCKS = 100;
 
-export const GROUND_TILES = {
+export const GROUND_TYPES = {
   top: 'top',
   left: 'left',
   right: 'right',
@@ -130,6 +130,14 @@ export const GROUND_TILES = {
   top_right: 'top_right',
   bottom_left: 'bottom_left',
   bottom_right: 'bottom_right',
+};
+
+export const MAP_ASSETS = {
+  grass_1: 'grass_1',
+  grass_2: 'grass_2',
+  rock_1: 'rock_1',
+  rock_2: 'rock_2',
+  plants: 'plants',
 };
 
 // マップのタイルシートの idx

@@ -104,16 +104,16 @@ export default class Preloader extends Phaser.Scene {
     // tile sheet for ground
     this.load.image('tile_grounds', 'assets/tile_grounds.png');
 
-    // sprites for map
-    this.load.spritesheet('ground_grass', 'assets/map/ground/grass1.png', {
-      frameWidth,
-      frameHeight,
-    });
-    this.load.spritesheet('rock', 'assets/map/ground/rock.png', {
-      frameWidth,
-      frameHeight,
-    });
-    for (const groundType of Object.values(Constants.GROUND_TILES)) {
+    // sprites for map assets
+    for (const mapAsset of Object.values(Constants.MAP_ASSETS)) {
+      this.load.spritesheet(mapAsset, `assets/map/ground/${mapAsset}.png`, {
+        frameWidth,
+        frameHeight,
+      });
+    }
+
+    // sprites for grounds
+    for (const groundType of Object.values(Constants.GROUND_TYPES)) {
       this.load.spritesheet(`ground_${groundType}`, `assets/map/ground/ground_${groundType}.png`, {
         frameWidth,
         frameHeight,
