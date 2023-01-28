@@ -35,7 +35,7 @@ export default class MyPlayer extends Player {
     this.serverX = x;
     this.serverY = y;
     this.dead_se = this.scene.sound.add('gameOver', {
-      volume: Config.SOUND_VOLUME * 1.5,
+      volume: Config.SOUND_VOLUME,
     });
     this.setOnCollide((data: Phaser.Types.Physics.Matter.MatterCollisionData) => {
       const currBody = this.body as MatterJS.BodyType;

@@ -101,16 +101,16 @@ export default class Game extends Phaser.Scene {
       volume: Config.SOUND_VOLUME,
     });
     this.seItemGet = this.sound.add('getItem', {
-      volume: Config.SOUND_VOLUME * 1.5,
+      volume: Config.SOUND_VOLUME,
     });
     this.winBgm = this.sound.add('win', {
-      volume: Config.SOUND_VOLUME * 1.5,
+      volume: Config.SOUND_VOLUME,
     });
     this.drowBgm = this.sound.add('drow', {
-      volume: Config.SOUND_VOLUME * 1.5,
+      volume: Config.SOUND_VOLUME,
     });
     this.loseBgm = this.sound.add('lose', {
-      volume: Config.SOUND_VOLUME * 1.5,
+      volume: Config.SOUND_VOLUME,
     });
 
     this.upTitle = this.add.image(0, Constants.HEIGHT / 2, Config.ASSET_KEY_BATTLE_START_UP);
