@@ -40,16 +40,16 @@ export default class Title extends Phaser.Scene {
       this.se?.play();
     };
 
-    this.add.image(Constants.WIDTH / 2, Constants.HEIGHT / 2 - 150, 'title').setScale(1.5);
+    this.add.image(Constants.WIDTH / 2, Constants.HEIGHT / 5, 'title').setScale(1.5);
 
     this.add.volumeIcon(this, Constants.WIDTH - 100, 10);
 
     const username = localStorage.getItem('bbp_username');
     createLoginDialog(this, {
       x: Constants.WIDTH / 2,
-      y: Constants.HEIGHT / 2,
+      y: Constants.HEIGHT / 5 + 200,
       title: 'Input Your Name',
-      username: username === null ? '' : username,
+      username: username === null ? Constants.DEFAULT_PLAYER_NAME : username,
     }).on('playGame', function (userName: string) {
       playGame(validateAndFixUserName(userName));
     });
@@ -58,14 +58,13 @@ export default class Title extends Phaser.Scene {
     //   y: Constants.HEIGHT / 2 + 150,
     // });
 
-    createTextBox(this, Constants.WIDTH / 2 - 650 / 2, Constants.HEIGHT / 2 + 120, {
+    createTextBox(this, Constants.WIDTH / 2 - 650 / 2, Constants.HEIGHT / 2 + 80, {
       wrapWidth: 650,
       fixedWidth: 650,
       fixedHeight: 250,
     }).setOrigin(0.5);
-    createBombUsage(this, Constants.WIDTH / 2 - 650 / 2 + 110, Constants.HEIGHT / 2 + 270);
-    createMoveUsage(this, Constants.WIDTH / 2 - 650 / 2 + 320, Constants.HEIGHT / 2 + 220);
-    createItemUsage(this, Constants.WIDTH / 2 - 650 / 2 + 460, Constants.HEIGHT / 2 + 200);
-    this.add.text(0, 25, 'BGM: https://seadenden-8bit.com').setFontFamily('PressStart2P');
+    createBombUsage(this, Constants.WIDTH / 2 - 650 / 2 + 110, Constants.HEIGHT / 2 + 230);
+    createMoveUsage(this, Constants.WIDTH / 2 - 650 / 2 + 320, Constants.HEIGHT / 2 + 180);
+    createItemUsage(this, Constants.WIDTH / 2 - 650 / 2 + 460, Constants.HEIGHT / 2 + 160);
   }
 }
