@@ -179,7 +179,6 @@ export default class Preloader extends Phaser.Scene {
 
     this.load.audio('bombExplode', ['assets/se/bomb.mp3']);
     this.load.audio('getItem', ['assets/se/get_item.mp3']);
-    this.load.audio('gameOver', ['assets/se/game_over.mp3']);
     this.load.audio('hitPlayer', ['assets/se/hit_player.mp3']);
     this.load.audio('battleStart', ['assets/bgm/battle_start.mp3']);
     this.load.audio('select', ['assets/se/select.mp3']);
@@ -187,6 +186,9 @@ export default class Preloader extends Phaser.Scene {
     this.load.audio('stage', ['assets/bgm/stage.mp3']);
     this.load.audio('opening', ['assets/bgm/opening.mp3']);
     this.load.audio('result', ['assets/bgm/result.mp3']);
+    this.load.audio('win', ['assets/bgm/win.mp3']);
+    this.load.audio('lose', ['assets/bgm/lose.mp3']);
+    this.load.audio('drow', ['assets/bgm/drow.mp3']);
 
     this.load.on('complete', () => {
       createTitleBackgroundAnims(this.anims);
