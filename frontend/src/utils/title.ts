@@ -16,7 +16,9 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
   // User name field object
   const userNameField = scene.rexUI.add.label({
     orientation: 'x',
-    background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10, 0x959595).setAlpha(0.8),
+    background: scene.rexUI.add
+      .roundRectangle(0, 0, 10, 10, 10, Constants.LIGHT_GRAY)
+      .setAlpha(0.8),
     text: scene.rexUI.add.canvasInput(xValue, yValue, 300, 36, {
       style: {
         fontSize: 20,
@@ -41,10 +43,10 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
   const loginButton = scene.rexUI.add
     .label({
       orientation: 'x',
-      background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10, Constants.GREEN),
+      background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10, Constants.LIGHT_RED),
       text: scene.add.text(0, 0, 'play game', {
         fontFamily: 'PressStart2P',
-        color: '#000',
+        color: 'white',
       }),
       space: { top: 20, bottom: 20, left: 20, right: 20 },
     })

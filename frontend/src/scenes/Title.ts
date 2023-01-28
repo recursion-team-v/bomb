@@ -31,7 +31,7 @@ export default class Title extends Phaser.Scene {
     this.add
       .sprite(0, 0, Config.ASSET_KEY_TITLE_BACKGROUND)
       .setOrigin(0, 0)
-      .setScale(1.3)
+      .setScale(1.2)
       .play(Config.TITLE_BACKGROUND_ANIMATION_KEY, true);
 
     const playGame = (userName: string) => {
