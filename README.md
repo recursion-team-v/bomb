@@ -32,8 +32,9 @@ TODO: gif などを入れたい
 ### 音楽
 
 - BGM
-  - [ファミコン風 | フリー BGM・無料ダウンロード 魔王魂](https://maou.audio/category/bgm/bgm-8bit/)
+  - [しーでんでん ファミコン風 オリジナルフリー BGM ｜ seadenden 8bit freeBGM](https://seadenden-8bit.com/)
   - [ファミコン風　オリジナルフリー BGM seadenden 8bit freeBGM](https://seadenden-8bit.com/)
   - [ファミコン風 BGM/SE リスト | ファミコン風フリー BGM サイト | イワシロ音楽素材](https://iwashiro-sounds.work/)
+  - [魔王魂 | 無料で使える森田交一の音楽](https://maou.audio/)
 - SE
-  - [『sfxr』　ファミコン風・8bit 効果音](https://taira-komori.jpn.org/sfxrfami.html)
+  - [無料効果音で遊ぼう！](https://taira-komori.jpn.org/index.html)
