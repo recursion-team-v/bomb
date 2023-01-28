@@ -50,7 +50,6 @@ export default class GameResult extends Phaser.Scene {
       .setScale(1.5, 2)
       .setDepth(Infinity)
       .play({ key: Config.CURTAIN_OPEN_ANIMATION_KEY, hideOnComplete: true }, true);
-    // .playAfterDelay({ key: Config.CURTAIN_OPEN_ANIMATION_KEY, hideOnComplete: true }, 1000);
 
     // タイトルを表示
     this.add.image(
