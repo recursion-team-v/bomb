@@ -313,7 +313,7 @@ export const BLAST_AVAILABLE_TIME = 500;
 export const PLAYER_TOLERANCE_DISTANCE = 100;
 
 // ゲームの制限時間
-export const GAME_PREPARING_TIME = 4.5; // ゲーム開始演出の時間
+export const GAME_PREPARING_TIME = 5; // ゲーム開始演出の時間
 export const TIME_LIMIT_SEC = 181 + GAME_PREPARING_TIME; // (+1秒するといい感じに表示される)
 
 /*
