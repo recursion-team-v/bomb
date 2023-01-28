@@ -125,7 +125,7 @@ export default class GameResult extends Phaser.Scene {
     }
 
     const buttons = createButtons(this, Constants.WIDTH * 0.8, Constants.HEIGHT * 0.9, [
-      createButton(this, 'Go to Lobby', Constants.GREEN),
+      createButton(this, 'Go to Lobby', Constants.LIGHT_RED),
     ]);
     buttons.on(
       'button.click',
