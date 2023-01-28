@@ -9,6 +9,7 @@ import { createCurtainOpenAnims } from '../anims/CurtainAnims';
 import * as Config from '../config/config';
 import Network from '../services/Network';
 import isMobile from '../utils/mobile';
+import { createTitleBackgroundAnims } from '../anims/TitleBackground';
 
 export default class Preloader extends Phaser.Scene {
   private preloadComplete = false;
@@ -23,6 +24,11 @@ export default class Preloader extends Phaser.Scene {
     this.add.text(Constants.WIDTH / 2 - 100, Constants.HEIGHT / 2, 'Loading game...', {
       fontSize: '32px',
       color: '#fff',
+    });
+
+    this.load.spritesheet(Config.ASSET_KEY_TITLE_BACKGROUND, 'assets/title_background.png', {
+      frameWidth: 800,
+      frameHeight: 720,
     });
 
     const frameWidth = Constants.DEFAULT_TIP_SIZE;
@@ -178,6 +184,7 @@ export default class Preloader extends Phaser.Scene {
     this.load.audio('result', ['assets/bgm/result.mp3']);
 
     this.load.on('complete', () => {
+      createTitleBackgroundAnims(this.anims);
       createBombAnims(this.anims);
       createPenetrationBombAnims(this.anims);
       createExplodeAnims(this.anims);
