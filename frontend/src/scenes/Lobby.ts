@@ -160,7 +160,7 @@ export default class Lobby extends Phaser.Scene {
       await this.network.room.leave();
     }
     const room = this.availableRooms[cellIndex];
-
+    if (room.id === 'default') return;
     if (this.dialog === undefined) {
       this.se1?.play();
       this.disableLobbyButtons();
