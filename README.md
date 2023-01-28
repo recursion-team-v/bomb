@@ -23,9 +23,10 @@ TODO: gif などを入れたい
 - ロゴ
   - [ピクセルフォント - ピクセルフォント変換](https://fontmeme.com/ja/font-pixel-style/)
 - その他
-  - [stemkoski/HTML-Joysticks](https://github.com/stemkoski/HTML-Joysticks)
-  - [アイコン素材ダウンロードサイト「icooon-mono](https://icooon-mono.com/)
-  - [ロックオンのシルエット 02 | 無料の Ai・PNG 白黒シルエットイラスト](https://www.silhouette-illust.com/illust/9685#google_vignette)
+  - ジョイスティック
+    - [stemkoski/HTML-Joysticks](https://github.com/stemkoski/HTML-Joysticks)
+  - 音量アイコン
+    - [アイコン素材ダウンロードサイト「icooon-mono](https://icooon-mono.com/)
   - トロフィー
     - [アニメーション素材１ - ぴぽや倉庫](https://pipoya.net/sozai/assets/animation/animation-material-1/)
   - カーソル
