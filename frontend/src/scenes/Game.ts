@@ -39,6 +39,7 @@ import { dropWalls } from '../services/Map';
 import { removeItem } from '../services/Item';
 import GameResult from '../../../backend/src/rooms/schema/GameResult';
 import ServerTimer from '../../../backend/src/rooms/schema/Timer';
+import { getWinner } from '../utils/result';
 import EnemyPlayer from '../characters/EnemyPlayer';
 
 export default class Game extends Phaser.Scene {
@@ -308,7 +309,6 @@ export default class Game extends Phaser.Scene {
       // ゲームシーン停止の処理
       this.startBgm.stop();
       this.bgm?.stop();
-      this.scene.pause();
       this.scene.sendToBack();
       this.scene.stop(Config.SCENE_NAME_GAME_HEADER);
 
@@ -317,16 +317,27 @@ export default class Game extends Phaser.Scene {
       await this.network.leaveRoom();
       this.network.getTs().destroy();
 
-      const darken = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.8 } });
-      darken.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
-      darken.setDepth(Infinity);
+      const moveToResultScene = () => {
+        this.scene.stop();
+        this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
+          network: this.network,
+          playerName: this.myPlayer.name,
+          sessionId: this.room.sessionId,
+          gameResult: this.gameResult,
+        });
+      };
 
-      this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
-        network: this.network,
-        playerName: this.myPlayer.name,
-        sessionId: this.room.sessionId,
-        gameResult: this.gameResult,
-      });
+      // 勝利者がいる場合は、勝利者の位置にカメラを移動
+      const winner = getWinner(this.gameResult);
+      if (winner !== undefined) {
+        const camera = this.cameras.main;
+        camera.setZoom(1);
+        camera.pan(winner.x, winner.y, 2000, 'Sine.easeInOut');
+        camera.zoomTo(2, 2000, 'Sine.easeInOut', true);
+        camera.once('camerazoomcomplete', moveToResultScene);
+      } else {
+        moveToResultScene();
+      }
     }
   }
 
