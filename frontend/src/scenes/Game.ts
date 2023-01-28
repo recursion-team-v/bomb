@@ -65,6 +65,9 @@ export default class Game extends Phaser.Scene {
 
   private bgm!: Phaser.Sound.BaseSound;
   private startBgm!: Phaser.Sound.BaseSound;
+  private winBgm!: Phaser.Sound.BaseSound;
+  private drowBgm!: Phaser.Sound.BaseSound;
+  private loseBgm!: Phaser.Sound.BaseSound;
   private title!: Phaser.GameObjects.Container;
   private upTitle!: Phaser.GameObjects.Image;
   private downTitle!: Phaser.GameObjects.Image;
@@ -98,6 +101,15 @@ export default class Game extends Phaser.Scene {
       volume: Config.SOUND_VOLUME,
     });
     this.seItemGet = this.sound.add('getItem', {
+      volume: Config.SOUND_VOLUME * 1.5,
+    });
+    this.winBgm = this.sound.add('win', {
+      volume: Config.SOUND_VOLUME * 1.5,
+    });
+    this.drowBgm = this.sound.add('drow', {
+      volume: Config.SOUND_VOLUME * 1.5,
+    });
+    this.loseBgm = this.sound.add('lose', {
       volume: Config.SOUND_VOLUME * 1.5,
     });
 
@@ -318,24 +330,33 @@ export default class Game extends Phaser.Scene {
       this.network.getTs().destroy();
 
       const moveToResultScene = () => {
-        this.scene.stop();
-        this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
-          network: this.network,
-          playerName: this.myPlayer.name,
-          sessionId: this.room.sessionId,
-          gameResult: this.gameResult,
-        });
+        setTimeout(() => {
+          this.scene.stop();
+          this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
+            network: this.network,
+            playerName: this.myPlayer.name,
+            sessionId: this.room.sessionId,
+            gameResult: this.gameResult,
+          });
+        }, winner !== undefined ? 1500 : 3000);
       };
 
       // 勝利者がいる場合は、勝利者の位置にカメラを移動
       const winner = getWinner(this.gameResult);
+
       if (winner !== undefined) {
+        if (winner?.sessionId === this.network.mySessionId) {
+          this.winBgm.play();
+        } else {
+          this.loseBgm.play();
+        }
         const camera = this.cameras.main;
         camera.setZoom(1);
         camera.pan(winner.x, winner.y, 2000, 'Sine.easeInOut');
         camera.zoomTo(2, 2000, 'Sine.easeInOut', true);
         camera.once('camerazoomcomplete', moveToResultScene);
       } else {
+        this.drowBgm.play();
         moveToResultScene();
       }
     }
