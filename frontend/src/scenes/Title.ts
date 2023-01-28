@@ -5,6 +5,7 @@ import * as Constants from '../../../backend/src/constants/constants';
 import '../services/SoundVolume';
 import { validateAndFixUserName } from '../../../backend/src/utils/validation';
 import { createBombUsage, createItemUsage, createMoveUsage, createTextBox } from '../utils/usage';
+import { customCursor } from '../utils/key';
 
 export default class Title extends Phaser.Scene {
   network?: Network;
@@ -29,6 +30,7 @@ export default class Title extends Phaser.Scene {
 
   create(data: { network: Network }) {
     addBackground(this);
+    customCursor(this);
 
     const playGame = (userName: string) => {
       localStorage.setItem('username', userName);
