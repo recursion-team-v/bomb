@@ -1,8 +1,23 @@
-## Bom Bom Panic
+# Bom Bom Panic
 
 [ボムボムパニック](https://bombompanic.vercel.app/)
 
 TODO: gif などを入れたい
+
+## 使用技術
+
+![image](image/architecture.drawio.png)
+
+| 種類                     | 使用技術                                                                                                      |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| フロントエンド           | TypeScript                                                                                                    |
+| バックエンド             | Node.js / TypeScript                                                                                          |
+| ゲームエンジン           | [Phaser3](https://phaser.io/phaser3) / [matter.js](https://brm.io/matter-js/)                                 |
+| リアルタイム通信         | [Colyseus](https://www.colyseus.io/)                                                                          |
+| デプロイ(フロントエンド) | [Vercel](https://vercel.com/)                                                                                 |
+| デプロイ(バックエンド)   | [Cloud Run](https://cloud.google.com/run)                                                                     |
+| CI / CD                  | [GitHub Actions](https://github.co.jp/features/actions) / [Cloud Build](https://cloud.google.com/build?hl=ja) |
+| ビルド                   | [Vite](https://ja.vitejs.dev/)                                                                                |
 
 ## Special Thanks
 
