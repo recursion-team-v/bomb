@@ -52,7 +52,7 @@ export default class Title extends Phaser.Scene {
     createLoginDialog(this, {
       x: Constants.WIDTH / 2,
       y: Constants.HEIGHT / 2,
-      title: 'input user name',
+      title: 'Input Your Name',
       username: username === null ? '' : username,
     }).on('playGame', function (userName: string) {
       playGame(validateAndFixUserName(userName));
