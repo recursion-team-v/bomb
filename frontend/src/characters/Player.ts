@@ -79,6 +79,10 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.nameLabel = game.add.container(this.x, this.y, [label, nameText, triangle]).setDepth(1000);
   }
 
+  getHP(): number {
+    return this.hp;
+  }
+
   // HP をセットします
   // HP が増えた場合は true を返します
   setHP(hp: number): boolean {
