@@ -143,7 +143,7 @@ export default class Bomb extends Phaser.Physics.Matter.Sprite {
     const game = getGameScene();
     const imageName =
       this.bombType === Constants.BOMB_TYPE.PENETRATION ? 'penetration_bomb_point' : 'bomb_point';
-    const addBlastPoint = (x: number, y: number) => game.add.image(x, y, imageName).setScale(0.8);
+    const addBlastPoint = (x: number, y: number) => game.add.image(x, y, imageName).setScale(0.5);
 
     this.blastPointSprites.push(addBlastPoint(this.stableX, this.stableY));
 
