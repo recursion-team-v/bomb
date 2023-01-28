@@ -20,6 +20,7 @@ export default class GameHeader extends Phaser.Scene {
   private textTimer!: Phaser.GameObjects.Text;
   private remainTime: number = 0;
   private player!: MyPlayer;
+  private textHp!: Phaser.GameObjects.Text;
   private textBombCount!: Phaser.GameObjects.Text;
   private textBombStrength!: Phaser.GameObjects.Text;
   private textSpeed!: Phaser.GameObjects.Text;
@@ -40,25 +41,27 @@ export default class GameHeader extends Phaser.Scene {
     this.startTimer = false;
     this.textTimer = this.createText(
       0,
-      0,
+      5,
       convertSecondsToMMSS(Constants.TIME_LIMIT_SEC - Constants.GAME_PREPARING_TIME - 1)
     );
-    this.textBombCount = this.createText(250, 5, `×${this.player.getItemCountOfBombCount()}`);
-    this.textBombStrength = this.createText(400, 5, `×${this.player.getItemCountOfBombStrength()}`);
-    this.textSpeed = this.createText(550, 5, `×${this.player.getItemCountOfSpeed()}`);
+    this.textHp = this.createText(150, 5, `HP:${this.player.getHP()}`);
+    this.textBombCount = this.createText(350, 5, `×${this.player.getItemCountOfBombCount()}`);
+    this.textBombStrength = this.createText(500, 5, `×${this.player.getItemCountOfBombStrength()}`);
+    this.textSpeed = this.createText(650, 5, `×${this.player.getItemCountOfSpeed()}`);
 
     // 特に意味はないが Container でまとめておく
     this.imgBomb = this.add
-      .image(200, 10, Constants.ITEM_TYPE.BOMB_POSSESSION_UP)
+      .image(300, 10, Constants.ITEM_TYPE.BOMB_POSSESSION_UP)
       .setScale(0.5)
       .setOrigin(0, 0);
     this.add
       .container(0, 0, [
+        this.textHp,
         this.imgBomb,
         this.textBombCount,
-        this.add.image(350, 10, Constants.ITEM_TYPE.BOMB_STRENGTH).setScale(0.5).setOrigin(0, 0),
+        this.add.image(450, 10, Constants.ITEM_TYPE.BOMB_STRENGTH).setScale(0.5).setOrigin(0, 0),
         this.textBombStrength,
-        this.add.image(500, 10, Constants.ITEM_TYPE.PLAYER_SPEED).setScale(0.5).setOrigin(0, 0),
+        this.add.image(600, 10, Constants.ITEM_TYPE.PLAYER_SPEED).setScale(0.5).setOrigin(0, 0),
         this.textSpeed,
       ])
       .setDepth(Infinity);
@@ -83,6 +86,8 @@ export default class GameHeader extends Phaser.Scene {
     if (this.player.getBombType() === Constants.BOMB_TYPE.PENETRATION) {
       this.imgBomb.setTexture(Constants.ITEM_TYPE.PENETRATION_BOMB);
     }
+
+    this.textHp.setText(`HP:${this.player.getHP()}`);
     this.textBombCount.setText(`×${this.player.getItemCountOfBombCount()}`);
     this.textBombStrength.setText(`×${this.player.getItemCountOfBombStrength()}`);
     this.textSpeed.setText(`×${this.player.getItemCountOfSpeed()}`);
