@@ -94,7 +94,7 @@ export default class Game extends Phaser.Scene {
 
     this.startBgm = this.sound.add('battleStart', { volume: Config.SOUND_VOLUME });
     this.startBgm.play();
-    this.bgm = this.sound.add('stage_2', {
+    this.bgm = this.sound.add('stage', {
       volume: Config.SOUND_VOLUME,
     });
     this.seItemGet = this.sound.add('getItem', {

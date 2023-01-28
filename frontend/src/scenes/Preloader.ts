@@ -160,12 +160,6 @@ export default class Preloader extends Phaser.Scene {
     // flares
     this.load.atlas('flares', 'assets/flares.png', 'assets/flares.json');
 
-    // usage
-    this.load.spritesheet('keyboard', 'assets/keyboard.png', {
-      frameWidth,
-      frameHeight,
-    });
-
     // keyboard
     this.load.image('leftSpace', 'assets/keyboard/space_left.png');
     this.load.image('rightSpace', 'assets/keyboard/space_right.png');
@@ -186,8 +180,7 @@ export default class Preloader extends Phaser.Scene {
     this.load.audio('battleStart', ['assets/bgm/battle_start.mp3']);
     this.load.audio('select', ['assets/se/select.mp3']);
     this.load.audio('select1', ['assets/se/select1.mp3']);
-    this.load.audio('stage_1', ['assets/bgm/stage_1.mp3']);
-    this.load.audio('stage_2', ['assets/bgm/stage_2.mp3']);
+    this.load.audio('stage', ['assets/bgm/stage.mp3']);
     this.load.audio('opening', ['assets/bgm/opening.mp3']);
     this.load.audio('result', ['assets/bgm/result.mp3']);
 
