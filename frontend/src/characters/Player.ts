@@ -65,6 +65,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     const nameText = game.add
       .text(0, 0, this.name, {
         fontSize: '20px',
+        fontFamily: 'PressStart2P',
         color: '#ffffff',
       })
       .setOrigin(0.5);
