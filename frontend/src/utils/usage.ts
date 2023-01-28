@@ -138,12 +138,12 @@ export const createItemUsage = function (scene: Phaser.Scene, x: number, y: numb
       .setFontFamily('PressStart2P')
   );
 
-  group.add(scene.add.image(x, y + 150, Constants.ITEM_TYPE.HEART).setScale(0.4))
-    group.add(
-      scene.add
-        .text(x + 30, y + 140, 'HP up')
-        .setScale(0.8)
-        .setFontFamily('PressStart2P')
-    );
-    group.add(scene.add.text(x + 60, y + 180, 'items').setFontFamily('PressStart2P'));
+  group.add(scene.add.image(x, y + 150, Constants.ITEM_TYPE.HEART).setScale(0.4));
+  group.add(
+    scene.add
+      .text(x + 30, y + 140, 'HP up')
+      .setScale(0.8)
+      .setFontFamily('PressStart2P')
+  );
+  group.add(scene.add.text(x + 60, y + 180, 'items').setFontFamily('PressStart2P'));
 };
