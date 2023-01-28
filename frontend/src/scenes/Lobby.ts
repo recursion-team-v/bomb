@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import * as Config from '../config/config';
 import * as Constants from '../../../backend/src/constants/constants';
 import Network, { IGameStartInfo } from '../services/Network';
@@ -221,6 +222,12 @@ export default class Lobby extends Phaser.Scene {
           }
         } else if (idx === 2) {
           child.setFillStyle(Constants.RED);
+        } else if (idx === 3) {
+          if (player.gameState === Constants.PLAYER_GAME_STATE.READY) {
+            child.play(`${player.character}_down`, true);
+          } else {
+            child.play(`${player.character}_idle_down`, true);
+          }
         }
       });
       setTimeout(() => {
@@ -256,6 +263,8 @@ export default class Lobby extends Phaser.Scene {
           child.setFillStyle(Constants.GREEN);
         } else if (idx === 1) {
           child.setText('ready');
+        } else if (idx === 3) {
+          child.play(`${player.character}_down`, true);
         }
       });
     }

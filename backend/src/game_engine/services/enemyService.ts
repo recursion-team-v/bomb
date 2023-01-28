@@ -191,14 +191,27 @@ export default class EnemyService {
 
       // AI の動きを決定するため、残り時間に応じたステップを取得
       const targets = [];
+      let extraRatio: number = 0;
 
       for (const key in Constants.ENEMY_EVALUATION_RATIO_PER_STEP[gameStep]) {
         switch (key) {
           // 爆弾、爆風の影響度マップ
           case Constants.ENEMY_EVALUATION_RATIO_LABEL.ENEMY_EVALUATION_RATIO_BOMB:
+            // 処理落ちの関係で、爆弾をおくべき場所を検索するマップを生成しなくなったら
+            // 使っていた割合をこっちに追加することで帳尻を合わせる
+            if (
+              goodBombPlaceMap.length === 0 &&
+              'ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE' in
+                Constants.ENEMY_EVALUATION_RATIO_PER_STEP[gameStep]
+            ) {
+              extraRatio =
+                Constants.ENEMY_EVALUATION_RATIO_PER_STEP[gameStep]
+                  .ENEMY_EVALUATION_RATIO_GOOD_BOMB_PLACE ?? 0;
+            }
+
             targets.push({
               dimensionalMap: deathMap,
-              ratio: Constants.ENEMY_EVALUATION_RATIO_PER_STEP[gameStep][key] ?? 0,
+              ratio: Constants.ENEMY_EVALUATION_RATIO_PER_STEP[gameStep][key] + extraRatio ?? 0,
             });
             break;
 
