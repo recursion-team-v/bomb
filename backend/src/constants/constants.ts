@@ -4,7 +4,7 @@
 
 export const DEBUG_ADMIN_PASSWORD = 'admin';
 
-export const PAGE_COLOR = 0x18181b;
+export const PAGE_COLOR = 0x82a6ea;
 export const BLACK = 0x000000;
 export const WHITE = 0xffffff;
 export const DARK_GRAY = 0x374151;
@@ -120,6 +120,17 @@ export const TILE_COLS = 15; // タイルの列数
 export const TILE_WIDTH = DEFAULT_TIP_SIZE; // タイルの横幅
 export const TILE_HEIGHT = DEFAULT_TIP_SIZE; // タイルの縦幅
 export const MAX_BLOCKS = 100;
+
+export const GROUND_TILES = {
+  top: 'top',
+  left: 'left',
+  right: 'right',
+  bottom: 'bottom',
+  top_left: 'top_left',
+  top_right: 'top_right',
+  bottom_left: 'bottom_left',
+  bottom_right: 'bottom_right',
+};
 
 // マップのタイルシートの idx
 export const TILE_GROUND = {

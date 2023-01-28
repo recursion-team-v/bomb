@@ -12,36 +12,37 @@ const tileWidth = Constants.TILE_WIDTH;
 const tileHeight = Constants.TILE_HEIGHT;
 
 export const drawGround = (scene: Phaser.Scene, groundIdx: number) => {
-  const groundArray = generateGroundArray(rows, cols, groundIdx);
-  const groundMap = scene.make.tilemap({
-    data: groundArray,
-    tileWidth,
-    tileHeight,
-  });
-  groundMap.addTilesetImage('tile_grounds', undefined, tileWidth, tileHeight, 0, 0);
-  groundMap.createLayer(0, 'tile_grounds', 0, Constants.HEADER_HEIGHT).setAlpha(0.7).setDepth(-2);
+  for (let y = 1; y < rows - 1; y++) {
+    for (let x = 1; x < cols - 1; x++) {
+      const newx = tileWidth / 2 + tileWidth * x;
+      const newy = Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y;
+      scene.add.sprite(newx, newy, 'ground_grass');
+    }
+  }
 };
 
 export const drawWalls = (scene: Phaser.Scene, mapTiles: MapTiles) => {
-  // add outer walls
   for (let x = 0; x < cols; x++) {
-    if (x === 0 || x === cols - 1) {
-      addOuterWall(scene, x, 0, mapTiles.OUTER_WALL_CORNER);
-      addOuterWall(scene, x, rows - 1, mapTiles.OUTER_WALL_CORNER);
+    if (x === 0) {
+      addOuterWall(scene, x, 0, Constants.GROUND_TILES.top_left);
+      addOuterWall(scene, x, rows - 1, Constants.GROUND_TILES.bottom_left);
+    } else if (x === cols - 1) {
+      addOuterWall(scene, x, 0, Constants.GROUND_TILES.top_right);
+      addOuterWall(scene, x, rows - 1, Constants.GROUND_TILES.bottom_right);
     } else {
-      addOuterWall(scene, x, 0, mapTiles.OUTER_WALL_TOP_BOT);
-      addOuterWall(scene, x, rows - 1, mapTiles.OUTER_WALL_TOP_BOT);
+      addOuterWall(scene, x, 0, Constants.GROUND_TILES.top);
+      addOuterWall(scene, x, rows - 1, Constants.GROUND_TILES.bottom);
     }
   }
   for (let y = 1; y < rows - 1; y++) {
-    addOuterWall(scene, 0, y, mapTiles.OUTER_WALL_LEFT_RIGHT);
-    addOuterWall(scene, cols - 1, y, mapTiles.OUTER_WALL_LEFT_RIGHT);
+    addOuterWall(scene, 0, y, Constants.GROUND_TILES.left);
+    addOuterWall(scene, cols - 1, y, Constants.GROUND_TILES.right);
   }
 
   // add inner walls
   for (let y = 2; y < rows - 1; y += 2) {
     for (let x = 2; x < cols - 1; x += 2) {
-      addInnerWall(scene, x, y, mapTiles.INNER_WALL);
+      addInnerWall(scene, x, y, 'rock');
     }
   }
 };
@@ -98,36 +99,35 @@ export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
   return currBlocks;
 };
 
-const generateGroundArray = (rows: number, cols: number, groundIdx: number) => {
-  const ground = Constants.TILE_GROUND.DEFAULT_IDX[groundIdx];
+// const generateGroundArray = (rows: number, cols: number, groundIdx: number) => {
+//   const ground = Constants.TILE_GROUND.DEFAULT_IDX[groundIdx];
 
-  const arr = Array(rows)
-    .fill(ground)
-    .map(() => Array(cols).fill(ground));
+//   const arr = Array(rows)
+//     .fill(ground)
+//     .map(() => Array(cols).fill(ground));
 
-  // 市松模様にする
-  for (let y = 1; y < rows - 1; y++) {
-    for (let x = 1; x < cols - 1; x++) {
-      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-      if ((y + x) % 2 === 0) arr[y][x] = arr[y][x] + 3; // 暗い画像が + 3 の位置にあるので
-    }
-  }
+//   // 市松模様にする
+//   for (let y = 1; y < rows - 1; y++) {
+//     for (let x = 1; x < cols - 1; x++) {
+//       // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+//       if ((y + x) % 2 === 0) arr[y][x] = arr[y][x] + 3; // 暗い画像が + 3 の位置にあるので
+//     }
+//   }
 
-  return arr;
-};
+//   return arr;
+// };
 
-const addInnerWall = (scene: Phaser.Scene, x: number, y: number, frame: number) => {
+const addInnerWall = (scene: Phaser.Scene, x: number, y: number, texture: string) => {
   scene.add.innerWall(
     tileWidth / 2 + tileWidth * x,
     Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
-    frame
+    texture
   );
 };
 
-const addOuterWall = (scene: Phaser.Scene, x: number, y: number, frame: number) => {
-  scene.add.outerWall(
-    tileWidth / 2 + tileWidth * x,
-    Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y,
-    frame
-  );
+const addOuterWall = (scene: Phaser.Scene, x: number, y: number, groundType: string) => {
+  const newx = tileWidth / 2 + tileWidth * x;
+  const newy = Constants.HEADER_HEIGHT + tileHeight / 2 + tileHeight * y;
+  const textureKey = `ground_${groundType}`;
+  scene.add.outerWall(newx, newy, textureKey).play(groundType);
 };

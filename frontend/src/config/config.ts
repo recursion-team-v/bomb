@@ -1,5 +1,5 @@
 // debug
-export const IS_DEBUG = !import.meta.env.PROD;
+export const IS_DEBUG = !true;
 
 // 接続先のサーバーのURL
 export const SERVER_URL = import.meta.env.VITE_SERVER_URL;

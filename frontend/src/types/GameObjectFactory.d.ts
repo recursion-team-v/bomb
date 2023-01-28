@@ -77,8 +77,8 @@ declare global {
         rectangleY: number
       ) => Blast;
       item: (x: number, y: number, itemType: Constants.ITEM_TYPES) => Item;
-      innerWall: (x: number, y: number, frame: number) => InnerWall;
-      outerWall: (x: number, y: number, frame: number) => OuterWall;
+      innerWall: (x: number, y: number, texture: string) => InnerWall;
+      outerWall: (x: number, y: number, texture: string) => OuterWall;
       dropWall: (x: number, y: number, frame: number) => DropWall;
       block: (x: number, y: number, frame: number) => Block;
       volumeIcon: (scene: Phaser.Scene, x: number, y: number, isPlay?: boolean) => VolumeIcon;

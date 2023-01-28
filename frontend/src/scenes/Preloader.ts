@@ -9,6 +9,7 @@ import { createCurtainOpenAnims } from '../anims/CurtainAnims';
 import * as Config from '../config/config';
 import Network from '../services/Network';
 import isMobile from '../utils/mobile';
+import { createMapAnims } from '../anims/MapAnims';
 
 export default class Preloader extends Phaser.Scene {
   private preloadComplete = false;
@@ -97,6 +98,22 @@ export default class Preloader extends Phaser.Scene {
     // tile sheet for ground
     this.load.image('tile_grounds', 'assets/tile_grounds.png');
 
+    // sprites for map
+    this.load.spritesheet('ground_grass', 'assets/map/ground/grass1.png', {
+      frameWidth,
+      frameHeight,
+    });
+    this.load.spritesheet('rock', 'assets/map/ground/rock.png', {
+      frameWidth,
+      frameHeight,
+    });
+    for (const groundType of Object.values(Constants.GROUND_TILES)) {
+      this.load.spritesheet(`ground_${groundType}`, `assets/map/ground/ground_${groundType}.png`, {
+        frameWidth,
+        frameHeight,
+      });
+    }
+
     // sprites for outer/inner wall
     this.load.spritesheet(Constants.OBJECT_LABEL.WALL, 'assets/tile_walls.png', {
       frameWidth,
@@ -184,6 +201,7 @@ export default class Preloader extends Phaser.Scene {
       createCurtainOpenAnims(this.anims);
       createTrophyAnims(this.anims);
       createCharacterAnims(this.anims);
+      createMapAnims(this.anims);
       this.preloadComplete = true;
     });
   }
