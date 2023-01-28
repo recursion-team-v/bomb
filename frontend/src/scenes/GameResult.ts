@@ -12,6 +12,7 @@ import { createButton, createButtons } from '../utils/ui';
 export default class GameResult extends Phaser.Scene {
   private network!: Network;
   private se1?: Phaser.Sound.BaseSound;
+  private bgm!: Phaser.Sound.BaseSound;
   private readonly juice: phaserJuice;
 
   constructor() {
@@ -23,6 +24,12 @@ export default class GameResult extends Phaser.Scene {
   init() {
     this.se1 = this.sound.add('select', {
       volume: Config.SOUND_VOLUME,
+    });
+    this.bgm = this.sound.add('result', {
+      volume: Config.SOUND_VOLUME,
+    });
+    this.bgm.play({
+      loop: true,
     });
   }
 
@@ -125,6 +132,7 @@ export default class GameResult extends Phaser.Scene {
       async () => {
         this.se1?.play();
         await this.network.joinLobbyRoom();
+        this.bgm.stop();
         this.scene.get(Config.SCENE_NAME_GAME).scene.stop(); // ゲームシーンを shutdown する
         this.scene.stop();
         this.scene.start(Config.SCENE_NAME_LOBBY, {
