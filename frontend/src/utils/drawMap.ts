@@ -78,7 +78,7 @@ export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
       )
       .setDepth(Constants.OBJECT_DEPTH.DROP_WALL_SHADOW);
 
-    const b = scene.add.block(block.x, block.y - randomHeight, Constants.TILE_BLOCK_IDX);
+    const b = scene.add.block(block.x, block.y - randomHeight);
     currBlocks.set(block.id, b);
     b.setDepth(Infinity);
     b.setSensor(true);

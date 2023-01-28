@@ -80,7 +80,7 @@ declare global {
       innerWall: (x: number, y: number, texture: string) => InnerWall;
       outerWall: (x: number, y: number, texture: string) => OuterWall;
       dropWall: (x: number, y: number, frame: number) => DropWall;
-      block: (x: number, y: number, frame: number) => Block;
+      block: (x: number, y: number) => Block;
       volumeIcon: (scene: Phaser.Scene, x: number, y: number, isPlay?: boolean) => VolumeIcon;
     }
   }

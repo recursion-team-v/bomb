@@ -118,7 +118,7 @@ export default class Preloader extends Phaser.Scene {
     }
 
     // sprites for block
-    this.load.spritesheet(Constants.OBJECT_LABEL.BLOCK, 'assets/map/tile_walls.png', {
+    this.load.spritesheet(Constants.OBJECT_LABEL.BLOCK, 'assets/map/block.png', {
       frameWidth,
       frameHeight,
     });
