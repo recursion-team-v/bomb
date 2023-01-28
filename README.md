@@ -28,6 +28,8 @@ TODO: gif などを入れたい
   - [ロックオンのシルエット 02 | 無料の Ai・PNG 白黒シルエットイラスト](https://www.silhouette-illust.com/illust/9685#google_vignette)
   - トロフィー
     - [アニメーション素材１ - ぴぽや倉庫](https://pipoya.net/sozai/assets/animation/animation-material-1/)
+  - カーソル
+    - [Sprout Lands - UI Pack by Cup Nooble](https://cupnooble.itch.io/sprout-lands-ui-pack?download)
 
 ### 音楽
 
