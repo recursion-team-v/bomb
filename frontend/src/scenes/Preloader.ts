@@ -101,9 +101,6 @@ export default class Preloader extends Phaser.Scene {
       }
     );
 
-    // tile sheet for ground
-    this.load.image('tile_grounds', 'assets/tile_grounds.png');
-
     // sprites for map assets
     for (const mapAsset of Object.values(Constants.MAP_ASSETS)) {
       this.load.spritesheet(mapAsset, `assets/map/ground/${mapAsset}.png`, {
@@ -120,14 +117,8 @@ export default class Preloader extends Phaser.Scene {
       });
     }
 
-    // sprites for outer/inner wall
-    this.load.spritesheet(Constants.OBJECT_LABEL.WALL, 'assets/tile_walls.png', {
-      frameWidth,
-      frameHeight,
-    });
-
     // sprites for block
-    this.load.spritesheet(Constants.OBJECT_LABEL.BLOCK, 'assets/tile_walls.png', {
+    this.load.spritesheet(Constants.OBJECT_LABEL.BLOCK, 'assets/map/tile_walls.png', {
       frameWidth,
       frameHeight,
     });

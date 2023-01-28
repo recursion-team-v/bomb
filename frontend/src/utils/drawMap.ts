@@ -2,7 +2,6 @@ import { MapSchema } from '@colyseus/schema';
 
 import * as Constants from '../../../backend/src/constants/constants';
 import Block from '../../../backend/src/rooms/schema/Block';
-import MapTiles from '../../../backend/src/rooms/schema/MapTiles';
 import { Event, gameEvents } from '../events/GameEvents';
 import { Block as BlockBody } from '../items/Block';
 
@@ -11,7 +10,7 @@ const cols = Constants.TILE_COLS;
 const tileWidth = Constants.TILE_WIDTH;
 const tileHeight = Constants.TILE_HEIGHT;
 
-export const drawGround = (scene: Phaser.Scene, groundIdx: number) => {
+export const drawGround = (scene: Phaser.Scene) => {
   for (let y = 1; y < rows - 1; y++) {
     for (let x = 1; x < cols - 1; x++) {
       const random = Phaser.Math.Between(0, 10);
@@ -28,7 +27,7 @@ export const drawGround = (scene: Phaser.Scene, groundIdx: number) => {
   }
 };
 
-export const drawWalls = (scene: Phaser.Scene, mapTiles: MapTiles) => {
+export const drawWalls = (scene: Phaser.Scene) => {
   for (let x = 0; x < cols; x++) {
     if (x === 0) {
       addOuterWall(scene, x, 0, Constants.GROUND_TYPES.top_left);
@@ -107,24 +106,6 @@ export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
 
   return currBlocks;
 };
-
-// const generateGroundArray = (rows: number, cols: number, groundIdx: number) => {
-//   const ground = Constants.TILE_GROUND.DEFAULT_IDX[groundIdx];
-
-//   const arr = Array(rows)
-//     .fill(ground)
-//     .map(() => Array(cols).fill(ground));
-
-//   // 市松模様にする
-//   for (let y = 1; y < rows - 1; y++) {
-//     for (let x = 1; x < cols - 1; x++) {
-//       // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-//       if ((y + x) % 2 === 0) arr[y][x] = arr[y][x] + 3; // 暗い画像が + 3 の位置にあるので
-//     }
-//   }
-
-//   return arr;
-// };
 
 const addInnerWall = (scene: Phaser.Scene, x: number, y: number, texture: string) => {
   scene.add.innerWall(
