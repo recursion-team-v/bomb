@@ -158,6 +158,8 @@ export default class Preloader extends Phaser.Scene {
       frameHeight,
     });
 
+    this.load.image('nameBar', 'assets/nameBar.png');
+
     // keyboard
     this.load.image('space', 'assets/keyboard/space.png');
     this.load.image('left', 'assets/keyboard/left.png');
