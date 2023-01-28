@@ -100,10 +100,10 @@ export const createBombUsage = function (scene: Phaser.Scene, x: number, y: numb
 
 export const createMoveUsage = function (scene: Phaser.Scene, x: number, y: number) {
   const group = scene.add.group();
-  group.add(scene.add.image(x, y, 'top').setScale(3));
-  group.add(scene.add.image(x - 50, y + 50, 'left').setScale(3));
-  group.add(scene.add.image(x + 50, y + 50, 'right').setScale(3));
-  group.add(scene.add.image(x, y + 100, 'down').setScale(3));
+  group.add(scene.add.image(x, y - 10, 'top').setScale(3));
+  group.add(scene.add.image(x - 60, y + 50, 'left').setScale(3));
+  group.add(scene.add.image(x + 55, y + 50, 'right').setScale(3));
+  group.add(scene.add.image(x, y + 110, 'down').setScale(3));
   group.add(
     scene.add
       .sprite(x, y + 50, Constants.CHARACTERS[1])
