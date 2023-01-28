@@ -121,17 +121,27 @@ export const TILE_WIDTH = DEFAULT_TIP_SIZE; // タイルの横幅
 export const TILE_HEIGHT = DEFAULT_TIP_SIZE; // タイルの縦幅
 export const MAX_BLOCKS = 100;
 
-// マップのタイルシートの idx
-export const TILE_GROUND = {
-  DEFAULT_IDX: [3, 4, 5], // 地面タイルの idx (3, 4, 5)
-  SPAWN_IDX: [0, 1, 2], // 地面（スポーン）タイルの idx (0, 1, 2)
+export const GROUND_TYPES = {
+  top: 'top',
+  left: 'left',
+  right: 'right',
+  bottom: 'bottom',
+  top_left: 'top_left',
+  top_right: 'top_right',
+  bottom_left: 'bottom_left',
+  bottom_right: 'bottom_right',
 };
+
+export const MAP_ASSETS = {
+  grass_1: 'grass_1',
+  grass_2: 'grass_2',
+  rock_1: 'rock_1',
+  rock_2: 'rock_2',
+  plants: 'plants',
+};
+
 export const TILE_WALL = {
-  OUTER_TOP_BOT: [19],
-  OUTER_LEFT_RIGHT: [10],
-  OUTER_CORNER: [21, 22, 23],
-  INNER: [12, 13, 14, 19, 24, 25, 27],
-  INNER_CHAMFER: 25, // 内壁タイルの chamfer
+  INNER_CHAMFER: 30, // 内壁タイルの chamfer
 };
 export const TILE_BLOCK_IDX = 1; // 破壊できる箱の idx
 
