@@ -175,6 +175,7 @@ export default class Preloader extends Phaser.Scene {
     this.load.audio('stage_1', ['assets/bgm/stage_1.mp3']);
     this.load.audio('stage_2', ['assets/bgm/stage_2.mp3']);
     this.load.audio('opening', ['assets/bgm/opening.mp3']);
+    this.load.audio('result', ['assets/bgm/result.mp3']);
 
     this.load.on('complete', () => {
       createBombAnims(this.anims);
