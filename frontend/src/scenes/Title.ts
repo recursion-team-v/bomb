@@ -44,9 +44,9 @@ export default class Title extends Phaser.Scene {
 
     this.add.image(Constants.WIDTH / 2, Constants.HEIGHT / 5, 'title').setScale(1.5);
 
-    this.add.volumeIcon(this, Constants.WIDTH - 60, 10);
+    this.add.volumeIcon(this, Constants.WIDTH - 100, 10);
 
-    const username = localStorage.getItem('username');
+    const username = localStorage.getItem('bbp_username');
     createLoginDialog(this, {
       x: Constants.WIDTH / 2,
       y: Constants.HEIGHT / 5 + 200,
