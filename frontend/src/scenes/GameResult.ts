@@ -146,7 +146,7 @@ export default class GameResult extends Phaser.Scene {
 
   generatePlayerContainer(x: number, y: number, name: string, character: string) {
     this.add.container(x, y, [
-      this.add.sprite(0, 0, character, 14).setScale(1.2).play(`${character}_idle_down`),
+      this.add.sprite(0, 0, character, 14).setScale(1.2).play(`${character}_death_down`),
       this.add
         .text(200, 0, name, { fontSize: '32px', align: 'center', fontFamily: 'PressStart2P' })
         .setOrigin(0.5),
