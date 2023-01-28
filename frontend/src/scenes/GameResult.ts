@@ -12,6 +12,7 @@ import { createButton, createButtons } from '../utils/ui';
 export default class GameResult extends Phaser.Scene {
   private network!: Network;
   private se1?: Phaser.Sound.BaseSound;
+  private bgm!: Phaser.Sound.BaseSound;
   private readonly juice: phaserJuice;
 
   constructor() {
@@ -23,6 +24,12 @@ export default class GameResult extends Phaser.Scene {
   init() {
     this.se1 = this.sound.add('select', {
       volume: Config.SOUND_VOLUME,
+    });
+    this.bgm = this.sound.add('result', {
+      volume: Config.SOUND_VOLUME,
+    });
+    this.bgm.play({
+      loop: true,
     });
   }
 
@@ -94,14 +101,17 @@ export default class GameResult extends Phaser.Scene {
         })
         .setOrigin(0.5);
 
+      // y軸でfor文のiを参照すると勝者のiが一つ分飛ぶことになるので間隔ができてしまうので、別で敗者の時にインクリメントする変数を定義
+      let index = 0;
       for (let i = 0; i < players.length; i++) {
-        if (players[i].sessionId === winner.sessionId) continue;
+        if (players[i].hp > 0) continue;
         this.generatePlayerContainer(
           Constants.WIDTH * 0.6,
-          Constants.HEIGHT * 0.4 + 150 * i,
+          Constants.HEIGHT * 0.4 + 150 * index,
           players[i].name,
           players[i].character
         );
+        index++;
       }
     } else {
       for (let i = 0; i < players.length; i++) {
@@ -115,13 +125,14 @@ export default class GameResult extends Phaser.Scene {
     }
 
     const buttons = createButtons(this, Constants.WIDTH * 0.8, Constants.HEIGHT * 0.9, [
-      createButton(this, 'Go to Lobby', Constants.GREEN),
+      createButton(this, 'Go to Lobby', Constants.LIGHT_RED),
     ]);
     buttons.on(
       'button.click',
       async () => {
         this.se1?.play();
         await this.network.joinLobbyRoom();
+        this.bgm.stop();
         this.scene.get(Config.SCENE_NAME_GAME).scene.stop(); // ゲームシーンを shutdown する
         this.scene.stop();
         this.scene.start(Config.SCENE_NAME_LOBBY, {
@@ -135,7 +146,7 @@ export default class GameResult extends Phaser.Scene {
 
   generatePlayerContainer(x: number, y: number, name: string, character: string) {
     this.add.container(x, y, [
-      this.add.sprite(0, 0, character, 14).setScale(1.2).play(`${character}_idle_down`),
+      this.add.sprite(0, 0, character, 14).setScale(1.2).play(`${character}_death_down`),
       this.add
         .text(200, 0, name, { fontSize: '32px', align: 'center', fontFamily: 'PressStart2P' })
         .setOrigin(0.5),
