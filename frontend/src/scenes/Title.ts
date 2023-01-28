@@ -49,7 +49,7 @@ export default class Title extends Phaser.Scene {
       x: Constants.WIDTH / 2,
       y: Constants.HEIGHT / 5 + 200,
       title: 'Input Your Name',
-      username: username === null ? '' : username,
+      username: username === null ? Constants.DEFAULT_PLAYER_NAME : username,
     }).on('playGame', function (userName: string) {
       playGame(validateAndFixUserName(userName));
     });
