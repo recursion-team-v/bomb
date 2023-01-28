@@ -141,7 +141,7 @@ export const MAP_ASSETS = {
 };
 
 export const TILE_WALL = {
-  INNER_CHAMFER: 25, // 内壁タイルの chamfer
+  INNER_CHAMFER: 30, // 内壁タイルの chamfer
 };
 export const TILE_BLOCK_IDX = 1; // 破壊できる箱の idx
 

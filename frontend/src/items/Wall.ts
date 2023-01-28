@@ -6,7 +6,11 @@ import { getDepth } from './util';
 export class InnerWall extends Phaser.Physics.Matter.Sprite {
   constructor(world: Phaser.Physics.Matter.World, x: number, y: number, texture: string) {
     super(world, x, y, texture, 0);
-    this.setScale(1, 0.8);
+
+    this.setScale(1, 0.9);
+    const random = Phaser.Math.Between(0, 10);
+    if (random < 5) this.setFlipX(true);
+
     this.setRectangle(Constants.TILE_WIDTH, Constants.TILE_HEIGHT, {
       isStatic: true,
       chamfer: {
