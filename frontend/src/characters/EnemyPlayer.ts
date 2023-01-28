@@ -1,5 +1,6 @@
 import * as Constants from '../../../backend/src/constants/constants';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
+import { getDepth } from '../items/util';
 import Player from './Player';
 
 export default class EnemyPlayer extends Player {
@@ -25,6 +26,11 @@ export default class EnemyPlayer extends Player {
     this.oldY = y;
     this.setSensor(true); // プレイヤー同士はぶつからないようにする
     this.addNameLabel(Constants.RED);
+
+    // 自分のキャラクターと重なった時に、自分のキャラクターが上に来るようにする
+    const body = this.body as MatterJS.BodyType;
+    body.label = Constants.OBJECT_LABEL.PLAYER;
+    this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS) - 1);
   }
 
   handleServerChange(serverPlayer: ServerPlayer) {
