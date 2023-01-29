@@ -46,6 +46,8 @@ TODO: gif などを入れたい
     - [アニメーション素材１ - ぴぽや倉庫](https://pipoya.net/sozai/assets/animation/animation-material-1/)
   - カーソル
     - [Sprout Lands - UI Pack by Cup Nooble](https://cupnooble.itch.io/sprout-lands-ui-pack?download)
+  - 雲
+    - [Pixel Art Semi-Realistic Clouds by LateNightCoffee](https://latenightcoffe.itch.io/2d-pixel-art-semi-realistic-clouds?download)
 
 ### 音楽
 
