@@ -160,6 +160,11 @@ export default class Preloader extends Phaser.Scene {
     // flares
     this.load.atlas('flares', 'assets/flares.png', 'assets/flares.json');
 
+    this.load.image('board', 'assets/board.png');
+    this.load.image('child_board', 'assets/child_board.png');
+    this.load.image('slider_thumb', 'assets/slider_thumb.png');
+    this.load.image('check', 'assets/check.png');
+    this.load.image('cross', 'assets/cross.png');
     this.load.image('nameBar', 'assets/nameBar.png');
 
     // keyboard
