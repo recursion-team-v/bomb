@@ -67,6 +67,8 @@ export const NOTIFICATION_TYPE = {
   DEBUG_PLAYER_STATUS_MAX: 9002, // 通知を送った人のステータスを MAX にする
   DEBUG_ALL_PLAYER_STATUS_MAX: 9003, // 全ての人のステータスを MAX にする
   DEBUG_DELETE_ALL_BLOCK: 9004, // 全てのブロックを破壊する
+  DEBUG_FREEZE_ALL_CPU: 9005, // 全てのCPUの動きを止める
+  DEBUG_UNFREEZE_ALL_CPU: 9006, // 全てのCPUの動きを再開する
 };
 
 export type NOTIFICATION_TYPES = typeof NOTIFICATION_TYPE[keyof typeof NOTIFICATION_TYPE];

@@ -84,6 +84,14 @@ export const debugOptions = [
     text: '全てのブロックを削除する',
     notificationType: Constants.NOTIFICATION_TYPE.DEBUG_DELETE_ALL_BLOCK,
   },
+  {
+    text: '全てのCPUの動きを止める',
+    notificationType: Constants.NOTIFICATION_TYPE.DEBUG_FREEZE_ALL_CPU,
+  },
+  {
+    text: '全てのCPUの動きを再開する',
+    notificationType: Constants.NOTIFICATION_TYPE.DEBUG_UNFREEZE_ALL_CPU,
+  },
 ];
 
 interface IDebugOption {

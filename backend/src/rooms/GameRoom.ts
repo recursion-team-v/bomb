@@ -185,6 +185,19 @@ export default class GameRoom extends Room<GameRoomState> {
       });
     });
 
+    this.onMessage(Constants.NOTIFICATION_TYPE.DEBUG_FREEZE_ALL_CPU, (client, data: any) => {
+      if (!IS_BACKEND_DEBUG) return;
+      this.state.enemies.forEach((enemy) => {
+        enemy.debugSetFreeze();
+      });
+    });
+
+    this.onMessage(Constants.NOTIFICATION_TYPE.DEBUG_UNFREEZE_ALL_CPU, (client, data: any) => {
+      if (!IS_BACKEND_DEBUG) return;
+      this.state.enemies.forEach((enemy) => {
+        enemy.debugSetUnFreeze();
+      });
+    });
   }
 
   // ゲーム開始イベント
