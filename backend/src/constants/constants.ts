@@ -220,7 +220,7 @@ export type ENEMY_EVALUATION_RATIO_LABELS =
 */
 export const HEADER_HEIGHT = 64; // ヘッダーの高さ
 export const HEIGHT = TILE_HEIGHT * TILE_ROWS + HEADER_HEIGHT; // 画面の高さ
-export const MOBILE_HEIGHT = HEIGHT + 300; // モバイル用の余白
+export const MOBILE_HEIGHT = HEIGHT + 0; // モバイル用の余白
 export const WIDTH = TILE_WIDTH * TILE_COLS; // 画面の幅
 export const HEADER_COLOR_CODE = BLACK; // ヘッダーの色
 export const HEADER_TIMER_TEXT_COLOR_CODE = WHITE; // ヘッダーのタイマーの文字色

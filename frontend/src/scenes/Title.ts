@@ -6,6 +6,7 @@ import '../services/SoundVolume';
 import { validateAndFixUserName } from '../../../backend/src/utils/validation';
 import { createBombUsage, createItemUsage, createMoveUsage, createTextBox } from '../utils/usage';
 import { customCursor } from '../utils/key';
+import isMobile from '../utils/mobile';
 
 export default class Title extends Phaser.Scene {
   network?: Network;
@@ -29,6 +30,10 @@ export default class Title extends Phaser.Scene {
   }
 
   create(data: { network: Network }) {
+    if (isMobile()) {
+      this.scale.orientation = Phaser.Scale.Orientation.LANDSCAPE;
+    }
+
     addBackground(this);
     customCursor(this);
 
