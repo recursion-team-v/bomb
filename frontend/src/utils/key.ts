@@ -13,7 +13,8 @@ export default function initializeKeys(game: Game): NavKeys {
 
   let keys = {
     ...kb.createCursorKeys(),
-    ...(kb.addKeys('W,S,A,D,SPACE') as Keyboard),
+    // ENTER は Debug 用
+    ...(kb.addKeys('W,S,A,D,SPACE,SHIFT') as Keyboard),
   };
 
   // モバイルの場合は仮想ジョイスティックを表示する

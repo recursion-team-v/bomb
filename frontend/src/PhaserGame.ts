@@ -5,13 +5,13 @@ import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin.js';
 
 import * as Constants from '../../backend/src/constants/constants';
 import * as Config from './config/config';
-import Lobby from './scenes/Lobby';
 import Game from './scenes/Game';
 import GameHeader from './scenes/GameHeader';
 import GameResult from './scenes/GameResult';
+import Lobby from './scenes/Lobby';
 import Preloader from './scenes/Preloader';
-import isMobile from './utils/mobile';
 import Title from './scenes/Title';
+import isMobile from './utils/mobile';
 
 const screenHeight = () => (isMobile() ? Constants.MOBILE_HEIGHT : Constants.HEIGHT);
 
@@ -30,7 +30,8 @@ const config: Phaser.Types.Core.GameConfig = {
     default: 'matter',
     matter: {
       gravity: { y: 0 },
-      debug: Config.IS_DEBUG,
+      // debug: Config.IS_FRONTEND_DEBUG,
+      debug: false,
     },
   },
   fps: {

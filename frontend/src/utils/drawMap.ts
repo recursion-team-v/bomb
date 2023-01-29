@@ -80,7 +80,7 @@ export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
 
     const b = scene.add.block(block.x, block.y - randomHeight);
     currBlocks.set(block.id, b);
-    b.setDepth(Infinity);
+    b.setDepth(101);
     b.setSensor(true);
 
     scene.add.tween({

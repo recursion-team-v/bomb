@@ -33,7 +33,7 @@ export default class Title extends Phaser.Scene {
     customCursor(this);
 
     const playGame = (userName: string) => {
-      localStorage.setItem('username', userName);
+      localStorage.setItem('bbp_username', userName);
       this.scene.start(Config.SCENE_NAME_LOBBY, {
         network: data.network,
         playerName: userName,

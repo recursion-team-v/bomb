@@ -1,5 +1,5 @@
 // debug
-export const IS_DEBUG = !import.meta.env.PROD;
+export const IS_FRONTEND_DEBUG = !import.meta.env.PROD;
 
 // 接続先のサーバーのURL
 export const SERVER_URL = import.meta.env.VITE_SERVER_URL;
@@ -16,9 +16,9 @@ debug 用
 */
 
 // サーバーの爆発を表示するかどうか
-export const DEBUG_IS_SHOW_SERVER_BLAST = IS_DEBUG;
+export const DEBUG_IS_SHOW_SERVER_BLAST = IS_FRONTEND_DEBUG;
 // サーバーの爆弾を表示するかどうか
-export const DEBUG_IS_SHOW_SERVER_BOMB = IS_DEBUG;
+export const DEBUG_IS_SHOW_SERVER_BOMB = IS_FRONTEND_DEBUG;
 
 /*
 asset 用
@@ -64,5 +64,5 @@ export const TROPHY_ANIMATION_KEY = 'trophy_animation';
 */
 
 // TODO 後で true にする
-export const SOUND_DEFAULT_IS_PLAY = !IS_DEBUG; // サウンドを再生するかどうか
+export const SOUND_DEFAULT_IS_PLAY = !IS_FRONTEND_DEBUG; // サウンドを再生するかどうか
 export const SOUND_VOLUME = 0.2;
