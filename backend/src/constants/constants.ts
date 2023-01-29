@@ -62,7 +62,11 @@ export const NOTIFICATION_TYPE = {
   PLAYER_BOMB: 1001,
 
   // DEBUG 用のタイプ
-  DEBUG_PLAYER_WIN: 9000,
+  DEBUG_PLAYER_WIN: 9000, // 通知を送った人が勝利する
+  DEBUG_DRAW: 9001, // 引き分けにする
+  DEBUG_PLAYER_STATUS_MAX: 9002, // 通知を送った人のステータスを MAX にする
+  DEBUG_ALL_PLAYER_STATUS_MAX: 9003, // 全ての人のステータスを MAX にする
+  DEBUG_DELETE_ALL_BLOCK: 9004, // 全てのブロックを破壊する
 };
 
 export type NOTIFICATION_TYPES = typeof NOTIFICATION_TYPE[keyof typeof NOTIFICATION_TYPE];

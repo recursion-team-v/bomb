@@ -71,6 +71,19 @@ export function addDebugMenu(scene: Phaser.Scene): GridTable {
 
 export const debugOptions = [
   { text: '一人勝ち', notificationType: Constants.NOTIFICATION_TYPE.DEBUG_PLAYER_WIN },
+  { text: '引き分け', notificationType: Constants.NOTIFICATION_TYPE.DEBUG_DRAW },
+  {
+    text: 'ステータスを最強にする',
+    notificationType: Constants.NOTIFICATION_TYPE.DEBUG_PLAYER_STATUS_MAX,
+  },
+  {
+    text: '全員のステータスを最強にする',
+    notificationType: Constants.NOTIFICATION_TYPE.DEBUG_ALL_PLAYER_STATUS_MAX,
+  },
+  {
+    text: '全てのブロックを削除する',
+    notificationType: Constants.NOTIFICATION_TYPE.DEBUG_DELETE_ALL_BLOCK,
+  },
 ];
 
 interface IDebugOption {

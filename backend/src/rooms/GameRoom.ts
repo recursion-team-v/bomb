@@ -146,7 +146,10 @@ export default class GameRoom extends Room<GameRoomState> {
       }
     });
 
-    // クライアントからの移動入力を受け取ってキューに詰める
+    /*
+    デバッグ用
+    */
+
     this.onMessage(Constants.NOTIFICATION_TYPE.DEBUG_PLAYER_WIN, (client, data: any) => {
       if (!IS_BACKEND_DEBUG) return;
       for (const [, player] of this.state.players) {
@@ -154,6 +157,34 @@ export default class GameRoom extends Room<GameRoomState> {
         player.damaged(player.hp);
       }
     });
+
+    this.onMessage(Constants.NOTIFICATION_TYPE.DEBUG_DRAW, (client, data: any) => {
+      if (!IS_BACKEND_DEBUG) return;
+      for (const [, player] of this.state.players) {
+        player.damaged(player.hp);
+      }
+    });
+
+    this.onMessage(Constants.NOTIFICATION_TYPE.DEBUG_PLAYER_STATUS_MAX, (client, data: any) => {
+      if (!IS_BACKEND_DEBUG) return;
+      this.state.players.get(client.sessionId)?.debugSetPlayerStatusMax();
+    });
+
+    this.onMessage(Constants.NOTIFICATION_TYPE.DEBUG_ALL_PLAYER_STATUS_MAX, (client, data: any) => {
+      if (!IS_BACKEND_DEBUG) return;
+      for (const [, player] of this.state.players) {
+        player.debugSetPlayerStatusMax();
+      }
+    });
+
+    this.onMessage(Constants.NOTIFICATION_TYPE.DEBUG_DELETE_ALL_BLOCK, (client, data: any) => {
+      if (!IS_BACKEND_DEBUG) return;
+      this.state.blocks.forEach((block) => {
+        block.removedAt = Date.now() + Constants.OBJECT_REMOVAL_DELAY;
+        this.state.getBlockToDestroyQueue().enqueue(block);
+      });
+    });
+
   }
 
   // ゲーム開始イベント
