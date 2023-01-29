@@ -85,6 +85,17 @@ export default class GameResult extends Phaser.Scene {
       // 花火を表示
       this.addFireWorks();
 
+      this.add
+        .rectangle(
+          Constants.WIDTH * 0.02,
+          200,
+          Constants.WIDTH * 0.96,
+          Constants.HEIGHT * 0.73,
+          Constants.LIGHT_GRAY,
+          0.5
+        )
+        .setOrigin(0, 0);
+
       // トロフィーを表示
       this.add
         .sprite(Constants.WIDTH * 0.25, Constants.HEIGHT * 0.38, Config.ASSET_KEY_TROPHY)
