@@ -4,6 +4,9 @@
 
 export const DEBUG_ADMIN_PASSWORD = 'admin';
 
+// サーバがデバッグモードかどうか
+export const IS_BACKEND_DEBUG = process.env.TS_NODE_DEV === 'true';
+
 export const PAGE_COLOR = 0x18181b;
 export const BLACK = 0x000000;
 export const WHITE = 0xffffff;
