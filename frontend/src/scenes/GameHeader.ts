@@ -64,7 +64,7 @@ export default class GameHeader extends Phaser.Scene {
         this.add.image(600, 10, Constants.ITEM_TYPE.PLAYER_SPEED).setScale(0.5).setOrigin(0, 0),
         this.textSpeed,
       ])
-      .setDepth(Infinity);
+      .setDepth(2000);
 
     this.add.volumeIcon(this, this.width - 100, 10, isPlay());
   }

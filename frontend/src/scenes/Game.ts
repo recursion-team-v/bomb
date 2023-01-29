@@ -41,6 +41,9 @@ import GameResult from '../../../backend/src/rooms/schema/GameResult';
 import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 import { getWinner } from '../utils/result';
 import EnemyPlayer from '../characters/EnemyPlayer';
+import { IS_FRONTEND_DEBUG } from '../config/config';
+import { addDebugMenu, debugOptions } from '../utils/debug_menu';
+import GridTable from 'phaser3-rex-plugins/templates/ui/gridtable/GridTable';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
@@ -75,6 +78,8 @@ export default class Game extends Phaser.Scene {
   private seItemGet!: Phaser.Sound.BaseSound;
   private readonly juice: phaserJuice;
   private IsFinishedDropWallsEvent: boolean = false;
+
+  private debug_menu?: GridTable;
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
@@ -131,7 +136,7 @@ export default class Game extends Phaser.Scene {
       duration: 300,
     });
 
-    this.title = this.add.container(0, 0, [this.upTitle, this.downTitle]).setDepth(Infinity);
+    this.title = this.add.container(0, 0, [this.upTitle, this.downTitle]).setDepth(1000);
   }
 
   create(data: { network: Network; serverTimer: ServerTimer }) {
@@ -145,6 +150,20 @@ export default class Game extends Phaser.Scene {
     this.addPlayers();
     // Colyseus のイベントを追加
     this.initNetworkEvents();
+
+    if (IS_FRONTEND_DEBUG) {
+      // キー入力を有効化
+      this.cursorKeys.shift.enabled = true;
+      this.debug_menu = addDebugMenu(this);
+      this.debug_menu.on(
+        'cell.click',
+        (cellContainer: any, cellIndex: number) => {
+          this.network.sendDebugMessage(debugOptions[cellIndex].notificationType);
+          this.debug_menu?.setVisible(!this.debug_menu?.visible);
+        },
+        this
+      );
+    }
 
     // TODO: Preloader（Lobby）で読み込んで Game Scene に渡す
     this.room.onStateChange.once((state) => {
@@ -171,6 +190,11 @@ export default class Game extends Phaser.Scene {
     while (this.elapsedTime >= this.fixedTimeStep) {
       this.elapsedTime -= this.fixedTimeStep;
       this.fixedTick();
+    }
+
+    if (IS_FRONTEND_DEBUG) {
+      const isShiftJustDown = Phaser.Input.Keyboard.JustDown(this.cursorKeys.shift);
+      if (isShiftJustDown) this.debug_menu?.setVisible(!this.debug_menu?.visible);
     }
   }
 

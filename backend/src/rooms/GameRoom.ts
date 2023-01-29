@@ -1,6 +1,7 @@
 import { Client, Room } from 'colyseus';
 import Matter from 'matter-js';
 
+import { IS_BACKEND_DEBUG } from '..';
 import * as Constants from '../constants/constants';
 import dropWalls from '../game_engine/services/dropWallService';
 import PlacementObjectInterface from '../interfaces/placement_object';
@@ -142,6 +143,15 @@ export default class GameRoom extends Room<GameRoomState> {
         //   this.state.gameState.setFinished();
 
         Matter.Engine.update(this.engine.engine, deltaTime);
+      }
+    });
+
+    // クライアントからの移動入力を受け取ってキューに詰める
+    this.onMessage(Constants.NOTIFICATION_TYPE.DEBUG_PLAYER_WIN, (client, data: any) => {
+      if (!IS_BACKEND_DEBUG) return;
+      for (const [, player] of this.state.players) {
+        if (player.sessionId === client.sessionId) continue;
+        player.damaged(player.hp);
       }
     });
   }

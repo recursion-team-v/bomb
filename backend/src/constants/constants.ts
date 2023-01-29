@@ -4,9 +4,6 @@
 
 export const DEBUG_ADMIN_PASSWORD = 'admin';
 
-// サーバがデバッグモードかどうか
-export const IS_BACKEND_DEBUG = process.env.TS_NODE_DEV === 'true';
-
 export const PAGE_COLOR = 0x18181b;
 export const BLACK = 0x000000;
 export const WHITE = 0xffffff;
@@ -64,8 +61,11 @@ export const NOTIFICATION_TYPE = {
   // プレイヤーの爆弾を設置するためのタイプ
   PLAYER_BOMB: 1001,
 
-  // TODO: アイテム
+  // DEBUG 用のタイプ
+  DEBUG_PLAYER_WIN: 9000,
 };
+
+export type NOTIFICATION_TYPES = typeof NOTIFICATION_TYPE[keyof typeof NOTIFICATION_TYPE];
 
 export const GAME_STATE = {
   WAITING: 1, // ゲーム開始前
@@ -419,6 +419,10 @@ export const OBJECT_DEPTH = {
   [OBJECT_LABEL.WALL]: 99,
   [OBJECT_LABEL.DROP_WALL_SHADOW]: 100,
   [OBJECT_LABEL.DROP_WALL]: 101,
+  // 1000: カーテン / ゲームスタート
+  // 2000: ヘッダー内
+  // 9000: デバッグメニュー
+  // 9001: デバッグメニュー内
 } as const;
 
 export type OBJECT_DEPTH_TYPE = typeof OBJECT_DEPTH[keyof typeof OBJECT_DEPTH];

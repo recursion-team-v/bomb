@@ -30,7 +30,7 @@ const config: Phaser.Types.Core.GameConfig = {
     default: 'matter',
     matter: {
       gravity: { y: 0 },
-      debug: Config.IS_FRONTEND_DEBUG,
+      debug: false, //Config.IS_FRONTEND_DEBUG,
     },
   },
   fps: {

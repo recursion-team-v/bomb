@@ -49,7 +49,7 @@ export default class GameResult extends Phaser.Scene {
       .sprite(0, 0, 'curtain_open')
       .setOrigin(0, 0)
       .setScale(1.5, 2)
-      .setDepth(Infinity)
+      .setDepth(1000)
       .play({ key: Config.CURTAIN_OPEN_ANIMATION_KEY, hideOnComplete: true }, true);
 
     addBackground(this);
