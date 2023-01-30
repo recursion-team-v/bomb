@@ -84,7 +84,16 @@ export default class GameEngine {
 
   initCollision() {
     Matter.Events.on(this.engine, 'collisionStart', (event) => {
-      event.pairs.forEach((pair) => collisionHandler(this, pair.bodyA, pair.bodyB));
+      event.pairs.forEach((pair) => {
+        console.log('start', pair.collision.penetration);
+        collisionHandler(this, pair.bodyA, pair.bodyB);
+      });
+    });
+
+    Matter.Events.on(this.engine, 'collisionEnd', (event) => {
+      event.pairs.forEach((pair) => {
+        console.log('end', pair.collision.penetration);
+      });
     });
   }
 

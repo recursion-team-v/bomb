@@ -302,10 +302,10 @@ export const BOMB_TYPE = {
 export type BOMB_TYPES = typeof BOMB_TYPE[keyof typeof BOMB_TYPE];
 
 // 爆弾がプレイヤーに与えるダメージ
-export const BOMB_DAMAGE = 1;
+export const BOMB_DAMAGE = 0;
 
 // 爆弾の爆発までの時間(ms)
-export const BOMB_EXPLOSION_TIME = 2330;
+export const BOMB_EXPLOSION_TIME = 233000;
 
 // 爆弾が誘爆する時の遅延時間(ms)
 export const BOMB_DETONATION_DELAY = 50;
@@ -323,7 +323,7 @@ export const PLAYER_TOLERANCE_DISTANCE = 100;
 
 // ゲームの制限時間
 export const GAME_PREPARING_TIME = 5; // ゲーム開始演出の時間
-export const TIME_LIMIT_SEC = 181 + GAME_PREPARING_TIME; // (+1秒するといい感じに表示される)
+export const TIME_LIMIT_SEC = 1801 + GAME_PREPARING_TIME; // (+1秒するといい感じに表示される)
 
 /*
 アイテムの定義

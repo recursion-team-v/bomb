@@ -78,6 +78,13 @@ export default function collisionHandler(
     engine.playerService.diePlayer(player);
   }
 
+  // PLAYER & BOMB
+  else if (isPlayer && isBomb) {
+    const bombBody = labelA === Constants.OBJECT_LABEL.BOMB ? bodyA : bodyB;
+    // console.log(bombBody);
+    console.log(bombBody.position);
+  }
+
   // BLAST & BOMB
   else if (isBlast && isBomb) {
     const bombBody = labelA === Constants.OBJECT_LABEL.BOMB ? bodyA : bodyB;

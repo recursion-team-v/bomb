@@ -314,7 +314,7 @@ Phaser.GameObjects.GameObjectFactory.register(
     this.displayList.add(sprite);
     this.updateList.add(sprite);
 
-    sprite.setStatic(true);
+    // sprite.setStatic(true);
     sprite.setSensor(true);
 
     // 爆弾のアニメーションを設定

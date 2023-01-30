@@ -49,8 +49,8 @@ export default class PlayerService {
     this.gameEngine.sessionIdByBodyId.set(playerBody.id, sessionId);
 
     Matter.Composite.add(this.gameEngine.world, [playerBody]);
-    playerBody.collisionFilter.category = Constants.COLLISION_CATEGORY.PLAYER;
-    playerBody.collisionFilter.mask = Constants.COLLISION_CATEGORY.DEFAULT;
+    // playerBody.collisionFilter.category = Constants.COLLISION_CATEGORY.PLAYER;
+    // playerBody.collisionFilter.mask = Constants.COLLISION_CATEGORY.DEFAULT;
   }
 
   updatePlayer(player: Player, deltaTime?: number) {

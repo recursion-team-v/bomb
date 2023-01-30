@@ -22,8 +22,8 @@ export default class BombService {
       Constants.DEFAULT_TIP_SIZE,
       Constants.DEFAULT_TIP_SIZE,
       {
-        label: Constants.OBJECT_LABEL.BOMB,
-        isSensor: true,
+        label: Constants.OBJECT_LABEL.WALL,
+        // isSensor: false,
         isStatic: true,
       }
     );
