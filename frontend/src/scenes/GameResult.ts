@@ -9,6 +9,7 @@ import Network from '../services/Network';
 import { getWinner } from '../utils/result';
 import { createButton, createButtons } from '../utils/ui';
 import { addBackground } from '../utils/title';
+import { isPlay } from '../utils/sound';
 
 export default class GameResult extends Phaser.Scene {
   private network!: Network;
@@ -60,6 +61,9 @@ export default class GameResult extends Phaser.Scene {
       Constants.HEIGHT * 0.1,
       this.getResultKey(data.gameResult)
     );
+
+    // ボリュームアイコンを表示
+    this.add.volumeIcon(this, Constants.WIDTH - 100, 10, isPlay());
 
     const winner = getWinner(data.gameResult);
     const players = this.getPlayers(data.gameResult);
