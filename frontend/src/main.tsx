@@ -1,15 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { RecoilRoot } from 'recoil';
 import './index.css';
 import './PhaserGame';
 import '@unocss/reset/normalize.css';
-import { RouterConfig } from './RouterConfig';
+import { App } from './App';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <RecoilRoot>
-      <RouterConfig />
-    </RecoilRoot>
+    <App />
   </React.StrictMode>
 );
