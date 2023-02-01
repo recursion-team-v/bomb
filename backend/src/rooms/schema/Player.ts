@@ -188,8 +188,16 @@ export default class Player extends Schema {
     }
   }
 
-  setGameState(gameState: Constants.PLAYER_GAME_STATE_TYPE) {
-    this.gameState = gameState;
+  setIsWaiting() {
+    this.gameState = Constants.PLAYER_GAME_STATE.WAITING;
+  }
+
+  setIsReady() {
+    this.gameState = Constants.PLAYER_GAME_STATE.READY;
+  }
+
+  setIsLoadingComplete() {
+    this.gameState = Constants.PLAYER_GAME_STATE.LOADING_COMPLETE;
   }
 
   isWaiting() {
@@ -198,6 +206,10 @@ export default class Player extends Schema {
 
   isReady() {
     return this.gameState === Constants.PLAYER_GAME_STATE.READY;
+  }
+
+  isLoadingComplete() {
+    return this.gameState === Constants.PLAYER_GAME_STATE.LOADING_COMPLETE;
   }
 
   setPlayerName(playerName: string) {

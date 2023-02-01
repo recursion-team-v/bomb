@@ -25,32 +25,7 @@ export default class PlayerService {
   }
 
   addPlayer(sessionId: string, playerName: string) {
-    const player = this.gameEngine.state.createPlayer(sessionId, playerName);
-    if (player === undefined) return;
-    const playerBody = Matter.Bodies.rectangle(
-      player.x,
-      player.y,
-      Constants.PLAYER_WIDTH,
-      Constants.PLAYER_HEIGHT,
-      {
-        label: Constants.OBJECT_LABEL.PLAYER,
-        chamfer: {
-          radius: 10,
-        },
-        friction: 0,
-        frictionStatic: 0,
-        frictionAir: 0,
-        restitution: 0,
-        inertia: Infinity,
-      }
-    );
-
-    this.gameEngine.playerBodies.set(sessionId, playerBody);
-    this.gameEngine.sessionIdByBodyId.set(playerBody.id, sessionId);
-
-    Matter.Composite.add(this.gameEngine.world, [playerBody]);
-    playerBody.collisionFilter.category = Constants.COLLISION_CATEGORY.PLAYER;
-    playerBody.collisionFilter.mask = Constants.COLLISION_CATEGORY.DEFAULT;
+    this.gameEngine.state.createPlayer(sessionId, playerName);
   }
 
   updatePlayer(player: Player, deltaTime?: number) {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import * as Config from '../config/config';
 import * as Constants from '../../../backend/src/constants/constants';
-import Network, { IGameStartInfo } from '../services/Network';
+import Network, { IGameData, IGameSettings, IGameStartInfo } from '../services/Network';
 import {
   createButton,
   createButtons,
@@ -36,12 +36,15 @@ export default class Lobby extends Phaser.Scene {
   private gridTable?: GridTable;
   private dialog?: Dialog;
   private playerName = '';
+  private gameData!: IGameData;
+  private gameSettings!: IGameSettings;
 
   constructor() {
     super(Config.SCENE_NAME_LOBBY);
   }
 
   init() {
+    this.initGameData();
     this.availableRooms = [];
     this.buttons = undefined;
     this.gridTable = undefined;
@@ -77,24 +80,7 @@ export default class Lobby extends Phaser.Scene {
     this.add.volumeIcon(this, Constants.WIDTH - 100, 10, isPlay());
 
     this.availableRooms = this.getAvailableRooms();
-    this.network.onRoomsUpdated(this.handleRoomsUpdated, this);
-    this.network.onGameStartInfo(async (data: IGameStartInfo) => {
-      await this.handleGameStart(data);
-    });
-    this.network.onMyPlayerJoinedRoom((players) => {
-      players.forEach((player, sessionId) => {
-        if (sessionId === this.network.mySessionId) {
-          this.addMyPlayerCard(player);
-        } else {
-          this.addOtherPlayerCard(player);
-        }
-      });
-    });
-    this.network.onPlayerJoinedRoom(this.addOtherPlayerCard, this);
-    this.network.onPlayerLeftRoom(this.removePlayerCard, this);
-    this.network.onPlayerIsReady((player) => {
-      this.handlePlayerIsReady(player);
-    });
+    this.initNetworkEvents();
 
     this.buttons = createButtons(this, Constants.WIDTH / 2, Constants.HEIGHT / 5, [
       createButton(this, 'create room', Constants.LIGHT_RED),
@@ -103,6 +89,24 @@ export default class Lobby extends Phaser.Scene {
 
     this.gridTable = createGridTable(this, this.availableRooms);
     this.gridTable.on('cell.click', this.handleRoomJoin, this);
+  }
+
+  private initGameData() {
+    this.gameData = { blocks: undefined, mapRows: undefined, mapCols: undefined };
+    this.gameSettings = {
+      mapRows: Constants.TILE_ROWS,
+      mapCols: Constants.TILE_COLS,
+    };
+  }
+
+  private initNetworkEvents() {
+    this.network.onRoomsUpdated(this.handleRoomsUpdated, this);
+    this.network.onGameDataLoaded(this.handleGameDataLoaded, this);
+    this.network.onGameStartInfo(this.handleGameStart, this);
+    this.network.onMyPlayerJoinedRoom(this.handleMyPlayerJoinedRoom, this);
+    this.network.onPlayerJoinedRoom(this.addOtherPlayerCard, this);
+    this.network.onPlayerLeftRoom(this.removePlayerCard, this);
+    this.network.onPlayerIsReady(this.handlePlayerIsReady, this);
   }
 
   private getAvailableRooms() {
@@ -175,6 +179,15 @@ export default class Lobby extends Phaser.Scene {
     }
   }
 
+  private handleGameDataLoaded(data: IGameData) {
+    if (data.blocks === undefined || data.mapRows === undefined || data.mapCols === undefined) {
+      throw new Error('GameData not loaded properly.');
+    }
+    this.gameData = data;
+    console.log(this.gameData);
+    this.network.sendPlayerIsLoadingComplete();
+  }
+
   private async handleGameStart(data: IGameStartInfo) {
     // ロビーシーン停止の処理
     this.bgm?.stop();
@@ -183,8 +196,22 @@ export default class Lobby extends Phaser.Scene {
     await this.network.lobby?.leave();
 
     const { serverTimer } = data;
-    this.scene.start(Config.SCENE_NAME_GAME, { network: this.network, serverTimer });
+    this.scene.start(Config.SCENE_NAME_GAME, {
+      network: this.network,
+      serverTimer,
+      gameData: this.gameData,
+    });
     this.scene.start(Config.SCENE_NAME_GAME_HEADER, { network: this.network, serverTimer });
+  }
+
+  private handleMyPlayerJoinedRoom(players: Map<string, ServerPlayer>) {
+    players.forEach((player, sessionId) => {
+      if (sessionId === this.network.mySessionId) {
+        this.addMyPlayerCard(player);
+      } else {
+        this.addOtherPlayerCard(player);
+      }
+    });
   }
 
   private addMyPlayerCard(player: ServerPlayer) {
@@ -277,7 +304,7 @@ export default class Lobby extends Phaser.Scene {
 
   private onDialogReady() {
     this.se1?.play();
-    this.network.sendPlayerGameState(Constants.PLAYER_GAME_STATE.READY);
+    this.network.sendPlayerIsReady(this.gameSettings);
   }
 
   private onDialogClose() {
@@ -287,6 +314,7 @@ export default class Lobby extends Phaser.Scene {
       .then(async () => {
         this.dialog = undefined;
         await this.network.leaveRoom();
+        this.initGameData();
         this.enableLobbyButtons();
       })
       .catch((err) => console.log(err));

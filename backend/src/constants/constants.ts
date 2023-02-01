@@ -48,8 +48,14 @@ export const NOTIFICATION_TYPE = {
   // プレイヤーのゲーム状態を通知するためのタイプ
   PLAYER_GAME_STATE: 3,
 
-  // プレイヤーが準備できたことを broadcast するためのタイプ
+  // プレイヤーの準備完了を通知するためのタイプ
   PLAYER_IS_READY: 4,
+
+  // プレイヤーのデータ読み込み完了を通知するためのタイプ
+  PLAYER_IS_LOADING_COMPLETE: 5,
+
+  // ゲームデータを通知するためのタイプ
+  GAME_DATA: 6,
 
   // ゲームの開始に関する情報を通知するためのタイプ
   GAME_START_INFO: 10,
@@ -83,8 +89,9 @@ export type GAME_RESULT_TYPE = typeof GAME_RESULT[keyof typeof GAME_RESULT];
 export const PLAYER_GAME_STATE = {
   WAITING: 1, // ゲーム開始前
   READY: 2, // ゲーム準備完了
-  PLAYING: 3, // ゲーム中
-  FINISHED: 4, // ゲーム終了
+  LOADING_COMPLETE: 3, // ゲームのデータ読み込みが完了
+  PLAYING: 4, // ゲーム中
+  FINISHED: 5, // ゲーム終了
 };
 
 export type PLAYER_GAME_STATE_TYPE = typeof PLAYER_GAME_STATE[keyof typeof PLAYER_GAME_STATE];

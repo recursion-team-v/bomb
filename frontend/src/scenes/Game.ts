@@ -26,7 +26,7 @@ import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
 import Item from '../items/Item';
 import initializeKeys, { disableKeys, enableKeys } from '../utils/key';
-import Network from '../services/Network';
+import Network, { IGameData } from '../services/Network';
 import OtherPlayer from '../characters/OtherPlayer';
 import { Block } from '../items/Block';
 import phaserJuice from '../lib/phaserJuice';
@@ -122,12 +122,15 @@ export default class Game extends Phaser.Scene {
     this.title = this.add.container(0, 0, [this.upTitle, this.downTitle]).setDepth(Infinity);
   }
 
-  create(data: { network: Network; serverTimer: ServerTimer }) {
+  create(data: { network: Network; serverTimer: ServerTimer; gameData: IGameData }) {
     if (data.network == null) return;
     this.network = data.network;
     if (this.network.room == null) return;
     this.room = this.network.room;
+
     this.serverTimer = data.serverTimer;
+    if (data.gameData.mapRows !== undefined) this.rows = data.gameData.mapRows;
+    if (data.gameData.mapCols !== undefined) this.cols = data.gameData.mapCols;
 
     // プレイヤーをゲームに追加
     this.addPlayers();
@@ -136,11 +139,10 @@ export default class Game extends Phaser.Scene {
 
     // TODO: Preloader（Lobby）で読み込んで Game Scene に渡す
     this.room.onStateChange.once((state) => {
-      this.rows = state.gameMap.rows;
-      this.cols = state.gameMap.cols;
-
-      drawGround(this); // draw ground
-      drawWalls(this); // draw walls
+      console.log(state.gameMap);
+      console.log(state.blocks);
+      drawGround(this, this.rows, this.cols); // draw ground
+      drawWalls(this, this.rows, this.cols); // draw walls
       this.currBlocks = drawBlocks(this, state.blocks); // draw blocks
     });
 

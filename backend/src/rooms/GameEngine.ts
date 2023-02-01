@@ -55,14 +55,6 @@ export default class GameEngine {
   }
 
   init() {
-    // create map
-    this.mapService.createMapWalls(this.state.gameMap.rows, this.state.gameMap.cols);
-    this.mapService.createMapBlocks(
-      this.state.gameMap.rows,
-      this.state.gameMap.cols,
-      this.state.gameMap.blockArr
-    );
-
     this.initUpdateEvents();
     this.initCollision();
   }
@@ -86,6 +78,47 @@ export default class GameEngine {
     Matter.Events.on(this.engine, 'collisionStart', (event) => {
       event.pairs.forEach((pair) => collisionHandler(this, pair.bodyA, pair.bodyB));
     });
+  }
+
+  addMapToWorld(rows: number, cols: number) {
+    this.state.gameMap.setRows(rows);
+    this.state.gameMap.setCols(cols);
+    this.state.gameMap.generateBlockArr();
+    this.mapService.createMapWalls(this.state.gameMap.rows, this.state.gameMap.cols);
+    this.mapService.createMapBlocks(
+      this.state.gameMap.rows,
+      this.state.gameMap.cols,
+      this.state.gameMap.blockArr
+    );
+  }
+
+  addPlayerToWorld(sessionId: string) {
+    const player = this.state.getPlayer(sessionId);
+    if (player === undefined) return;
+    const playerBody = Matter.Bodies.rectangle(
+      player.x,
+      player.y,
+      Constants.PLAYER_WIDTH,
+      Constants.PLAYER_HEIGHT,
+      {
+        label: Constants.OBJECT_LABEL.PLAYER,
+        chamfer: {
+          radius: 10,
+        },
+        friction: 0,
+        frictionStatic: 0,
+        frictionAir: 0,
+        restitution: 0,
+        inertia: Infinity,
+      }
+    );
+
+    this.playerBodies.set(sessionId, playerBody);
+    this.sessionIdByBodyId.set(playerBody.id, sessionId);
+
+    Matter.Composite.add(this.world, [playerBody]);
+    playerBody.collisionFilter.category = Constants.COLLISION_CATEGORY.PLAYER;
+    playerBody.collisionFilter.mask = Constants.COLLISION_CATEGORY.DEFAULT;
   }
 
   getPlayer(sessionId: string): Player | undefined {

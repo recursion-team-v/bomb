@@ -31,42 +31,49 @@ export default class GameRoom extends Room<GameRoomState> {
     this.setState(new GameRoomState());
     this.engine = new GameEngine(this);
 
-    // ゲーム開始をクライアントから受け取る
-    this.onMessage(
-      Constants.NOTIFICATION_TYPE.PLAYER_GAME_STATE,
-      (client, gameState: Constants.PLAYER_GAME_STATE_TYPE) => {
-        switch (gameState) {
-          case Constants.PLAYER_GAME_STATE.READY: {
-            if (this.state.gameState.isPlaying()) {
-              // ゲームが既に開始している場合
-              const data = {
-                serverTimer: this.state.timer,
-              };
-              client.send(Constants.NOTIFICATION_TYPE.GAME_START_INFO, data);
-              return;
-            }
+    // ゲーム開始の準備完了をクライアントから受け取る
+    this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_IS_READY, (client, data) => {
+      if (this.state.gameState.isPlaying()) return;
 
-            const myPlayer = this.state.getPlayer(client.sessionId);
-            if (myPlayer === undefined) return;
-            myPlayer.setGameState(gameState);
-            this.broadcast(Constants.NOTIFICATION_TYPE.PLAYER_IS_READY, client.sessionId);
+      console.log(data);
+      const myPlayer = this.state.getPlayer(client.sessionId);
+      if (myPlayer === undefined) return;
+      myPlayer.setIsReady();
+      this.broadcast(Constants.NOTIFICATION_TYPE.PLAYER_IS_READY, client.sessionId);
 
-            let isLobbyReady = true;
-            this.state.players.forEach(
-              (player) => (isLobbyReady = isLobbyReady && player.isReady())
-            );
-            if (isLobbyReady) {
-              const data = {
-                serverTimer: this.state.timer,
-              };
-              this.startGame()
-                .then(() => this.broadcast(Constants.NOTIFICATION_TYPE.GAME_START_INFO, data))
-                .catch((err) => console.log(err));
-            }
-          }
-        }
+      let isLobbyReady = true;
+      this.state.players.forEach((player) => (isLobbyReady = isLobbyReady && player.isReady()));
+      if (isLobbyReady) {
+        // Matter エンジンにマップ・プレイヤー・CPU を追加する
+        this.engine = new GameEngine(this);
+        this.engine.addMapToWorld(Constants.TILE_ROWS, Constants.TILE_COLS);
+        this.state.players.forEach((player) => {
+          this.engine.addPlayerToWorld(player.sessionId);
+        });
+        this.broadcast(Constants.NOTIFICATION_TYPE.GAME_DATA, {
+          blocks: this.state.blocks,
+          mapRows: this.state.gameMap.rows,
+          mapCols: this.state.gameMap.cols,
+        });
+        this.lockRoom().catch((err) => console.log(err));
       }
-    );
+    });
+
+    this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_IS_LOADING_COMPLETE, (client) => {
+      console.log('LOADING COMPLETE');
+      const myPlayer = this.state.getPlayer(client.sessionId);
+      if (myPlayer === undefined) return;
+      myPlayer.setIsLoadingComplete();
+
+      let isLobbyLoadingComplete = true;
+      this.state.players.forEach((player) => {
+        isLobbyLoadingComplete = isLobbyLoadingComplete && player.isLoadingComplete();
+      });
+      if (isLobbyLoadingComplete) {
+        this.addEnemy();
+        this.startGame();
+      }
+    });
 
     // クライアントからの移動入力を受け取ってキューに詰める
     this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_MOVE, (client, data: any) => {
@@ -146,12 +153,18 @@ export default class GameRoom extends Room<GameRoomState> {
     });
   }
 
+  private async lockRoom() {
+    await this.lock();
+    await this.setMetadata({ locked: true });
+  }
+
   // ゲーム開始イベント
-  private async startGame() {
+  private startGame() {
     if (!this.state.gameState.isPlaying()) {
-      await this.lock();
-      await this.setMetadata({ locked: true });
-      this.addEnemy();
+      const data = {
+        serverTimer: this.state.timer,
+      };
+      this.broadcast(Constants.NOTIFICATION_TYPE.GAME_START_INFO, data);
       this.state.gameState.setPlaying();
       this.state.setTimer();
     }

@@ -1,4 +1,4 @@
-import { ArraySchema, Schema, type } from '@colyseus/schema';
+import { Schema, type } from '@colyseus/schema';
 
 import * as Constants from '../../constants/constants';
 
@@ -9,17 +9,32 @@ export default class Map extends Schema {
   @type('number')
   cols: number;
 
-  @type(['number'])
   blockArr: number[]; // 箱（破壊可能）
 
   constructor() {
     super();
     this.rows = Constants.TILE_ROWS;
     this.cols = Constants.TILE_COLS;
-    this.blockArr = this.generateBlockArr();
+    this.blockArr = [];
   }
 
-  private generateBlockArr() {
+  getRows() {
+    return this.rows;
+  }
+
+  getCols() {
+    return this.cols;
+  }
+
+  setRows(rows: number) {
+    this.rows = rows;
+  }
+
+  setCols(cols: number) {
+    this.cols = cols;
+  }
+
+  generateBlockArr() {
     const arr = new Array<number>(this.rows * this.cols).fill(-1);
     const yMin = 1;
     const yMax = this.rows - 2;
@@ -53,6 +68,6 @@ export default class Map extends Schema {
       }
     }
 
-    return new ArraySchema<number>(...arr);
+    this.blockArr = arr;
   }
 }

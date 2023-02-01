@@ -5,12 +5,10 @@ import Block from '../../../backend/src/rooms/schema/Block';
 import { Event, gameEvents } from '../events/GameEvents';
 import { Block as BlockBody } from '../items/Block';
 
-const rows = Constants.TILE_ROWS;
-const cols = Constants.TILE_COLS;
 const tileWidth = Constants.TILE_WIDTH;
 const tileHeight = Constants.TILE_HEIGHT;
 
-export const drawGround = (scene: Phaser.Scene) => {
+export const drawGround = (scene: Phaser.Scene, rows: number, cols: number) => {
   for (let y = 1; y < rows - 1; y++) {
     for (let x = 1; x < cols - 1; x++) {
       const random = Phaser.Math.Between(0, 10);
@@ -27,7 +25,7 @@ export const drawGround = (scene: Phaser.Scene) => {
   }
 };
 
-export const drawWalls = (scene: Phaser.Scene) => {
+export const drawWalls = (scene: Phaser.Scene, rows: number, cols: number) => {
   for (let x = 0; x < cols; x++) {
     if (x === 0) {
       addOuterWall(scene, x, 0, Constants.GROUND_TYPES.top_left);

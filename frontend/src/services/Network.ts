@@ -23,6 +23,19 @@ export interface IRoomData {
 
 export interface IGameStartInfo {
   serverTimer: ServerTimer;
+  mapRows: number;
+  mapCols: number;
+}
+
+export interface IGameSettings {
+  mapRows: number;
+  mapCols: number;
+}
+
+export interface IGameData {
+  blocks: Map<string, ServerBlock> | undefined;
+  mapRows: number | undefined;
+  mapCols: number | undefined;
 }
 
 export default class Network {
@@ -79,14 +92,12 @@ export default class Network {
       autoDispose,
       playerName,
     });
-    await this.initialize();
-    this.sendPlayerGameState(Constants.PLAYER_GAME_STATE.WAITING);
+    this.initialize();
   }
 
   async joinCustomRoom(roomId: string, password: string | null, playerName: string) {
     this.room = await this.client.joinById(roomId, { playerName, password });
     this.initialize();
-    this.sendPlayerGameState(Constants.PLAYER_GAME_STATE.WAITING);
   }
 
   initialize() {
@@ -152,6 +163,10 @@ export default class Network {
       if (player === undefined) return;
       gameEvents.emit(Event.PLAYER_IS_READY, player);
     });
+
+    this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_DATA, (data: IGameData) => {
+      gameEvents.emit(Event.GAME_DATA_LOADED, data);
+    });
   }
 
   // 部屋退出
@@ -180,6 +195,10 @@ export default class Network {
   // 他のプレイヤーがルームを退出した時
   onPlayerLeftRoom(callback: (player: ServerPlayer, sessionId: string) => void, context?: any) {
     gameEvents.on(Event.PLAYER_LEFT_ROOM, callback, context);
+  }
+
+  onGameDataLoaded(callback: (data: IGameData) => void, context?: any) {
+    gameEvents.on(Event.GAME_DATA_LOADED, callback, context);
   }
 
   // プレイヤーがボムを追加した時
@@ -248,9 +267,14 @@ export default class Network {
     this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, player);
   }
 
-  // 自分のゲーム状態を送る
-  sendPlayerGameState(state: Constants.PLAYER_GAME_STATE_TYPE) {
-    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_GAME_STATE, state);
+  // 自分の準備完了を送る
+  sendPlayerIsReady(data: IGameSettings) {
+    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_IS_READY, data);
+  }
+
+  // 自分の読み込み完了を送る
+  sendPlayerIsLoadingComplete() {
+    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_IS_LOADING_COMPLETE);
   }
 
   syncClock(endpoint: string) {
