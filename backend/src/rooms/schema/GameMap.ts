@@ -2,7 +2,7 @@ import { Schema, type } from '@colyseus/schema';
 
 import * as Constants from '../../constants/constants';
 
-export default class Map extends Schema {
+export default class GameMap extends Schema {
   @type('number')
   rows: number;
 
@@ -13,8 +13,8 @@ export default class Map extends Schema {
 
   constructor() {
     super();
-    this.rows = Constants.TILE_ROWS;
-    this.cols = Constants.TILE_COLS;
+    this.rows = Constants.DEFAULT_TILE_ROWS;
+    this.cols = Constants.DEFAULT_TILE_COLS;
     this.blockArr = [];
   }
 

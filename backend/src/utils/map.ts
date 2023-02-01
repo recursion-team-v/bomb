@@ -1,4 +1,5 @@
 import * as Constants from '../constants/constants';
+import GameMap from '../rooms/schema/GameMap';
 
 // 二次元配列を螺旋状に並べる、一次元配列を返します
 export function spiralOrder(matrix: number[][]): number[] {
@@ -26,12 +27,12 @@ export function spiralOrder(matrix: number[][]): number[] {
   return result;
 }
 
-export function getWallArr(): number[][] {
+export function getWallArr(gameMap: GameMap): number[][] {
   const walls: number[][] = [];
-  for (let y = 0; y < Constants.TILE_ROWS - 2; y++) {
-    for (let x = 0; x < Constants.TILE_COLS - 2; x++) {
+  for (let y = 0; y < gameMap.getRows() - 2; y++) {
+    for (let x = 0; x < gameMap.getCols() - 2; x++) {
       if (walls[y] === undefined) walls[y] = [];
-      walls[y].push(x + (Constants.TILE_COLS - 2) * y);
+      walls[y].push(x + (gameMap.getCols() - 2) * y);
     }
   }
   return walls;

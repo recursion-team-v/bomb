@@ -122,8 +122,8 @@ export const DEBUG_DEFAULT_ENEMY_COUNT = 2;
 export const DEFAULT_TIP_SIZE = 64; // デフォルトのチップサイズ
 
 // マップの設定
-export const TILE_ROWS = 13; // タイルの行数
-export const TILE_COLS = 15; // タイルの列数
+export const DEFAULT_TILE_ROWS = 13; // タイルの行数
+export const DEFAULT_TILE_COLS = 15; // タイルの列数
 export const TILE_WIDTH = DEFAULT_TIP_SIZE; // タイルの横幅
 export const TILE_HEIGHT = DEFAULT_TIP_SIZE; // タイルの縦幅
 export const MAX_BLOCKS = 100;
@@ -226,12 +226,12 @@ export type ENEMY_EVALUATION_RATIO_LABELS =
 画面の定義
 */
 export const HEADER_HEIGHT = 64; // ヘッダーの高さ
-export const HEIGHT = TILE_HEIGHT * TILE_ROWS + HEADER_HEIGHT; // 画面の高さ
-export const MOBILE_HEIGHT = HEIGHT + 300; // モバイル用の余白
-export const WIDTH = TILE_WIDTH * TILE_COLS; // 画面の幅
+export const DEFAULT_HEIGHT = TILE_HEIGHT * DEFAULT_TILE_ROWS + HEADER_HEIGHT; // 画面の高さ
+export const MOBILE_HEIGHT = DEFAULT_HEIGHT + 300; // モバイル用の余白
+export const DEFAULT_WIDTH = TILE_WIDTH * DEFAULT_TILE_COLS; // 画面の幅
 export const HEADER_COLOR_CODE = BLACK; // ヘッダーの色
 export const HEADER_TIMER_TEXT_COLOR_CODE = WHITE; // ヘッダーのタイマーの文字色
-export const HEADER_WIDTH = WIDTH; // ヘッダーの高さ
+export const DEFAULT_HEADER_WIDTH = DEFAULT_WIDTH; // ヘッダーの高さ
 
 /*
 プレイヤーの状態の定義
@@ -266,24 +266,6 @@ export const MAX_PLAYER_SPEED = 5;
 
 // プレイヤーが被弾時に一定時間無敵になる時間(ms)
 export const PLAYER_INVINCIBLE_TIME = 3000;
-
-// プレイヤーの初期位置
-// TODO: サイズから計算する
-export const INITIAL_PLAYER_POSITION = [
-  { x: PLAYER_WIDTH + PLAYER_WIDTH / 2, y: PLAYER_HEIGHT + PLAYER_HEIGHT / 2 + HEADER_HEIGHT },
-  {
-    x: PLAYER_WIDTH * (TILE_COLS - 2) + PLAYER_WIDTH / 2,
-    y: PLAYER_HEIGHT + PLAYER_HEIGHT / 2 + HEADER_HEIGHT,
-  },
-  {
-    x: PLAYER_WIDTH + PLAYER_WIDTH / 2,
-    y: PLAYER_HEIGHT * (TILE_ROWS - 2) + PLAYER_HEIGHT / 2 + HEADER_HEIGHT,
-  },
-  {
-    x: PLAYER_WIDTH * (TILE_COLS - 2) + PLAYER_WIDTH / 2,
-    y: PLAYER_HEIGHT * (TILE_ROWS - 2) + PLAYER_HEIGHT / 2 + HEADER_HEIGHT,
-  },
-];
 
 // プレイヤーの名前の最大文字数
 export const MAX_USER_NAME_LENGTH = 10;
@@ -450,11 +432,11 @@ export type OBJECT_IS_MOVABLE_TYPES = typeof OBJECT_IS_MOVABLE[keyof typeof OBJE
 */
 
 export const JOYSTICK_X = 200; // ジョイスティックの x 座標
-export const JOYSTICK_Y = HEIGHT + 150; // ジョイスティックの y 座標
+export const JOYSTICK_Y = DEFAULT_HEIGHT + 150; // ジョイスティックの y 座標
 export const JOYSTICK_BASE_KEY = 'joystick-base'; // ジョイスティックのベースのキー
 export const JOYSTICK_STICK_KEY = 'joystick-stick'; // ジョイスティックのスティックのキー
 
-export const BUTTON_X = WIDTH - 200; // ボタンの x 座標
+export const BUTTON_X = DEFAULT_WIDTH - 200; // ボタンの x 座標
 export const BUTTON_Y = JOYSTICK_Y; // ボタンの y 座標
 export const BUTTON_RADIUS = 100; // ボタンの半径
 export const BUTTON_COLOR_CODE = BLUE; // ボタンの色

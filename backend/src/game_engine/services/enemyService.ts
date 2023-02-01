@@ -165,7 +165,9 @@ export default class EnemyService {
       // 離れているほど評価が高くなる
       const farFromOtherPlayerMap = reverseNormalizeDimension(
         normalizeDimension(
-          influenceToOtherTile(getOtherPlayersMap(enemy.sessionId, state.getAvailablePlayers()))
+          influenceToOtherTile(
+            getOtherPlayersMap(enemy.sessionId, state.getAvailablePlayers(), state.gameMap)
+          )
         )
       );
 
@@ -176,10 +178,10 @@ export default class EnemyService {
 
       // 計算量が多いので、ブロックの数が一定数以下の場合は計算しない
       const currentBlocks = blockMap.flat().filter((row) => row === 1).length;
+      const mapRows = this.gameEngine.state.gameMap.getRows();
+      const mapCols = this.gameEngine.state.gameMap.getCols();
       const mapSizeWithoutWall =
-        (Constants.TILE_COLS - 2) * (Constants.TILE_ROWS - 2) -
-        (Constants.TILE_COLS / 2 - 1) -
-        (Constants.TILE_ROWS / 2 - 1);
+        (mapCols - 2) * (mapRows - 2) - (mapCols / 2 - 1) - (mapRows / 2 - 1);
 
       if (currentBlocks / mapSizeWithoutWall >= 0.65) {
         goodBombPlaceMap = influenceToOtherTile(

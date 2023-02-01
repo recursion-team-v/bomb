@@ -78,12 +78,12 @@ export default class Lobby extends Phaser.Scene {
 
     addBackground(this);
     this.playerName = data.playerName;
-    this.add.volumeIcon(this, Constants.WIDTH - 100, 10, isPlay());
+    this.add.volumeIcon(this, Constants.DEFAULT_WIDTH - 100, 10, isPlay());
 
     this.availableRooms = this.getAvailableRooms();
     this.initNetworkEvents();
 
-    this.buttons = createButtons(this, Constants.WIDTH / 2, Constants.HEIGHT / 5, [
+    this.buttons = createButtons(this, Constants.DEFAULT_WIDTH / 2, Constants.DEFAULT_HEIGHT / 5, [
       createButton(this, 'create room', Constants.LIGHT_RED),
     ]);
     this.buttons.on('button.click', this.handleRoomCreate, this);
@@ -95,8 +95,8 @@ export default class Lobby extends Phaser.Scene {
   private initGameData() {
     this.gameData = { blocks: undefined, mapRows: undefined, mapCols: undefined };
     this.gameSettings = {
-      mapRows: Constants.TILE_ROWS,
-      mapCols: Constants.TILE_COLS,
+      mapRows: Constants.DEFAULT_TILE_ROWS,
+      mapCols: Constants.DEFAULT_TILE_COLS,
     };
   }
 
@@ -151,8 +151,8 @@ export default class Lobby extends Phaser.Scene {
       });
       this.dialog = createDialog(
         this,
-        Constants.WIDTH / 2,
-        Constants.HEIGHT / 2,
+        Constants.DEFAULT_WIDTH / 2,
+        Constants.DEFAULT_HEIGHT / 2,
         () => this.onDialogReady(),
         () => this.onDialogClose()
       );
@@ -172,8 +172,8 @@ export default class Lobby extends Phaser.Scene {
       await this.network.joinCustomRoom(room.id, null, this.playerName);
       this.dialog = createDialog(
         this,
-        Constants.WIDTH / 2,
-        Constants.HEIGHT / 2,
+        Constants.DEFAULT_WIDTH / 2,
+        Constants.DEFAULT_HEIGHT / 2,
         () => this.onDialogReady(),
         () => this.onDialogClose()
       );
@@ -197,6 +197,7 @@ export default class Lobby extends Phaser.Scene {
     await this.network.lobby?.leave();
 
     const { serverTimer } = data;
+    console.log(serverTimer);
     this.scene.start(Config.SCENE_NAME_GAME, {
       network: this.network,
       serverTimer,

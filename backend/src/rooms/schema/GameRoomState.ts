@@ -12,7 +12,7 @@ import Enemy from './Enemy';
 import GameResult from './GameResult';
 import GameState from './GameState';
 import Item from './Item';
-import Map from './Map';
+import Map from './GameMap';
 import Player from './Player';
 import Timer from './Timer';
 
@@ -84,8 +84,6 @@ export default class GameRoomState extends Schema {
     const idx = this.getPlayerIdx();
     if (idx === -1) return;
     player.idx = idx;
-    player.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
-    player.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
     this.players.set(sessionId, player);
     return player;
   }
@@ -95,8 +93,6 @@ export default class GameRoomState extends Schema {
     const enemy = new Enemy(sessionId, this.getPlayersCount(), name);
     const idx = this.getPlayersCount();
     enemy.idx = idx;
-    enemy.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
-    enemy.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
     this.players.set(sessionId, enemy);
     return enemy;
   }

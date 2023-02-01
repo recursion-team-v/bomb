@@ -42,7 +42,7 @@ export default class GameResult extends Phaser.Scene {
   }) {
     if (data.network == null) return;
     this.network = data.network;
-    this.cameras.main.setSize(Constants.WIDTH, Constants.HEIGHT);
+    this.cameras.main.setSize(Constants.DEFAULT_WIDTH, Constants.DEFAULT_HEIGHT);
 
     // 舞台幕を開ける
     this.add
@@ -56,8 +56,8 @@ export default class GameResult extends Phaser.Scene {
 
     // タイトルを表示
     this.add.image(
-      Constants.WIDTH * 0.5,
-      Constants.HEIGHT * 0.1,
+      Constants.DEFAULT_WIDTH * 0.5,
+      Constants.DEFAULT_HEIGHT * 0.1,
       this.getResultKey(data.gameResult)
     );
 
@@ -87,16 +87,25 @@ export default class GameResult extends Phaser.Scene {
 
       // トロフィーを表示
       this.add
-        .sprite(Constants.WIDTH * 0.25, Constants.HEIGHT * 0.38, Config.ASSET_KEY_TROPHY)
+        .sprite(
+          Constants.DEFAULT_WIDTH * 0.25,
+          Constants.DEFAULT_HEIGHT * 0.38,
+          Config.ASSET_KEY_TROPHY
+        )
         .play({ key: Config.TROPHY_ANIMATION_KEY }, true);
 
       this.add
-        .sprite(Constants.WIDTH * 0.25, Constants.HEIGHT * 0.58, winner.character, 14)
+        .sprite(
+          Constants.DEFAULT_WIDTH * 0.25,
+          Constants.DEFAULT_HEIGHT * 0.58,
+          winner.character,
+          14
+        )
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         .play(`${winner.character}_down`)
         .setScale(2.5);
       this.add
-        .text(Constants.WIDTH * 0.25, Constants.HEIGHT * 0.7, winner.name, {
+        .text(Constants.DEFAULT_WIDTH * 0.25, Constants.DEFAULT_HEIGHT * 0.7, winner.name, {
           fontSize: '40px',
           fontStyle: 'bold',
           align: 'center',
@@ -109,8 +118,8 @@ export default class GameResult extends Phaser.Scene {
       for (let i = 0; i < players.length; i++) {
         if (players[i].hp > 0) continue;
         this.generatePlayerContainer(
-          Constants.WIDTH * 0.6,
-          Constants.HEIGHT * 0.4 + 150 * index,
+          Constants.DEFAULT_WIDTH * 0.6,
+          Constants.DEFAULT_HEIGHT * 0.4 + 150 * index,
           players[i].name,
           players[i].character
         );
@@ -119,17 +128,21 @@ export default class GameResult extends Phaser.Scene {
     } else {
       for (let i = 0; i < players.length; i++) {
         this.generatePlayerContainer(
-          Constants.WIDTH * 0.15 + 450 * (i % 2 === 0 ? 0 : 1),
-          Constants.HEIGHT * 0.4 + 300 * (i % 2 === 0 ? Math.round(i / 2) : Math.round(i / 2) - 1),
+          Constants.DEFAULT_WIDTH * 0.15 + 450 * (i % 2 === 0 ? 0 : 1),
+          Constants.DEFAULT_HEIGHT * 0.4 +
+            300 * (i % 2 === 0 ? Math.round(i / 2) : Math.round(i / 2) - 1),
           players[i].name,
           players[i].character
         );
       }
     }
 
-    const buttons = createButtons(this, Constants.WIDTH * 0.8, Constants.HEIGHT * 0.9, [
-      createButton(this, 'Go to Lobby', Constants.LIGHT_RED),
-    ]);
+    const buttons = createButtons(
+      this,
+      Constants.DEFAULT_WIDTH * 0.8,
+      Constants.DEFAULT_HEIGHT * 0.9,
+      [createButton(this, 'Go to Lobby', Constants.LIGHT_RED)]
+    );
     buttons.on(
       'button.click',
       async () => {

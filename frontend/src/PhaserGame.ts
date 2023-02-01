@@ -13,7 +13,7 @@ import Preloader from './scenes/Preloader';
 import isMobile from './utils/mobile';
 import Title from './scenes/Title';
 
-const screenHeight = () => (isMobile() ? Constants.MOBILE_HEIGHT : Constants.HEIGHT);
+const screenHeight = () => (isMobile() ? Constants.MOBILE_HEIGHT : Constants.DEFAULT_HEIGHT);
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -22,7 +22,7 @@ const config: Phaser.Types.Core.GameConfig = {
   backgroundColor: Constants.PAGE_COLOR,
   scale: {
     mode: Phaser.Scale.ScaleModes.FIT,
-    width: Constants.WIDTH,
+    width: Constants.DEFAULT_WIDTH,
     height: screenHeight(),
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },

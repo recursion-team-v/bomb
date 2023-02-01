@@ -31,7 +31,7 @@ export default class GameHeader extends Phaser.Scene {
   constructor() {
     super(Config.SCENE_NAME_GAME_HEADER);
     this.height = Constants.HEADER_HEIGHT;
-    this.width = Constants.HEADER_WIDTH;
+    this.width = Constants.DEFAULT_HEADER_WIDTH;
   }
 
   init() {

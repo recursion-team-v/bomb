@@ -8,6 +8,7 @@ import EnemyService from '../game_engine/services/enemyService';
 import ItemService from '../game_engine/services/ItemService';
 import MapService from '../game_engine/services/mapService';
 import PlayerService from '../game_engine/services/playerService';
+import { getInitialPlayerPos } from '../utils/getInitialPlayerPos';
 import GameRoomState from './schema/GameRoomState';
 import Player from './schema/Player';
 
@@ -95,6 +96,15 @@ export default class GameEngine {
   addPlayerToWorld(sessionId: string) {
     const player = this.state.getPlayer(sessionId);
     if (player === undefined) return;
+
+    const { x, y } = getInitialPlayerPos(
+      this.state.gameMap.getRows(),
+      this.state.gameMap.getCols(),
+      player.idx
+    );
+    player.x = x;
+    player.y = y;
+
     const playerBody = Matter.Bodies.rectangle(
       player.x,
       player.y,

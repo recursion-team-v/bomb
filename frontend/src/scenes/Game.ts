@@ -42,11 +42,15 @@ import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 import { getWinner } from '../utils/result';
 import EnemyPlayer from '../characters/EnemyPlayer';
 import { IGameData } from '../../../backend/src/types/gameRoom';
+import { calcGameScreen } from '../utils/calcGameScreen';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
   private serverTimer?: ServerTimer;
   private room!: Room<GameRoomState>;
+
+  private screenWidth = Constants.DEFAULT_WIDTH;
+  private screenHeight = Constants.DEFAULT_HEIGHT;
 
   private cursorKeys!: NavKeys;
   private rows!: number; // サーバから受け取ったマップの行数
@@ -101,26 +105,6 @@ export default class Game extends Phaser.Scene {
     this.seItemGet = this.sound.add('getItem', {
       volume: Config.SOUND_VOLUME * 1.5,
     });
-
-    this.upTitle = this.add.image(0, Constants.HEIGHT / 2, Config.ASSET_KEY_BATTLE_START_UP);
-    this.downTitle = this.add.image(
-      Constants.WIDTH,
-      Constants.HEIGHT / 2 + 42,
-      Config.ASSET_KEY_BATTLE_START_DOWN
-    );
-
-    this.tweens.add({
-      targets: this.upTitle,
-      x: Constants.WIDTH / 2,
-      duration: 300,
-    });
-    this.tweens.add({
-      targets: this.downTitle,
-      x: Constants.WIDTH / 2,
-      duration: 300,
-    });
-
-    this.title = this.add.container(0, 0, [this.upTitle, this.downTitle]).setDepth(Infinity);
   }
 
   create(data: { network: Network; serverTimer: ServerTimer; gameData: IGameData }) {
@@ -132,6 +116,13 @@ export default class Game extends Phaser.Scene {
     this.serverTimer = data.serverTimer;
     if (data.gameData.mapRows !== undefined) this.rows = data.gameData.mapRows;
     if (data.gameData.mapCols !== undefined) this.cols = data.gameData.mapCols;
+
+    const { width, height } = calcGameScreen(this.rows, this.cols);
+    this.screenWidth = width;
+    this.screenHeight = height;
+    this.scale.resize(this.screenWidth, this.screenHeight);
+
+    this.addGameStartTitle();
 
     // プレイヤーをゲームに追加
     this.addPlayers();
@@ -205,16 +196,38 @@ export default class Game extends Phaser.Scene {
     }
   }
 
+  private addGameStartTitle() {
+    this.upTitle = this.add.image(0, this.screenHeight / 2, Config.ASSET_KEY_BATTLE_START_UP);
+    this.downTitle = this.add.image(
+      this.screenWidth,
+      this.screenHeight / 2 + 42,
+      Config.ASSET_KEY_BATTLE_START_DOWN
+    );
+
+    this.tweens.add({
+      targets: this.upTitle,
+      x: this.screenWidth / 2,
+      duration: 300,
+    });
+    this.tweens.add({
+      targets: this.downTitle,
+      x: this.screenWidth / 2,
+      duration: 300,
+    });
+
+    this.title = this.add.container(0, 0, [this.upTitle, this.downTitle]).setDepth(Infinity);
+  }
+
   private handleGamePreparingCompleted() {
     this.tweens.add({
       targets: this.upTitle,
-      x: -Constants.WIDTH,
+      x: -Constants.DEFAULT_WIDTH,
       duration: 300,
       ease: Phaser.Math.Easing.Quadratic.In,
     });
     this.tweens.add({
       targets: this.downTitle,
-      x: Constants.WIDTH * 2,
+      x: Constants.DEFAULT_WIDTH * 2,
       duration: 300,
       ease: Phaser.Math.Easing.Quadratic.In,
     });

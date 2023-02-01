@@ -1,6 +1,7 @@
 import { Schema, type } from '@colyseus/schema';
 
 import * as Constants from '../../constants/constants';
+import { getInitialPlayerPos } from '../../utils/getInitialPlayerPos';
 import { PixelToTile } from '../../utils/map';
 import { validateAndFixUserName } from '../../utils/validation';
 
@@ -83,8 +84,15 @@ export default class Player extends Schema {
     this.character = Constants.CHARACTERS[idx];
     this.name = validateAndFixUserName(name);
     this.hp = Constants.INITIAL_PLAYER_HP;
-    this.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
-    this.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
+
+    const { x, y } = getInitialPlayerPos(
+      Constants.DEFAULT_TILE_ROWS,
+      Constants.DEFAULT_TILE_COLS,
+      this.idx
+    );
+    this.x = x;
+    this.y = y;
+
     this.bombType = Constants.BOMB_TYPE.NORMAL;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.currentSetBombCount = 0;

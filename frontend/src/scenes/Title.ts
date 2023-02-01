@@ -42,14 +42,16 @@ export default class Title extends Phaser.Scene {
       this.se?.play();
     };
 
-    this.add.image(Constants.WIDTH / 2, Constants.HEIGHT / 5, 'title').setScale(1.5);
+    this.add
+      .image(Constants.DEFAULT_WIDTH / 2, Constants.DEFAULT_HEIGHT / 5, 'title')
+      .setScale(1.5);
 
-    this.add.volumeIcon(this, Constants.WIDTH - 100, 10);
+    this.add.volumeIcon(this, Constants.DEFAULT_WIDTH - 100, 10);
 
     const username = localStorage.getItem('bbp_username');
     createLoginDialog(this, {
-      x: Constants.WIDTH / 2,
-      y: Constants.HEIGHT / 5 + 200,
+      x: Constants.DEFAULT_WIDTH / 2,
+      y: Constants.DEFAULT_HEIGHT / 5 + 200,
       title: 'Input Your Name',
       username: username === null ? Constants.DEFAULT_PLAYER_NAME : username,
     }).on('playGame', function (userName: string) {
@@ -60,13 +62,25 @@ export default class Title extends Phaser.Scene {
     //   y: Constants.HEIGHT / 2 + 150,
     // });
 
-    createTextBox(this, Constants.WIDTH / 2 - 650 / 2, Constants.HEIGHT / 2 + 80, {
+    createTextBox(this, Constants.DEFAULT_WIDTH / 2 - 650 / 2, Constants.DEFAULT_HEIGHT / 2 + 80, {
       wrapWidth: 650,
       fixedWidth: 650,
       fixedHeight: 250,
     }).setOrigin(0.5);
-    createBombUsage(this, Constants.WIDTH / 2 - 650 / 2 + 110, Constants.HEIGHT / 2 + 230);
-    createMoveUsage(this, Constants.WIDTH / 2 - 650 / 2 + 320, Constants.HEIGHT / 2 + 180);
-    createItemUsage(this, Constants.WIDTH / 2 - 650 / 2 + 460, Constants.HEIGHT / 2 + 160);
+    createBombUsage(
+      this,
+      Constants.DEFAULT_WIDTH / 2 - 650 / 2 + 110,
+      Constants.DEFAULT_HEIGHT / 2 + 230
+    );
+    createMoveUsage(
+      this,
+      Constants.DEFAULT_WIDTH / 2 - 650 / 2 + 320,
+      Constants.DEFAULT_HEIGHT / 2 + 180
+    );
+    createItemUsage(
+      this,
+      Constants.DEFAULT_WIDTH / 2 - 650 / 2 + 460,
+      Constants.DEFAULT_HEIGHT / 2 + 160
+    );
   }
 }
