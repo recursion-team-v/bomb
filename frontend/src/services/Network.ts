@@ -14,7 +14,7 @@ import {
   IGameStartInfo,
   ISerializedGameData,
   IGameSettings,
-  IRoomData,
+  IRoomCreateData,
 } from '../../../backend/src/types/gameRoom';
 import * as Config from '../config/config';
 import { Event, gameEvents } from '../events/GameEvents';
@@ -66,7 +66,7 @@ export default class Network {
     });
   }
 
-  async createAndJoinCustomRoom(roomData: IRoomData) {
+  async createAndJoinCustomRoom(roomData: IRoomCreateData) {
     this.room = await this.client.create(Constants.GAME_CUSTOM_ROOM_KEY, roomData);
     this.initialize();
   }
@@ -173,6 +173,7 @@ export default class Network {
     gameEvents.on(Event.PLAYER_LEFT_ROOM, callback, context);
   }
 
+  // ゲームデータを受け取った時
   onGameDataLoaded(callback: (data: ISerializedGameData) => void, context?: any) {
     gameEvents.on(Event.GAME_DATA_LOADED, callback, context);
   }
@@ -224,6 +225,7 @@ export default class Network {
     gameEvents.on(Event.START_GAME, callback, context);
   }
 
+  // 他のプレイヤーが準備完了した時
   onPlayerIsReady(callback: (player: ServerPlayer) => void, context?: any) {
     gameEvents.on(Event.PLAYER_IS_READY, callback, context);
   }
@@ -248,7 +250,7 @@ export default class Network {
     this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_IS_READY, data);
   }
 
-  // 自分の読み込み完了を送る
+  // 自分のゲームデータ読み込み完了を送る
   sendPlayerIsLoadingComplete() {
     this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_IS_LOADING_COMPLETE);
   }

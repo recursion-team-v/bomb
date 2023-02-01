@@ -35,6 +35,7 @@ export default class EnemyService {
   addEnemy(sessionId: string): Enemy {
     const enemy = this.gameEngine.state.createEnemy(sessionId);
 
+    // プレイヤーの初期値を計算する
     const { x, y } = getInitialPlayerPos(
       this.gameEngine.state.gameMap.getRows(),
       this.gameEngine.state.gameMap.getCols(),

@@ -42,8 +42,8 @@ export default class Lobby extends Phaser.Scene {
   private gridTable?: GridTable;
   private dialog?: Dialog;
   private playerName = '';
-  private gameData!: IGameData;
-  private gameSettings!: IGameSettings;
+  private gameData!: IGameData; // ゲーム準備完了後に受け取るゲームデータ
+  private gameSettings!: IGameSettings; // ゲームの設定
 
   constructor() {
     super(Config.SCENE_NAME_LOBBY);
@@ -99,8 +99,9 @@ export default class Lobby extends Phaser.Scene {
 
   private initGameData() {
     this.gameData = { blocks: undefined, mapRows: undefined, mapCols: undefined };
+    // TODO: UI で動的に変更でき、他のクライアントが値を変更した時に更新する
     this.gameSettings = {
-      mapRows: Constants.DEFAULT_TILE_ROWS,
+      mapRows: Constants.DEFAULT_TILE_ROWS, // ここを変更することでルームのマップの幅・高さを設定できる
       mapCols: Constants.DEFAULT_TILE_COLS,
     };
   }
@@ -195,7 +196,7 @@ export default class Lobby extends Phaser.Scene {
       mapCols: data.mapCols,
     };
     console.log(this.gameData);
-    this.network.sendPlayerIsLoadingComplete();
+    this.network.sendPlayerIsLoadingComplete(); // ゲームデータ読み込み完了を通知する
   }
 
   private async handleGameStart(data: IGameStartInfo) {
@@ -210,7 +211,7 @@ export default class Lobby extends Phaser.Scene {
     this.scene.start(Config.SCENE_NAME_GAME, {
       network: this.network,
       serverTimer,
-      gameData: this.gameData,
+      gameData: this.gameData, // ゲームデータをゲームシーンに渡す
     });
     this.scene.start(Config.SCENE_NAME_GAME_HEADER, { network: this.network, serverTimer });
   }
@@ -325,7 +326,7 @@ export default class Lobby extends Phaser.Scene {
       .then(async () => {
         this.dialog = undefined;
         await this.network.leaveRoom();
-        this.initGameData();
+        this.initGameData(); // 部屋を退出したら gameData, gameSettings を初期値に戻す
         this.enableLobbyButtons();
       })
       .catch((err) => console.log(err));

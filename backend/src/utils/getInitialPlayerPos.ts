@@ -1,5 +1,6 @@
 import * as Constants from '../constants/constants';
 
+// プレイヤーの初期値を計算する
 export const getInitialPlayerPos = (mapRows: number, mapCols: number, idx: number) => {
   const INITIAL_PLAYER_POSITION = [
     {

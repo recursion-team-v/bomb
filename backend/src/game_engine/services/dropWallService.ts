@@ -2,9 +2,9 @@ import GameEngine from '../../rooms/GameEngine';
 import * as Constants from '../../constants/constants';
 import { getWallArr, spiralOrder } from '../../utils/map';
 import Matter from 'matter-js';
-import Map from '../../rooms/schema/GameMap';
+import GameMap from '../../rooms/schema/GameMap';
 
-export default function dropWalls(engine: GameEngine, gameMap: Map) {
+export default function dropWalls(engine: GameEngine, gameMap: GameMap) {
   const clock = engine.room.clock;
   const walls = getWallArr(gameMap);
   const spiralOrderWalls = spiralOrder(walls);

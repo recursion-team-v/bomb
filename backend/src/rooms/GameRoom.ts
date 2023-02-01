@@ -1,11 +1,15 @@
 import { Client, Room } from 'colyseus';
 import Matter from 'matter-js';
-
 import { IS_BACKEND_DEBUG } from '..';
 import * as Constants from '../constants/constants';
 import dropWalls from '../game_engine/services/dropWallService';
 import PlacementObjectInterface from '../interfaces/placement_object';
-import { ISerializedGameData, IGameSettings, IGameStartInfo, IRoomData } from '../types/gameRoom';
+import {
+  ISerializedGameData,
+  IGameSettings,
+  IGameStartInfo,
+  IRoomCreateData,
+} from '../types/gameRoom';
 import GameQueue from '../utils/gameQueue';
 import GameEngine from './GameEngine';
 import Block from './schema/Block';
@@ -20,7 +24,7 @@ export default class GameRoom extends Room<GameRoomState> {
   private IsFinishedDropWallsEvent: boolean = false;
   private readonly enemies = new Map<string, Enemy>();
 
-  async onCreate(options: IRoomData) {
+  async onCreate(options: IRoomCreateData) {
     const { autoDispose, playerName } = options;
     this.name = playerName;
     this.maxClients = Constants.MAX_PLAYER;
@@ -33,7 +37,7 @@ export default class GameRoom extends Room<GameRoomState> {
     this.setState(new GameRoomState());
     this.engine = new GameEngine(this);
 
-    // ゲーム開始の準備完了をクライアントから受け取る
+    // ゲーム開始の準備完了をクライアントから受け取る（準備完了の通知と一緒に現在のゲーム設定を送っている）
     this.onMessage(
       Constants.NOTIFICATION_TYPE.PLAYER_IS_READY,
       (client, gameSettings: IGameSettings) => {
@@ -48,11 +52,12 @@ export default class GameRoom extends Room<GameRoomState> {
         let isLobbyReady = true;
         this.state.players.forEach((player) => (isLobbyReady = isLobbyReady && player.isReady()));
         if (isLobbyReady) {
-          // Matter エンジンにマップ・プレイヤー・CPU を追加する
+          // 全クライアントの準備が完了している場合 Matter エンジンにマップ・プレイヤーを追加してゲームデータを送る
           this.engine.mapService.addMapToWorld(gameSettings.mapRows, gameSettings.mapCols);
           this.state.players.forEach((player) => {
             this.engine.playerService.addPlayerToWorld(player);
           });
+
           const data: ISerializedGameData = {
             blocks: JSON.stringify([...this.state.blocks]),
             mapRows: this.state.gameMap.rows,
@@ -64,6 +69,7 @@ export default class GameRoom extends Room<GameRoomState> {
       }
     );
 
+    // ゲームデータの読み込み完了をクライアントから受け取る
     this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_IS_LOADING_COMPLETE, (client) => {
       const myPlayer = this.state.getPlayer(client.sessionId);
       if (myPlayer === undefined) return;
@@ -74,6 +80,7 @@ export default class GameRoom extends Room<GameRoomState> {
         isLobbyLoadingComplete = isLobbyLoadingComplete && player.isLoadingComplete();
       });
       if (isLobbyLoadingComplete) {
+        // 全クライアントの読み込みが完了している場合ゲーム開始
         this.addEnemy();
         this.startGame();
       }

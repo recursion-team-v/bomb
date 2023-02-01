@@ -15,7 +15,9 @@ export default class PlayerService {
     this.gameEngine = gameEngine;
   }
 
+  // プレイヤー body を Matter に追加する
   addPlayerToWorld(player: Player) {
+    // プレイヤーの初期値を計算する
     const { x, y } = getInitialPlayerPos(
       this.gameEngine.state.gameMap.getRows(),
       this.gameEngine.state.gameMap.getCols(),
@@ -60,6 +62,7 @@ export default class PlayerService {
     this.gameEngine.state.players.delete(sessionId);
   }
 
+  // GameRoomState にプレイヤーを追加する
   addPlayer(sessionId: string, playerName: string) {
     this.gameEngine.state.createPlayer(sessionId, playerName);
   }

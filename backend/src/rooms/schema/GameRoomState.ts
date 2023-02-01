@@ -12,7 +12,7 @@ import Enemy from './Enemy';
 import GameResult from './GameResult';
 import GameState from './GameState';
 import Item from './Item';
-import Map from './GameMap';
+import GameMap from './GameMap';
 import Player from './Player';
 import Timer from './Timer';
 
@@ -44,7 +44,7 @@ export default class GameRoomState extends Schema {
 
   readonly enemies: Enemy[] = [];
 
-  @type(Map) gameMap = new Map();
+  @type(GameMap) gameMap = new GameMap();
 
   getPlayer(sessionId: string): Player | undefined {
     return this.players.get(sessionId);
