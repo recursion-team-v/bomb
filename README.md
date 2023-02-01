@@ -40,11 +40,9 @@ TODO: gif などを入れたい
 - その他
   - ジョイスティック
     - [stemkoski/HTML-Joysticks](https://github.com/stemkoski/HTML-Joysticks)
-  - 音量アイコン
-    - [アイコン素材ダウンロードサイト「icooon-mono](https://icooon-mono.com/)
   - トロフィー
     - [アニメーション素材１ - ぴぽや倉庫](https://pipoya.net/sozai/assets/animation/animation-material-1/)
-  - カーソル
+  - チップセット
     - [Sprout Lands - UI Pack by Cup Nooble](https://cupnooble.itch.io/sprout-lands-ui-pack?download)
 
 ### 音楽
