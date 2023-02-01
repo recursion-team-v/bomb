@@ -9,6 +9,7 @@ import Network from '../services/Network';
 import { getWinner } from '../utils/result';
 import { createButton, createButtons } from '../utils/ui';
 import { addBackground } from '../utils/title';
+import { isPlay } from '../utils/sound';
 
 export default class GameResult extends Phaser.Scene {
   private network!: Network;
@@ -50,7 +51,7 @@ export default class GameResult extends Phaser.Scene {
       .sprite(0, 0, 'curtain_open')
       .setOrigin(0, 0)
       .setScale(1.5, 2)
-      .setDepth(Infinity)
+      .setDepth(1000)
       .play({ key: Config.CURTAIN_OPEN_ANIMATION_KEY, hideOnComplete: true }, true);
 
     addBackground(this);
@@ -62,29 +63,27 @@ export default class GameResult extends Phaser.Scene {
       this.getResultKey(data.gameResult)
     );
 
+    // ボリュームアイコンを表示
+    this.add.volumeIcon(this, Constants.DEFAULT_WIDTH - 100, 10, isPlay());
+
     const winner = getWinner(data.gameResult);
     const players = this.getPlayers(data.gameResult);
-
-    // テスト用
-    // const players = [
-    //   {
-    //     sessionId: 'test',
-    //     name: 'tanakaaaaaa',
-    //   },
-    //   {
-    //     sessionId: 'test2',
-    //     name: 'tanaka2',
-    //   },
-    //   {
-    //     sessionId: 'test3',
-    //     name: 'tanaka3',
-    //   },
-    // ];
 
     // 勝利者がいる場合
     if (winner !== undefined) {
       // 花火を表示
       this.addFireWorks();
+
+      this.add
+        .rectangle(
+          Constants.DEFAULT_WIDTH * 0.02,
+          200,
+          Constants.DEFAULT_WIDTH * 0.96,
+          Constants.DEFAULT_HEIGHT * 0.73,
+          Constants.LIGHT_GRAY,
+          0.5
+        )
+        .setOrigin(0, 0);
 
       // トロフィーを表示
       this.add

@@ -21,6 +21,7 @@ import {
 } from '../../utils/calc';
 import { getInitialPlayerPos } from '../../utils/getInitialPlayerPos';
 import { TileToPixel } from '../../utils/map';
+import { IS_BACKEND_DEBUG } from '../../index';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class EnemyService {
@@ -159,6 +160,9 @@ export default class EnemyService {
 
       const enemy = player as Enemy;
       if (enemy.isDead()) continue;
+
+      // デバッグ機能: フリーズ中は敵の移動を行わない
+      if (IS_BACKEND_DEBUG && enemy.isFreezed()) continue;
 
       const { x: enemyX, y: enemyY } = enemy.getTilePosition();
 

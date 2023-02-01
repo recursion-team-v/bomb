@@ -53,7 +53,7 @@ export const createTextBox = function (
         left: 20,
         right: 20,
         top: 20,
-        bottom: 20,
+        bottom: 30,
         icon: 10,
         text: 10,
       },
@@ -92,7 +92,7 @@ export const createBombUsage = function (scene: Phaser.Scene, x: number, y: numb
       .play({ key: Config.BOMB_ANIMATION_KEY, repeat: -1 })
   );
   group.add(scene.add.image(x, y + 50, 'space'));
-  group.add(scene.add.text(x - 80, y + 110, 'place bomb').setFontFamily('PressStart2P'));
+  group.add(scene.add.text(x - 80, y + 120, 'Place Bomb').setFontFamily('PressStart2P'));
 };
 
 export const createMoveUsage = function (scene: Phaser.Scene, x: number, y: number) {
@@ -107,7 +107,7 @@ export const createMoveUsage = function (scene: Phaser.Scene, x: number, y: numb
       .setScale(0.9)
       .play(`${Constants.CHARACTERS[0]}_down`)
   );
-  group.add(scene.add.text(x - 60, y + 160, 'movement').setFontFamily('PressStart2P'));
+  group.add(scene.add.text(x - 30, y + 170, 'Move').setFontFamily('PressStart2P'));
 };
 
 export const createItemUsage = function (scene: Phaser.Scene, x: number, y: number) {
@@ -115,14 +115,14 @@ export const createItemUsage = function (scene: Phaser.Scene, x: number, y: numb
   group.add(scene.add.image(x, y, Constants.ITEM_TYPE.BOMB_POSSESSION_UP).setScale(0.4));
   group.add(
     scene.add
-      .text(x + 30, y - 10, 'possession up')
+      .text(x + 30, y - 10, 'Possession Up')
       .setScale(0.8)
       .setFontFamily('PressStart2P')
   );
   group.add(scene.add.image(x, y + 50, Constants.ITEM_TYPE.BOMB_STRENGTH).setScale(0.4));
   group.add(
     scene.add
-      .text(x + 30, y + 40, 'strength up')
+      .text(x + 30, y + 40, 'Strength Up')
       .setScale(0.8)
       .setFontFamily('PressStart2P')
   );
@@ -130,7 +130,7 @@ export const createItemUsage = function (scene: Phaser.Scene, x: number, y: numb
   group.add(scene.add.image(x, y + 100, Constants.ITEM_TYPE.PLAYER_SPEED).setScale(0.4));
   group.add(
     scene.add
-      .text(x + 30, y + 90, 'speed up')
+      .text(x + 30, y + 90, 'Speed Up')
       .setScale(0.8)
       .setFontFamily('PressStart2P')
   );
@@ -138,9 +138,9 @@ export const createItemUsage = function (scene: Phaser.Scene, x: number, y: numb
   group.add(scene.add.image(x, y + 150, Constants.ITEM_TYPE.HEART).setScale(0.4));
   group.add(
     scene.add
-      .text(x + 30, y + 140, 'HP up')
+      .text(x + 30, y + 140, 'HP Up')
       .setScale(0.8)
       .setFontFamily('PressStart2P')
   );
-  group.add(scene.add.text(x + 60, y + 180, 'items').setFontFamily('PressStart2P'));
+  group.add(scene.add.text(x + 60, y + 190, 'Items').setFontFamily('PressStart2P'));
 };

@@ -42,11 +42,12 @@ export const createLoginDialog = function (scene: Phaser.Scene, config: any) {
     .label({
       orientation: 'x',
       background: scene.rexUI.add.roundRectangle(0, 0, 10, 10, 10, Constants.LIGHT_RED),
-      text: scene.add.text(0, 0, 'play game', {
+      text: scene.add.text(0, 0, 'Play', {
+        fontSize: '40px',
         fontFamily: 'PressStart2P',
         color: 'white',
       }),
-      space: { top: 20, bottom: 20, left: 20, right: 20 },
+      space: { top: 30, bottom: 30, left: 30, right: 30 },
     })
     .setInteractive()
     .on('pointerdown', function () {

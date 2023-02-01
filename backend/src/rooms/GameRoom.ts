@@ -1,6 +1,7 @@
 import { Client, Room } from 'colyseus';
 import Matter from 'matter-js';
 
+import { IS_BACKEND_DEBUG } from '..';
 import * as Constants from '../constants/constants';
 import dropWalls from '../game_engine/services/dropWallService';
 import PlacementObjectInterface from '../interfaces/placement_object';
@@ -153,6 +154,59 @@ export default class GameRoom extends Room<GameRoomState> {
 
         Matter.Engine.update(this.engine.engine, deltaTime);
       }
+    });
+
+    /*
+    デバッグ用
+    */
+
+    this.onMessage(Constants.NOTIFICATION_TYPE.DEBUG_PLAYER_WIN, (client, data: any) => {
+      if (!IS_BACKEND_DEBUG) return;
+      for (const [, player] of this.state.players) {
+        if (player.sessionId === client.sessionId) continue;
+        player.damaged(player.hp);
+      }
+    });
+
+    this.onMessage(Constants.NOTIFICATION_TYPE.DEBUG_DRAW, (client, data: any) => {
+      if (!IS_BACKEND_DEBUG) return;
+      for (const [, player] of this.state.players) {
+        player.damaged(player.hp);
+      }
+    });
+
+    this.onMessage(Constants.NOTIFICATION_TYPE.DEBUG_PLAYER_STATUS_MAX, (client, data: any) => {
+      if (!IS_BACKEND_DEBUG) return;
+      this.state.players.get(client.sessionId)?.debugSetPlayerStatusMax();
+    });
+
+    this.onMessage(Constants.NOTIFICATION_TYPE.DEBUG_ALL_PLAYER_STATUS_MAX, (client, data: any) => {
+      if (!IS_BACKEND_DEBUG) return;
+      for (const [, player] of this.state.players) {
+        player.debugSetPlayerStatusMax();
+      }
+    });
+
+    this.onMessage(Constants.NOTIFICATION_TYPE.DEBUG_DELETE_ALL_BLOCK, (client, data: any) => {
+      if (!IS_BACKEND_DEBUG) return;
+      this.state.blocks.forEach((block) => {
+        block.removedAt = Date.now() + Constants.OBJECT_REMOVAL_DELAY;
+        this.state.getBlockToDestroyQueue().enqueue(block);
+      });
+    });
+
+    this.onMessage(Constants.NOTIFICATION_TYPE.DEBUG_FREEZE_ALL_CPU, (client, data: any) => {
+      if (!IS_BACKEND_DEBUG) return;
+      this.state.enemies.forEach((enemy) => {
+        enemy.debugSetFreeze();
+      });
+    });
+
+    this.onMessage(Constants.NOTIFICATION_TYPE.DEBUG_UNFREEZE_ALL_CPU, (client, data: any) => {
+      if (!IS_BACKEND_DEBUG) return;
+      this.state.enemies.forEach((enemy) => {
+        enemy.debugSetUnFreeze();
+      });
     });
   }
 

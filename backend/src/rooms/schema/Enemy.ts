@@ -2,6 +2,7 @@ import * as Constants from '../../constants/constants';
 import { PixelToTile, TileToPixel } from '../../utils/map';
 import Player from './Player';
 import Timer from './Timer';
+import { IS_BACKEND_DEBUG } from '../../index';
 
 export default class Enemy extends Player {
   // 次に移動する座標
@@ -11,6 +12,9 @@ export default class Enemy extends Player {
   goalX: number;
   goalY: number;
 
+  // 停止するかどうか(デバッグ用)
+  freeze: boolean;
+
   constructor(sessionId: string, idx: number, name: string = Constants.DEFAULT_PLAYER_NAME) {
     super(sessionId, idx, name);
     this.isCPU = true;
@@ -18,6 +22,7 @@ export default class Enemy extends Player {
     this.nextY = Infinity;
     this.goalX = Infinity;
     this.goalY = Infinity;
+    this.freeze = false;
   }
 
   // x, y からタイルの位置を返します
@@ -113,5 +118,19 @@ export default class Enemy extends Player {
       default:
         return Constants.ENEMY_EVALUATION_STEP.END;
     }
+  }
+
+  debugSetFreeze() {
+    if (!IS_BACKEND_DEBUG) return;
+    this.freeze = true;
+  }
+
+  debugSetUnFreeze() {
+    if (!IS_BACKEND_DEBUG) return;
+    this.freeze = false;
+  }
+
+  isFreezed() {
+    return this.freeze;
   }
 }

@@ -43,6 +43,9 @@ import { getWinner } from '../utils/result';
 import EnemyPlayer from '../characters/EnemyPlayer';
 import { IGameData } from '../../../backend/src/types/gameRoom';
 import { calcGameScreen } from '../utils/calcGameScreen';
+import { IS_FRONTEND_DEBUG } from '../config/config';
+import { addDebugMenu, debugOptions } from '../utils/debug_menu';
+import GridTable from 'phaser3-rex-plugins/templates/ui/gridtable/GridTable';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
@@ -70,6 +73,9 @@ export default class Game extends Phaser.Scene {
 
   private bgm!: Phaser.Sound.BaseSound;
   private startBgm!: Phaser.Sound.BaseSound;
+  private winBgm!: Phaser.Sound.BaseSound;
+  private drowBgm!: Phaser.Sound.BaseSound;
+  private loseBgm!: Phaser.Sound.BaseSound;
   private title!: Phaser.GameObjects.Container;
   private upTitle!: Phaser.GameObjects.Image;
   private downTitle!: Phaser.GameObjects.Image;
@@ -77,6 +83,8 @@ export default class Game extends Phaser.Scene {
   private seItemGet!: Phaser.Sound.BaseSound;
   private readonly juice: phaserJuice;
   private IsFinishedDropWallsEvent: boolean = false;
+
+  private debug_menu?: GridTable;
 
   constructor() {
     super(Config.SCENE_NAME_GAME);
@@ -103,7 +111,16 @@ export default class Game extends Phaser.Scene {
       volume: Config.SOUND_VOLUME,
     });
     this.seItemGet = this.sound.add('getItem', {
-      volume: Config.SOUND_VOLUME * 1.5,
+      volume: Config.SOUND_VOLUME,
+    });
+    this.winBgm = this.sound.add('win', {
+      volume: Config.SOUND_VOLUME,
+    });
+    this.drowBgm = this.sound.add('drow', {
+      volume: Config.SOUND_VOLUME,
+    });
+    this.loseBgm = this.sound.add('lose', {
+      volume: Config.SOUND_VOLUME,
     });
   }
 
@@ -135,6 +152,20 @@ export default class Game extends Phaser.Scene {
       this.currBlocks = drawBlocks(this, data.gameData.blocks); // draw blocks
     }
 
+    if (IS_FRONTEND_DEBUG) {
+      // キー入力を有効化
+      this.cursorKeys.shift.enabled = true;
+      this.debug_menu = addDebugMenu(this);
+      this.debug_menu.on(
+        'cell.click',
+        (cellContainer: any, cellIndex: number) => {
+          this.network.sendDebugMessage(debugOptions[cellIndex].notificationType);
+          this.debug_menu?.setVisible(!this.debug_menu?.visible);
+        },
+        this
+      );
+    }
+
     // 演出が終わったらゲームを開始
     gameEvents.on(Event.GAME_PREPARING_COMPLETED, () => this.handleGamePreparingCompleted());
   }
@@ -150,6 +181,11 @@ export default class Game extends Phaser.Scene {
     while (this.elapsedTime >= this.fixedTimeStep) {
       this.elapsedTime -= this.fixedTimeStep;
       this.fixedTick();
+    }
+
+    if (IS_FRONTEND_DEBUG) {
+      const isShiftJustDown = Phaser.Input.Keyboard.JustDown(this.cursorKeys.shift);
+      if (isShiftJustDown) this.debug_menu?.setVisible(!this.debug_menu?.visible);
     }
   }
 
@@ -212,7 +248,7 @@ export default class Game extends Phaser.Scene {
       duration: 300,
     });
 
-    this.title = this.add.container(0, 0, [this.upTitle, this.downTitle]).setDepth(Infinity);
+    this.title = this.add.container(0, 0, [this.upTitle, this.downTitle]).setDepth(1000);
   }
 
   private handleGamePreparingCompleted() {
@@ -330,24 +366,36 @@ export default class Game extends Phaser.Scene {
       this.network.getTs().destroy();
 
       const moveToResultScene = () => {
-        this.scene.stop();
-        this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
-          network: this.network,
-          playerName: this.myPlayer.name,
-          sessionId: this.room.sessionId,
-          gameResult: this.gameResult,
-        });
+        setTimeout(
+          () => {
+            this.scene.stop();
+            this.scene.run(Config.SCENE_NAME_GAME_RESULT, {
+              network: this.network,
+              playerName: this.myPlayer.name,
+              sessionId: this.room.sessionId,
+              gameResult: this.gameResult,
+            });
+          },
+          winner !== undefined ? 1500 : 3000
+        );
       };
 
       // 勝利者がいる場合は、勝利者の位置にカメラを移動
       const winner = getWinner(this.gameResult);
+
       if (winner !== undefined) {
+        if (winner?.sessionId === this.network.mySessionId) {
+          this.winBgm.play();
+        } else {
+          this.loseBgm.play();
+        }
         const camera = this.cameras.main;
         camera.setZoom(1);
         camera.pan(winner.x, winner.y, 2000, 'Sine.easeInOut');
         camera.zoomTo(2, 2000, 'Sine.easeInOut', true);
         camera.once('camerazoomcomplete', moveToResultScene);
       } else {
+        this.drowBgm.play();
         moveToResultScene();
       }
     }

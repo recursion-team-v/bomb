@@ -4,6 +4,7 @@ import * as Constants from '../../../backend/src/constants/constants';
 import Game from '../scenes/Game';
 import { Keyboard, NavKeys } from '../types/keyboard';
 import isMobile from './mobile';
+import { getGameScene } from './globalGame';
 
 let button: Phaser.GameObjects.Image;
 
@@ -12,11 +13,15 @@ export default function initializeKeys(game: Game): NavKeys {
 
   let keys = {
     ...kb.createCursorKeys(),
-    ...(kb.addKeys('W,S,A,D,SPACE') as Keyboard),
+    // ENTER は Debug 用
+    ...(kb.addKeys('W,S,A,D,SPACE,SHIFT') as Keyboard),
   };
 
   // モバイルの場合は仮想ジョイスティックを表示する
   if (isMobile()) {
+    // マルチタップようにポインターを1つ追加
+    getGameScene().input.addPointer(1);
+
     const joyStick = new VirtualJoystick(game, {
       x: Constants.JOYSTICK_X,
       y: Constants.JOYSTICK_Y,

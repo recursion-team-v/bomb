@@ -1,16 +1,17 @@
+import '../services/SoundVolume';
+
 import Phaser from 'phaser';
 
 import * as Constants from '../../../backend/src/constants/constants';
-import '../services/SoundVolume';
+import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 import MyPlayer from '../characters/MyPlayer';
 import * as Config from '../config/config';
+import { Event, gameEvents } from '../events/GameEvents';
+import Network from '../services/Network';
 import ToString from '../utils/color';
 import { getGameScene } from '../utils/globalGame';
-import convertSecondsToMMSS from '../utils/timer';
-import Network from '../services/Network';
-import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 import { isPlay } from '../utils/sound';
-import { Event, gameEvents } from '../events/GameEvents';
+import convertSecondsToMMSS from '../utils/timer';
 
 export default class GameHeader extends Phaser.Scene {
   private readonly width: number;
@@ -64,9 +65,9 @@ export default class GameHeader extends Phaser.Scene {
         this.add.image(600, 10, Constants.ITEM_TYPE.PLAYER_SPEED).setScale(0.5).setOrigin(0, 0),
         this.textSpeed,
       ])
-      .setDepth(Infinity);
+      .setDepth(2000);
 
-    this.add.volumeIcon(this, this.width - 100, 10, isPlay());
+    this.add.volumeIcon(this, this.width - 100, -13, isPlay());
   }
 
   create(data: { network: Network; serverTimer: ServerTimer }) {

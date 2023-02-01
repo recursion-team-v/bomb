@@ -4,6 +4,7 @@ import * as Constants from '../../constants/constants';
 import { getInitialPlayerPos } from '../../utils/getInitialPlayerPos';
 import { PixelToTile } from '../../utils/map';
 import { validateAndFixUserName } from '../../utils/validation';
+import { IS_BACKEND_DEBUG } from '../../index';
 
 export default class Player extends Schema {
   @type('string')
@@ -247,5 +248,14 @@ export default class Player extends Schema {
   // プレイヤーのマス目の位置を取得する
   getTilePosition(): { x: number; y: number } {
     return PixelToTile(this.x, this.y);
+  }
+
+  // プレイヤーのステータスを最強にする
+  debugSetPlayerStatusMax() {
+    if (!IS_BACKEND_DEBUG) return;
+    this.hp = Constants.MAX_PLAYER_HP;
+    this.speed = Constants.MAX_PLAYER_SPEED;
+    this.maxBombCount = Constants.MAX_SETTABLE_BOMB_COUNT;
+    this.bombStrength = Constants.MAX_BOMB_STRENGTH;
   }
 }

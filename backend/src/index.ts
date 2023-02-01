@@ -1,12 +1,16 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
-import { LobbyRoom, Server } from 'colyseus';
-import { createServer } from 'http';
 import { monitor } from '@colyseus/monitor';
-import express from 'express';
+import { LobbyRoom, Server } from 'colyseus';
 import cors from 'cors';
-import GameRoom from './rooms/GameRoom';
-import * as Constants from './constants/constants';
+import express from 'express';
 import basicAuth from 'express-basic-auth';
+import { createServer } from 'http';
+
+import * as Constants from './constants/constants';
+import GameRoom from './rooms/GameRoom';
+
+// サーバがデバッグモードかどうか
+export const IS_BACKEND_DEBUG = process.env.TS_NODE_DEV === 'true';
 
 // import する上手いやり方わからず require になってます
 // eslint-disable-next-line @typescript-eslint/no-var-requires

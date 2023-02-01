@@ -67,8 +67,17 @@ export const NOTIFICATION_TYPE = {
   // プレイヤーの爆弾を設置するためのタイプ
   PLAYER_BOMB: 1001,
 
-  // TODO: アイテム
+  // DEBUG 用のタイプ
+  DEBUG_PLAYER_WIN: 9000, // 通知を送った人が勝利する
+  DEBUG_DRAW: 9001, // 引き分けにする
+  DEBUG_PLAYER_STATUS_MAX: 9002, // 通知を送った人のステータスを MAX にする
+  DEBUG_ALL_PLAYER_STATUS_MAX: 9003, // 全ての人のステータスを MAX にする
+  DEBUG_DELETE_ALL_BLOCK: 9004, // 全てのブロックを破壊する
+  DEBUG_FREEZE_ALL_CPU: 9005, // 全てのCPUの動きを止める
+  DEBUG_UNFREEZE_ALL_CPU: 9006, // 全てのCPUの動きを再開する
 };
+
+export type NOTIFICATION_TYPES = typeof NOTIFICATION_TYPE[keyof typeof NOTIFICATION_TYPE];
 
 export const GAME_STATE = {
   WAITING: 1, // ゲーム開始前
@@ -302,8 +311,8 @@ export const BLAST_AVAILABLE_TIME = 500;
 export const PLAYER_TOLERANCE_DISTANCE = 100;
 
 // ゲームの制限時間
-export const GAME_PREPARING_TIME = 4.5; // ゲーム開始演出の時間
-export const TIME_LIMIT_SEC = 181 + GAME_PREPARING_TIME; // (+1秒するといい感じに表示される)
+export const GAME_PREPARING_TIME = 5; // ゲーム開始演出の時間
+export const TIME_LIMIT_SEC = 121 + GAME_PREPARING_TIME; // (+1秒するといい感じに表示される)
 
 /*
 アイテムの定義
@@ -405,6 +414,10 @@ export const OBJECT_DEPTH = {
   [OBJECT_LABEL.WALL]: 99,
   [OBJECT_LABEL.DROP_WALL_SHADOW]: 100,
   [OBJECT_LABEL.DROP_WALL]: 101,
+  // 1000: カーテン / ゲームスタート
+  // 2000: ヘッダー内
+  // 9000: デバッグメニュー
+  // 9001: デバッグメニュー内
 } as const;
 
 export type OBJECT_DEPTH_TYPE = typeof OBJECT_DEPTH[keyof typeof OBJECT_DEPTH];

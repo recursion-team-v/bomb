@@ -1,23 +1,24 @@
 import { Client, Room, RoomAvailable } from 'colyseus.js';
-import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
-import * as Config from '../config/config';
+import TimeSync, { create as TimeCreate } from 'timesync';
 import * as Constants from '../../../backend/src/constants/constants';
-import ServerPlayer from '../../../backend/src/rooms/schema/Player';
-import ServerItem from '../../../backend/src/rooms/schema/Item';
-import ServerBlock from '../../../backend/src/rooms/schema/Block';
 import ServerBlast from '../../../backend/src/rooms/schema/Blast';
+import ServerBlock from '../../../backend/src/rooms/schema/Block';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
-import { gameEvents, Event } from '../events/GameEvents';
+import GameResult from '../../../backend/src/rooms/schema/GameResult';
+import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
+import ServerItem from '../../../backend/src/rooms/schema/Item';
+import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import MyPlayer from '../characters/MyPlayer';
 import Player from '../characters/Player';
-import TimeSync, { create as TimeCreate } from 'timesync';
-import GameResult from '../../../backend/src/rooms/schema/GameResult';
 import {
   IGameStartInfo,
   ISerializedGameData,
   IGameSettings,
   IRoomData,
 } from '../../../backend/src/types/gameRoom';
+import * as Config from '../config/config';
+import { Event, gameEvents } from '../events/GameEvents';
+import { IS_FRONTEND_DEBUG } from '../config/config';
 
 export default class Network {
   private readonly client: Client;
@@ -252,6 +253,12 @@ export default class Network {
     this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_IS_LOADING_COMPLETE);
   }
 
+  // デバッグ用
+  sendDebugMessage(notificationType: Constants.NOTIFICATION_TYPES) {
+    if (!IS_FRONTEND_DEBUG) return;
+    this.room?.send(notificationType);
+  }
+
   syncClock(endpoint: string) {
     endpoint = endpoint.replace('ws', 'http');
     this.ts = TimeCreate({
@@ -268,4 +275,8 @@ export default class Network {
   getTs(): TimeSync {
     return this.ts;
   }
+
+  /*
+    Debug Message
+  */
 }
