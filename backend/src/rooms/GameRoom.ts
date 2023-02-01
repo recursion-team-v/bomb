@@ -33,36 +33,37 @@ export default class GameRoom extends Room<GameRoomState> {
     this.engine = new GameEngine(this);
 
     // ゲーム開始の準備完了をクライアントから受け取る
-    this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_IS_READY, (client, data: IGameSettings) => {
-      if (this.state.gameState.isPlaying()) return;
+    this.onMessage(
+      Constants.NOTIFICATION_TYPE.PLAYER_IS_READY,
+      (client, gameSettings: IGameSettings) => {
+        if (this.state.gameState.isPlaying()) return;
 
-      console.log(data);
-      const myPlayer = this.state.getPlayer(client.sessionId);
-      if (myPlayer === undefined) return;
-      myPlayer.setIsReady();
-      this.broadcast(Constants.NOTIFICATION_TYPE.PLAYER_IS_READY, client.sessionId);
+        console.log(gameSettings);
+        const myPlayer = this.state.getPlayer(client.sessionId);
+        if (myPlayer === undefined) return;
+        myPlayer.setIsReady();
+        this.broadcast(Constants.NOTIFICATION_TYPE.PLAYER_IS_READY, client.sessionId);
 
-      let isLobbyReady = true;
-      this.state.players.forEach((player) => (isLobbyReady = isLobbyReady && player.isReady()));
-      if (isLobbyReady) {
-        // Matter エンジンにマップ・プレイヤー・CPU を追加する
-        this.engine = new GameEngine(this);
-        this.engine.addMapToWorld(Constants.DEFAULT_TILE_ROWS, Constants.DEFAULT_TILE_COLS);
-        this.state.players.forEach((player) => {
-          this.engine.addPlayerToWorld(player.sessionId);
-        });
-        const data: ISerializedGameData = {
-          blocks: JSON.stringify([...this.state.blocks]),
-          mapRows: this.state.gameMap.rows,
-          mapCols: this.state.gameMap.cols,
-        };
-        this.broadcast(Constants.NOTIFICATION_TYPE.GAME_DATA, data);
-        this.lockRoom().catch((err) => console.log(err));
+        let isLobbyReady = true;
+        this.state.players.forEach((player) => (isLobbyReady = isLobbyReady && player.isReady()));
+        if (isLobbyReady) {
+          // Matter エンジンにマップ・プレイヤー・CPU を追加する
+          this.engine.mapService.addMapToWorld(gameSettings.mapRows, gameSettings.mapCols);
+          this.state.players.forEach((player) => {
+            this.engine.playerService.addPlayerToWorld(player);
+          });
+          const data: ISerializedGameData = {
+            blocks: JSON.stringify([...this.state.blocks]),
+            mapRows: this.state.gameMap.rows,
+            mapCols: this.state.gameMap.cols,
+          };
+          this.broadcast(Constants.NOTIFICATION_TYPE.GAME_DATA, data);
+          this.lockRoom().catch((err) => console.log(err));
+        }
       }
-    });
+    );
 
     this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_IS_LOADING_COMPLETE, (client) => {
-      console.log('LOADING COMPLETE');
       const myPlayer = this.state.getPlayer(client.sessionId);
       if (myPlayer === undefined) return;
       myPlayer.setIsLoadingComplete();

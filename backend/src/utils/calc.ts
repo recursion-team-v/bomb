@@ -478,9 +478,9 @@ export function getClosestAvailablePoint(
 // 他のプレイヤーの位置をマップに反映する
 // プレイヤーがいるマスは 1 になる
 export function getOtherPlayersMap(sessionId: string, players: Player[], gameMap: GameMap) {
-  const result = Array(Constants.DEFAULT_TILE_ROWS)
+  const result = Array(gameMap.getRows())
     .fill(0)
-    .map(() => Array(Constants.DEFAULT_TILE_COLS).fill(0));
+    .map(() => Array(gameMap.getCols()).fill(0));
 
   for (let i = 0; i < players.length; i++) {
     if (players[i].sessionId === sessionId) continue;

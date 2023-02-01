@@ -19,6 +19,7 @@ import {
   sumOfProductsSynthesis,
   treatLevelMapByBomb,
 } from '../../utils/calc';
+import { getInitialPlayerPos } from '../../utils/getInitialPlayerPos';
 import { TileToPixel } from '../../utils/map';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -32,6 +33,15 @@ export default class EnemyService {
   // add のみメソッドが違うので別に定義する
   addEnemy(sessionId: string): Enemy {
     const enemy = this.gameEngine.state.createEnemy(sessionId);
+
+    const { x, y } = getInitialPlayerPos(
+      this.gameEngine.state.gameMap.getRows(),
+      this.gameEngine.state.gameMap.getCols(),
+      enemy.idx
+    );
+    enemy.x = x;
+    enemy.y = y;
+
     const enemyBody = Matter.Bodies.rectangle(
       enemy.x,
       enemy.y,

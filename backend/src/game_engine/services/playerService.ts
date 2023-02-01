@@ -5,6 +5,7 @@ import GameEngine from '../../rooms/GameEngine';
 import { Bomb } from '../../rooms/schema/Bomb';
 import Item from '../../rooms/schema/Item';
 import Player from '../../rooms/schema/Player';
+import { getInitialPlayerPos } from '../../utils/getInitialPlayerPos';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class PlayerService {
@@ -12,6 +13,41 @@ export default class PlayerService {
 
   constructor(gameEngine: GameEngine) {
     this.gameEngine = gameEngine;
+  }
+
+  addPlayerToWorld(player: Player) {
+    const { x, y } = getInitialPlayerPos(
+      this.gameEngine.state.gameMap.getRows(),
+      this.gameEngine.state.gameMap.getCols(),
+      player.idx
+    );
+    player.x = x;
+    player.y = y;
+
+    const playerBody = Matter.Bodies.rectangle(
+      player.x,
+      player.y,
+      Constants.PLAYER_WIDTH,
+      Constants.PLAYER_HEIGHT,
+      {
+        label: Constants.OBJECT_LABEL.PLAYER,
+        chamfer: {
+          radius: 10,
+        },
+        friction: 0,
+        frictionStatic: 0,
+        frictionAir: 0,
+        restitution: 0,
+        inertia: Infinity,
+      }
+    );
+
+    this.gameEngine.playerBodies.set(player.sessionId, playerBody);
+    this.gameEngine.sessionIdByBodyId.set(playerBody.id, player.sessionId);
+
+    Matter.Composite.add(this.gameEngine.world, [playerBody]);
+    playerBody.collisionFilter.category = Constants.COLLISION_CATEGORY.PLAYER;
+    playerBody.collisionFilter.mask = Constants.COLLISION_CATEGORY.DEFAULT;
   }
 
   deletePlayer(sessionId: string) {
