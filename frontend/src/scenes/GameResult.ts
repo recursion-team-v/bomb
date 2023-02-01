@@ -23,6 +23,7 @@ export default class GameResult extends Phaser.Scene {
   }
 
   init() {
+    this.scale.resize(Constants.DEFAULT_WIDTH, Constants.DEFAULT_HEIGHT);
     this.se1 = this.sound.add('select', {
       volume: Config.SOUND_VOLUME,
     });
