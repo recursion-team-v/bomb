@@ -18,7 +18,12 @@ import ContainerLite from 'phaser3-rex-plugins/plugins/containerlite';
 import Buttons from 'phaser3-rex-plugins/templates/ui/buttons/Buttons';
 import { isPlay } from '../utils/sound';
 import { addBackground } from '../utils/title';
-import { IGameData, IGameSettings, IGameStartInfo } from '../../../backend/src/types/gameRoom';
+import {
+  ISerializedGameData,
+  IGameSettings,
+  IGameStartInfo,
+  IGameData,
+} from '../../../backend/src/types/gameRoom';
 
 export interface IAvailableRoom {
   id: string;
@@ -180,11 +185,15 @@ export default class Lobby extends Phaser.Scene {
     }
   }
 
-  private handleGameDataLoaded(data: IGameData) {
+  private handleGameDataLoaded(data: ISerializedGameData) {
     if (data.blocks === undefined || data.mapRows === undefined || data.mapCols === undefined) {
       throw new Error('GameData not loaded properly.');
     }
-    this.gameData = data;
+    this.gameData = {
+      blocks: new Map(JSON.parse(data.blocks)),
+      mapRows: data.mapRows,
+      mapCols: data.mapCols,
+    };
     console.log(this.gameData);
     this.network.sendPlayerIsLoadingComplete();
   }

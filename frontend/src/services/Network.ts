@@ -14,7 +14,7 @@ import TimeSync, { create as TimeCreate } from 'timesync';
 import GameResult from '../../../backend/src/rooms/schema/GameResult';
 import {
   IGameStartInfo,
-  IGameData,
+  ISerializedGameData,
   IGameSettings,
   IRoomData,
 } from '../../../backend/src/types/gameRoom';
@@ -139,7 +139,7 @@ export default class Network {
       gameEvents.emit(Event.PLAYER_IS_READY, player);
     });
 
-    this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_DATA, (data: IGameData) => {
+    this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_DATA, (data: ISerializedGameData) => {
       gameEvents.emit(Event.GAME_DATA_LOADED, data);
     });
   }
@@ -172,7 +172,7 @@ export default class Network {
     gameEvents.on(Event.PLAYER_LEFT_ROOM, callback, context);
   }
 
-  onGameDataLoaded(callback: (data: IGameData) => void, context?: any) {
+  onGameDataLoaded(callback: (data: ISerializedGameData) => void, context?: any) {
     gameEvents.on(Event.GAME_DATA_LOADED, callback, context);
   }
 

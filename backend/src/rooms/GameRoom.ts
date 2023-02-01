@@ -4,7 +4,7 @@ import Matter from 'matter-js';
 import * as Constants from '../constants/constants';
 import dropWalls from '../game_engine/services/dropWallService';
 import PlacementObjectInterface from '../interfaces/placement_object';
-import { IGameData, IGameSettings, IGameStartInfo, IRoomData } from '../types/gameRoom';
+import { ISerializedGameData, IGameSettings, IGameStartInfo, IRoomData } from '../types/gameRoom';
 import GameQueue from '../utils/gameQueue';
 import GameEngine from './GameEngine';
 import Block from './schema/Block';
@@ -51,8 +51,8 @@ export default class GameRoom extends Room<GameRoomState> {
         this.state.players.forEach((player) => {
           this.engine.addPlayerToWorld(player.sessionId);
         });
-        const data: IGameData = {
-          blocks: this.state.blocks,
+        const data: ISerializedGameData = {
+          blocks: JSON.stringify([...this.state.blocks]),
           mapRows: this.state.gameMap.rows,
           mapCols: this.state.gameMap.cols,
         };
@@ -288,7 +288,7 @@ export default class GameRoom extends Room<GameRoomState> {
     // 壁落下イベント
     if (this.state.timer.getRemainTime() <= Constants.INGAME_EVENT_DROP_WALLS_TIME) {
       if (!this.IsFinishedDropWallsEvent) {
-        dropWalls(this.engine);
+        dropWalls(this.engine, this.state.gameMap);
       }
       this.IsFinishedDropWallsEvent = true;
     }

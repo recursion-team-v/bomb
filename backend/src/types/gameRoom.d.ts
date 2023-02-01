@@ -14,6 +14,12 @@ export interface IGameSettings {
   mapCols: number;
 }
 
+export interface ISerializedGameData {
+  blocks: string | undefined;
+  mapRows: number | undefined;
+  mapCols: number | undefined;
+}
+
 export interface IGameData {
   blocks: Map<string, ServerBlock> | undefined;
   mapRows: number | undefined;

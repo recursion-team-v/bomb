@@ -129,14 +129,11 @@ export default class Game extends Phaser.Scene {
     // Colyseus のイベントを追加
     this.initNetworkEvents();
 
-    // TODO: Preloader（Lobby）で読み込んで Game Scene に渡す
-    this.room.onStateChange.once((state) => {
-      console.log(state.gameMap);
-      console.log(state.blocks);
-      drawGround(this, this.rows, this.cols); // draw ground
-      drawWalls(this, this.rows, this.cols); // draw walls
-      this.currBlocks = drawBlocks(this, state.blocks); // draw blocks
-    });
+    drawGround(this, this.rows, this.cols); // draw ground
+    drawWalls(this, this.rows, this.cols); // draw walls
+    if (data.gameData.blocks !== undefined) {
+      this.currBlocks = drawBlocks(this, data.gameData.blocks); // draw blocks
+    }
 
     // 演出が終わったらゲームを開始
     gameEvents.on(Event.GAME_PREPARING_COMPLETED, () => this.handleGamePreparingCompleted());
