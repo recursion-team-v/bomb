@@ -26,7 +26,7 @@ import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import Bomb from '../items/Bomb';
 import Item from '../items/Item';
 import initializeKeys, { disableKeys, enableKeys } from '../utils/key';
-import Network, { IGameData } from '../services/Network';
+import Network from '../services/Network';
 import OtherPlayer from '../characters/OtherPlayer';
 import { Block } from '../items/Block';
 import phaserJuice from '../lib/phaserJuice';
@@ -41,6 +41,7 @@ import GameResult from '../../../backend/src/rooms/schema/GameResult';
 import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 import { getWinner } from '../utils/result';
 import EnemyPlayer from '../characters/EnemyPlayer';
+import { IGameData } from '../../../backend/src/types/gameRoom';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;

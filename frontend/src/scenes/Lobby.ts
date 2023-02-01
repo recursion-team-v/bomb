@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import * as Config from '../config/config';
 import * as Constants from '../../../backend/src/constants/constants';
-import Network, { IGameData, IGameSettings, IGameStartInfo } from '../services/Network';
+import Network from '../services/Network';
 import {
   createButton,
   createButtons,
@@ -18,6 +18,7 @@ import ContainerLite from 'phaser3-rex-plugins/plugins/containerlite';
 import Buttons from 'phaser3-rex-plugins/templates/ui/buttons/Buttons';
 import { isPlay } from '../utils/sound';
 import { addBackground } from '../utils/title';
+import { IGameData, IGameSettings, IGameStartInfo } from '../../../backend/src/types/gameRoom';
 
 export interface IAvailableRoom {
   id: string;

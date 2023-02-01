@@ -6,37 +6,18 @@ import ServerPlayer from '../../../backend/src/rooms/schema/Player';
 import ServerItem from '../../../backend/src/rooms/schema/Item';
 import ServerBlock from '../../../backend/src/rooms/schema/Block';
 import ServerBlast from '../../../backend/src/rooms/schema/Blast';
-import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 import { Bomb as ServerBomb } from '../../../backend/src/rooms/schema/Bomb';
 import { gameEvents, Event } from '../events/GameEvents';
 import MyPlayer from '../characters/MyPlayer';
 import Player from '../characters/Player';
 import TimeSync, { create as TimeCreate } from 'timesync';
 import GameResult from '../../../backend/src/rooms/schema/GameResult';
-
-export interface IRoomData {
-  name: string;
-  password: string | null;
-  autoDispose: boolean;
-  playerName: string;
-}
-
-export interface IGameStartInfo {
-  serverTimer: ServerTimer;
-  mapRows: number;
-  mapCols: number;
-}
-
-export interface IGameSettings {
-  mapRows: number;
-  mapCols: number;
-}
-
-export interface IGameData {
-  blocks: Map<string, ServerBlock> | undefined;
-  mapRows: number | undefined;
-  mapCols: number | undefined;
-}
+import {
+  IGameStartInfo,
+  IGameData,
+  IGameSettings,
+  IRoomData,
+} from '../../../backend/src/types/gameRoom';
 
 export default class Network {
   private readonly client: Client;
@@ -85,13 +66,7 @@ export default class Network {
   }
 
   async createAndJoinCustomRoom(roomData: IRoomData) {
-    const { name, password, autoDispose, playerName } = roomData;
-    this.room = await this.client.create(Constants.GAME_CUSTOM_ROOM_KEY, {
-      name,
-      password,
-      autoDispose,
-      playerName,
-    });
+    this.room = await this.client.create(Constants.GAME_CUSTOM_ROOM_KEY, roomData);
     this.initialize();
   }
 
@@ -267,7 +242,7 @@ export default class Network {
     this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, player);
   }
 
-  // 自分の準備完了を送る
+  // 自分の準備完了を送る (その時のゲーム設定も送る)
   sendPlayerIsReady(data: IGameSettings) {
     this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_IS_READY, data);
   }

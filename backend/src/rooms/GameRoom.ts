@@ -4,6 +4,7 @@ import Matter from 'matter-js';
 import * as Constants from '../constants/constants';
 import dropWalls from '../game_engine/services/dropWallService';
 import PlacementObjectInterface from '../interfaces/placement_object';
+import { IGameData, IGameSettings, IGameStartInfo, IRoomData } from '../types/gameRoom';
 import GameQueue from '../utils/gameQueue';
 import GameEngine from './GameEngine';
 import Block from './schema/Block';
@@ -18,7 +19,7 @@ export default class GameRoom extends Room<GameRoomState> {
   private IsFinishedDropWallsEvent: boolean = false;
   private readonly enemies = new Map<string, Enemy>();
 
-  async onCreate(options: any) {
+  async onCreate(options: IRoomData) {
     const { autoDispose, playerName } = options;
     this.name = playerName;
     this.maxClients = Constants.MAX_PLAYER;
@@ -32,7 +33,7 @@ export default class GameRoom extends Room<GameRoomState> {
     this.engine = new GameEngine(this);
 
     // ゲーム開始の準備完了をクライアントから受け取る
-    this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_IS_READY, (client, data) => {
+    this.onMessage(Constants.NOTIFICATION_TYPE.PLAYER_IS_READY, (client, data: IGameSettings) => {
       if (this.state.gameState.isPlaying()) return;
 
       console.log(data);
@@ -50,11 +51,12 @@ export default class GameRoom extends Room<GameRoomState> {
         this.state.players.forEach((player) => {
           this.engine.addPlayerToWorld(player.sessionId);
         });
-        this.broadcast(Constants.NOTIFICATION_TYPE.GAME_DATA, {
+        const data: IGameData = {
           blocks: this.state.blocks,
           mapRows: this.state.gameMap.rows,
           mapCols: this.state.gameMap.cols,
-        });
+        };
+        this.broadcast(Constants.NOTIFICATION_TYPE.GAME_DATA, data);
         this.lockRoom().catch((err) => console.log(err));
       }
     });
@@ -161,7 +163,7 @@ export default class GameRoom extends Room<GameRoomState> {
   // ゲーム開始イベント
   private startGame() {
     if (!this.state.gameState.isPlaying()) {
-      const data = {
+      const data: IGameStartInfo = {
         serverTimer: this.state.timer,
       };
       this.broadcast(Constants.NOTIFICATION_TYPE.GAME_START_INFO, data);
