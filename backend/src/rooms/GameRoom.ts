@@ -47,7 +47,7 @@ export default class GameRoom extends Room<GameRoomState> {
       if (isLobbyReady) {
         // Matter エンジンにマップ・プレイヤー・CPU を追加する
         this.engine = new GameEngine(this);
-        this.engine.addMapToWorld(Constants.TILE_ROWS, Constants.TILE_COLS);
+        this.engine.addMapToWorld(Constants.DEFAULT_TILE_ROWS, Constants.DEFAULT_TILE_COLS);
         this.state.players.forEach((player) => {
           this.engine.addPlayerToWorld(player.sessionId);
         });
@@ -163,12 +163,12 @@ export default class GameRoom extends Room<GameRoomState> {
   // ゲーム開始イベント
   private startGame() {
     if (!this.state.gameState.isPlaying()) {
+      this.state.gameState.setPlaying();
+      this.state.setTimer();
       const data: IGameStartInfo = {
         serverTimer: this.state.timer,
       };
       this.broadcast(Constants.NOTIFICATION_TYPE.GAME_START_INFO, data);
-      this.state.gameState.setPlaying();
-      this.state.setTimer();
     }
   }
 
