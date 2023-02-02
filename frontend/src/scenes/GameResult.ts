@@ -105,7 +105,7 @@ export default class GameResult extends Phaser.Scene {
         .play(`${winner.character}_down`)
         .setScale(2.5);
       this.add
-        .text(Constants.DEFAULT_WIDTH * 0.25, Constants.DEFAULT_HEIGHT * 0.7, winner.name, {
+        .text(Constants.DEFAULT_WIDTH * 0.25, Constants.DEFAULT_HEIGHT * 0.75, winner.name, {
           fontSize: '40px',
           fontStyle: 'bold',
           align: 'center',

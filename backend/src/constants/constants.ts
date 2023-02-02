@@ -414,6 +414,7 @@ export const OBJECT_DEPTH = {
   [OBJECT_LABEL.WALL]: 99,
   [OBJECT_LABEL.DROP_WALL_SHADOW]: 100,
   [OBJECT_LABEL.DROP_WALL]: 101,
+  // 500: 雲
   // 1000: カーテン / ゲームスタート
   // 2000: ヘッダー内
   // 9000: デバッグメニュー

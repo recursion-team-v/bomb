@@ -66,3 +66,9 @@ export const TROPHY_ANIMATION_KEY = 'trophy_animation';
 // TODO 後で true にする
 export const SOUND_DEFAULT_IS_PLAY = !IS_FRONTEND_DEBUG; // サウンドを再生するかどうか
 export const SOUND_VOLUME = 0.2;
+
+// 雲関連
+export const ENABLE_CLOUD = true; // 雲を表示するかどうか
+export const CLOUD_FREQUENCY = 300; // 雲を表示する頻度 数字を大きくすると頻度が下がる
+export const CLOUD_SCALE_MIN = 3; // 雲の最小サイズ
+export const CLOUD_SCALE_MAX = 5; // 雲の最大サイズ
