@@ -46,6 +46,8 @@ TODO: gif などを入れたい
     - [Sprout Lands - UI Pack by Cup Nooble](https://cupnooble.itch.io/sprout-lands-ui-pack?download)
   - 雲
     - [Pixel Art Semi-Realistic Clouds by LateNightCoffee](https://latenightcoffe.itch.io/2d-pixel-art-semi-realistic-clouds?download)
+  - Github ロゴ
+    - [Github - Pixel Art Maker](http://pixelartmaker.com/art/d7e4e1e509c728d)
 
 ### 音楽
 

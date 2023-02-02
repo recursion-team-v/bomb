@@ -1,3 +1,4 @@
+import Label from 'phaser3-rex-plugins/templates/ui/label/Label';
 import * as Constants from '../../../backend/src/constants/constants';
 import * as Config from '../config/config';
 const GetValue = Phaser.Utils.Objects.GetValue;
@@ -84,6 +85,38 @@ export const addBackground = function (scene: Phaser.Scene) {
   scene.add
     .sprite(0, 0, Config.ASSET_KEY_TITLE_BACKGROUND)
     .setOrigin(0, 0)
-    .setScale(1.2)
-    .play(Config.TITLE_BACKGROUND_ANIMATION_KEY, true);
+    .play(Config.TITLE_BACKGROUND_ANIMATION_KEY, true)
+    .setScale(1.24);
+};
+
+export const addGitButton = (scene: Phaser.Scene, x: number, y: number) => {
+  const createButton = function (scene: Phaser.Scene) {
+    return scene.rexUI.add.label({
+      width: 50,
+      height: 50,
+      orientation: 'x',
+      background: scene.add.image(0, 0, 'github_button'),
+      align: 'center',
+      space: {
+        top: 20,
+        bottom: 20,
+        left: 20,
+        right: 20,
+      },
+    });
+  };
+
+  const buttons = scene.rexUI.add
+    .buttons({
+      x,
+      y,
+      orientation: 'x',
+      buttons: [createButton(scene)],
+    })
+    .setOrigin(0.5, 1)
+    .layout();
+
+  buttons.on('button.click', function (button: Label) {
+    window.open('https://github.com/recursion-team-v/bomb', '_blank');
+  });
 };
