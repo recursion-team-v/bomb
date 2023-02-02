@@ -16,7 +16,7 @@ export interface IGameSettings {
   mapRows: number;
   mapCols: number;
   numberOfPlayers: number;
-  numberOfCpu: number;
+  numberOfEnemies: number;
   blockRate: Constants.ROOM_INFO_BLOCK_PLACEMENT_RATES;
   numberOfItems: Record<Constants.ITEM_TYPES, number>;
   initialHp: number;

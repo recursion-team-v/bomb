@@ -51,6 +51,7 @@ export default class GameRoom extends Room<GameRoomState> {
           // room に設定を反映
           gameSettings.numberOfPlayers = this.state.players.size;
           this.state.initializeRoom(gameSettings);
+          this.state.initializePlayers();
 
           // 全クライアントの準備が完了している場合 Matter エンジンにマップ・プレイヤーを追加してゲームデータを送ž
           this.engine.mapService.addMapToWorld(this.state.room.mapRows, this.state.room.mapCols);
@@ -81,7 +82,10 @@ export default class GameRoom extends Room<GameRoomState> {
       });
       if (isLobbyLoadingComplete) {
         // 全クライアントの読み込みが完了している場合ゲーム開始
+
+        // 全てのプレイヤーの数を確定しいてから敵を追加
         this.addEnemy();
+        this.state.initializeEnemies();
         this.startGame();
       }
     });
@@ -236,7 +240,7 @@ export default class GameRoom extends Room<GameRoomState> {
 
   // CPU を追加する
   private addEnemy() {
-    const enemyCount = this.state.room.numberOfCpu;
+    const enemyCount = this.state.room.numberOfEnemies;
 
     for (let i = 0; i < enemyCount; i++) {
       const enemy = this.engine.enemyService.addEnemy(`enemy-${i}`);

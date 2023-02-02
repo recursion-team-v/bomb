@@ -56,7 +56,7 @@ export default class GameRoomState extends Schema {
       config.mapRows,
       config.mapCols,
       config.numberOfPlayers,
-      config.numberOfCpu,
+      config.numberOfEnemies,
       config.blockRate,
       config.numberOfItems,
       config.initialHp,
@@ -65,6 +65,18 @@ export default class GameRoomState extends Schema {
     );
 
     this.gameMap = new GameMap(this.room.mapRows, this.room.mapCols, this.room.blockRate);
+  }
+
+  initializePlayers() {
+    this.players.forEach((player) => {
+      player.initialize(this.room.initialHp, this.room.maxHp, this.room.mapRows, this.room.mapCols);
+    });
+  }
+
+  initializeEnemies() {
+    this.enemies.forEach((enemy) => {
+      enemy.initialize(this.room.initialHp, this.room.maxHp, this.room.mapRows, this.room.mapCols);
+    });
   }
 
   getPlayer(sessionId: string): Player | undefined {

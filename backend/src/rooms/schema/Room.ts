@@ -11,8 +11,8 @@ export default class Room extends Schema {
   @type('number')
   mapCols: number;
 
-  // CPUの数
-  numberOfCpu: number;
+  // Enemyの数
+  numberOfEnemies: number;
 
   // ブロックの生成率
   blockRate: Constants.ROOM_INFO_BLOCK_PLACEMENT_RATES;
@@ -34,8 +34,8 @@ export default class Room extends Schema {
   constructor(
     rows: number = Constants.DEFAULT_TILE_ROWS,
     cols: number = Constants.DEFAULT_TILE_COLS,
-    numberOfPlayer: number,
-    numberOfCpu: number,
+    numberOfPlayers: number,
+    numberOfEnemies: number,
     blockRate: Constants.ROOM_INFO_BLOCK_PLACEMENT_RATES = Constants.ROOM_INFO_DEFAULT_BLOCK_PLACEMENT_RATE,
     numberOfItems: Record<Constants.ITEM_TYPES, number> = Constants.ITEM_PLACE_COUNT,
     initialHp: number = Constants.INITIAL_PLAYER_HP,
@@ -45,7 +45,7 @@ export default class Room extends Schema {
     super();
     this.mapRows = rows; // TODO: 何らかの制限を加える
     this.mapCols = cols; // TODO: 何らかの制限を加える
-    this.numberOfCpu = this.calcNumberOfCpu(numberOfCpu, numberOfPlayer);
+    this.numberOfEnemies = this.calcNumberOfEnemy(numberOfEnemies, numberOfPlayers);
     this.blockRate = blockRate;
     this.numberOfItems = this.calcNumberOfItems(numberOfItems);
     this.maxHp = maxHp > Constants.LIMIT_PLAYER_HP ? Constants.LIMIT_PLAYER_HP : maxHp;
@@ -53,21 +53,21 @@ export default class Room extends Schema {
     this.timeLimit = timeLimit;
   }
 
-  calcNumberOfCpu(numberOfCpu: number, numberOfPlayer: number): number {
+  calcNumberOfEnemy(numberOfEnemies: number, numberOfPlayers: number): number {
     let result: number;
 
     // プレイヤーが1人の場合
-    if (numberOfPlayer === 1) {
-      if (numberOfCpu > 0 && numberOfCpu < Constants.MAX_PLAYER - numberOfPlayer) {
+    if (numberOfPlayers === 1) {
+      if (numberOfEnemies > 0 && numberOfEnemies < Constants.MAX_PLAYER - numberOfPlayers) {
         // 有効な値がセットされてれば、その値を使う
-        result = numberOfCpu;
+        result = numberOfEnemies;
       } else {
-        // 空きを全て CPU で埋める
-        result = Constants.MAX_PLAYER - numberOfPlayer;
+        // 空きを全て Enemy で埋める
+        result = Constants.MAX_PLAYER - numberOfPlayers;
       }
     } else {
-      // 2人の場合はCPUを最低 0人 入れる
-      result = Math.min(Constants.MAX_PLAYER - numberOfPlayer, numberOfCpu);
+      // 2人の場合はEnemyを最低 0人 入れる
+      result = Math.min(Constants.MAX_PLAYER - numberOfPlayers, numberOfEnemies);
     }
 
     return result;

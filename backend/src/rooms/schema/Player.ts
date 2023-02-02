@@ -1,10 +1,10 @@
 import { Schema, type } from '@colyseus/schema';
 
+import { IS_BACKEND_DEBUG } from '../..';
 import * as Constants from '../../constants/constants';
 import { getInitialPlayerPos } from '../../utils/getInitialPlayerPos';
 import { PixelToTile } from '../../utils/map';
 import { validateAndFixUserName } from '../../utils/validation';
-import { IS_BACKEND_DEBUG } from '../../index';
 
 export default class Player extends Schema {
   @type('string')
@@ -25,10 +25,10 @@ export default class Player extends Schema {
 
   // プレイヤーの位置
   @type('number')
-  x: number;
+  x!: number;
 
   @type('number')
-  y: number;
+  y!: number;
 
   // プレイヤーのvelocity
   @type('number')
@@ -41,7 +41,10 @@ export default class Player extends Schema {
   frameKey = 0;
 
   @type('number')
-  hp: number;
+  hp!: number;
+
+  @type('number')
+  maxHp!: number;
 
   @type('number')
   speed: number = Constants.INITIAL_PLAYER_SPEED;
@@ -84,15 +87,6 @@ export default class Player extends Schema {
     this.idx = idx;
     this.character = Constants.CHARACTERS[idx];
     this.name = validateAndFixUserName(name);
-    this.hp = Constants.INITIAL_PLAYER_HP;
-
-    const { x, y } = getInitialPlayerPos(
-      Constants.DEFAULT_TILE_ROWS,
-      Constants.DEFAULT_TILE_COLS,
-      this.idx
-    );
-    this.x = x;
-    this.y = y;
 
     this.bombType = Constants.BOMB_TYPE.NORMAL;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
@@ -101,6 +95,14 @@ export default class Player extends Schema {
     this.getItemMap = new Map<Constants.ITEM_TYPES, number>();
     this.lastDamagedAt = 0;
     this.diedAt = Infinity;
+  }
+
+  initialize(initialHp: number, maxHp: number, row: number, col: number) {
+    this.hp = initialHp;
+    this.maxHp = maxHp;
+    const { x, y } = getInitialPlayerPos(row, col, this.idx);
+    this.x = x;
+    this.y = y;
   }
 
   // ダメージを受けてHPを減らします
@@ -126,9 +128,7 @@ export default class Player extends Schema {
 
   // HPを回復します
   healed(recover: number) {
-    this.hp + recover > Constants.MAX_PLAYER_HP
-      ? (this.hp = Constants.MAX_PLAYER_HP)
-      : (this.hp += recover);
+    this.hp + recover > this.maxHp ? (this.hp = this.maxHp) : (this.hp += recover);
   }
 
   // プレイヤーが死んでいるかどうかを返します

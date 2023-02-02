@@ -1,8 +1,8 @@
+import { IS_BACKEND_DEBUG } from '../..';
 import * as Constants from '../../constants/constants';
 import { PixelToTile, TileToPixel } from '../../utils/map';
 import Player from './Player';
 import Timer from './Timer';
-import { IS_BACKEND_DEBUG } from '../../index';
 
 export default class Enemy extends Player {
   // 次に移動する座標
@@ -14,6 +14,9 @@ export default class Enemy extends Player {
 
   // 停止するかどうか(デバッグ用)
   freeze: boolean;
+
+  // タイムリミット
+  timeLimitSec!: number;
 
   constructor(sessionId: string, idx: number, name: string = Constants.DEFAULT_PLAYER_NAME) {
     super(sessionId, idx, name);
@@ -105,8 +108,8 @@ export default class Enemy extends Player {
   }
 
   // ゲームの残り時間に応じて、ENEMY_EVALUATION_STEP を返す
-  getStep(timer: Timer): Constants.ENEMY_EVALUATION_STEPS {
-    const gameTime = Constants.TIME_LIMIT_SEC * 1000;
+  getStep(timer: Timer, timeLimitSec: number): Constants.ENEMY_EVALUATION_STEPS {
+    const gameTime = timeLimitSec * 1000;
     switch (true) {
       // 2/3 までの時間帯
       case (gameTime * 2) / 3 < timer.getRemainTime():

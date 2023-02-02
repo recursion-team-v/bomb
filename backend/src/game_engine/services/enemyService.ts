@@ -1,5 +1,6 @@
 import Matter from 'matter-js';
 
+import { IS_BACKEND_DEBUG } from '../..';
 import * as Constants from '../../constants/constants';
 import GameEngine from '../../rooms/GameEngine';
 import Enemy from '../../rooms/schema/Enemy';
@@ -21,7 +22,6 @@ import {
 } from '../../utils/calc';
 import { getInitialPlayerPos } from '../../utils/getInitialPlayerPos';
 import { TileToPixel } from '../../utils/map';
-import { IS_BACKEND_DEBUG } from '../../index';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class EnemyService {
@@ -186,7 +186,7 @@ export default class EnemyService {
         )
       );
 
-      const gameStep = enemy.getStep(state.timer);
+      const gameStep = enemy.getStep(state.timer, state.room.timeLimit);
 
       // 爆弾をおいたときに、一度に破壊できるブロックが多い場所を評価するマップを作成する
       let goodBombPlaceMap: number[][] = [];
@@ -323,7 +323,13 @@ export default class EnemyService {
         enemy.inputQueue.push(data);
       } else {
         // ゴールに着いたら、爆弾を設置する
-        this.enemySetBomb(impactMapIsMovable, highPriorityForBlastRadiusMap, enemy, state.timer);
+        this.enemySetBomb(
+          impactMapIsMovable,
+          highPriorityForBlastRadiusMap,
+          enemy,
+          state.timer,
+          state.room.timeLimit
+        );
       }
     }
   }
@@ -333,7 +339,8 @@ export default class EnemyService {
     impactMapIsMovable: number[][],
     highPriorityForBlastRadiusMap: number[][],
     enemy: Enemy,
-    timer: Timer
+    timer: Timer,
+    timeLimitSec: number
   ) {
     // ただし、爆弾を設置するときには、自殺にならないように設置する爆弾の影響を考慮する
     const safeTileRate = 0.5;
@@ -353,7 +360,10 @@ export default class EnemyService {
     );
 
     // 序盤かつ、既にボムを置いていたら安全のために爆弾を置かない
-    if (enemy.getStep(timer) === Constants.ENEMY_EVALUATION_STEP.BEGINNING && enemy.isSetBomb())
+    if (
+      enemy.getStep(timer, timeLimitSec) === Constants.ENEMY_EVALUATION_STEP.BEGINNING &&
+      enemy.isSetBomb()
+    )
       return;
     if (!enemy.canSetBomb()) return;
 
