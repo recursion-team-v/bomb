@@ -46,6 +46,9 @@ export default class Timer extends Schema {
 
   // クライアントのオープニング演出が終わっているかどうかを返す
   isOpeningFinished(): boolean {
-    return this.now >= this.startedAt + Constants.GAME_PREPARING_TIME * 1000;
+    // 600 ms 足しているのは、
+    // オープニング直後に動き出すと明らかに人よりも CPU の動き出しが早く、ユーザが不公平感を感じるため
+    const initialDelay = 600;
+    return this.now >= this.startedAt + Constants.GAME_PREPARING_TIME * 1000 + initialDelay;
   }
 }
