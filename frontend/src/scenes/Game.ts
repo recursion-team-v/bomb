@@ -138,7 +138,7 @@ export default class Game extends Phaser.Scene {
     const { width, height } = calcGameScreen(this.rows, this.cols);
     this.screenWidth = width;
     this.screenHeight = height;
-    this.scale.resize(this.screenWidth, this.screenHeight);
+    this.scale.setGameSize(this.screenWidth, this.screenHeight);
 
     this.addGameStartTitle();
 
