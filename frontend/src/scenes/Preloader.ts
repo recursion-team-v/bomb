@@ -168,6 +168,7 @@ export default class Preloader extends Phaser.Scene {
     this.load.image('check', 'assets/check.png');
     this.load.image('cross', 'assets/cross.png');
     this.load.image('nameBar', 'assets/nameBar.png');
+    this.load.image('github_button', 'assets/github_button.png');
 
     // keyboard
     this.load.image('space', 'assets/keyboard/space.png');

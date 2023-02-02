@@ -1,6 +1,6 @@
 import * as Config from '../config/config';
 import Network from '../services/Network';
-import { addBackground, createLoginDialog } from '../utils/title';
+import { addBackground, addGitButton, createLoginDialog } from '../utils/title';
 import * as Constants from '../../../backend/src/constants/constants';
 import '../services/SoundVolume';
 import { validateAndFixUserName } from '../../../backend/src/utils/validation';
@@ -68,5 +68,6 @@ export default class Title extends Phaser.Scene {
     createBombUsage(this, Constants.WIDTH / 2 - 650 / 2 + 110, Constants.HEIGHT / 2 + 230);
     createMoveUsage(this, Constants.WIDTH / 2 - 650 / 2 + 320, Constants.HEIGHT / 2 + 180);
     createItemUsage(this, Constants.WIDTH / 2 - 650 / 2 + 460, Constants.HEIGHT / 2 + 160);
+    addGitButton(this, Constants.WIDTH - 50, Constants.HEIGHT - 50);
   }
 }
