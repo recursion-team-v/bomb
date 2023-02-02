@@ -2,23 +2,24 @@ import GameEngine from '../../rooms/GameEngine';
 import * as Constants from '../../constants/constants';
 import { getWallArr, spiralOrder } from '../../utils/map';
 import Matter from 'matter-js';
+import GameMap from '../../rooms/schema/GameMap';
 
-export default function dropWalls(engine: GameEngine) {
+export default function dropWalls(engine: GameEngine, gameMap: GameMap) {
   const clock = engine.room.clock;
-  const walls = getWallArr();
+  const walls = getWallArr(gameMap.getRows(), gameMap.getCols());
   const spiralOrderWalls = spiralOrder(walls);
 
   // 一定時間ごとに壁を落とす
   clock.setInterval(() => {
     const wallIdx = spiralOrderWalls.shift();
-    if (wallIdx !== undefined) dropWall(engine, wallIdx);
+    if (wallIdx !== undefined) dropWall(engine, wallIdx, gameMap.getCols());
   }, Constants.DROP_WALL_DURATION);
 }
 
-function dropWall(engine: GameEngine, wallIndex: number) {
+function dropWall(engine: GameEngine, wallIndex: number, mapCols: number) {
   // 新しい壁を生成する
-  const x = wallIndex % (Constants.TILE_COLS - 2);
-  const y = Math.floor(wallIndex / (Constants.TILE_COLS - 2));
+  const x = wallIndex % (mapCols - 2);
+  const y = Math.floor(wallIndex / (mapCols - 2));
 
   const wallX = Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * (x + 1);
   const wallY =

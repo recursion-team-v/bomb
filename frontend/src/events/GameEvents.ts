@@ -4,6 +4,7 @@ export enum Event {
   START_GAME = 'start-game',
   PLAYER_IS_READY = 'player-is-ready',
   ROOMS_UPDATED = 'rooms-updated',
+  GAME_DATA_LOADED = 'game-data-loaded',
   // ゲーム開始前の準備(演出)が完了し、プレイヤーが操作できるようになった
   GAME_PREPARING_COMPLETED = 'game-preparing-completed',
   MY_PLAYER_JOINED_ROOM = 'my-player-joined-room',

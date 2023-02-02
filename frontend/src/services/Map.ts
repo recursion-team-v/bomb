@@ -48,12 +48,12 @@ export function getHighestPriorityFromBodies(
   return highestPriority;
 }
 
-export function dropWalls() {
+export function dropWalls(mapRows: number, mapCols: number) {
   const game = getGameScene();
   const tweenTimeline = game.tweens.createTimeline();
 
   // 現在のマップのうち壁の内側の部分を取得
-  const walls = getWallArr();
+  const walls = getWallArr(mapRows, mapCols);
 
   // その部分を螺旋状に並べ替える
   const spiralOrderWall = spiralOrder(walls);
@@ -62,8 +62,8 @@ export function dropWalls() {
   const frame = 13;
   // 並べ替えた部分を順番に落とす
   for (let i = 0; i < spiralOrderWall.length; i++) {
-    const x = spiralOrderWall[i] % (Constants.TILE_COLS - 2);
-    const y = Math.floor(spiralOrderWall[i] / (Constants.TILE_COLS - 2));
+    const x = spiralOrderWall[i] % (mapCols - 2);
+    const y = Math.floor(spiralOrderWall[i] / (mapCols - 2));
     const wall = game.add.dropWall(
       Constants.TILE_WIDTH / 2 + Constants.TILE_WIDTH * (x + 1),
       Constants.HEADER_HEIGHT +

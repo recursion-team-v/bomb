@@ -13,6 +13,15 @@ export default class MapService {
     this.gameEngine = gameEngine;
   }
 
+  addMapToWorld(rows: number, cols: number) {
+    // マップを Matter に追加して送られた rows, cols を gameMap に保存する
+    this.gameEngine.state.gameMap.setRows(rows);
+    this.gameEngine.state.gameMap.setCols(cols);
+    this.gameEngine.state.gameMap.generateBlockArr();
+    this.createMapWalls(rows, cols);
+    this.createMapBlocks(rows, cols, this.gameEngine.state.gameMap.blockArr);
+  }
+
   createMapWalls(rows: number, cols: number) {
     const tileWidth = Constants.TILE_WIDTH;
     const tileHeight = Constants.TILE_HEIGHT;

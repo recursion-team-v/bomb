@@ -1,6 +1,5 @@
 import { Client, Room, RoomAvailable } from 'colyseus.js';
 import TimeSync, { create as TimeCreate } from 'timesync';
-
 import * as Constants from '../../../backend/src/constants/constants';
 import ServerBlast from '../../../backend/src/rooms/schema/Blast';
 import ServerBlock from '../../../backend/src/rooms/schema/Block';
@@ -9,23 +8,17 @@ import GameResult from '../../../backend/src/rooms/schema/GameResult';
 import GameRoomState from '../../../backend/src/rooms/schema/GameRoomState';
 import ServerItem from '../../../backend/src/rooms/schema/Item';
 import ServerPlayer from '../../../backend/src/rooms/schema/Player';
-import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 import MyPlayer from '../characters/MyPlayer';
 import Player from '../characters/Player';
+import {
+  IGameStartInfo,
+  ISerializedGameData,
+  IGameSettings,
+  IRoomCreateData,
+} from '../../../backend/src/types/gameRoom';
 import * as Config from '../config/config';
 import { Event, gameEvents } from '../events/GameEvents';
 import { IS_FRONTEND_DEBUG } from '../config/config';
-
-export interface IRoomData {
-  name: string;
-  password: string | null;
-  autoDispose: boolean;
-  playerName: string;
-}
-
-export interface IGameStartInfo {
-  serverTimer: ServerTimer;
-}
 
 export default class Network {
   private readonly client: Client;
@@ -73,22 +66,14 @@ export default class Network {
     });
   }
 
-  async createAndJoinCustomRoom(roomData: IRoomData) {
-    const { name, password, autoDispose, playerName } = roomData;
-    this.room = await this.client.create(Constants.GAME_CUSTOM_ROOM_KEY, {
-      name,
-      password,
-      autoDispose,
-      playerName,
-    });
-    await this.initialize();
-    this.sendPlayerGameState(Constants.PLAYER_GAME_STATE.WAITING);
+  async createAndJoinCustomRoom(roomData: IRoomCreateData) {
+    this.room = await this.client.create(Constants.GAME_CUSTOM_ROOM_KEY, roomData);
+    this.initialize();
   }
 
   async joinCustomRoom(roomId: string, password: string | null, playerName: string) {
     this.room = await this.client.joinById(roomId, { playerName, password });
     this.initialize();
-    this.sendPlayerGameState(Constants.PLAYER_GAME_STATE.WAITING);
   }
 
   initialize() {
@@ -154,6 +139,10 @@ export default class Network {
       if (player === undefined) return;
       gameEvents.emit(Event.PLAYER_IS_READY, player);
     });
+
+    this.room.onMessage(Constants.NOTIFICATION_TYPE.GAME_DATA, (data: ISerializedGameData) => {
+      gameEvents.emit(Event.GAME_DATA_LOADED, data);
+    });
   }
 
   // 部屋退出
@@ -182,6 +171,11 @@ export default class Network {
   // 他のプレイヤーがルームを退出した時
   onPlayerLeftRoom(callback: (player: ServerPlayer, sessionId: string) => void, context?: any) {
     gameEvents.on(Event.PLAYER_LEFT_ROOM, callback, context);
+  }
+
+  // ゲームデータを受け取った時
+  onGameDataLoaded(callback: (data: ISerializedGameData) => void, context?: any) {
+    gameEvents.on(Event.GAME_DATA_LOADED, callback, context);
   }
 
   // プレイヤーがボムを追加した時
@@ -231,6 +225,7 @@ export default class Network {
     gameEvents.on(Event.START_GAME, callback, context);
   }
 
+  // 他のプレイヤーが準備完了した時
   onPlayerIsReady(callback: (player: ServerPlayer) => void, context?: any) {
     gameEvents.on(Event.PLAYER_IS_READY, callback, context);
   }
@@ -250,9 +245,14 @@ export default class Network {
     this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_BOMB, player);
   }
 
-  // 自分のゲーム状態を送る
-  sendPlayerGameState(state: Constants.PLAYER_GAME_STATE_TYPE) {
-    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_GAME_STATE, state);
+  // 自分の準備完了を送る (その時のゲーム設定も送る)
+  sendPlayerIsReady(data: IGameSettings) {
+    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_IS_READY, data);
+  }
+
+  // 自分のゲームデータ読み込み完了を送る
+  sendPlayerIsLoadingComplete() {
+    this.room?.send(Constants.NOTIFICATION_TYPE.PLAYER_IS_LOADING_COMPLETE);
   }
 
   // デバッグ用

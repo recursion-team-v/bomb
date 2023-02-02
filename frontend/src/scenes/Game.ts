@@ -41,6 +41,8 @@ import GameResult from '../../../backend/src/rooms/schema/GameResult';
 import ServerTimer from '../../../backend/src/rooms/schema/Timer';
 import { getWinner } from '../utils/result';
 import EnemyPlayer from '../characters/EnemyPlayer';
+import { IGameData } from '../../../backend/src/types/gameRoom';
+import { calcGameScreen } from '../utils/calcGameScreen';
 import { IS_FRONTEND_DEBUG } from '../config/config';
 import { addDebugMenu, debugOptions } from '../utils/debug_menu';
 import GridTable from 'phaser3-rex-plugins/templates/ui/gridtable/GridTable';
@@ -50,6 +52,9 @@ export default class Game extends Phaser.Scene {
   private network!: Network;
   private serverTimer?: ServerTimer;
   private room!: Room<GameRoomState>;
+
+  private screenWidth = Constants.DEFAULT_WIDTH;
+  private screenHeight = Constants.DEFAULT_HEIGHT;
 
   private cursorKeys!: NavKeys;
   private rows!: number; // サーバから受け取ったマップの行数
@@ -118,39 +123,35 @@ export default class Game extends Phaser.Scene {
     this.loseBgm = this.sound.add('lose', {
       volume: Config.SOUND_VOLUME,
     });
-
-    this.upTitle = this.add.image(0, Constants.HEIGHT / 2, Config.ASSET_KEY_BATTLE_START_UP);
-    this.downTitle = this.add.image(
-      Constants.WIDTH,
-      Constants.HEIGHT / 2 + 42,
-      Config.ASSET_KEY_BATTLE_START_DOWN
-    );
-
-    this.tweens.add({
-      targets: this.upTitle,
-      x: Constants.WIDTH / 2,
-      duration: 300,
-    });
-    this.tweens.add({
-      targets: this.downTitle,
-      x: Constants.WIDTH / 2,
-      duration: 300,
-    });
-
-    this.title = this.add.container(0, 0, [this.upTitle, this.downTitle]).setDepth(1000);
   }
 
-  create(data: { network: Network; serverTimer: ServerTimer }) {
+  create(data: { network: Network; serverTimer: ServerTimer; gameData: IGameData }) {
     if (data.network == null) return;
     this.network = data.network;
     if (this.network.room == null) return;
     this.room = this.network.room;
+
     this.serverTimer = data.serverTimer;
+    if (data.gameData.mapRows !== undefined) this.rows = data.gameData.mapRows;
+    if (data.gameData.mapCols !== undefined) this.cols = data.gameData.mapCols;
+
+    const { width, height } = calcGameScreen(this.rows, this.cols);
+    this.screenWidth = width;
+    this.screenHeight = height;
+    this.scale.setGameSize(this.screenWidth, this.screenHeight);
+
+    this.addGameStartTitle();
 
     // プレイヤーをゲームに追加
     this.addPlayers();
     // Colyseus のイベントを追加
     this.initNetworkEvents();
+
+    drawGround(this, this.rows, this.cols); // draw ground
+    drawWalls(this, this.rows, this.cols); // draw walls
+    if (data.gameData.blocks !== undefined) {
+      this.currBlocks = drawBlocks(this, data.gameData.blocks); // draw blocks
+    }
 
     if (IS_FRONTEND_DEBUG) {
       // キー入力を有効化
@@ -165,16 +166,6 @@ export default class Game extends Phaser.Scene {
         this
       );
     }
-
-    // TODO: Preloader（Lobby）で読み込んで Game Scene に渡す
-    this.room.onStateChange.once((state) => {
-      this.rows = state.gameMap.rows;
-      this.cols = state.gameMap.cols;
-
-      drawGround(this); // draw ground
-      drawWalls(this); // draw walls
-      this.currBlocks = drawBlocks(this, state.blocks); // draw blocks
-    });
 
     // 演出が終わったらゲームを開始
     gameEvents.on(Event.GAME_PREPARING_COMPLETED, () => this.handleGamePreparingCompleted());
@@ -210,7 +201,7 @@ export default class Game extends Phaser.Scene {
       this.serverTimer.finishedAt - this.network.now() <=
       Constants.INGAME_EVENT_DROP_WALLS_TIME
     ) {
-      if (!this.IsFinishedDropWallsEvent) dropWalls();
+      if (!this.IsFinishedDropWallsEvent) dropWalls(this.rows, this.cols);
       this.IsFinishedDropWallsEvent = true;
     }
   }
@@ -243,16 +234,38 @@ export default class Game extends Phaser.Scene {
     }
   }
 
+  private addGameStartTitle() {
+    this.upTitle = this.add.image(0, this.screenHeight / 2, Config.ASSET_KEY_BATTLE_START_UP);
+    this.downTitle = this.add.image(
+      this.screenWidth,
+      this.screenHeight / 2 + 42,
+      Config.ASSET_KEY_BATTLE_START_DOWN
+    );
+
+    this.tweens.add({
+      targets: this.upTitle,
+      x: this.screenWidth / 2,
+      duration: 300,
+    });
+    this.tweens.add({
+      targets: this.downTitle,
+      x: this.screenWidth / 2,
+      duration: 300,
+    });
+
+    this.title = this.add.container(0, 0, [this.upTitle, this.downTitle]).setDepth(1000);
+  }
+
   private handleGamePreparingCompleted() {
     this.tweens.add({
       targets: this.upTitle,
-      x: -Constants.WIDTH,
+      x: -Constants.DEFAULT_WIDTH,
       duration: 300,
       ease: Phaser.Math.Easing.Quadratic.In,
     });
     this.tweens.add({
       targets: this.downTitle,
-      x: Constants.WIDTH * 2,
+      x: Constants.DEFAULT_WIDTH * 2,
       duration: 300,
       ease: Phaser.Math.Easing.Quadratic.In,
     });

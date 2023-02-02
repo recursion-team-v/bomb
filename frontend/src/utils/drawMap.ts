@@ -1,16 +1,12 @@
-import { MapSchema } from '@colyseus/schema';
-
 import * as Constants from '../../../backend/src/constants/constants';
-import Block from '../../../backend/src/rooms/schema/Block';
+import ServerBlock from '../../../backend/src/rooms/schema/Block';
 import { Event, gameEvents } from '../events/GameEvents';
 import { Block as BlockBody } from '../items/Block';
 
-const rows = Constants.TILE_ROWS;
-const cols = Constants.TILE_COLS;
 const tileWidth = Constants.TILE_WIDTH;
 const tileHeight = Constants.TILE_HEIGHT;
 
-export const drawGround = (scene: Phaser.Scene) => {
+export const drawGround = (scene: Phaser.Scene, rows: number, cols: number) => {
   for (let y = 1; y < rows - 1; y++) {
     for (let x = 1; x < cols - 1; x++) {
       const random = Phaser.Math.Between(0, 10);
@@ -27,7 +23,7 @@ export const drawGround = (scene: Phaser.Scene) => {
   }
 };
 
-export const drawWalls = (scene: Phaser.Scene) => {
+export const drawWalls = (scene: Phaser.Scene, rows: number, cols: number) => {
   for (let x = 0; x < cols; x++) {
     if (x === 0) {
       addOuterWall(scene, x, 0, Constants.GROUND_TYPES.top_left);
@@ -55,12 +51,12 @@ export const drawWalls = (scene: Phaser.Scene) => {
   }
 };
 
-export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
+export const drawBlocks = (scene: Phaser.Scene, blocks: Map<string, ServerBlock>) => {
   const currBlocks = new Map<string, BlockBody>();
   let eventCount = 0;
   let flag = true;
 
-  blocks.forEach((block) => {
+  for (const block of blocks.values()) {
     const random = Math.random();
     let randomHeight = random * Constants.GAME_PREPARING_TIME * 1000;
     if (flag) {
@@ -102,7 +98,7 @@ export const drawBlocks = (scene: Phaser.Scene, blocks: MapSchema<Block>) => {
         }
       },
     });
-  });
+  }
 
   return currBlocks;
 };

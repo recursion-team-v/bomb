@@ -5,6 +5,7 @@ import GameEngine from '../../rooms/GameEngine';
 import { Bomb } from '../../rooms/schema/Bomb';
 import Item from '../../rooms/schema/Item';
 import Player from '../../rooms/schema/Player';
+import { getInitialPlayerPos } from '../../utils/getInitialPlayerPos';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class PlayerService {
@@ -14,19 +15,17 @@ export default class PlayerService {
     this.gameEngine = gameEngine;
   }
 
-  deletePlayer(sessionId: string) {
-    const playerBody = this.gameEngine.playerBodies.get(sessionId);
-    if (playerBody === undefined) return;
+  // プレイヤー body を Matter に追加する
+  addPlayerToWorld(player: Player) {
+    // プレイヤーの初期値を計算する
+    const { x, y } = getInitialPlayerPos(
+      this.gameEngine.state.gameMap.getRows(),
+      this.gameEngine.state.gameMap.getCols(),
+      player.idx
+    );
+    player.x = x;
+    player.y = y;
 
-    Matter.Composite.remove(this.gameEngine.world, playerBody);
-    this.gameEngine.playerBodies.delete(sessionId);
-    this.gameEngine.sessionIdByBodyId.delete(playerBody.id);
-    this.gameEngine.state.players.delete(sessionId);
-  }
-
-  addPlayer(sessionId: string, playerName: string) {
-    const player = this.gameEngine.state.createPlayer(sessionId, playerName);
-    if (player === undefined) return;
     const playerBody = Matter.Bodies.rectangle(
       player.x,
       player.y,
@@ -45,12 +44,27 @@ export default class PlayerService {
       }
     );
 
-    this.gameEngine.playerBodies.set(sessionId, playerBody);
-    this.gameEngine.sessionIdByBodyId.set(playerBody.id, sessionId);
+    this.gameEngine.playerBodies.set(player.sessionId, playerBody);
+    this.gameEngine.sessionIdByBodyId.set(playerBody.id, player.sessionId);
 
     Matter.Composite.add(this.gameEngine.world, [playerBody]);
     playerBody.collisionFilter.category = Constants.COLLISION_CATEGORY.PLAYER;
     playerBody.collisionFilter.mask = Constants.COLLISION_CATEGORY.DEFAULT;
+  }
+
+  deletePlayer(sessionId: string) {
+    const playerBody = this.gameEngine.playerBodies.get(sessionId);
+    if (playerBody === undefined) return;
+
+    Matter.Composite.remove(this.gameEngine.world, playerBody);
+    this.gameEngine.playerBodies.delete(sessionId);
+    this.gameEngine.sessionIdByBodyId.delete(playerBody.id);
+    this.gameEngine.state.players.delete(sessionId);
+  }
+
+  // GameRoomState にプレイヤーを追加する
+  addPlayer(sessionId: string, playerName: string) {
+    this.gameEngine.state.createPlayer(sessionId, playerName);
   }
 
   updatePlayer(player: Player, deltaTime?: number) {

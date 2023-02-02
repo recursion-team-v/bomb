@@ -19,6 +19,7 @@ import {
   sumOfProductsSynthesis,
   treatLevelMapByBomb,
 } from '../../utils/calc';
+import { getInitialPlayerPos } from '../../utils/getInitialPlayerPos';
 import { TileToPixel } from '../../utils/map';
 import { IS_BACKEND_DEBUG } from '../../index';
 
@@ -33,6 +34,16 @@ export default class EnemyService {
   // add のみメソッドが違うので別に定義する
   addEnemy(sessionId: string): Enemy {
     const enemy = this.gameEngine.state.createEnemy(sessionId);
+
+    // プレイヤーの初期値を計算する
+    const { x, y } = getInitialPlayerPos(
+      this.gameEngine.state.gameMap.getRows(),
+      this.gameEngine.state.gameMap.getCols(),
+      enemy.idx
+    );
+    enemy.x = x;
+    enemy.y = y;
+
     const enemyBody = Matter.Bodies.rectangle(
       enemy.x,
       enemy.y,
@@ -169,7 +180,9 @@ export default class EnemyService {
       // 離れているほど評価が高くなる
       const farFromOtherPlayerMap = reverseNormalizeDimension(
         normalizeDimension(
-          influenceToOtherTile(getOtherPlayersMap(enemy.sessionId, state.getAvailablePlayers()))
+          influenceToOtherTile(
+            getOtherPlayersMap(enemy.sessionId, state.getAvailablePlayers(), state.gameMap)
+          )
         )
       );
 
@@ -180,10 +193,10 @@ export default class EnemyService {
 
       // 計算量が多いので、ブロックの数が一定数以下の場合は計算しない
       const currentBlocks = blockMap.flat().filter((row) => row === 1).length;
+      const mapRows = this.gameEngine.state.gameMap.getRows();
+      const mapCols = this.gameEngine.state.gameMap.getCols();
       const mapSizeWithoutWall =
-        (Constants.TILE_COLS - 2) * (Constants.TILE_ROWS - 2) -
-        (Constants.TILE_COLS / 2 - 1) -
-        (Constants.TILE_ROWS / 2 - 1);
+        (mapCols - 2) * (mapRows - 2) - (mapCols / 2 - 1) - (mapRows / 2 - 1);
 
       if (currentBlocks / mapSizeWithoutWall >= 0.65) {
         goodBombPlaceMap = influenceToOtherTile(

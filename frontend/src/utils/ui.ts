@@ -214,8 +214,8 @@ export const flipPlayerCard = (
 export const createGridTable = (scene: Phaser.Scene, availableRooms: IAvailableRoom[]) => {
   const gridTable = scene.rexUI.add
     .gridTable({
-      x: Constants.WIDTH / 2,
-      y: Constants.HEIGHT / 5 + 300,
+      x: Constants.DEFAULT_WIDTH / 2,
+      y: Constants.DEFAULT_HEIGHT / 5 + 300,
       width: 400,
       height: 400,
       scrollMode: 0,

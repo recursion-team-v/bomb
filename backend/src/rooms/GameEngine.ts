@@ -55,14 +55,6 @@ export default class GameEngine {
   }
 
   init() {
-    // create map
-    this.mapService.createMapWalls(this.state.gameMap.rows, this.state.gameMap.cols);
-    this.mapService.createMapBlocks(
-      this.state.gameMap.rows,
-      this.state.gameMap.cols,
-      this.state.gameMap.blockArr
-    );
-
     this.initUpdateEvents();
     this.initCollision();
   }

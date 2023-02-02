@@ -1,6 +1,7 @@
 import { Schema, type } from '@colyseus/schema';
 
 import * as Constants from '../../constants/constants';
+import { getInitialPlayerPos } from '../../utils/getInitialPlayerPos';
 import { PixelToTile } from '../../utils/map';
 import { validateAndFixUserName } from '../../utils/validation';
 import { IS_BACKEND_DEBUG } from '../../index';
@@ -84,8 +85,15 @@ export default class Player extends Schema {
     this.character = Constants.CHARACTERS[idx];
     this.name = validateAndFixUserName(name);
     this.hp = Constants.INITIAL_PLAYER_HP;
-    this.x = Constants.INITIAL_PLAYER_POSITION[idx].x;
-    this.y = Constants.INITIAL_PLAYER_POSITION[idx].y;
+
+    const { x, y } = getInitialPlayerPos(
+      Constants.DEFAULT_TILE_ROWS,
+      Constants.DEFAULT_TILE_COLS,
+      this.idx
+    );
+    this.x = x;
+    this.y = y;
+
     this.bombType = Constants.BOMB_TYPE.NORMAL;
     this.bombStrength = Constants.INITIAL_BOMB_STRENGTH;
     this.currentSetBombCount = 0;
@@ -189,8 +197,16 @@ export default class Player extends Schema {
     }
   }
 
-  setGameState(gameState: Constants.PLAYER_GAME_STATE_TYPE) {
-    this.gameState = gameState;
+  setIsWaiting() {
+    this.gameState = Constants.PLAYER_GAME_STATE.WAITING;
+  }
+
+  setIsReady() {
+    this.gameState = Constants.PLAYER_GAME_STATE.READY;
+  }
+
+  setIsLoadingComplete() {
+    this.gameState = Constants.PLAYER_GAME_STATE.LOADING_COMPLETE;
   }
 
   isWaiting() {
@@ -199,6 +215,10 @@ export default class Player extends Schema {
 
   isReady() {
     return this.gameState === Constants.PLAYER_GAME_STATE.READY;
+  }
+
+  isLoadingComplete() {
+    return this.gameState === Constants.PLAYER_GAME_STATE.LOADING_COMPLETE;
   }
 
   setPlayerName(playerName: string) {

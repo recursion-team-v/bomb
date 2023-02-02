@@ -26,12 +26,12 @@ export function spiralOrder(matrix: number[][]): number[] {
   return result;
 }
 
-export function getWallArr(): number[][] {
+export function getWallArr(mapRows: number, mapCols: number): number[][] {
   const walls: number[][] = [];
-  for (let y = 0; y < Constants.TILE_ROWS - 2; y++) {
-    for (let x = 0; x < Constants.TILE_COLS - 2; x++) {
+  for (let y = 0; y < mapRows - 2; y++) {
+    for (let x = 0; x < mapCols - 2; x++) {
       if (walls[y] === undefined) walls[y] = [];
-      walls[y].push(x + (Constants.TILE_COLS - 2) * y);
+      walls[y].push(x + (mapCols - 2) * y);
     }
   }
   return walls;
