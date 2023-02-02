@@ -42,6 +42,8 @@ export default class Preloader extends Phaser.Scene {
       });
     }
 
+    this.load.image('cloud', 'assets/cloud.png');
+
     this.load.spritesheet('bomb', 'assets/items/bomb/bomb.png', {
       frameWidth,
       frameHeight,
