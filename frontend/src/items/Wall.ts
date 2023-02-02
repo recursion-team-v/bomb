@@ -5,7 +5,7 @@ import { getDepth } from './util';
 
 export class InnerWall extends Phaser.Physics.Matter.Sprite {
   constructor(world: Phaser.Physics.Matter.World, x: number, y: number, texture: string) {
-    super(world, x, y, Constants.OBJECT_LABEL.BLOCK, 0);
+    super(world, x, y, texture, 0);
 
     this.setScale(1, 0.9);
     const random = Phaser.Math.Between(0, 10);
