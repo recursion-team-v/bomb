@@ -53,8 +53,8 @@ export default class Game extends Phaser.Scene {
   private serverTimer?: ServerTimer;
   private room!: Room<GameRoomState>;
 
-  private screenWidth = Constants.DEFAULT_WIDTH;
-  private screenHeight = Constants.DEFAULT_HEIGHT;
+  private screenWidth!: number;
+  private screenHeight!: number;
 
   private cursorKeys!: NavKeys;
   private rows!: number; // サーバから受け取ったマップの行数
@@ -259,13 +259,13 @@ export default class Game extends Phaser.Scene {
   private handleGamePreparingCompleted() {
     this.tweens.add({
       targets: this.upTitle,
-      x: -Constants.DEFAULT_WIDTH,
+      x: -this.screenWidth,
       duration: 300,
       ease: Phaser.Math.Easing.Quadratic.In,
     });
     this.tweens.add({
       targets: this.downTitle,
-      x: Constants.DEFAULT_WIDTH * 2,
+      x: this.screenWidth * 2,
       duration: 300,
       ease: Phaser.Math.Easing.Quadratic.In,
     });

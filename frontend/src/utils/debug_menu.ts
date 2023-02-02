@@ -5,8 +5,8 @@ import * as Constants from '../../../backend/src/constants/constants';
 export function addDebugMenu(scene: Phaser.Scene): GridTable {
   return scene.rexUI.add
     .gridTable({
-      x: Constants.DEFAULT_WIDTH / 2,
-      y: Constants.DEFAULT_HEIGHT / 5 + 300,
+      x: scene.cameras.main.width / 2,
+      y: scene.cameras.main.height / 5 + 300,
       width: 400,
       height: 400,
       scrollMode: 0,
