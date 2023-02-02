@@ -16,12 +16,12 @@ export default class Timer extends Schema {
   private now!: number;
 
   // 制限時間をセットする
-  set(epochtime: number) {
+  set(epochtime: number, timeLimitSec: Constants.ROOM_INFO_TIME_LIMIT_SEC_TYPES) {
     this.startedAt = epochtime;
 
     // 終了時間は開始時間から制限時間を足したもの
     // js ではミリ秒単位で計算するので、1000倍している
-    this.finishedAt = epochtime + Constants.TIME_LIMIT_SEC * 1000;
+    this.finishedAt = epochtime + timeLimitSec * 1000;
 
     this.now = Date.now();
   }

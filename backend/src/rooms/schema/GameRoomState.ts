@@ -101,7 +101,7 @@ export default class GameRoomState extends Schema {
   }
 
   setTimer() {
-    this.timer.set(Date.now());
+    this.timer.set(Date.now(), this.room.timeLimit);
   }
 
   setGameResult() {

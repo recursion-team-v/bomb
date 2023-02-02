@@ -335,10 +335,10 @@ export const PLAYER_TOLERANCE_DISTANCE = 100;
 
 // ゲームの制限時間
 export const GAME_PREPARING_TIME = 5; // ゲーム開始演出の時間
-export const TIME_LIMIT_SEC = 120 + 1 + GAME_PREPARING_TIME; // (+1秒するといい感じに表示される)
 
 // ルームの制限時間の定義
 export const ROOM_INFO_TIME_LIMIT_SEC = {
+  // +1秒するといい感じに表示される
   1: 60 + 1 + GAME_PREPARING_TIME,
   2: 120 + 1 + GAME_PREPARING_TIME,
   3: 180 + 1 + GAME_PREPARING_TIME,
