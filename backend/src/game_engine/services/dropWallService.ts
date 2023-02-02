@@ -6,7 +6,7 @@ import GameMap from '../../rooms/schema/GameMap';
 
 export default function dropWalls(engine: GameEngine, gameMap: GameMap) {
   const clock = engine.room.clock;
-  const walls = getWallArr(gameMap);
+  const walls = getWallArr(gameMap.getRows(), gameMap.getCols());
   const spiralOrderWalls = spiralOrder(walls);
 
   // 一定時間ごとに壁を落とす

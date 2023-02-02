@@ -196,7 +196,7 @@ export default class Game extends Phaser.Scene {
       this.serverTimer.finishedAt - this.network.now() <=
       Constants.INGAME_EVENT_DROP_WALLS_TIME
     ) {
-      if (!this.IsFinishedDropWallsEvent) dropWalls();
+      if (!this.IsFinishedDropWallsEvent) dropWalls(this.rows, this.cols);
       this.IsFinishedDropWallsEvent = true;
     }
   }
