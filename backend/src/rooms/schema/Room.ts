@@ -29,7 +29,7 @@ export default class Room extends Schema {
 
   // ゲームの制限時間
   @type('number')
-  timeLimit: Constants.ROOM_INFO_TIME_LIMIT_SEC_TYPES;
+  timeLimitSec: number;
 
   constructor(
     rows: number = Constants.DEFAULT_TILE_ROWS,
@@ -40,7 +40,7 @@ export default class Room extends Schema {
     numberOfItems: Record<Constants.ITEM_TYPES, number> = Constants.ITEM_PLACE_COUNT,
     initialHp: number = Constants.INITIAL_PLAYER_HP,
     maxHp: number = Constants.MAX_PLAYER_HP,
-    timeLimit: Constants.ROOM_INFO_TIME_LIMIT_SEC_TYPES = Constants.ROOM_INFO_DEFAULT_TIME_LIMIT_SEC
+    timeLimitSec: number = Constants.DEFAULT_TIME_LIMIT_SEC
   ) {
     super();
     this.mapRows = rows; // TODO: 何らかの制限を加える
@@ -50,7 +50,7 @@ export default class Room extends Schema {
     this.numberOfItems = this.calcNumberOfItems(numberOfItems);
     this.maxHp = maxHp > Constants.LIMIT_PLAYER_HP ? Constants.LIMIT_PLAYER_HP : maxHp;
     this.initialHp = this.calcInitialHp(initialHp, maxHp);
-    this.timeLimit = timeLimit;
+    this.timeLimitSec = timeLimitSec + Constants.GAME_PREPARING_TIME + 1;
   }
 
   calcNumberOfEnemy(numberOfEnemies: number, numberOfPlayers: number): number {

@@ -186,7 +186,7 @@ export default class EnemyService {
         )
       );
 
-      const gameStep = enemy.getStep(state.timer, state.room.timeLimit);
+      const gameStep = enemy.getStep(state.timer, state.room.timeLimitSec);
 
       // 爆弾をおいたときに、一度に破壊できるブロックが多い場所を評価するマップを作成する
       let goodBombPlaceMap: number[][] = [];
@@ -328,7 +328,7 @@ export default class EnemyService {
           highPriorityForBlastRadiusMap,
           enemy,
           state.timer,
-          state.room.timeLimit
+          state.room.timeLimitSec
         );
       }
     }

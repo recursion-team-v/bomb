@@ -15,13 +15,12 @@ export interface IGameStartInfo {
 export interface IGameSettings {
   mapRows: number;
   mapCols: number;
-  numberOfPlayers: number;
   numberOfEnemies: number;
   blockRate: Constants.ROOM_INFO_BLOCK_PLACEMENT_RATES;
   numberOfItems: Record<Constants.ITEM_TYPES, number>;
   initialHp: number;
   maxHp: number;
-  timeLimit: Constants.ROOM_INFO_TIME_LIMIT_SEC_TYPES;
+  timeLimitSec: number;
 }
 
 // 全クライアントがゲーム準備完了後に送るデータの型（blocks をJSON形式にシリアライズしたもの）

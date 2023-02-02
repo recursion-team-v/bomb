@@ -336,21 +336,11 @@ export const PLAYER_TOLERANCE_DISTANCE = 100;
 // ゲームの制限時間
 export const GAME_PREPARING_TIME = 5; // ゲーム開始演出の時間
 
-// ルームの制限時間の定義
-export const ROOM_INFO_TIME_LIMIT_SEC = {
-  // +1秒するといい感じに表示される
-  1: 60 + 1 + GAME_PREPARING_TIME,
-  2: 120 + 1 + GAME_PREPARING_TIME,
-  3: 180 + 1 + GAME_PREPARING_TIME,
-  4: 240 + 1 + GAME_PREPARING_TIME,
-  5: 300 + 1 + GAME_PREPARING_TIME,
-};
-
-export type ROOM_INFO_TIME_LIMIT_SEC_TYPES =
-  typeof ROOM_INFO_TIME_LIMIT_SEC[keyof typeof ROOM_INFO_TIME_LIMIT_SEC];
-
 // デフォルトのルームの制限時間
-export const ROOM_INFO_DEFAULT_TIME_LIMIT_SEC = ROOM_INFO_TIME_LIMIT_SEC[2];
+export const DEFAULT_TIME_LIMIT_SEC = 120; // 2分
+
+// 最大のルームの制限時間
+export const MAX_TIME_LIMIT_SEC = 300; // 5分
 
 /*
 アイテムの定義

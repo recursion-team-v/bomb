@@ -3,14 +3,14 @@ import Phaser from 'phaser';
 import * as Constants from '../../../backend/src/constants/constants';
 import { createBombAnims, createPenetrationBombAnims } from '../anims/BombAnims';
 import { createCharacterAnims } from '../anims/CharacterAnims';
-import { createExplodeAnims, createPenetrationExplodeAnims } from '../anims/explodeAnims';
-import { createTrophyAnims } from '../anims/TrophyAnims';
 import { createCurtainOpenAnims } from '../anims/CurtainAnims';
+import { createExplodeAnims, createPenetrationExplodeAnims } from '../anims/explodeAnims';
+import { createMapAnims } from '../anims/MapAnims';
+import { createTitleBackgroundAnims } from '../anims/TitleBackground';
+import { createTrophyAnims } from '../anims/TrophyAnims';
 import * as Config from '../config/config';
 import Network from '../services/Network';
 import isMobile from '../utils/mobile';
-import { createMapAnims } from '../anims/MapAnims';
-import { createTitleBackgroundAnims } from '../anims/TitleBackground';
 
 export default class Preloader extends Phaser.Scene {
   private preloadComplete = false;

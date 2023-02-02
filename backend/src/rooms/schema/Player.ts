@@ -253,7 +253,7 @@ export default class Player extends Schema {
   // プレイヤーのステータスを最強にする
   debugSetPlayerStatusMax() {
     if (!IS_BACKEND_DEBUG) return;
-    this.hp = Constants.MAX_PLAYER_HP;
+    this.hp = this.maxHp;
     this.speed = Constants.MAX_PLAYER_SPEED;
     this.maxBombCount = Constants.MAX_SETTABLE_BOMB_COUNT;
     this.bombStrength = Constants.MAX_BOMB_STRENGTH;

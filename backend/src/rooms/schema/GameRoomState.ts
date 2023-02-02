@@ -55,13 +55,13 @@ export default class GameRoomState extends Schema {
     this.room = new Room(
       config.mapRows,
       config.mapCols,
-      config.numberOfPlayers,
+      this.players.size,
       config.numberOfEnemies,
       config.blockRate,
       config.numberOfItems,
       config.initialHp,
       config.maxHp,
-      config.timeLimit
+      config.timeLimitSec
     );
 
     this.gameMap = new GameMap(this.room.mapRows, this.room.mapCols, this.room.blockRate);
@@ -101,7 +101,7 @@ export default class GameRoomState extends Schema {
   }
 
   setTimer() {
-    this.timer.set(Date.now(), this.room.timeLimit);
+    this.timer.set(Date.now(), this.room.timeLimitSec);
   }
 
   setGameResult() {

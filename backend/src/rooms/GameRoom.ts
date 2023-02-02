@@ -49,7 +49,6 @@ export default class GameRoom extends Room<GameRoomState> {
         this.state.players.forEach((player) => (isLobbyReady = isLobbyReady && player.isReady()));
         if (isLobbyReady) {
           // room に設定を反映
-          gameSettings.numberOfPlayers = this.state.players.size;
           this.state.initializeRoom(gameSettings);
           this.state.initializePlayers();
 

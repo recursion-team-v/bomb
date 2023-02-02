@@ -16,7 +16,7 @@ export default class Timer extends Schema {
   private now!: number;
 
   // 制限時間をセットする
-  set(epochtime: number, timeLimitSec: Constants.ROOM_INFO_TIME_LIMIT_SEC_TYPES) {
+  set(epochtime: number, timeLimitSec: number) {
     this.startedAt = epochtime;
 
     // 終了時間は開始時間から制限時間を足したもの
