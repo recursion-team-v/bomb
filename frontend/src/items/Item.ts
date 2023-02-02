@@ -5,7 +5,6 @@ import { getDepth } from './util';
 
 export default class Item extends Phaser.Physics.Matter.Sprite {
   public readonly itemType: Constants.ITEM_TYPES;
-  private readonly tween?: Phaser.Tweens.Tween;
 
   constructor(
     world: Phaser.Physics.Matter.World,
@@ -13,7 +12,7 @@ export default class Item extends Phaser.Physics.Matter.Sprite {
     y: number,
     itemType: Constants.ITEM_TYPES
   ) {
-    super(world, x, y + 5, itemType, undefined, {
+    super(world, x, y, itemType, undefined, {
       isSensor: true,
       isStatic: true,
     });
@@ -22,21 +21,11 @@ export default class Item extends Phaser.Physics.Matter.Sprite {
     body.label = Constants.OBJECT_LABEL.ITEM;
 
     this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
-    this.setScale(0.45);
+    this.setScale(0.6);
     this.itemType = itemType;
-
-    this.tween = this.scene.tweens.add({
-      targets: this,
-      y: y - 5,
-      repeat: -1,
-      yoyo: true,
-      duration: 700,
-      ease: Phaser.Math.Easing.Bounce,
-    });
   }
 
   removeItem() {
-    this.tween?.remove();
     this.destroy();
   }
 
