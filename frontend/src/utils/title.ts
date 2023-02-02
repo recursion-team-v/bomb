@@ -85,8 +85,8 @@ export const addBackground = function (scene: Phaser.Scene) {
   scene.add
     .sprite(0, 0, Config.ASSET_KEY_TITLE_BACKGROUND)
     .setOrigin(0, 0)
-    .setScale(1.2)
-    .play(Config.TITLE_BACKGROUND_ANIMATION_KEY, true);
+    .play(Config.TITLE_BACKGROUND_ANIMATION_KEY, true)
+    .setScale(1.24);
 };
 
 export const addGitButton = (scene: Phaser.Scene, x: number, y: number) => {
