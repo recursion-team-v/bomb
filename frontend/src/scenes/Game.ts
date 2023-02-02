@@ -44,6 +44,7 @@ import EnemyPlayer from '../characters/EnemyPlayer';
 import { IS_FRONTEND_DEBUG } from '../config/config';
 import { addDebugMenu, debugOptions } from '../utils/debug_menu';
 import GridTable from 'phaser3-rex-plugins/templates/ui/gridtable/GridTable';
+import { addCloud } from '../services/Cloud';
 
 export default class Game extends Phaser.Scene {
   private network!: Network;
@@ -183,6 +184,10 @@ export default class Game extends Phaser.Scene {
     if (this.myPlayer === undefined) return;
 
     this.timeEventHandler();
+
+    // 雲の生成
+    if (Config.ENABLE_CLOUD && Math.floor(Math.random() * Config.CLOUD_FREQUENCY) === 1)
+      addCloud(this);
 
     // 前回の処理からの経過時間を算出し、1フレームの経過時間を超えていたら処理を実行する
     // https://learn.colyseus.io/phaser/4-fixed-tickrate.html
