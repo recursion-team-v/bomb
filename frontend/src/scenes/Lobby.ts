@@ -1,29 +1,19 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
-import * as Config from '../config/config';
-import * as Constants from '../../../backend/src/constants/constants';
-import Network from '../services/Network';
-import {
-  createButton,
-  createButtons,
-  createDialog,
-  createGridTable,
-  flipPlayerCard,
-} from '../utils/ui';
-import ServerPlayer from '../../../backend/src/rooms/schema/Player';
-import GridTable from 'phaser3-rex-plugins/templates/ui/gridtable/GridTable';
-import Dialog from 'phaser3-rex-plugins/templates/ui/dialog/Dialog';
-import GridSizer from 'phaser3-rex-plugins/templates/ui/gridsizer/GridSizer';
-import Label from 'phaser3-rex-plugins/templates/ui/label/Label';
 import ContainerLite from 'phaser3-rex-plugins/plugins/containerlite';
 import Buttons from 'phaser3-rex-plugins/templates/ui/buttons/Buttons';
+import Dialog from 'phaser3-rex-plugins/templates/ui/dialog/Dialog';
+import GridSizer from 'phaser3-rex-plugins/templates/ui/gridsizer/GridSizer';
+import GridTable from 'phaser3-rex-plugins/templates/ui/gridtable/GridTable';
+import Label from 'phaser3-rex-plugins/templates/ui/label/Label';
+
+import * as Constants from '../../../backend/src/constants/constants';
+import ServerPlayer from '../../../backend/src/rooms/schema/Player';
+import { IGameData, IGameSettings, IGameStartInfo, ISerializedGameData } from '../../../backend/src/types/gameRoom';
+import * as Config from '../config/config';
+import Network from '../services/Network';
 import { isPlay } from '../utils/sound';
 import { addBackground } from '../utils/title';
-import {
-  ISerializedGameData,
-  IGameSettings,
-  IGameStartInfo,
-  IGameData,
-} from '../../../backend/src/types/gameRoom';
+import { createButton, createButtons, createDialog, createGridTable, flipPlayerCard } from '../utils/ui';
 
 export interface IAvailableRoom {
   id: string;
@@ -100,9 +90,16 @@ export default class Lobby extends Phaser.Scene {
   private initGameData() {
     this.gameData = { blocks: undefined, mapRows: undefined, mapCols: undefined };
     // TODO: UI で動的に変更でき、他のクライアントが値を変更した時に更新する
+
     this.gameSettings = {
       mapRows: Constants.DEFAULT_TILE_ROWS, // ここを変更することでルームのマップの幅・高さを設定できる
       mapCols: Constants.DEFAULT_TILE_COLS,
+      numberOfEnemies: 1, // TODO:
+      numberOfItems: Constants.ITEM_PLACE_COUNT,
+      blockRate: 0.5, // TODO:
+      initialHp: 2, // TODO:
+      maxHp: 10, // TODO
+      timeLimitSec: 60, // TODO
     };
   }
 

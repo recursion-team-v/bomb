@@ -40,11 +40,6 @@ export default class GameHeader extends Phaser.Scene {
     this.player = getGameScene().getCurrentPlayer();
 
     this.startTimer = false;
-    this.textTimer = this.createText(
-      0,
-      5,
-      convertSecondsToMMSS(Constants.TIME_LIMIT_SEC - Constants.GAME_PREPARING_TIME - 1)
-    );
     this.textHp = this.createText(150, 5, `HP:${this.player.getHP()}`);
     this.textBombCount = this.createText(350, 5, `×${this.player.getItemCountOfBombCount()}`);
     this.textBombStrength = this.createText(500, 5, `×${this.player.getItemCountOfBombStrength()}`);
@@ -75,7 +70,15 @@ export default class GameHeader extends Phaser.Scene {
     if (network == null) return;
     this.network = data.network;
     this.serverTimer = serverTimer;
-
+    this.textTimer = this.createText(
+      0,
+      5,
+      convertSecondsToMMSS(
+        (this.serverTimer.finishedAt - this.serverTimer.startedAt) / 1000 -
+          Constants.GAME_PREPARING_TIME -
+          1
+      )
+    );
     gameEvents.on(Event.GAME_PREPARING_COMPLETED, () => (this.startTimer = true));
   }
 

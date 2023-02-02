@@ -9,12 +9,14 @@ export default class GameMap extends Schema {
   @type('number')
   cols: number;
 
+  numberOfBlocks: number;
   blockArr: number[]; // 箱（破壊可能）
 
-  constructor() {
+  constructor(row: number, col: number, blockRate: Constants.ROOM_INFO_BLOCK_PLACEMENT_RATES) {
     super();
-    this.rows = Constants.DEFAULT_TILE_ROWS;
-    this.cols = Constants.DEFAULT_TILE_COLS;
+    this.rows = row;
+    this.cols = col;
+    this.numberOfBlocks = (row - 2) * (col - 2) * blockRate;
     this.blockArr = [];
   }
 
@@ -52,7 +54,7 @@ export default class GameMap extends Schema {
 
     blockPlacements.sort(() => Math.random() - 0.5);
 
-    let maxBlocks = Constants.MAX_BLOCKS;
+    let maxBlocks = this.numberOfBlocks;
     for (const coords of blockPlacements) {
       if (maxBlocks <= 0) break;
       const x = coords[0];
