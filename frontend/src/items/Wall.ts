@@ -5,7 +5,7 @@ import { getDepth } from './util';
 
 export class InnerWall extends Phaser.Physics.Matter.Sprite {
   constructor(world: Phaser.Physics.Matter.World, x: number, y: number, texture: string) {
-    super(world, x, y, texture, 0);
+    super(world, x, y, Constants.OBJECT_LABEL.BLOCK, 0);
 
     this.setScale(1, 0.9);
     const random = Phaser.Math.Between(0, 10);
@@ -37,11 +37,13 @@ export class OuterWall extends Phaser.Physics.Matter.Sprite {
 
 export class DropWall extends Phaser.Physics.Matter.Sprite {
   constructor(world: Phaser.Physics.Matter.World, x: number, y: number, frame: number) {
-    super(world, x, y, Constants.OBJECT_LABEL.WALL, frame, {
+    // FIXME: 暫定対応、良さげなアセットにするまでブロックを灰色にして落とします
+    super(world, x, y, Constants.OBJECT_LABEL.BLOCK, 0, {
       isStatic: true,
       isSensor: true,
     });
 
+    this.tint = Constants.GRAY;
     const body = this.body as MatterJS.BodyType;
     body.label = Constants.OBJECT_LABEL.DROP_WALL;
     this.setDepth(getDepth(body.label as Constants.OBJECT_LABELS));
