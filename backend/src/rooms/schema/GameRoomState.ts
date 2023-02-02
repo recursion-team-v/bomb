@@ -2,6 +2,7 @@ import { MapSchema, Schema, type } from '@colyseus/schema';
 import { faker } from '@faker-js/faker';
 
 import * as Constants from '../../constants/constants';
+import { IGameSettings } from '../../types/gameRoom';
 import GameQueue from '../../utils/gameQueue';
 import { PixelToTile } from '../../utils/map';
 import { generateGameResult } from '../GameResultHandler';
@@ -9,14 +10,18 @@ import Blast from './Blast';
 import Block from './Block';
 import { Bomb } from './Bomb';
 import Enemy from './Enemy';
+import GameMap from './GameMap';
 import GameResult from './GameResult';
 import GameState from './GameState';
 import Item from './Item';
-import GameMap from './GameMap';
 import Player from './Player';
+import Room from './Room';
 import Timer from './Timer';
 
 export default class GameRoomState extends Schema {
+  @type(Room)
+  room!: Room;
+
   @type(GameState)
   gameState: GameState = new GameState();
 
@@ -44,7 +49,23 @@ export default class GameRoomState extends Schema {
 
   readonly enemies: Enemy[] = [];
 
-  @type(GameMap) gameMap = new GameMap();
+  @type(GameMap) gameMap!: GameMap;
+
+  initializeRoom(config: IGameSettings) {
+    this.room = new Room(
+      config.mapRows,
+      config.mapCols,
+      config.numberOfPlayers,
+      config.numberOfCpu,
+      config.blockRate,
+      config.numberOfItems,
+      config.initialHp,
+      config.maxHp,
+      config.timeLimit
+    );
+
+    this.gameMap = new GameMap(this.room.mapRows, this.room.mapCols, this.room.blockRate);
+  }
 
   getPlayer(sessionId: string): Player | undefined {
     return this.players.get(sessionId);

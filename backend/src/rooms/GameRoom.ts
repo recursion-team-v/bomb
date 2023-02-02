@@ -1,15 +1,11 @@
 import { Client, Room } from 'colyseus';
 import Matter from 'matter-js';
+
 import { IS_BACKEND_DEBUG } from '..';
 import * as Constants from '../constants/constants';
 import dropWalls from '../game_engine/services/dropWallService';
 import PlacementObjectInterface from '../interfaces/placement_object';
-import {
-  ISerializedGameData,
-  IGameSettings,
-  IGameStartInfo,
-  IRoomCreateData,
-} from '../types/gameRoom';
+import { IGameSettings, IGameStartInfo, IRoomCreateData, ISerializedGameData } from '../types/gameRoom';
 import GameQueue from '../utils/gameQueue';
 import GameEngine from './GameEngine';
 import Block from './schema/Block';
@@ -52,8 +48,12 @@ export default class GameRoom extends Room<GameRoomState> {
         let isLobbyReady = true;
         this.state.players.forEach((player) => (isLobbyReady = isLobbyReady && player.isReady()));
         if (isLobbyReady) {
-          // 全クライアントの準備が完了している場合 Matter エンジンにマップ・プレイヤーを追加してゲームデータを送る
-          this.engine.mapService.addMapToWorld(gameSettings.mapRows, gameSettings.mapCols);
+          // room に設定を反映
+          gameSettings.numberOfPlayers = this.state.players.size;
+          this.state.initializeRoom(gameSettings);
+
+          // 全クライアントの準備が完了している場合 Matter エンジンにマップ・プレイヤーを追加してゲームデータを送ž
+          this.engine.mapService.addMapToWorld(this.state.room.mapRows, this.state.room.mapCols);
           this.state.players.forEach((player) => {
             this.engine.playerService.addPlayerToWorld(player);
           });
@@ -236,7 +236,7 @@ export default class GameRoom extends Room<GameRoomState> {
 
   // CPU を追加する
   private addEnemy() {
-    const enemyCount = Constants.MAX_PLAYER - this.state.getPlayersCount();
+    const enemyCount = this.state.room.numberOfCpu;
 
     for (let i = 0; i < enemyCount; i++) {
       const enemy = this.engine.enemyService.addEnemy(`enemy-${i}`);

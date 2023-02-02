@@ -1,4 +1,5 @@
 import { Schema, type } from '@colyseus/schema';
+
 import * as Constants from '../../constants/constants';
 
 export default class Room extends Schema {
@@ -11,7 +12,6 @@ export default class Room extends Schema {
   mapCols: number;
 
   // CPUの数
-  @type('string')
   numberOfCpu: number;
 
   // ブロックの生成率
