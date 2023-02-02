@@ -133,6 +133,9 @@ export const DEFAULT_TIP_SIZE = 64; // デフォルトのチップサイズ
 // マップの設定
 export const DEFAULT_TILE_ROWS = 13; // タイルの行数
 export const DEFAULT_TILE_COLS = 15; // タイルの列数
+export const LIMIT_TILE_ROWS = 13; // タイルの行数
+export const LIMIT_TILE_COLS = 15; // タイルの列数
+
 export const TILE_WIDTH = DEFAULT_TIP_SIZE; // タイルの横幅
 export const TILE_HEIGHT = DEFAULT_TIP_SIZE; // タイルの縦幅
 export const MAX_BLOCKS = 100;
@@ -166,6 +169,23 @@ export const PLAYER_HEIGHT = DEFAULT_TIP_SIZE; // プレイヤーの縦幅
 
 // character スプライト key
 export const CHARACTERS = ['cat', 'wolf', 'bunny', 'pig'];
+
+/*
+ルームの定義
+*/
+
+// ブロックの配置率
+export const ROOM_INFO_BLOCK_PLACEMENT_RATE = {
+  0: 0,
+  50: 0.5,
+  75: 0.75,
+  100: 1,
+};
+
+export const ROOM_INFO_DEFAULT_BLOCK_PLACEMENT_RATE = ROOM_INFO_BLOCK_PLACEMENT_RATE[75];
+
+export type ROOM_INFO_BLOCK_PLACEMENT_RATES =
+  typeof ROOM_INFO_BLOCK_PLACEMENT_RATE[keyof typeof ROOM_INFO_BLOCK_PLACEMENT_RATE];
 
 /*
 敵の定義
@@ -255,6 +275,9 @@ export const INITIAL_PLAYER_HP = 1;
 // プレイヤーの最大HP
 export const MAX_PLAYER_HP = 3;
 
+// このゲームで設定できるプレイヤーの最大HP
+export const LIMIT_PLAYER_HP = 10;
+
 // 初期に設置できる爆弾の数
 export const INITIAL_SETTABLE_BOMB_COUNT = 1;
 
@@ -312,7 +335,22 @@ export const PLAYER_TOLERANCE_DISTANCE = 100;
 
 // ゲームの制限時間
 export const GAME_PREPARING_TIME = 5; // ゲーム開始演出の時間
-export const TIME_LIMIT_SEC = 121 + GAME_PREPARING_TIME; // (+1秒するといい感じに表示される)
+export const TIME_LIMIT_SEC = 120 + 1 + GAME_PREPARING_TIME; // (+1秒するといい感じに表示される)
+
+// ルームの制限時間の定義
+export const ROOM_INFO_TIME_LIMIT_SEC = {
+  1: 60 + 1 + GAME_PREPARING_TIME,
+  2: 120 + 1 + GAME_PREPARING_TIME,
+  3: 180 + 1 + GAME_PREPARING_TIME,
+  4: 240 + 1 + GAME_PREPARING_TIME,
+  5: 300 + 1 + GAME_PREPARING_TIME,
+};
+
+export type ROOM_INFO_TIME_LIMIT_SEC_TYPES =
+  typeof ROOM_INFO_TIME_LIMIT_SEC[keyof typeof ROOM_INFO_TIME_LIMIT_SEC];
+
+// デフォルトのルームの制限時間
+export const ROOM_INFO_DEFAULT_TIME_LIMIT_SEC = ROOM_INFO_TIME_LIMIT_SEC[2];
 
 /*
 アイテムの定義
@@ -356,6 +394,9 @@ export const ITEM_PLACE_COUNT = {
   [ITEM_TYPE.PENETRATION_BOMB]: 0,
   [ITEM_TYPE.PLAYER_SPEED]: 8,
 };
+
+// 各アイテムを配置する最大数
+export const ITEM_PLACE_MAX_COUNT_PER_ITEM = 99;
 
 /*
 衝突判定のカテゴリ
