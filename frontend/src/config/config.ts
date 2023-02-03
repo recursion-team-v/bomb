@@ -69,6 +69,6 @@ export const SOUND_VOLUME = 0.2;
 
 // 雲関連
 export const ENABLE_CLOUD = true; // 雲を表示するかどうか
-export const CLOUD_FREQUENCY = 500; // 雲を表示する頻度 数字を大きくすると頻度が下がる
+export const CLOUD_FREQUENCY = 10000; // 雲を表示する頻度(ms)
 export const CLOUD_SCALE_MIN = 3; // 雲の最小サイズ
 export const CLOUD_SCALE_MAX = 5; // 雲の最大サイズ

@@ -55,6 +55,7 @@ export default class Game extends Phaser.Scene {
   private rows!: number; // サーバから受け取ったマップの行数
   private cols!: number; // サーバから受け取ったマップの列数
   private elapsedTime: number = 0; // 経過時間
+  private cloudElapsedTime: number = 0; // 雲の経過時間
   private readonly fixedTimeStep: number = Constants.FRAME_RATE; // 1フレームの経過時間
 
   private myPlayer!: MyPlayer; // 操作しているプレイヤーオブジェクト
@@ -186,8 +187,11 @@ export default class Game extends Phaser.Scene {
     this.timeEventHandler();
 
     // 雲の生成
-    if (Config.ENABLE_CLOUD && Math.floor(Math.random() * Config.CLOUD_FREQUENCY) === 1)
+    this.cloudElapsedTime += delta;
+    if (Config.ENABLE_CLOUD && this.cloudElapsedTime >= Config.CLOUD_FREQUENCY) {
       addCloud(this);
+      this.cloudElapsedTime = 0;
+    }
 
     // 前回の処理からの経過時間を算出し、1フレームの経過時間を超えていたら処理を実行する
     // https://learn.colyseus.io/phaser/4-fixed-tickrate.html

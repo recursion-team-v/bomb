@@ -7,25 +7,21 @@ export function addCloud(scene: Phaser.Scene) {
     Config.CLOUD_SCALE_MIN;
   const cloudFlipX = Math.random() > 0.5;
   const cloud = scene.add
-    .container(
-      scene.scale.width + 200,
-      Constants.HEADER_HEIGHT + scene.scale.height * Math.random(),
-      [
-        scene.add
-          .image(0, 0, 'cloud')
-          .setScale(cloudScale)
-          .setOrigin(0, 0)
-          .setFlipX(cloudFlipX)
-          .setAlpha(0.95),
-        scene.add
-          .image(0, 400, 'cloud')
-          .setTintFill(Constants.LIGHT_GRAY)
-          .setScale(cloudScale)
-          .setAlpha(0.5)
-          .setFlipX(cloudFlipX)
-          .setOrigin(0, 0),
-      ]
-    )
+    .container(scene.scale.width + 200, scene.scale.height * (Math.random() - 0.2), [
+      scene.add
+        .image(0, 0, 'cloud')
+        .setScale(cloudScale)
+        .setOrigin(0, 0)
+        .setFlipX(cloudFlipX)
+        .setAlpha(0.95),
+      scene.add
+        .image(0, 400, 'cloud')
+        .setTintFill(Constants.LIGHT_GRAY)
+        .setScale(cloudScale)
+        .setAlpha(0.5)
+        .setFlipX(cloudFlipX)
+        .setOrigin(0, 0),
+    ])
     .setDepth(500);
 
   scene.tweens.add({
