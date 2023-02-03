@@ -37,6 +37,7 @@ export default class GameHeader extends Phaser.Scene {
 
   init() {
     this.cameras.main.setSize(this.width, this.height);
+    this.cameras.main.setBackgroundColor(0x18181b);
     this.player = getGameScene().getCurrentPlayer();
 
     this.startTimer = false;
