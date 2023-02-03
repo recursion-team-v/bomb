@@ -16,8 +16,8 @@ export default class ItemService {
     const itemBody = Matter.Bodies.rectangle(
       item.x,
       item.y,
-      Constants.TILE_WIDTH * 0.675,
-      Constants.TILE_HEIGHT * 0.675,
+      Constants.TILE_WIDTH * 0.8,
+      Constants.TILE_HEIGHT * 0.8,
       {
         label: Constants.OBJECT_LABEL.ITEM,
         isSensor: true,
