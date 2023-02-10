@@ -1,6 +1,6 @@
 # Bom Bom Panic
 
-![image](image/game_title.png)  
+![image](image/game_title.png)
 
 ![image](image/play_movie.gif)
 
