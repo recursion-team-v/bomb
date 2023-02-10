@@ -1,10 +1,16 @@
 # Bom Bom Panic
 
-![image](image/game_title.png)
-
-![image](image/play_movie.gif)
+オンラインでマルチプレイ対戦可能なフリーゲーム **「ボムボムパニック」** のコードです。
+プレイはこちらから。
 
 - [ボムボムパニック](https://bombompanic.vercel.app/)
+
+![image](image/game_title.png)
+
+爆弾を置いて、敵を倒し、最後まで生き残ろう！
+
+## プレイ動画
+![image](image/play_movie.gif)
 
 ## 使用技術
 
