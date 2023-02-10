@@ -1,8 +1,10 @@
 # Bom Bom Panic
 
-[ボムボムパニック](https://bombompanic.vercel.app/)
+![image](image/game_title.png)  
 
-TODO: gif などを入れたい
+![image](image/play_movie.gif)
+
+- [ボムボムパニック](https://bombompanic.vercel.app/)
 
 ## 使用技術
 
