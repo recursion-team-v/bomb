@@ -1,12 +1,12 @@
 steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker:latest'
-    args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/bomb:$COMMIT_SHA', '.']
+    args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/bomb/bomb:$COMMIT_SHA', '.']
     dir: 'backend'
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker:latest'
-    args: ['push', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/bomb:$COMMIT_SHA']
+    args: ['push', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/bomb/bomb:$COMMIT_SHA']
 
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:cloudbuild_cache'
@@ -16,7 +16,7 @@ steps:
       - 'deploy'
       - 'bomb'
       - '--image'
-      - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/bomb:$COMMIT_SHA'
+      - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/bomb/bomb:$COMMIT_SHA'
       - '--region'
       - 'asia-northeast1'
       - '--allow-unauthenticated'
@@ -37,4 +37,4 @@ steps:
       - '-keep'
       - '2'
       - '-repo'
-      - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/bomb'
+      - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/bomb/bomb'
