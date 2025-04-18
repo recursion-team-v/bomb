@@ -38,3 +38,5 @@ steps:
       - '2'
       - '-repo'
       - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/bomb/bomb'
+options:
+  logging: CLOUD_LOGGING_ONLY
