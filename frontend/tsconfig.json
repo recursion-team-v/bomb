@@ -23,6 +23,7 @@
     ],
     "types": ["phaser"]
   },
-  "include": ["src"],
+  "include": ["src/**/*"],
+  "exclude": ["../backend/**/*", "node_modules"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

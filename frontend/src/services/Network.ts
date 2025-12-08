@@ -125,11 +125,11 @@ export default class Network {
       gameEvents.emit(Event.BLAST_REMOVED, data);
     };
 
-    this.room.state.gameState.onChange = (data: any) => {
+    (this.room.state.gameState as any).onChange = (data: any) => {
       gameEvents.emit(Event.GAME_STATE_UPDATED, data);
     };
 
-    this.room.state.gameResult.onChange = (data: any) => {
+    (this.room.state.gameResult as any).onChange = (data: any) => {
       gameEvents.emit(Event.GAME_RESULT_RECEIVED, data);
     };
 

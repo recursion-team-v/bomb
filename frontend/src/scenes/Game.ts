@@ -273,7 +273,7 @@ export default class Game extends Phaser.Scene {
   }
 
   private addPlayers() {
-    this.room.state.players.forEach((player: ServerPlayer, sessionId) => {
+    this.room.state.players.forEach((player: ServerPlayer, sessionId: string) => {
       if (sessionId === this.network.mySessionId) {
         this.addMyPlayer(); // 自分を追加
       } else if (player.isCPU) {
@@ -296,7 +296,7 @@ export default class Game extends Phaser.Scene {
       player.name
     );
     this.myPlayer = myPlayer;
-    player.onChange = () => {
+    (player as any).onChange = () => {
       this.myPlayer.handleServerChange(player);
     };
   }
@@ -312,7 +312,7 @@ export default class Game extends Phaser.Scene {
     );
     this.otherPlayers.set(sessionId, otherPlayer);
 
-    player.onChange = () => {
+    (player as any).onChange = () => {
       otherPlayer.handleServerChange(player);
     };
   }
@@ -328,7 +328,7 @@ export default class Game extends Phaser.Scene {
     );
     this.otherPlayers.set(sessionId, enemyPlayer);
 
-    player.onChange = () => {
+    (player as any).onChange = () => {
       enemyPlayer.handleServerChange(player);
     };
   }

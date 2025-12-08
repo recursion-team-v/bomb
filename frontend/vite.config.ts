@@ -8,4 +8,12 @@ export default defineConfig({
   // ogp の画像を vite がコンパイルしたものに書き換えてくれないので、
   // public を直接参照できるようにする
   publicDir: 'public',
+  build: {
+    rollupOptions: {
+      external: (id) => {
+        // backendディレクトリを外部モジュールとして扱う
+        return id.includes('../backend/') || id.includes('../../backend/');
+      },
+    },
+  },
 });
